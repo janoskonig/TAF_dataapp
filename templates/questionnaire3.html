@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PREDICT II. mérése</title>
+    <style>
+        /* body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        label, input, select {
+            display: block;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 15px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .radio-group label {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            width: auto;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        } */
+    </style>
+    <script>
+        function formatTAJ(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+            if (value.length > 6) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 9);
+            } else if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6);
+            }
+            input.value = value;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>PREDICT STUDY</h1>
+        <h2>II.</h2>
+        <h2>Második felmérés a fogsor elkészülte <b>után</b></h2>
+        <form action="/submit_questionnaire3" method="post">
+            <label for="TAJ">TAJ:</label>
+            <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
+
+            <!-- <h3>Hogyan jellemezné a rágóképességét a mai napon?</h3>
+            <div class="radio-group">
+                <input type="radio" id="today_situation_kivalo" name="today_situation_recall" value="Kiváló" required checked>
+                <label for="today_situation_kivalo">Kiváló</label>
+                <input type="radio" id="today_situation_jo" name="today_situation_recall" value="Jó">
+                <label for="today_situation_jo">Jó</label>
+                <input type="radio" id="today_situation_atlagos" name="today_situation_recall" value="Átlagos">
+                <label for="today_situation_atlagos">Átlagos</label>
+                <input type="radio" id="today_situation_rossz" name="today_situation_recall" value="Rossz">
+                <label for="today_situation_rossz">Rossz</label>
+                <input type="radio" id="today_situation_nagyon_rossz" name="today_situation_recall" value="Nagyon rossz">
+                <label for="today_situation_nagyon_rossz">Nagyon rossz</label>
+            </div> -->
+
+            <h3>Hogyan értékelné rágóképességének változását a klinikánkon történt legutóbbi kezeléssorozat megkezdése óta?</h3>
+            <div class="radio-group">
+                <input type="radio" id="change_sokat_romlott" name="change" value="Sokat romlott" required checked>
+                <label for="change_sokat_romlott">Sokat romlott</label>
+                <input type="radio" id="change_kicsit_romlott" name="change" value="Kicsit romlott">
+                <label for="change_kicsit_romlott">Kicsit romlott</label>
+                <input type="radio" id="change_valtozatlan" name="change" value="Változatlan maradt">
+                <label for="change_valtozatlan">Változatlan maradt</label>
+                <input type="radio" id="change_kicsit_javult" name="change" value="Kicsit javult">
+                <label for="change_kicsit_javult">Kicsit javult</label>
+                <input type="radio" id="change_sokat_javult" name="change" value="Sokat javult">
+                <label for="change_sokat_javult">Sokat javult</label>
+            </div>
+
+            <h3>MFIQ (Mandibular Function Impairment Questionnaire)</h3>
+            
+            <h4>Milyen nehézségei vannak az állkapcsával:</h4>
+
+            <label for="MFIQ_1">1. szociális környezetben?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_1_0" name="MFIQ_1" value="0" required checked>
+                <label for="MFIQ_1_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_1_1" name="MFIQ_1" value="1">
+                <label for="MFIQ_1_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_1_2" name="MFIQ_1" value="2">
+                <label for="MFIQ_1_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_1_3" name="MFIQ_1" value="3">
+                <label for="MFIQ_1_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_1_4" name="MFIQ_1" value="4">
+                <label for="MFIQ_1_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_2">2. beszéd közben?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_2_0" name="MFIQ_2" value="0" required checked>
+                <label for="MFIQ_2_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_2_1" name="MFIQ_2" value="1">
+                <label for="MFIQ_2_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_2_2" name="MFIQ_2" value="2">
+                <label for="MFIQ_2_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_2_3" name="MFIQ_2" value="3">
+                <label for="MFIQ_2_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_2_4" name="MFIQ_2" value="4">
+                <label for="MFIQ_2_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_3">3. nagy harapáskor?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_3_0" name="MFIQ_3" value="0" required checked>
+                <label for="MFIQ_3_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_3_1" name="MFIQ_3" value="1">
+                <label for="MFIQ_3_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_3_2" name="MFIQ_3" value="2">
+                <label for="MFIQ_3_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_3_3" name="MFIQ_3" value="3">
+                <label for="MFIQ_3_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_3_4" name="MFIQ_3" value="4">
+                <label for="MFIQ_3_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_4">4. kemény ételek rágásakor?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_4_0" name="MFIQ_4" value="0" required checked>
+                <label for="MFIQ_4_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_4_1" name="MFIQ_4" value="1">
+                <label for="MFIQ_4_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_4_2" name="MFIQ_4" value="2">
+                <label for="MFIQ_4_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_4_3" name="MFIQ_4" value="3">
+                <label for="MFIQ_4_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_4_4" name="MFIQ_4" value="4">
+                <label for="MFIQ_4_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_5">5. puha ételek rágásakor?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_5_0" name="MFIQ_5" value="0" required checked>
+                <label for="MFIQ_5_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_5_1" name="MFIQ_5" value="1">
+                <label for="MFIQ_5_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_5_2" name="MFIQ_5" value="2">
+                <label for="MFIQ_5_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_5_3" name="MFIQ_5" value="3">
+                <label for="MFIQ_5_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_5_4" name="MFIQ_5" value="4">
+                <label for="MFIQ_5_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_6">6. munka vagy más napi teendők végzése közben?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_6_0" name="MFIQ_6" value="0" required checked>
+                <label for="MFIQ_6_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_6_1" name="MFIQ_6" value="1">
+                <label for="MFIQ_6_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_6_2" name="MFIQ_6" value="2">
+                <label for="MFIQ_6_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_6_3" name="MFIQ_6" value="3">
+                <label for="MFIQ_6_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_6_4" name="MFIQ_6" value="4">
+                <label for="MFIQ_6_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_7">7. iváskor?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_7_0" name="MFIQ_7" value="0" required checked>
+                <label for="MFIQ_7_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_7_1" name="MFIQ_7" value="1">
+                <label for="MFIQ_7_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_7_2" name="MFIQ_7" value="2">
+                <label for="MFIQ_7_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_7_3" name="MFIQ_7" value="3">
+                <label for="MFIQ_7_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_7_4" name="MFIQ_7" value="4">
+                <label for="MFIQ_7_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_8">8. nevetéskor?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_8_0" name="MFIQ_8" value="0" required checked>
+                <label for="MFIQ_8_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_8_1" name="MFIQ_8" value="1">
+                <label for="MFIQ_8_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_8_2" name="MFIQ_8" value="2">
+                <label for="MFIQ_8_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_8_3" name="MFIQ_8" value="3">
+                <label for="MFIQ_8_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_8_4" name="MFIQ_8" value="4">
+                <label for="MFIQ_8_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_9">9. ellenálló ételek evése közben?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_9_0" name="MFIQ_9" value="1" required checked>
+                <label for="MFIQ_9_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_9_1" name="MFIQ_9" value="2">
+                <label for="MFIQ_9_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_9_2" name="MFIQ_9" value="2">
+                <label for="MFIQ_9_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_9_3" name="MFIQ_9" value="3">
+                <label for="MFIQ_9_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_9_4" name="MFIQ_9" value="4">
+                <label for="MFIQ_9_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_10">10. ásításkor?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_10_0" name="MFIQ_10" value="0" required checked>
+                <label for="MFIQ_10_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_10_1" name="MFIQ_10" value="1">
+                <label for="MFIQ_10_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_10_2" name="MFIQ_10" value="2">
+                <label for="MFIQ_10_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_10_3" name="MFIQ_10" value="3">
+                <label for="MFIQ_10_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_10_4" name="MFIQ_10" value="4">
+                <label for="MFIQ_10_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_11">11. csókolózáskor?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_11_0" name="MFIQ_11" value="0" required checked>
+                <label for="MFIQ_11_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_11_1" name="MFIQ_11" value="1">
+                <label for="MFIQ_11_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_11_2" name="MFIQ_11" value="2">
+                <label for="MFIQ_11_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_11_3" name="MFIQ_11" value="3">
+                <label for="MFIQ_11_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_11_4" name="MFIQ_11" value="4">
+                <label for="MFIQ_11_4">nagyon sok nehézség</label>
+            </div>
+
+            <h4>Milyen nehézségei vannak az állkapcsával a következők elfogyasztáskor:</h4>
+
+            <label for="MFIQ_12">12. kemény sütemény?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_12_0" name="MFIQ_12" value="0" required checked>
+                <label for="MFIQ_12_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_12_1" name="MFIQ_12" value="1">
+                <label for="MFIQ_12_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_12_2" name="MFIQ_12" value="2">
+                <label for="MFIQ_12_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_12_3" name="MFIQ_12" value="3">
+                <label for="MFIQ_12_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_12_4" name="MFIQ_12" value="4">
+                <label for="MFIQ_12_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_13">13. hús (sertés vagy marha)?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_13_0" name="MFIQ_13" value="0" required checked>
+                <label for="MFIQ_13_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_13_1" name="MFIQ_13" value="1">
+                <label for="MFIQ_13_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_13_2" name="MFIQ_13" value="2">
+                <label for="MFIQ_13_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_13_3" name="MFIQ_13" value="3">
+                <label for="MFIQ_13_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_13_4" name="MFIQ_13" value="4">
+                <label for="MFIQ_13_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_14">14. nyers répa egyben?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_14_0" name="MFIQ_14" value="0" required checked>
+                <label for="MFIQ_14_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_14_1" name="MFIQ_14" value="1">
+                <label for="MFIQ_14_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_14_2" name="MFIQ_14" value="2">
+                <label for="MFIQ_14_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_14_3" name="MFIQ_14" value="3">
+                <label for="MFIQ_14_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_14_4" name="MFIQ_14" value="4">
+                <label for="MFIQ_14_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_15">15. fehér kenyér?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_15_0" name="MFIQ_15" value="0" required checked>
+                <label for="MFIQ_15_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_15_1" name="MFIQ_15" value="1">
+                <label for="MFIQ_15_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_15_2" name="MFIQ_15" value="2">
+                <label for="MFIQ_15_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_15_3" name="MFIQ_15" value="3">
+                <label for="MFIQ_15_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_15_4" name="MFIQ_15" value="4">
+                <label for="MFIQ_15_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_16">16. mogyoró vagy mandula?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_16_0" name="MFIQ_16" value="0" required checked>
+                <label for="MFIQ_16_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_16_1" name="MFIQ_16" value="1">
+                <label for="MFIQ_16_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_16_2" name="MFIQ_16" value="2">
+                <label for="MFIQ_16_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_16_3" name="MFIQ_16" value="3">
+                <label for="MFIQ_16_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_16_4" name="MFIQ_16" value="4">
+                <label for="MFIQ_16_4">nagyon sok nehézség</label>
+            </div>
+
+            <label for="MFIQ_17">17. alma egyben (nem felkockázva)?</label>
+            <div class="radio-group">
+                <input type="radio" id="MFIQ_17_0" name="MFIQ_17" value="0" required checked>
+                <label for="MFIQ_17_0">nincs nehézség</label>
+                <input type="radio" id="MFIQ_17_1" name="MFIQ_17" value="1">
+                <label for="MFIQ_17_1">egy kis nehézség</label>
+                <input type="radio" id="MFIQ_17_2" name="MFIQ_17" value="2">
+                <label for="MFIQ_17_2">elég sok nehézség</label>
+                <input type="radio" id="MFIQ_17_3" name="MFIQ_17" value="3">
+                <label for="MFIQ_17_3">sok nehézség</label>
+                <input type="radio" id="MFIQ_17_4" name="MFIQ_17" value="4">
+                <label for="MFIQ_17_4">nagyon sok nehézség</label>
+            </div>
+
+
+            <h3>OHIP (Oral Health Impact Profile) kérdések</h3>
+
+            <label for="OHIP_1_recall">Volt-e rágással kapcsolatos nehézsége a fogak, a száj, vagy a protézis problémája miatt?</label>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_1_recall_nagyon_gyakran" name="OHIP_1_recall" value="4" required checked>
+                <label for="OHIP_1_recall_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_1_recall_gyakran" name="OHIP_1_recall" value="3">
+                <label for="OHIP_1_recall_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_1_recall_neha" name="OHIP_1_recall" value="2">
+                <label for="OHIP_1_recall_neha">Néha</label>
+                <input type="radio" id="OHIP_1_recall_ritkan" name="OHIP_1_recall" value="1">
+                <label for="OHIP_1_recall_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_1_recall_soha" name="OHIP_1_recall" value="0">
+                <label for="OHIP_1_recall_soha">Soha</label>
+            </div>
+
+            <label for="OHIP_2_recall">Érzett-e fokozott fájdalmat a szájában?</label>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_2_recall_nagyon_gyakran" name="OHIP_2_recall" value="4" required checked>
+                <label for="OHIP_2_recall_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_2_recall_gyakran" name="OHIP_2_recall" value="3">
+                <label for="OHIP_2_recall_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_2_recall_neha" name="OHIP_2_recall" value="2">
+                <label for="OHIP_2_recall_neha">Néha</label>
+                <input type="radio" id="OHIP_2_recall_ritkan" name="OHIP_2_recall" value="1">
+                <label for="OHIP_2_recall_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_2_recall_soha" name="OHIP_2_recall" value="0">
+                <label for="OHIP_2_recall_soha">Soha</label>
+            </div>
+
+            <label for="OHIP_3_recall">Érezte magát kényelmetlenül a fogak, a száj, vagy a protézis megjelenése miatt?</label>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_3_recall_nagyon_gyakran" name="OHIP_3_recall" value="4" required checked>
+                <label for="OHIP_3_recall_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_3_recall_gyakran" name="OHIP_3_recall" value="3">
+                <label for="OHIP_3_recall_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_3_recall_neha" name="OHIP_3_recall" value="2">
+                <label for="OHIP_3_recall_neha">Néha</label>
+                <input type="radio" id="OHIP_3_recall_ritkan" name="OHIP_3_recall" value="1">
+                <label for="OHIP_3_recall_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_3_recall_soha" name="OHIP_3_recall" value="0">
+                <label for="OHIP_3_recall_soha">Soha</label>
+            </div>
+
+            <label for="OHIP_4_recall">Kevésbé érzékelhető volt-e az étel íze a fogakkal, a szájjal vagy a protézissel kapcsolatos problémája miatt?</label>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_4_recall_nagyon_gyakran" name="OHIP_4_recall" value="4" required checked>
+                <label for="OHIP_4_recall_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_4_recall_gyakran" name="OHIP_4_recall" value="3">
+                <label for="OHIP_4_recall_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_4_recall_neha" name="OHIP_4_recall" value="2">
+                <label for="OHIP_4_recall_neha">Néha</label>
+                <input type="radio" id="OHIP_4_recall_ritkan" name="OHIP_4_recall" value="1">
+                <label for="OHIP_4_recall_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_4_recall_soha" name="OHIP_4_recall" value="0">
+                <label for="OHIP_4_recall_soha">Soha</label>
+            </div>
+
+            <label for="OHIP_5_recall">Voltak nehézségei a szokásos munkavégzésben a fogakkal, a szájjal vagy a protézissel kapcsolatos problémája miatt?</label>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_5_recall_nagyon_gyakran" name="OHIP_5_recall" value="4" required checked>
+                <label for="OHIP_5_recall_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_5_recall_gyakran" name="OHIP_5_recall" value="3">
+                <label for="OHIP_5_recall_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_5_recall_neha" name="OHIP_5_recall" value="2">
+                <label for="OHIP_5_recall_neha">Néha</label>
+                <input type="radio" id="OHIP_5_recall_ritkan" name="OHIP_5_recall" value="1">
+                <label for="OHIP_5_recall_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_5_recall_soha" name="OHIP_5_recall" value="0">
+                <label for="OHIP_5_recall_soha">Soha</label>
+            </div>
+
+            <h3>GOHAI (General Oral Health Assessment Index) kérdések</h3>
+
+            <label for="GOHAI_1_recall">… hogy a fogaival, fogpótlásával vagy műfogsorával kapcsolatos problémák miatt kevesebbet evett, vagy másfajta ételeket választott?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_1_recall_mindig" name="GOHAI_1_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_1_recall_gyakran" name="GOHAI_1_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_1_recall_neha" name="GOHAI_1_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_1_recall_ritkan" name="GOHAI_1_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_1_recall_soha" name="GOHAI_1_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_2_recall">… hogy nehézséget okozott valamilyen típusú étel harapása vagy rágása? (például rostos húsok vagy alma)</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_2_recall_mindig" name="GOHAI_2_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_2_recall_gyakran" name="GOHAI_2_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_2_recall_neha" name="GOHAI_2_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_2_recall_ritkan" name="GOHAI_2_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_2_recall_soha" name="GOHAI_2_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_3_recall">… hogy nehezen nyelt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_3_recall_mindig" name="GOHAI_3_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_3_recall_gyakran" name="GOHAI_3_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_3_recall_neha" name="GOHAI_3_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_3_recall_ritkan" name="GOHAI_3_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_3_recall_soha" name="GOHAI_3_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_4_recall">… hogy fogai, fogpótlása vagy műfogsora miatt nem tudta úgy kiejteni a szavakat, ahogy szeretné?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_4_recall_mindig" name="GOHAI_4_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_4_recall_gyakran" name="GOHAI_4_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_4_recall_neha" name="GOHAI_4_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_4_recall_ritkan" name="GOHAI_4_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_4_recall_soha" name="GOHAI_4_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_5_recall">… hogy kellemetlenséggel járt az evés?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_5_recall_mindig" name="GOHAI_5_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_5_recall_gyakran" name="GOHAI_5_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_5_recall_neha" name="GOHAI_5_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_5_recall_ritkan" name="GOHAI_5_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_5_recall_soha" name="GOHAI_5_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_6_recall">… hogy fogai, fogpótlása vagy műfogsora állapota miatt kevesebbet találkozott másokkal?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_6_recall_mindig" name="GOHAI_6_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_6_recall_gyakran" name="GOHAI_6_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_6_recall_neha" name="GOHAI_6_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_6_recall_ritkan" name="GOHAI_6_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_6_recall_soha" name="GOHAI_6_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_7_recall">… hogy elégedetlen volt fogai, ínye, fogpótlása vagy műfogsora kinézetével?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_7_recall_mindig" name="GOHAI_7_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_7_recall_gyakran" name="GOHAI_7_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_7_recall_neha" name="GOHAI_7_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_7_recall_ritkan" name="GOHAI_7_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_7_recall_soha" name="GOHAI_7_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_8_recall">… hogy a szájában vagy szája környékén érzett fájdalom vagy kellemetlenség enyhítésére gyógyszert használt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_8_recall_mindig" name="GOHAI_8_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_8_recall_gyakran" name="GOHAI_8_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_8_recall_neha" name="GOHAI_8_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_8_recall_ritkan" name="GOHAI_8_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_8_recall_soha" name="GOHAI_8_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_9_recall">… hogy aggódott a fogai, ínye, fogpótlása vagy műfogsora állapota miatt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_9_recall_mindig" name="GOHAI_9_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_9_recall_gyakran" name="GOHAI_9_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_9_recall_neha" name="GOHAI_9_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_9_recall_ritkan" name="GOHAI_9_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_9_recall_soha" name="GOHAI_9_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_10_recall">… hogy zavarba jött vagy kellemetlenül érezte magát fogai, ínye, fogpótlása vagy műfogsora állapota miatt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_10_recall_mindig" name="GOHAI_10_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_10_recall_gyakran" name="GOHAI_10_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_10_recall_neha" name="GOHAI_10_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_10_recall_ritkan" name="GOHAI_10_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_10_recall_soha" name="GOHAI_10_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_11_recall">… hogy fogai, fogpótlása vagy műfogsora miatt kellemetlennek érezte, hogy mások jelenlétében egyen?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_11_recall_mindig" name="GOHAI_11_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_11_recall_gyakran" name="GOHAI_11_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_11_recall_neha" name="GOHAI_11_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_11_recall_ritkan" name="GOHAI_11_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_11_recall_soha" name="GOHAI_11_recall" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_12_recall">… hogy fogai vagy ínye érzékenyek voltak melegre, hidegre vagy édesre?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_12_recall_mindig" name="GOHAI_12_recall" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_12_recall_gyakran" name="GOHAI_12_recall" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_12_recall_neha" name="GOHAI_12_recall" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_12_recall_ritkan" name="GOHAI_12_recall" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_12_recall_soha" name="GOHAI_12_recall" value="5"> soha</label>
+            </div>
+
+
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+</html>

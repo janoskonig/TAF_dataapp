@@ -1,0 +1,70 @@
+<!-- templates/welcome.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P.R.E.D.I.C.T. study (PRognostic Evaluation of EDentulousness: Inspecting CriTical anatomy) </title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .links a {
+            margin: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: 1px solid #4CAF50;
+        }
+        .links a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Hellóka</h1>
+        <h3>Ez a </h3>
+        <h2>P.R.E.D.I.C.T. study</h2> 
+        <h3>PRognostic Evaluation of EDentulousness: Inspecting CriTical anatomy</h3>
+        <h3>adatfelvivő webalkalmazása</h3>
+        <p>Válaszd ki, most épp mit szeretnél feltölteni!</p>
+        <p><b>Fontos:</b> ha nincs meg a TAJ-szám az adatbázisban, akkor a feltöltés nem fog működni! Csak az első stációnál lehet új TAJ-számot nyitni!</p>
+        
+        <div class="links">
+            <a href="/questionnaire1">1. Első felmérés kérdőíve</a>
+            <a href="{{ url_for('upload_init_mai') }}">2. Első MAI rágatás képének feltöltése</a>
+            <a href="/questionnaire2">3. A modellanalízis eredményei</a>
+            <a href="/questionnaire3">4. Második felmérés kérdőíve</a>
+            <a href="{{ url_for('upload_final_mai') }}">5. Második MAI rágatás képének feltöltése</a>
+        </div>
+        <div class="links">
+            <a href="/results">Eddigi eredmények</a> 
+        </div>
+    </div>
+</body>
+</html>

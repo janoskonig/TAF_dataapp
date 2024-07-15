@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PREDICT I. mérése</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            margin: 20px;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            border-color: #4CAF50;
+        }
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        .radio-group label {
+            margin-right: 15px;
+            color: #555;
+            font-weight: normal;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function formatTAJ(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+            if (value.length > 6) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 9);
+            } else if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6);
+            }
+            input.value = value;
+        }
+    </script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>PREDICT STUDY</h1>
+        <h2>I.</h2>
+        <h2>Első felmérés a fogsor elkészülte <b>előtt</b></h2>
+        <form action="/submit_questionnaire1" method="post">
+            <label for="TAJ">TAJ:</label>
+            <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
+            
+            <label for="birthdate">Születési idő:</label>
+            <input type="date" id="birthdate" name="birthdate" required>
+            
+            <label for="gender">Nem:</label>
+            <select id="gender" name="gender" required>
+                <option value="Male">férfi</option>
+                <option value="Female">nő</option>
+            </select>
+
+            <label for="denture_type">Milyen fogsort készítünk?:</label>
+            <select id="denture_type" name="denture_type" required>
+                <option value="Lower">csak alsót</option>
+                <option value="Upper">csak felsőt</option>
+                <option value="Both">felsőt és alsót is</option>
+            </select>
+
+            <h3>Hogyan jellemezné a rágóképességét a mai napon?</h3>
+            <div class="radio-group">
+                <input type="radio" id="today_situation_kivalo" name="today_situation" value="Kiváló" required checked>
+                <label for="today_situation_kivalo">Kiváló</label>
+                <input type="radio" id="today_situation_jo" name="today_situation" value="Jó">
+                <label for="today_situation_jo">Jó</label>
+                <input type="radio" id="today_situation_atlagos" name="today_situation" value="Átlagos">
+                <label for="today_situation_atlagos">Átlagos</label>
+                <input type="radio" id="today_situation_rossz" name="today_situation" value="Rossz">
+                <label for="today_situation_rossz">Rossz</label>
+                <input type="radio" id="today_situation_nagyon_rossz" name="today_situation" value="Nagyon rossz">
+                <label for="today_situation_nagyon_rossz">Nagyon rossz</label>
+            </div>
+            <h3>OHIP (Oral Health Impact Profile) kérdések</h3>
+            <label for="OHIP_1">Volt-e rágással kapcsolatos nehézsége a fogak, a száj, vagy a protézis problémája miatt?</label>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_1_nagyon_gyakran" name="OHIP_1" value="4" required checked>
+                <label for="OHIP_1_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_1_gyakran" name="OHIP_1" value="3">
+                <label for="OHIP_1_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_1_neha" name="OHIP_1" value="2">
+                <label for="OHIP_1_neha">Néha</label>
+                <input type="radio" id="OHIP_1_ritkan" name="OHIP_1" value="1">
+                <label for="OHIP_1_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_1_soha" name="OHIP_1" value="0">
+                <label for="OHIP_1_soha">Soha</label>
+            </div>
+
+            <label for="OHIP_2">Érzett-e fokozott fájdalmat a szájában?</label><br>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_2_nagyon_gyakran" name="OHIP_2" value="4" required checked>
+                <label for="OHIP_2_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_2_gyakran" name="OHIP_2" value="3">
+                <label for="OHIP_2_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_2_neha" name="OHIP_2" value="2">
+                <label for="OHIP_2_neha">Néha</label>
+                <input type="radio" id="OHIP_2_ritkan" name="OHIP_2" value="1">
+                <label for="OHIP_2_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_2_soha" name="OHIP_2" value="0">
+                <label for="OHIP_2_soha">Soha</label><br><br>
+            </div>
+
+            <label for="OHIP_3">Érezte magát kényelmetlenül a fogak, a száj, vagy a protézis megjelenése miatt?</label><br>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_3_nagyon_gyakran" name="OHIP_3" value="4" required checked>
+                <label for="OHIP_3_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_3_gyakran" name="OHIP_3" value="3">
+                <label for="OHIP_3_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_3_neha" name="OHIP_3" value="2">
+                <label for="OHIP_3_neha">Néha</label>
+                <input type="radio" id="OHIP_3_ritkan" name="OHIP_3" value="1">
+                <label for="OHIP_3_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_3_soha" name="OHIP_3" value="0">
+                <label for="OHIP_3_soha">Soha</label><br><br>
+            </div>
+
+            <label for="OHIP_4">Kevésbé érzékelhető volt-e az étel íze a fogakkal, a szájjal vagy a protézissel kapcsolatos problémája miatt?</label><br>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_4_nagyon_gyakran" name="OHIP_4" value="4" required checked>
+                <label for="OHIP_4_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_4_gyakran" name="OHIP_4" value="3">
+                <label for="OHIP_4_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_4_neha" name="OHIP_4" value="2">
+                <label for="OHIP_4_neha">Néha</label>
+                <input type="radio" id="OHIP_4_ritkan" name="OHIP_4" value="1">
+                <label for="OHIP_4_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_4_soha" name="OHIP_4" value="0">
+                <label for="OHIP_4_soha">Soha</label><br><br>
+            </div>
+
+            <label for="OHIP_5">Voltak nehézségei a szokásos munkavégzésben a fogakkal, a szájjal vagy a protézissel kapcsolatos problémája miatt?</label><br>
+            <div class="radio-group">
+                <input type="radio" id="OHIP_5_nagyon_gyakran" name="OHIP_5" value="4" required checked>
+                <label for="OHIP_5_nagyon_gyakran">Nagyon gyakran</label>
+                <input type="radio" id="OHIP_5_gyakran" name="OHIP_5" value="3">
+                <label for="OHIP_5_gyakran">Gyakran</label>
+                <input type="radio" id="OHIP_5_neha" name="OHIP_5" value="2">
+                <label for="OHIP_5_neha">Néha</label>
+                <input type="radio" id="OHIP_5_ritkan" name="OHIP_5" value="1">
+                <label for="OHIP_5_ritkan">Ritkán</label>
+                <input type="radio" id="OHIP_5_soha" name="OHIP_5" value="0">
+                <label for="OHIP_5_soha">Soha</label><br><br>
+            </div>
+            <h3>GOHAI (General Oral Health Assessment Index) kérdések</h3>
+            <h4>Milyen gyakran fordult elő az elmúlt 3 hónapban,</h4>
+
+            <label for="GOHAI_1">… hogy a fogaival, fogpótlásával vagy műfogsorával kapcsolatos problémák miatt kevesebbet evett, vagy másfajta ételeket választott?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_1_mindig" name="GOHAI_1" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_1_gyakran" name="GOHAI_1" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_1_neha" name="GOHAI_1" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_1_ritkan" name="GOHAI_1" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_1_soha" name="GOHAI_1" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_2">… hogy nehézséget okozott valamilyen típusú étel harapása vagy rágása? (például rostos húsok vagy alma)</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_2_mindig" name="GOHAI_2" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_2_gyakran" name="GOHAI_2" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_2_neha" name="GOHAI_2" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_2_ritkan" name="GOHAI_2" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_2_soha" name="GOHAI_2" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_3">… hogy nehezen nyelt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_3_mindig" name="GOHAI_3" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_3_gyakran" name="GOHAI_3" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_3_neha" name="GOHAI_3" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_3_ritkan" name="GOHAI_3" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_3_soha" name="GOHAI_3" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_4">… hogy fogai, fogpótlása vagy műfogsora miatt nem tudta úgy kiejteni a szavakat, ahogy szeretné?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_4_mindig" name="GOHAI_4" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_4_gyakran" name="GOHAI_4" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_4_neha" name="GOHAI_4" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_4_ritkan" name="GOHAI_4" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_4_soha" name="GOHAI_4" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_5">… hogy kellemetlenséggel járt az evés?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_5_mindig" name="GOHAI_5" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_5_gyakran" name="GOHAI_5" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_5_neha" name="GOHAI_5" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_5_ritkan" name="GOHAI_5" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_5_soha" name="GOHAI_5" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_6">… hogy fogai, fogpótlása vagy műfogsora állapota miatt kevesebbet találkozott másokkal?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_6_mindig" name="GOHAI_6" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_6_gyakran" name="GOHAI_6" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_6_neha" name="GOHAI_6" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_6_ritkan" name="GOHAI_6" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_6_soha" name="GOHAI_6" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_7">… hogy elégedetlen volt fogai, ínye, fogpótlása vagy műfogsora kinézetével?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_7_mindig" name="GOHAI_7" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_7_gyakran" name="GOHAI_7" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_7_neha" name="GOHAI_7" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_7_ritkan" name="GOHAI_7" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_7_soha" name="GOHAI_7" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_8">… hogy a szájában vagy szája környékén érzett fájdalom vagy kellemetlenség enyhítésére gyógyszert használt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_8_mindig" name="GOHAI_8" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_8_gyakran" name="GOHAI_8" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_8_neha" name="GOHAI_8" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_8_ritkan" name="GOHAI_8" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_8_soha" name="GOHAI_8" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_9">… hogy aggódott a fogai, ínye, fogpótlása vagy műfogsora állapota miatt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_9_mindig" name="GOHAI_9" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_9_gyakran" name="GOHAI_9" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_9_neha" name="GOHAI_9" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_9_ritkan" name="GOHAI_9" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_9_soha" name="GOHAI_9" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_10">… hogy zavarba jött vagy kellemetlenül érezte magát fogai, ínye, fogpótlása vagy műfogsora állapota miatt?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_10_mindig" name="GOHAI_10" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_10_gyakran" name="GOHAI_10" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_10_neha" name="GOHAI_10" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_10_ritkan" name="GOHAI_10" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_10_soha" name="GOHAI_10" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_11">… hogy fogai, fogpótlása vagy műfogsora miatt kellemetlennek érezte, hogy mások jelenlétében egyen?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_11_mindig" name="GOHAI_11" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_11_gyakran" name="GOHAI_11" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_11_neha" name="GOHAI_11" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_11_ritkan" name="GOHAI_11" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_11_soha" name="GOHAI_11" value="5"> soha</label>
+            </div>
+
+            <label for="GOHAI_12">… hogy fogai vagy ínye érzékenyek voltak melegre, hidegre vagy édesre?</label>
+            <div class="radio-group">
+                <label><input type="radio" id="GOHAI_12_mindig" name="GOHAI_12" value="1" required checked> mindig</label>
+                <label><input type="radio" id="GOHAI_12_gyakran" name="GOHAI_12" value="2"> gyakran</label>
+                <label><input type="radio" id="GOHAI_12_neha" name="GOHAI_12" value="3"> néha</label>
+                <label><input type="radio" id="GOHAI_12_ritkan" name="GOHAI_12" value="4"> ritkán</label>
+                <label><input type="radio" id="GOHAI_12_soha" name="GOHAI_12" value="5"> soha</label>
+            </div>
+
+
+         
+
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dental Patient Form</title>
+    
+</head>
+<body>
+    <h1>ELSŐ FELMÉRÉS A FOGSOR ELKÉSZÜLTE ELŐTT</h1>
+    <h2>Alapadatok</h2>
+    <form action="/submit" method="post">
+        <label for="TAJ">TAJ:</label><br>
+        <script>
+            function formatTAJ(input) {
+                let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+                if (value.length > 6) {
+                    value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 9);
+                } else if (value.length > 3) {
+                    value = value.slice(0, 3) + '-' + value.slice(3, 6);
+                }
+                input.value = value;
+            }
+        </script>
+        
+        <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required><br><br>
+        
+        
+        <label for="birthdate">Születési idő:</label><br>
+        <input type="date" id="birthdate" name="birthdate" required><br><br>
+        
+        <label for="gender">Nem:</label><br>
+        <select id="gender" name="gender" required>
+            <option value="Male">Férfi</option>
+            <option value="Female">Nő</option>
+        </select><br><br>
+        
+        <label for="denture_type">Milyen fogsor készül?:</label><br>
+        <select id="denture_type" name="denture_type" required>
+            <option value="Lower">csak alsó</option>
+            <option value="Upper">csak felső</option>
+            <option value="Both">alsó és felső</option>
+        </select><br><br>
+
+    
+
+    <h2>Quality of life felmérés</h2>
+    <h3>Hogyan jellemezné a rágóképességét a mai napon?</h3>
+        <input type="radio" id="today_situation_kivalo" name="today_situation" value="Kiváló" required>
+        <label for="today_situation_kivalo">Kiváló</label><br>
+        <input type="radio" id="today_situation_jo" name="today_situation" value="Jó">
+        <label for="today_situation_jo">Jó</label><br>
+        <input type="radio" id="today_situation_atlagos" name="today_situation" value="Átlagos">
+        <label for="today_situation_atlagos">Átlagos</label><br>
+        <input type="radio" id="today_situation_rossz" name="today_situation" value="Rossz">
+        <label for="today_situation_rossz">Rossz</label><br>
+        <input type="radio" id="today_situation_nagyon_rossz" name="today_situation" value="Nagyon rossz">
+        <label for="today_situation_nagyon_rossz">Nagyon rossz</label><br><br>
+
+
+
+
+    <h3>OHIP-5 (Oral Health Impact Profile)</h3>
+    
+    <h4>Az elmúlt 1 hónapban:</h4>
+        
+        <label for="OHIP_1">Volt-e rágással kapcsolatos nehézsége a fogak, a száj, vagy a protézis problémája miatt?</label><br>
+        <input type="radio" id="OHIP_1_nagyon_gyakran" name="OHIP_1" value="nagyon gyakran" required>
+        <label for="OHIP_1_nagyon_gyakran">Nagyon gyakran</label>
+        <input type="radio" id="OHIP_1_gyakran" name="OHIP_1" value="gyakran">
+        <label for="OHIP_1_gyakran">Gyakran</label>
+        <input type="radio" id="OHIP_1_neha" name="OHIP_1" value="néha">
+        <label for="OHIP_1_neha">Néha</label>
+        <input type="radio" id="OHIP_1_ritkan" name="OHIP_1" value="ritkán">
+        <label for="OHIP_1_ritkan">Ritkán</label>
+        <input type="radio" id="OHIP_1_soha" name="OHIP_1" value="soha">
+        <label for="OHIP_1_soha">Soha</label><br><br>
+
+        
+
+        
+
+        
+
+    <h3>GOHAI (General Oral Health Assessment Index)</h3>
+    <h4>Milyen gyakran fordult elő az elmúlt 3 hónapban,</h4>
+        <label for="GOHAI_1">… hogy a fogaival, fogpótlásával vagy műfogsorával kapcsolatos problémák miatt kevesebbet evett, vagy másfajta ételeket választott?</label><br>
+        <input type="radio" id="GOHAI_1_mindig" name="GOHAI_1" value="mindig" required>
+        <label for="GOHAI_1_mindig">mindig</label>
+        <input type="radio" id="GOHAI_1_gyakran" name="GOHAI_1" value="gyakran">
+        <label for="GOHAI_1_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_1_neha" name="GOHAI_1" value="néha">
+        <label for="GOHAI_1_neha">néha</label>
+        <input type="radio" id="GOHAI_1_ritkan" name="GOHAI_1" value="ritkán">
+        <label for="GOHAI_1_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_1_soha" name="GOHAI_1" value="soha">
+        <label for="GOHAI_1_soha">soha</label><br><br>
+
+        <label for="GOHAI_2">… hogy nehézséget okozott valamilyen típusú étel harapása vagy rágása? (például rostos húsok vagy alma)</label><br>
+        <input type="radio" id="GOHAI_2_mindig" name="GOHAI_2" value="mindig" required>
+        <label for="GOHAI_2_mindig">mindig</label>
+        <input type="radio" id="GOHAI_2_gyakran" name="GOHAI_2" value="gyakran">
+        <label for="GOHAI_2_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_2_neha" name="GOHAI_2" value="néha">
+        <label for="GOHAI_2_neha">néha</label>
+        <input type="radio" id="GOHAI_2_ritkan" name="GOHAI_2" value="ritkán">
+        <label for="GOHAI_2_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_2_soha" name="GOHAI_2" value="soha">
+        <label for="GOHAI_2_soha">soha</label><br><br>
+
+        <label for="GOHAI_3">… hogy nehezen nyelt?</label><br>
+        <input type="radio" id="GOHAI_3_mindig" name="GOHAI_3" value="mindig" required>
+        <label for="GOHAI_3_mindig">mindig</label>
+        <input type="radio" id="GOHAI_3_gyakran" name="GOHAI_3" value="gyakran">
+        <label for="GOHAI_3_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_3_neha" name="GOHAI_3" value="néha">
+        <label for="GOHAI_3_neha">néha</label>
+        <input type="radio" id="GOHAI_3_ritkan" name="GOHAI_3" value="ritkán">
+        <label for="GOHAI_3_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_3_soha" name="GOHAI_3" value="soha">
+        <label for="GOHAI_3_soha">soha</label><br><br>
+
+        <label for="GOHAI_4">… hogy fogai, fogpótlása vagy műfogsora miatt nem tudta úgy kiejteni a szavakat, ahogy szeretné?</label><br>
+        <input type="radio" id="GOHAI_4_mindig" name="GOHAI_4" value="mindig" required>
+        <label for="GOHAI_4_mindig">mindig</label>
+        <input type="radio" id="GOHAI_4_gyakran" name="GOHAI_4" value="gyakran">
+        <label for="GOHAI_4_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_4_neha" name="GOHAI_4" value="néha">
+        <label for="GOHAI_4_neha">néha</label> -->
+        <!-- <input type="radio" id="GOHAI_4_ritkan" name="GOHAI_4" value="ritkán">
+        <label for="GOHAI_4_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_4_soha" name="GOHAI_4" value="soha">
+        <label for="GOHAI_4_soha">soha</label><br><br>
+
+        <label for="GOHAI_5">… hogy kellemetlenséggel járt az evés?</label><br>
+        <input type="radio" id="GOHAI_5_mindig" name="GOHAI_5" value="mindig" required>
+        <label for="GOHAI_5_mindig">mindig</label>
+        <input type="radio" id="GOHAI_5_gyakran" name="GOHAI_5" value="gyakran">
+        <label for="GOHAI_5_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_5_neha" name="GOHAI_5" value="néha">
+        <label for="GOHAI_5_neha">néha</label>
+        <input type="radio" id="GOHAI_5_ritkan" name="GOHAI_5" value="ritkán">
+        <label for="GOHAI_5_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_5_soha" name="GOHAI_5" value="soha">
+        <label for="GOHAI_5_soha">soha</label><br><br>
+
+        <label for="GOHAI_6">… hogy fogai, fogpótlása vagy műfogsora állapota miatt kevesebbet találkozott másokkal?</label><br>
+        <input type="radio" id="GOHAI_6_mindig" name="GOHAI_6" value="mindig" required>
+        <label for="GOHAI_6_mindig">mindig</label>
+        <input type="radio" id="GOHAI_6_gyakran" name="GOHAI_6" value="gyakran">
+        <label for="GOHAI_6_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_6_neha" name="GOHAI_6" value="néha">
+        <label for="GOHAI_6_neha">néha</label>
+        <input type="radio" id="GOHAI_6_ritkan" name="GOHAI_6" value="ritkán">
+        <label for="GOHAI_6_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_6_soha" name="GOHAI_6" value="soha">
+        <label for="GOHAI_6_soha">soha</label><br><br>
+
+        <label for="GOHAI_7">… hogy elégedetlen volt fogai, ínye, fogpótlása vagy műfogsora kinézetével?</label><br>
+        <input type="radio" id="GOHAI_7_mindig" name="GOHAI_7" value="mindig" required>
+        <label for="GOHAI_7_mindig">mindig</label>
+        <input type="radio" id="GOHAI_7_gyakran" name="GOHAI_7" value="gyakran">
+        <label for="GOHAI_7_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_7_neha" name="GOHAI_7" value="néha">
+        <label for="GOHAI_7_neha">néha</label>
+        <input type="radio" id="GOHAI_7_ritkan" name="GOHAI_7" value="ritkán">
+        <label for="GOHAI_7_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_7_soha" name="GOHAI_7" value="soha">
+        <label for="GOHAI_7_soha">soha</label><br><br>
+
+        <label for="GOHAI_8">… hogy a szájában vagy szája környékén érzett fájdalom vagy kellemetlenség enyhítésére gyógyszert használt?</label><br>
+        <input type="radio" id="GOHAI_8_mindig" name="GOHAI_8" value="mindig" required>
+        <label for="GOHAI_8_mindig">mindig</label>
+        <input type="radio" id="GOHAI_8_gyakran" name="GOHAI_8" value="gyakran">
+        <label for="GOHAI_8_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_8_neha" name="GOHAI_8" value="néha">
+        <label for="GOHAI_8_neha">néha</label>
+        <input type="radio" id="GOHAI_8_ritkan" name="GOHAI_8" value="ritkán">
+        <label for="GOHAI_8_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_8_soha" name="GOHAI_8" value="soha">
+        <label for="GOHAI_8_soha">soha</label><br><br>
+
+        <label for="GOHAI_9">… hogy aggódott a fogai, ínye, fogpótlása vagy műfogsora állapota miatt?</label><br>
+        <input type="radio" id="GOHAI_9_mindig" name="GOHAI_9" value="mindig" required>
+        <label for="GOHAI_9_mindig">mindig</label>
+        <input type="radio" id="GOHAI_9_gyakran" name="GOHAI_9" value="gyakran">
+        <label for="GOHAI_9_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_9_neha" name="GOHAI_9" value="néha">
+        <label for="GOHAI_9_neha">néha</label>
+        <input type="radio" id="GOHAI_9_ritkan" name="GOHAI_9" value="ritkán">
+        <label for="GOHAI_9_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_9_soha" name="GOHAI_9" value="soha">
+        <label for="GOHAI_9_soha">soha</label><br><br>
+
+        <label for="GOHAI_10">… hogy zavarba jött vagy kellemetlenül érezte magát fogai, ínye, fogpótlása vagy műfogsora állapota miatt?</label><br>
+        <input type="radio" id="GOHAI_10_mindig" name="GOHAI_10" value="mindig" required>
+        <label for="GOHAI_10_mindig">mindig</label>
+        <input type="radio" id="GOHAI_10_gyakran" name="GOHAI_10" value="gyakran">
+        <label for="GOHAI_10_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_10_neha" name="GOHAI_10" value="néha">
+        <label for="GOHAI_10_neha">néha</label>
+        <input type="radio" id="GOHAI_10_ritkan" name="GOHAI_10" value="ritkán">
+        <label for="GOHAI_10_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_10_soha" name="GOHAI_10" value="soha">
+        <label for="GOHAI_10_soha">soha</label><br><br>
+
+        <label for="GOHAI_11">… hogy fogai, fogpótlása vagy műfogsora miatt kellemetlennek érezte, hogy mások jelenlétében egyen?</label><br>
+        <input type="radio" id="GOHAI_11_mindig" name="GOHAI_11" value="mindig" required>
+        <label for="GOHAI_11_mindig">mindig</label>
+        <input type="radio" id="GOHAI_11_gyakran" name="GOHAI_11" value="gyakran">
+        <label for="GOHAI_11_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_11_neha" name="GOHAI_11" value="néha">
+        <label for="GOHAI_11_neha">néha</label>
+        <input type="radio" id="GOHAI_11_ritkan" name="GOHAI_11" value="ritkán">
+        <label for="GOHAI_11_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_11_soha" name="GOHAI_11" value="soha">
+        <label for="GOHAI_11_soha">soha</label><br><br>
+
+        <label for="GOHAI_12">… hogy fogai vagy ínye érzékenyek voltak melegre, hidegre vagy édesre?</label><br>
+        <input type="radio" id="GOHAI_12_mindig" name="GOHAI_12" value="mindig" required>
+        <label for="GOHAI_12_mindig">mindig</label>
+        <input type="radio" id="GOHAI_12_gyakran" name="GOHAI_12" value="gyakran">
+        <label for="GOHAI_12_gyakran">gyakran</label>
+        <input type="radio" id="GOHAI_12_neha" name="GOHAI_12" value="néha">
+        <label for="GOHAI_12_neha">néha</label>
+        <input type="radio" id="GOHAI_12_ritkan" name="GOHAI_12" value="ritkán">
+        <label for="GOHAI_12_ritkan">ritkán</label>
+        <input type="radio" id="GOHAI_12_soha" name="GOHAI_12" value="soha">
+        <label for="GOHAI_12_soha">soha</label><br><br>
+    <input type="submit" value="Submit">
+    </form>
+</body>
+</html> -->

@@ -1,0 +1,96 @@
+<!-- templates/results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eddigi eredmények</title>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Az eddig feltöltött adatok alapján végzett statisztikai elemzések</h1>
+        <h2>I. A megmért páciensek karakterisztikája</h2>
+        <h3>1. Eddig összesen {{ patient_count }} beteg adatait rögzítettük</h3>
+        <div class="chart-container">
+            <h3>2. Teljes lemezes fogpótlások száma állcsontonként</h3>
+            <img src="data:image/png;base64,{{ dentures_img }}" alt="Dentures Chart">
+        </div>
+        <div class="chart-container">
+            <h3>3. A beválogatott betegek korfája</h3>
+            <img src="data:image/png;base64,{{ age_gender_img }}" alt="Age and Gender Chart">
+        </div>
+        <h2>II. Első mérés eredményei (leíró statisztika)</h2>
+        <h3>1. Szubjektív rágóképesség</h3>
+        <h4>Hogyan jellemezné a rágóképességét a mai napon?</h4>
+            <img src="data:image/png;base64,{{ q1_barchart }}" alt="Subjective Chewing Chart">
+        <h3>2. OHIP_init és GOHAI_init score számítása</h3>
+        <h4>OHIP_init</h4>
+        <p>Az OHIP_init átlag és szórás: {{ ohip_init_mean }} ± {{ ohip_init_std }}</p>
+        <h4>GOHAI_init</h4>
+        <p>A GOHAI_init átlag és szórás: {{ gohai_init_mean }} ± {{ gohai_init_std }}</p>
+        <h3>3. A kezdeti MAI pontszáma</h3>
+        <p>Az init_MAI átlag és szórás: {{ init_mai_mean }} ± {{ init_mai_std }}</p>
+        
+        
+        
+        <h2>II. Második mérés eredményei (leíró statisztika)</h2>
+        <h3>1. Szubjektív rágóképesség</h3>
+        <h4>Hogyan értékelné rágóképességének változását a klinikánkon történt legutóbbi kezeléssorozat megkezdése óta?</h4>
+        <img src="data:image/png;base64,{{ q2_barchart }}" alt="Subjective CHANGE IN Chewing Chart">
+        <h3>2. OHIP_init és GOHAI_init score számítása</h3>
+        <h4>OHIP_final</h4>
+        <p>Az OHIP_final átlag és szórás: {{ ohip_final_mean }} ± {{ ohip_final_std }}</p>
+        <h4>GOHAI_final</h4>
+        <p>A GOHAI_final átlag és szórás: {{ gohai_final_mean }} ± {{ gohai_final_std }}</p>
+        <h3>3. Az egyhónapos viselést követő MAI pontszám</h3>
+        <p>A final_MAI átlag és szórás: {{ final_mai_mean }} ± {{ final_mai_std }}</p>
+        <h2>III. Inferenciális statisztika</h2>
+        <h3>1. Szignifikáns rágóképességváltozás számítása ROC analízissel</h3>
+        <h4>1.1.1. MAI ROC görbe</h4>
+        <img src="data:image/png;base64,{{ roc_img_mai }}" alt="ROC Curve MAI">
+        <h4>1.1.1. Rágóképesség-pontkülönbség (ΔMAI) és a szubjektíven tapasztalt változás</h4>
+        <img src="data:image/png;base64,{{ diff_img_mai }}" alt="Score Difference MAI">
+        <p>Az optimális vágópont MAI-különbség esetén: {{ optimal_threshold_mai }}</p>
+        <h4>1.2.1. OHIP ROC görbe</h4>
+        <img src="data:image/png;base64,{{ roc_img_ohip }}" alt="ROC Curve OHIP">
+        <h4>1.2.2. OHIP-pontkülönbség (ΔOHIP) és a szubjektíven tapasztalt változás</h4>
+        <img src="data:image/png;base64,{{ diff_img_ohip }}" alt="Score Difference OHIP">
+        <p>Az optimális vágópont OHIP-különbség esetén: {{ optimal_threshold_ohip }}</p>
+        <h4>1.3.1. GOHAI ROC görbe</h4>
+        <img src="data:image/png;base64,{{ roc_img_gohai }}" alt="ROC Curve GOHAI">
+        <h4>1.3.2. GOHAI-pontkülönbség (ΔGOHAI) és a szubjektíven tapasztalt változás</h4>
+        <img src="data:image/png;base64,{{ diff_img_gohai }}" alt="Score Difference GOHAI">
+        <p>Az optimális vágópont GOHAI-különbség esetén: {{ optimal_threshold_gohai }}</p>
+        <h2>Odds ratio-k és konfidenciaintervallumaik</h2>
+        <div>
+            <h3>Számottevő rágóképességváltozás esélyhányadosai a MAI-változást vizsgálva</h3>
+            {% if insufficient_data_mai %}
+                <p>Not enough data to generate a valid heatmap for MAI.</p>
+            {% else %}
+                <img src="data:image/png;base64,{{ odds_ratios_img_mai }}" />
+            {% endif %}
+        </div>
+        
+        <div>
+            <h3>Számottevő rágóképességváltozás esélyhányadosai az OHIP-változást vizsgálva</h3>
+            {% if insufficient_data_ohip %}
+                <p>Not enough data to generate a valid heatmap for OHIP.</p>
+            {% else %}
+                <img src="data:image/png;base64,{{ odds_ratios_img_ohip }}" />
+            {% endif %}
+        </div>
+        
+        <div>
+            <h3>Számottevő rágóképességváltozás esélyhányadosai a GOHAI-változást vizsgálva</h3>
+            {% if insufficient_data_gohai %}
+                <p>Not enough data to generate a valid heatmap for GOHAI.</p>
+            {% else %}
+                <img src="data:image/png;base64,{{ odds_ratios_img_gohai }}" />
+            {% endif %}
+        </div>
+        </div>    
+    </div>
+
+</body>
+</html>

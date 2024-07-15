@@ -1,0 +1,75 @@
+<!-- templates/upload_init_mai.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Initial MAI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input, select {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function formatTAJ(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+            if (value.length > 6) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 9);
+            } else if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6);
+            }
+            input.value = value;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Töltsd fel az első megrágott-kilapított viaszdarabot!</h1>
+        <form action="{{ url_for('submit_init_mai') }}" method="post" enctype="multipart/form-data">
+            <label for="TAJ">TAJ:</label>
+            <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
+            
+            <label for="image">Képfeltöltés (CSAK TIFF!!!):</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+</html>
