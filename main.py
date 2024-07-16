@@ -686,6 +686,79 @@ def results():
         except AttributeError:
             return np.nan
 
+    """
+    # Define the range of cut-off points for MAI
+    cutoff_points = range(start_value, end_value + 1)  # Adjust start_value and end_value based on your study
+
+    # Initialize variables to store the best cut-off point and its corresponding metrics
+    best_cutoff_point = None
+    best_sensitivity = 0
+    best_specificity = 0
+    best_proportion_correct = 0
+
+    # Loop through each cut-off point
+    for cutoff in cutoff_points:
+        # Initialize counts for the 2x2 contingency table
+        TP = 0  # True Positives
+        FP = 0  # False Positives
+        TN = 0  # True Negatives
+        FN = 0  # False Negatives
+
+        # Loop through each patient's data
+        for patient in patients_data:
+            # Determine if the patient is restricted or non-restricted based on the current cut-off point
+            if patient.MAI <= cutoff:
+                if patient.perceived_restriction:  # Patient perceives restriction
+                    TP += 1
+                else:
+                    FP += 1
+            else:
+                if patient.perceived_restriction:  # Patient perceives restriction
+                    FN += 1
+                else:
+                    TN += 1
+
+        # Calculate sensitivity, specificity, and proportion correctly predicted for the current cut-off point
+        sensitivity = TP / (TP + FN) if (TP + FN) > 0 else 0
+        specificity = TN / (TN + FP) if (TN + FP) > 0 else 0
+        proportion_correct = (TP + TN) / (TP + FP + TN + FN) if (TP + FP + TN + FN) > 0 else 0
+
+        # Store the metrics if they are better than the previous best
+        if proportion_correct > best_proportion_correct:
+            best_cutoff_point = cutoff
+            best_sensitivity = sensitivity
+            best_specificity = specificity
+            best_proportion_correct = proportion_correct
+
+    # Output the best cut-off point and its corresponding metrics
+    print("Best Cut-off Point for MAI:", best_cutoff_point)
+    print("Sensitivity:", best_sensitivity)
+    print("Specificity:", best_specificity)
+    print("Proportion Correctly Predicted:", best_proportion_correct)
+
+    # Additional analysis for functional impairment scores if needed
+    # For cut-off points from specific range (e.g., 25 to 45)
+    for cutoff in specific_range:
+        restricted_group = [patient for patient in patients_data if patient.MAI <= cutoff]
+        non_restricted_group = [patient for patient in patients_data if patient.MAI > cutoff]
+
+        # Calculate mean and standard deviation of functional impairment scores for each group
+        mean_restricted = mean([patient.functional_score for patient in restricted_group])
+        mean_non_restricted = mean([patient.functional_score for patient in non_restricted_group])
+        std_restricted = std([patient.functional_score for patient in restricted_group])
+        std_non_restricted = std([patient.functional_score for patient in non_restricted_group])
+
+        # Perform t-test to compare functional impairment scores between the groups
+        t_statistic, p_value = t_test(restricted_group.functional_score, non_restricted_group.functional_score)
+
+        # Output the results of the t-test
+        print("Cut-off Point:", cutoff)
+        print("Mean Functional Score (Restricted):", mean_restricted)
+        print("Mean Functional Score (Non-Restricted):", mean_non_restricted)
+        print("T-test Statistic:", t_statistic)
+        print("P-value:", p_value)
+    """
+
     # Helper function to calculate heatmap data
     def calculate_heatmap_data(data_df, binary_col):
         heatmap_data = []
