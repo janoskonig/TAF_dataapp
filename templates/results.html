@@ -48,26 +48,34 @@
         <p>A final_MAI átlag és szórás: {{ final_mai_mean }} ± {{ final_mai_std }}</p>
         <h2>III. Inferenciális statisztika</h2>
         <h3>1. Szignifikáns rágóképességváltozás számítása ROC analízissel</h3>
-        <h4>1.1.1. MAI ROC görbe</h4>
+        <h3>1.1. Egyszerű kérdéssel</h3>
+        <h4>1.1.1.1. MAI ROC görbe</h4>
         <img src="data:image/png;base64,{{ roc_img_mai }}" alt="ROC Curve MAI">
-        <h4>1.1.1. Rágóképesség-pontkülönbség (ΔMAI) és a szubjektíven tapasztalt változás</h4>
+        <h4>1.1.1.1. Rágóképesség-pontkülönbség (ΔMAI) és a szubjektíven tapasztalt változás</h4>
         <img src="data:image/png;base64,{{ diff_img_mai }}" alt="Score Difference MAI">
         <p>Az optimális vágópont MAI-különbség esetén: {{ optimal_threshold_mai }}</p>
-        <h4>1.2.1. OHIP ROC görbe</h4>
+        <h4>1.1.2.1. OHIP ROC görbe</h4>
         <img src="data:image/png;base64,{{ roc_img_ohip }}" alt="ROC Curve OHIP">
-        <h4>1.2.2. OHIP-pontkülönbség (ΔOHIP) és a szubjektíven tapasztalt változás</h4>
+        <h4>1.1.2.2. OHIP-pontkülönbség (ΔOHIP) és a szubjektíven tapasztalt változás</h4>
         <img src="data:image/png;base64,{{ diff_img_ohip }}" alt="Score Difference OHIP">
         <p>Az optimális vágópont OHIP-különbség esetén: {{ optimal_threshold_ohip }}</p>
-        <h4>1.3.1. GOHAI ROC görbe</h4>
+        <h4>1.1.3.1. GOHAI ROC görbe</h4>
         <img src="data:image/png;base64,{{ roc_img_gohai }}" alt="ROC Curve GOHAI">
-        <h4>1.3.2. GOHAI-pontkülönbség (ΔGOHAI) és a szubjektíven tapasztalt változás</h4>
+        <h4>1.1.3.2. GOHAI-pontkülönbség (ΔGOHAI) és a szubjektíven tapasztalt változás</h4>
         <img src="data:image/png;base64,{{ diff_img_gohai }}" alt="Score Difference GOHAI">
         <p>Az optimális vágópont GOHAI-különbség esetén: {{ optimal_threshold_gohai }}</p>
-        <h2>Odds ratio-k és konfidenciaintervallumaik</h2>
+        <h3>1.2. MFIQ függvényében</h3>
+            {% if no_valid_dijkstra %}
+            <p>Nincs elég adat még ehhez</p>
+            {% else %}
+            <img src="data:image/png;base64,{{ dijkstra_img }}" alt="Dijkstra ROC">
+            {% endif %}
+        <h2>2. Odds ratio-k és konfidenciaintervallumaik</h2>
+        <h3>2.1. Egyszerű kérdéses ROC alapján</h3>
         <div>
             <h3>Számottevő rágóképességváltozás esélyhányadosai a MAI-változást vizsgálva</h3>
             {% if insufficient_data_mai %}
-                <p>Not enough data to generate a valid heatmap for MAI.</p>
+                <p>Nincs elég adat még hogy valid hőtérképet generáljunk MAI-különbséget nézve.</p>
             {% else %}
                 <img src="data:image/png;base64,{{ odds_ratios_img_mai }}" />
             {% endif %}
@@ -76,7 +84,7 @@
         <div>
             <h3>Számottevő rágóképességváltozás esélyhányadosai az OHIP-változást vizsgálva</h3>
             {% if insufficient_data_ohip %}
-                <p>Not enough data to generate a valid heatmap for OHIP.</p>
+                <p>Nincs elég adat még hogy valid hőtérképet generáljunk OHIP-különbséget nézve</p>
             {% else %}
                 <img src="data:image/png;base64,{{ odds_ratios_img_ohip }}" />
             {% endif %}
@@ -85,11 +93,13 @@
         <div>
             <h3>Számottevő rágóképességváltozás esélyhányadosai a GOHAI-változást vizsgálva</h3>
             {% if insufficient_data_gohai %}
-                <p>Not enough data to generate a valid heatmap for GOHAI.</p>
+                <p>Nincs elég adat még hogy valid hőtérképet generáljunk GOHAI-különbséget nézve</p>
             {% else %}
                 <img src="data:image/png;base64,{{ odds_ratios_img_gohai }}" />
             {% endif %}
         </div>
+        <h3>2.1. MFIQ best cutting point ROC alapján</h3>
+        <p>Hát ezt még le se programoztam, csak a test.py-ban...</p>
         </div>    
     </div>
 

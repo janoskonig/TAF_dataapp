@@ -21,6 +21,7 @@ import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 from statsmodels.tools.sm_exceptions import PerfectSeparationWarning
+from scipy.stats import ttest_ind
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -686,6 +687,130 @@ def results():
         except AttributeError:
             return np.nan
 
+    # Dijkstra method
+    # Execute the query to get data
+    cursor.execute("SELECT TAJ, init_mai, final_mai, perceived_change, MFIQ_1, MFIQ_2, MFIQ_3, MFIQ_4, MFIQ_5, MFIQ_6, MFIQ_7, MFIQ_8, MFIQ_9, MFIQ_10, MFIQ_11, MFIQ_12, MFIQ_13, MFIQ_14, MFIQ_15, MFIQ_16, MFIQ_17 FROM patients WHERE init_mai IS NOT NULL AND final_mai IS NOT NULL AND perceived_change IS NOT NULL AND MFIQ_1 IS NOT NULL AND MFIQ_2 IS NOT NULL AND MFIQ_3 IS NOT NULL AND MFIQ_4 IS NOT NULL AND MFIQ_5 IS NOT NULL AND MFIQ_6 IS NOT NULL AND MFIQ_7 IS NOT NULL AND MFIQ_8 IS NOT NULL AND MFIQ_9 IS NOT NULL AND MFIQ_10 IS NOT NULL AND MFIQ_11 IS NOT NULL AND MFIQ_12 IS NOT NULL AND MFIQ_13 IS NOT NULL AND MFIQ_14 IS NOT NULL AND MFIQ_15 IS NOT NULL AND MFIQ_16 IS NOT NULL AND MFIQ_17 IS NOT NULL")
+    dijkstra_roc_data = cursor.fetchall()
+    dijkstra_roc_df = pd.DataFrame(dijkstra_roc_data, columns=["TAJ", "init_mai", "final_mai", "perceived_change", "MFIQ_1", "MFIQ_2", "MFIQ_3", "MFIQ_4", "MFIQ_5", "MFIQ_6", "MFIQ_7", "MFIQ_8", "MFIQ_9", "MFIQ_10", "MFIQ_11", "MFIQ_12", "MFIQ_13", "MFIQ_14", "MFIQ_15", "MFIQ_16", "MFIQ_17"])
+    dijkstra_roc_df['avg_MFIQ'] = dijkstra_roc_df.loc[:, "MFIQ_1":"MFIQ_17"].mean(axis=1)
+    mai_score_difference = dijkstra_roc_df["final_mai"] - dijkstra_roc_df["init_mai"]
+    # Define the range of cut-off points for MAI
+    cutoff_points = range(0,64)  # Adjust start_value and end_value based on your study
+    # Initialize variables to store the best cut-off point and its corresponding metrics
+    best_cutoff_point = None
+    best_sensitivity = 0
+    best_specificity = 0
+    best_proportion_correct = 0
+
+    # Loop through each cut-off point
+    for cutoff in cutoff_points:
+        # Initialize counts for the 2x2 contingency table
+        TP = 0  # True Positives
+        FP = 0  # False Positives
+        TN = 0  # True Negatives
+        FN = 0  # False Negatives
+
+        # Loop through each patient's data
+        for index, row in dijkstra_roc_df.iterrows():
+            patient_mai = row['final_mai'] - row['init_mai']
+            perceived_restriction = row['avg_MFIQ'] < cutoff  # Compare with cutoff to determine restriction
+            
+            # Determine if the patient is restricted or non-restricted based on the current cut-off point
+            if patient_mai <= cutoff:
+                if perceived_restriction:  # Patient perceives restriction
+                    TP += 1
+                else:
+                    FP += 1
+            else:
+                if perceived_restriction:  # Patient perceives restriction
+                    FN += 1
+                else:
+                    TN += 1
+
+        # Calculate sensitivity, specificity, and proportion correctly predicted for the current cut-off point
+        sensitivity = TP / (TP + FN) if (TP + FN) > 0 else 0
+        specificity = TN / (TN + FP) if (TN + FP) > 0 else 0
+        proportion_correct = (TP + TN) / (TP + FP + TN + FN) if (TP + FP + TN + FN) > 0 else 0
+
+        # Store the metrics if they are better than the previous best
+        if proportion_correct > best_proportion_correct:
+            best_cutoff_point = cutoff
+            best_sensitivity = sensitivity
+            best_specificity = specificity
+            best_proportion_correct = proportion_correct
+        
+        # Print the 2x2 contingency table for each cut-off point
+        print(f"Cut-off Point: {cutoff}")
+        print(f"TP: {TP}, FP: {FP}, TN: {TN}, FN: {FN}")
+        print(f"Sensitivity: {sensitivity:.2f}, Specificity: {specificity:.2f}, Proportion Correct: {proportion_correct:.2f}")
+
+
+    # Output the best cut-off point and its corresponding metrics
+    print("Best Cut-off Point for MAI:", best_cutoff_point)
+    print("Sensitivity:", best_sensitivity)
+    print("Specificity:", best_specificity)
+    print("Proportion Correctly Predicted:", best_proportion_correct)
+
+    # Additional analysis for functional impairment scores if needed
+    # For cut-off points from specific range (e.g., 25 to 45)
+    specific_range = range(0, 64)  # Adjust the range based on your study
+    for cutoff in specific_range:
+        restricted_group = dijkstra_roc_df[dijkstra_roc_df['final_mai'] - dijkstra_roc_df['init_mai'] <= cutoff]
+        non_restricted_group = dijkstra_roc_df[dijkstra_roc_df['final_mai'] - dijkstra_roc_df['init_mai'] > cutoff]
+
+        # Calculate mean and standard deviation of functional impairment scores for each group
+        mean_restricted = restricted_group['avg_MFIQ'].mean()
+        mean_non_restricted = non_restricted_group['avg_MFIQ'].mean()
+        std_restricted = restricted_group['avg_MFIQ'].std()
+        std_non_restricted = non_restricted_group['avg_MFIQ'].std()
+
+        # Perform t-test to compare functional impairment scores between the groups
+        t_statistic, p_value = ttest_ind(restricted_group['avg_MFIQ'], non_restricted_group['avg_MFIQ'])
+
+        # Output the results of the t-test
+        print("Cut-off Point:", cutoff)
+        print("Mean Functional Score (Restricted):", mean_restricted)
+        print("Mean Functional Score (Non-Restricted):", mean_non_restricted)
+        print("T-test Statistic:", t_statistic)
+        print("P-value:", p_value)
+
+    # Using the best cut-off point to perform the final ROC analysis
+    reported_improvement = dijkstra_roc_df["avg_MFIQ"].apply(lambda x: 1 if x < best_cutoff_point else 0)
+
+    if len(np.unique(reported_improvement)) > 1:
+        no_valid_dijkstra = False
+        fpr, tpr, thresholds = roc_curve(reported_improvement, mai_score_difference)
+        roc_auc = roc_auc_score(reported_improvement, mai_score_difference)
+        optimal_idx = np.argmax(tpr - fpr)
+        optimal_threshold_mai = thresholds[optimal_idx]
+
+        # Plot ROC curve for MAI
+        fig_roc_mai = plt.figure(figsize=(8, 6))
+        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
+        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        plt.scatter(fpr[optimal_idx], tpr[optimal_idx], marker='o', color='red', label='Optimal Threshold')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('Fals pozitívok aránya')
+        plt.ylabel('Valódi pozitívok aránya')
+        plt.title('Receiver Operating Characteristic (ROC) görbe (MAI)')
+        plt.legend(loc="lower right")
+        plt.show()
+
+        # Plot Score Difference vs Reported Improvement for MAI
+        dijkstra_fig = plt.figure(figsize=(10, 6))
+        plt.scatter(mai_score_difference, reported_improvement, alpha=0.5, label='résztvevők')
+        plt.axvline(x=optimal_threshold_mai, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_mai:.2f}')
+        plt.title('Rágóképesség pontkülönbség és a szubjektív javulás (MAI)')
+        plt.xlabel('ΔMAI')
+        plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
+        plt.legend()
+        dijkstra_img = plot_to_base64(dijkstra_fig)
+    else:
+        no_valid_dijkstra = True
+        dijkstra_img = None
+        print("Reported improvement contains only one class. ROC AUC score is not defined in that case.")  
+
     # Helper function to calculate heatmap data
     def calculate_heatmap_data(data_df, binary_col):
         heatmap_data = []
@@ -796,6 +921,8 @@ def results():
                         diff_img_ohip=diff_img_ohip,
                         roc_img_gohai=roc_img_gohai,
                         diff_img_gohai=diff_img_gohai,
+                        dijkstra_img=dijkstra_img,
+                        no_valid_dijkstra=no_valid_dijkstra,
                         insufficient_data_mai=no_valid_odds_ratios_mai,
                         insufficient_data_ohip=no_valid_odds_ratios_ohip,
                         insufficient_data_gohai=no_valid_odds_ratios_gohai,
