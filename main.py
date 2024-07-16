@@ -769,8 +769,8 @@ def results():
 
         # Output the results of the t-test
         print("Cut-off Point:", cutoff)
-        print("Mean Functional Score (Restricted):", mean_restricted)
-        print("Mean Functional Score (Non-Restricted):", mean_non_restricted)
+        print("Mean Functional Score (Restricted):", mean_restricted, "±", std_restricted)
+        print("Mean Functional Score (Non-Restricted):", mean_non_restricted, "±", std_non_restricted)
         print("T-test Statistic:", t_statistic)
         print("P-value:", p_value)
 
