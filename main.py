@@ -22,11 +22,48 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 from statsmodels.tools.sm_exceptions import PerfectSeparationWarning
 from scipy.stats import ttest_ind
+from ftplib import FTP
+from urllib.parse import urlparse
+
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 UPLOAD_FOLDER = 'uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+nas_host = os.getenv("NAS_HOST")
+nas_user = os.getenv("NAS_USER")
+nas_password = os.getenv("NAS_PASS")
+nas_folder = os.getenv("NAS_DIR")
+
+def upload_to_nas(file_path, TAJ, measurement_type):
+    if measurement_type not in ['initial', 'final']:
+        raise ValueError("measurement_type must be either 'initial' or 'final'")
+    filename = f"mai_{measurement_type}_{TAJ}.tiff"
+
+    with FTP(nas_host) as ftp:
+        ftp.login(nas_user, nas_password)
+        ftp.cwd(nas_folder)
+        with open(file_path, 'rb') as file:
+            ftp.storbinary(f'STOR {filename}', file)
+        ftp.quit()
+    nas_file_path = f'ftp://{nas_host}/{nas_folder}/{filename}'
+    return nas_file_path
+
+def download_from_nas(ftp_url, local_path):
+    # Parse the FTP URL to extract the host, path, and filename
+    parsed_url = urlparse(ftp_url)
+    ftp_host = parsed_url.hostname
+    ftp_path = parsed_url.path
+    ftp_filename = os.path.basename(ftp_path)
+    
+    # Establish FTP connection and download the file
+    with FTP(ftp_host) as ftp:
+        ftp.login(nas_user, nas_password)
+        ftp.cwd(os.path.dirname(ftp_path))
+        with open(local_path, 'wb') as local_file:
+            ftp.retrbinary(f"RETR {ftp_filename}", local_file.write)
+    
+    return local_path
 
 # Create upload directory if it doesn't exist
 if not os.path.exists(UPLOAD_FOLDER):
@@ -95,6 +132,15 @@ def calculate_mixing_index(std_dev_red, std_dev_blue):
     return std_dev_red + std_dev_blue
 
 def process_image(image_path):
+    # Check if the image_path is an FTP URL
+    if image_path.startswith('ftp://'):
+        # If the image is on the NAS, download it to a temporary local path
+        filename = os.path.basename(urlparse(image_path).path)
+        local_temp_path = os.path.join('/tmp', filename)
+        download_from_nas(image_path, local_temp_path)
+        image_path = local_temp_path  # Now use the local path for processing
+    
+    # Open the image using Pillow
     image = Image.open(image_path)
     rgb_image = image.convert('RGB')
     r, g, b = rgb_image.split()
@@ -137,7 +183,8 @@ def submit_questionnaire1():
     birthdate = request.form['birthdate']
     gender = request.form['gender']
     denture_type = request.form['denture_type']
-    today_situation = request.form['today_situation']
+    responsiveness_today_situation = request.form['responsiveness_today_situation']
+    chewing_today_situation = request.form['chewing_today_situation']
 
     # Fetch responses for GOHAI questions
     GOHAI_questions = [request.form[f'GOHAI_{i}'] for i in range(1, 13)]
@@ -146,10 +193,10 @@ def submit_questionnaire1():
     OHIP_questions = [request.form[f'OHIP_{i}'] for i in range(1, 6)]
 
     sql = """
-    INSERT INTO patients (TAJ, birthdate, gender, denture_type, GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12, OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5, today_situation)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO patients (TAJ, birthdate, gender, denture_type, GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12, OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5, responsiveness_today_situation, chewing_today_situation)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    values = (TAJ, birthdate, gender, denture_type, *GOHAI_questions, *OHIP_questions, today_situation)
+    values = (TAJ, birthdate, gender, denture_type, *GOHAI_questions, *OHIP_questions, responsiveness_today_situation, chewing_today_situation)
     cursor.execute(sql, values)
     db.commit()
 
@@ -335,9 +382,11 @@ def submit_init_mai():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+        nas_file_path = upload_to_nas(file_path, TAJ, 'initial')
+        os.remove(file_path)  # Clean up temporary file
 
         # Calculate MAI
-        mai = process_image(file_path)
+        mai = process_image(nas_file_path)
 
         # Update the database
         sql = """
@@ -345,7 +394,7 @@ def submit_init_mai():
         init_mai = %s, init_image_path = %s
         WHERE TAJ = %s
         """
-        values = (mai, filename, TAJ)
+        values = (mai, nas_file_path, TAJ)
         cursor.execute(sql, values)
         db.commit()
 
@@ -379,9 +428,11 @@ def submit_final_mai():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+        nas_file_path = upload_to_nas(file_path, TAJ, 'final')
+        os.remove(file_path)  # Clean up temporary file
 
         # Calculate MAI
-        mai = process_image(file_path)
+        mai = process_image(nas_file_path)
 
         # Update the database
         sql = """
@@ -389,7 +440,7 @@ def submit_final_mai():
         final_mai = %s, final_image_path = %s
         WHERE TAJ = %s
         """
-        values = (mai, filename, TAJ)
+        values = (mai, nas_file_path, TAJ)
         cursor.execute(sql, values)
         db.commit()
 
