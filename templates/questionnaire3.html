@@ -106,33 +106,61 @@
         <form action="/submit_questionnaire3" method="post">
             <label for="TAJ">TAJ:</label>
             <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
-
-            <!-- <h3>Hogyan jellemezné a rágóképességét a mai napon?</h3>
+            
+            <h3>Hogyan jellemezné a <u>fogai és szája egészségét</u> <b>a mai napon?</b> (responsiveness study)</h3>
             <div class="radio-group">
-                <input type="radio" id="today_situation_kivalo" name="today_situation_recall" value="Kiváló" required checked>
-                <label for="today_situation_kivalo">Kiváló</label>
-                <input type="radio" id="today_situation_jo" name="today_situation_recall" value="Jó">
+                <input type="radio" id="responsiveness_today_situation_recall_kivalo" name="responsiveness_today_situation_recall" value="Kiváló" required checked>
+                <label for="responsiveness_today_situation_kivalo">Kiváló</label>
+                <input type="radio" id="responsiveness_today_situation_recall_jo" name="responsiveness_today_situation_recall" value="Jó">
                 <label for="today_situation_jo">Jó</label>
-                <input type="radio" id="today_situation_atlagos" name="today_situation_recall" value="Átlagos">
-                <label for="today_situation_atlagos">Átlagos</label>
-                <input type="radio" id="today_situation_rossz" name="today_situation_recall" value="Rossz">
-                <label for="today_situation_rossz">Rossz</label>
-                <input type="radio" id="today_situation_nagyon_rossz" name="today_situation_recall" value="Nagyon rossz">
-                <label for="today_situation_nagyon_rossz">Nagyon rossz</label>
-            </div> -->
+                <input type="radio" id="responsiveness_today_situationn_recall_atlagos" name="responsiveness_today_situation_recall" value="Átlagos">
+                <label for="responsiveness_today_situation_atlagos">Átlagos</label>
+                <input type="radio" id="responsiveness_today_situation_recall_rossz" name="responsiveness_today_situation_recall" value="Rossz">
+                <label for="responsiveness_today_situation_rossz">Rossz</label>
+                <input type="radio" id="responsiveness_today_situation_recall_nagyon_rossz" name="responsiveness_today_situation_recall" value="Nagyon rossz">
+                <label for="responsiveness_today_situation_nagyon_rossz">Nagyon rossz</label>
+            </div>
 
-            <h3>Hogyan értékelné rágóképességének változását a klinikánkon történt legutóbbi kezeléssorozat megkezdése óta?</h3>
+            <h3>Hogyan értékelné szájüregi egészségének <u>változását</u> a klinikánkon történt legutóbbi kezeléssorozat megkezdése óta? (responsiveness study)</h3>
             <div class="radio-group">
-                <input type="radio" id="change_sokat_romlott" name="change" value="Sokat romlott" required checked>
-                <label for="change_sokat_romlott">Sokat romlott</label>
-                <input type="radio" id="change_kicsit_romlott" name="change" value="Kicsit romlott">
-                <label for="change_kicsit_romlott">Kicsit romlott</label>
-                <input type="radio" id="change_valtozatlan" name="change" value="Változatlan maradt">
-                <label for="change_valtozatlan">Változatlan maradt</label>
-                <input type="radio" id="change_kicsit_javult" name="change" value="Kicsit javult">
-                <label for="change_kicsit_javult">Kicsit javult</label>
-                <input type="radio" id="change_sokat_javult" name="change" value="Sokat javult">
-                <label for="change_sokat_javult">Sokat javult</label>
+                <input type="radio" id="responsiveness_change_sokat_romlott" name="responsiveness_change" value="Sokat romlott" required checked>
+                <label for="responsiveness_change_sokat_romlott">Sokat romlott</label>
+                <input type="radio" id="change_kicsit_romlott" name="responsiveness_change" value="Kicsit romlott">
+                <label for="responsiveness_change_kicsit_romlott">Kicsit romlott</label>
+                <input type="radio" id="change_valtozatlan" name="responsiveness_change" value="Változatlan maradt">
+                <label for="responsiveness_change_valtozatlan">Változatlan maradt</label>
+                <input type="radio" id="change_kicsit_javult" name="responsiveness_change" value="Kicsit javult">
+                <label for="responsiveness_change_kicsit_javult">Kicsit javult</label>
+                <input type="radio" id="change_sokat_javult" name="responsiveness_change" value="Sokat javult">
+                <label for="responsiveness_change_sokat_javult">Sokat javult</label>
+            </div>
+            
+            <h3>Hogyan jellemezné a <u>rágóképességét</u> a <b>mai napon</b>?</h3>
+            <div class="radio-group">
+                <input type="radio" id="chewing_today_situation_recall_kivalo" name="chewing_today_situation_recall" value="Kiváló" required checked>
+                <label for="chewing_today_situation_recall_kivalo">Kiváló</label>
+                <input type="radio" id="chewing_today_situation_recall_jo" name="chewing_today_situation_recall" value="Jó">
+                <label for="chewing_today_situation_recall_jo">Jó</label>
+                <input type="radio" id="chewing_today_situation_recall_atlagos" name="chewing_today_situation_recall" value="Átlagos">
+                <label for="chewing_today_situation_recall_atlagos">Átlagos</label>
+                <input type="radio" id="chewing_today_situation_recall_rossz" name="chewing_today_situation_recall" value="Rossz">
+                <label for="chewing_today_situation_recall_rossz">Rossz</label>
+                <input type="radio" id="chewing_today_situation_recall_nagyon_rossz" name="chewing_today_situation_recall" value="Nagyon rossz">
+                <label for="chewing_today_situation_recall_nagyon_rossz">Nagyon rossz</label>
+            </div>
+
+            <h3>Hogyan értékelné <u>rágóképességének</u> <b>változását</b> a klinikánkon történt legutóbbi kezeléssorozat megkezdése óta?</h3>
+            <div class="radio-group">
+                <input type="radio" id="chewing_change_sokat_romlott" name="chewing_change" value="Sokat romlott" required checked>
+                <label for="chewing_change_sokat_romlott">Sokat romlott</label>
+                <input type="radio" id="chewing_change_kicsit_romlott" name="chewing_change" value="Kicsit romlott">
+                <label for="chewing_change_kicsit_romlott">Kicsit romlott</label>
+                <input type="radio" id="chewing_change_valtozatlan" name="chewing_change" value="Változatlan maradt">
+                <label for="chewing_change_valtozatlan">Változatlan maradt</label>
+                <input type="radio" id="chewing_change_kicsit_javult" name="chewing_change" value="Kicsit javult">
+                <label for="chewing_change_kicsit_javult">Kicsit javult</label>
+                <input type="radio" id="chewing_change_sokat_javult" name="chewing_change" value="Sokat javult">
+                <label for="chewing_change_sokat_javult">Sokat javult</label>
             </div>
 
             <h3>MFIQ (Mandibular Function Impairment Questionnaire)</h3>
