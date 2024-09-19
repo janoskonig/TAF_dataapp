@@ -111,6 +111,7 @@
 <body>
     <div class="container">
         <h1>Modellanalízis mérései</h1>
+        <div><body>Itt csak azok szerepelnek, amit nem a páciens direkt vizsgálatával állapítunk meg!</body></div>
         <form action="/submit_questionnaire2" method="post">
             <label for="TAJ">TAJ:</label>
             <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
@@ -121,50 +122,40 @@
                 <option value="upper">Felső állkapocs</option>
                 <option value="both">Mindkettő</option>
             </select>
-            <h2>Klinikai anatómiai képletek a felső állcsonton</h2>
+            
             <table class="upper-jaw hidden">
+                <caption style="caption-side: top; text-align: left; text-decoration: underline; font-size: 1.5em;">
+                    Klinikai anatómiai képletek a felső állcsonton
+                </caption>                
                 <thead>
                     <tr>
                         <th>Anatómiai képlet</th>
-                        <th>Jobb oldal</th>
-                        <th>Bal oldal</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>F1<br>Alámenős terület a tuber alveolare maxillae oldalán</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F1_jobb_null" value="">
-                            <label><input type="radio" name="F1_jobb" value="1"> nagy-mértékben alámenős</label>
-                            <label><input type="radio" name="F1_jobb" value="2"> nem alámenős</label>
-                            <label><input type="radio" name="F1_jobb" value="3"> kis méretű tuber</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F1_bal_null" value="">
-                            <label><input type="radio" name="F1_bal" value="1"> nagy-mértékben alámenős</label>
-                            <label><input type="radio" name="F1_bal" value="2"> nem alámenős</label>
-                            <label><input type="radio" name="F1_bal" value="3"> kis méretű tuber</label>
+                        <td>F1 Modellanalízis során mért profil szerint:<br>A felső állcsontgerinc profilja</td>
+                        <td>
+                            <div>
+                                <label for="gerincélvonal">A felső állcsont gerincélvonalának profilja:</label>
+                                <input type="hidden" name="F1_null_gerincelvonal" value="">
+                                <input type="file" id="gerincelvonal" name="stlFile_gerincelvonal" accept=".stl" required>
+                            </div>
+                            <div>
+                                <label for="bukkalisathajlas">A felső állcsont bukkális áthajlásának profilja:</label>
+                                <input type="hidden" name="F1_null_bukkalis" value="">
+                                <input type="file" id="bukkalisathajlas" name="stlFile_bukkalis" accept=".stl" required>
+                            </div>
                         </td>
                     </tr>
                     <tr>
-                        <td>F2<br>Alámenős terület a processus alveolarison, a felső ajak mögötti, két frenulum buccale közötti áthajlásban</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F2_jobb_null" value="">
-                            <label><input type="radio" name="F2_jobb" value="1"> nagy-mértékben alámenős</label>
-                            <label><input type="radio" name="F2_jobb" value="2"> nem alámenős</label>
-                            <label><input type="radio" name="F2_jobb" value="3"> sekély áthajlás</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F2_bal_null" value="">
-                            <label><input type="radio" name="F2_bal" value="1"> nagy-mértékben alámenős</label>
-                            <label><input type="radio" name="F2_bal" value="2"> nem alámenős</label>
-                            <label><input type="radio" name="F2_bal" value="3"> sekély áthajlás</label>
-                        </td>
+                        <td>F2<br>Alámenős területek nagysága a felső állcsonton</td>
+                        <td><input type="number" step="0.01" placeholder="Enter value"> mm<sup>3</sup></td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Table for F3 and onward -->
+
             <table class="upper-jaw hidden">
                 <thead>
                     <tr>
@@ -175,70 +166,27 @@
                 <tbody>
                     <tr>
                         <td>F3<br>A szájpad boltozata</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F3_null" value="">
-                            <label><input type="radio" name="F3" value="1"> gótikus</label>
-                            <label><input type="radio" name="F3" value="2"> közepes</label>
-                            <label><input type="radio" name="F3" value="3"> lapos</label>
+                        <td><input type="number" step="0.01" placeholder="Enter value"> mm</td>
                         </td>
                     </tr>
                     <tr>
                         <td>F4<br>A felső állcsontgerinc alakja</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F4_null" value="">
-                            <label><input type="radio" name="F4" value="1"> lekerekített négyzet alakú</label>
-                            <label><input type="radio" name="F4" value="2"> U-alakú</label>
-                            <label><input type="radio" name="F4" value="3"> V-alakú</label>
+                        <td><input type="number" step="0.01" placeholder="Enter value"> &deg;</td>
                         </td>
                     </tr>
-                    <tr>
-                        <td>F5<br>Lötyögő, csontmag nélküli gerinc jelenléte</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F5_null" value="">
-                            <label><input type="radio" name="F5" value="1"> nincs</label>
-                            <label><input type="radio" name="F5" value="2"> van, „lötyögő“ tuberek</label>
-                            <label><input type="radio" name="F5" value="3"> van, frontális gerincen</label>
-                        </td>
-                    </tr>
+            
                     <tr>
                         <td>F6<br>Az interalveoláris vonal és a rágósík által bezárt szög</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F6_null" value="">
-                            <label><input type="radio" name="F6" value="1"> 80-90° között</label>
-                            <label><input type="radio" name="F6" value="2"> 80° alatt</label>
-                            <label><input type="radio" name="F6" value="3"> 90° felett</label>
-                        </td>
+                        <td><input type="number" step="0.01" placeholder="Enter value"> &deg;</td>
+
                     </tr>
-                    <tr>
-                        <td>F7<br>Torus palatinus</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F7_null" value="">
-                            <label><input type="radio" name="F7" value="1"> nincs</label>
-                            <label><input type="radio" name="F7" value="2"> plató alakú</label>
-                            <label><input type="radio" name="F7" value="3"> orsó alakú</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>F8<br>Az antagonista fogazat</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F8_null" value="">
-                            <label><input type="radio" name="F8" value="1"> nincs, most készül</label>
-                            <label><input type="radio" name="F8" value="2"> teljes lemezes fogpótlás vagy overdenture vagy részleges fémlemezes fogpótlás</label>
-                            <label><input type="radio" name="F8" value="3"> teljesen megtartott vagy rögzített fogpótlással helyreállított</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>F9<br>A garatreflex erőssége</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="F9_null" value="">
-                            <label><input type="radio" name="F9" value="1"> erős, ami a kezelést is befolyásolja</label>
-                            <label><input type="radio" name="F9" value="2"> elmondása szerint van, de a kezelés közben nem okoz gondot</label>
-                            <label><input type="radio" name="F9" value="3"> nincs</label>
-                        </td>
-                    </tr>
+                    
                 </tbody>
             </table>
             <table class="lower-jaw hidden">
+                <caption style="caption-side: top; text-align: left; text-decoration: underline; font-size: 1.5em;">
+                    Klinikai anatómiai képletek az alsó állcsonton
+                </caption>        
                 <thead>
                     <tr>
                         <th>Anatómiai képlet</th>
@@ -246,179 +194,31 @@
                     </tr>
                 </thead>
                 <tbody>
+                    
                     <tr>
-                        <td>A1<br>Az alsó állcsontgerinc alakja</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A1_null" value="">
-                            <label><input type="radio" name="A1" value="1"> egészében megtartott</label>
-                            <label><input type="radio" name="A1" value="2"> elöl megtartott, oldalt lapos</label>
-                            <label><input type="radio" name="A1" value="3"> egészében lapos</label>
-                            <label><input type="radio" name="A1" value="4"> negatív</label>
-                            <label><input type="radio" name="A1" value="5"> mélyült negatív</label>
+                        <td>A2 Modellanalízis során mért profil szerint:<br>Az alsó állcsontgerinc profilja</td>
+                        <td>
+                            <div>
+                                <label for="gerincélvonal">A felső állcsont gerincélvonalának profilja:</label>
+                                <input type="hidden" name="A1_conti_null_gerincelvonal" value="">
+                                <input type="file" id="gerincelvonal" name="stlFile_also_gerincelvonal" accept=".stl" required>
+                            </div>
+                            <div>
+                                <label for="bukkalisathajlas">A felső állcsont bukkális áthajlásának profilja:</label>
+                                <input type="hidden" name="A1_conti_null_bukkalis" value="">
+                                <input type="file" id="bukkalisathajlas" name="stlFile_also_bukkalis" accept=".stl" required>
+                            </div>
+                            <div>
+                                <label for="lingualisathajlas">A felső állcsont lingualis áthajlásának profilja:</label>
+                                <input type="hidden" name="A1_conti_null_lingualis" value="">
+                                <input type="file" id="lingualisathajlas" name="stlFile_also_lingualis" accept=".stl" required>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
 
-            <table class="lower-jaw hidden">
-                <thead>
-                    <tr>
-                        <th>Oldalanként vizsgálandók</th>
-                        <th>Jobb</th>
-                        <th>Bal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>A1/a<br>Az alsó állcsontgerinc magassága</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A1a_jobb_null" value="">
-                            <label><input type="radio" name="A1a_jobb" value="1"> magas</label>
-                            <label><input type="radio" name="A1a_jobb" value="2"> közepes</label>
-                            <label><input type="radio" name="A1a_jobb" value="3"> alacsony</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A1a_bal_null" value="">
-                            <label><input type="radio" name="A1a_bal" value="1"> magas</label>
-                            <label><input type="radio" name="A1a_bal" value="2"> közepes</label>
-                            <label><input type="radio" name="A1a_bal" value="3"> alacsony</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A1/b<br>Az alsó állcsontgerinc szélessége</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A1b_jobb_null" value="">
-                            <label><input type="radio" name="A1b_jobb" value="1"> széles</label>
-                            <label><input type="radio" name="A1b_jobb" value="2"> közepes</label>
-                            <label><input type="radio" name="A1b_jobb" value="3"> keskeny, pengeszerű</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A1b_bal_null" value="">
-                            <label><input type="radio" name="A1b_bal" value="1"> széles</label>
-                            <label><input type="radio" name="A1b_bal" value="2"> közepes</label>
-                            <label><input type="radio" name="A1b_bal" value="3"> keskeny, pengeszerű</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A2<br>A buccinator tasak</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A2_jobb_null" value="">
-                            <label><input type="radio" name="A2_jobb" value="1"> szájnyitáskor beszűkülő</label>
-                            <label><input type="radio" name="A2_jobb" value="2"> szájnyitáskor kiszélesedő</label>
-                            <label><input type="radio" name="A2_jobb" value="3"> lebenyezett felszínű</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A2_bal_null" value="">
-                            <label><input type="radio" name="A2_bal" value="1"> szájnyitáskor beszűkülő</label>
-                            <label><input type="radio" name="A2_bal" value="2"> szájnyitáskor kiszélesedő</label>
-                            <label><input type="radio" name="A2_bal" value="3"> lebenyezett felszínű</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A3<br>Torus mandibularis</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A3_jobb_null" value="">
-                            <label><input type="radio" name="A3_jobb" value="1"> nincs</label>
-                            <label><input type="radio" name="A3_jobb" value="2"> nagy méretű</label>
-                            <label><input type="radio" name="A3_jobb" value="3"> kis méretű</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A3_bal_null" value="">
-                            <label><input type="radio" name="A3_bal" value="1"> nincs</label>
-                            <label><input type="radio" name="A3_bal" value="2"> nagy méretű</label>
-                            <label><input type="radio" name="A3_bal" value="3"> kis méretű</label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-
-            <table class="lower-jaw hidden">
-                <thead>
-                    <tr>
-                        <th>A retromolaris tájék értékelése</th>
-                        <th>Jobb</th>
-                        <th>Bal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>A4<br>a lingualis tasak</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A4_jobb_null" value="">
-                            <label><input type="radio" name="A4_jobb" value="1"> nyeléskor a környező izmok nem szűkítik</label>
-                            <label><input type="radio" name="A4_jobb" value="2"> nyeléskor a környező izmok ujjunkat a mandibulához préselik</label>
-                            <label><input type="radio" name="A4_jobb" value="3"> nyeléskor a környező izmok ujjunkat kifelé préselik</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A4_bal_null" value="">
-                            <label><input type="radio" name="A4_bal" value="1"> nyeléskor a környező izmok nem szűkítik</label>
-                            <label><input type="radio" name="A4_bal" value="2"> nyeléskor a környező izmok ujjunkat a mandibulához préselik</label>
-                            <label><input type="radio" name="A4_bal" value="3"> nyeléskor a környező izmok ujjunkat kifelé préselik</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A5<br>a tuberculum mekkora hányadát borítja feszes íny?</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A5_jobb_null" value="">
-                            <label><input type="radio" name="A5_jobb" value="1"> az egészet</label>
-                            <label><input type="radio" name="A5_jobb" value="2"> elülső harmadát</label>
-                            <label><input type="radio" name="A5_jobb" value="3"> egyáltalán nem</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A5_bal_null" value="">
-                            <label><input type="radio" name="A5_bal" value="1"> az egészet</label>
-                            <label><input type="radio" name="A5_bal" value="2"> elülső harmadát</label>
-                            <label><input type="radio" name="A5_bal" value="3"> egyáltalán nem</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A6<br>a tuberculum alakja, mérete</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A6_jobb_null" value="">
-                            <label><input type="radio" name="A6_jobb" value="1"> fordított körte alakú</label>
-                            <label><input type="radio" name="A6_jobb" value="2"> kicsi, de környezetétől elváló</label>
-                            <label><input type="radio" name="A6_jobb" value="3"> plicaszerű</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A6_bal_null" value="">
-                            <label><input type="radio" name="A6_bal" value="1"> fordított körte alakú</label>
-                            <label><input type="radio" name="A6_bal" value="2"> kicsi, de környezetétől elváló</label>
-                            <label><input type="radio" name="A6_bal" value="3"> plicaszerű</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A7<br>a tuberculum-gerinc inklinációs szög</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A7_jobb_null" value="">
-                            <label><input type="radio" name="A7_jobb" value="1"> nincs szögeltérés</label>
-                            <label><input type="radio" name="A7_jobb" value="2"> jelentős szögeltérés</label>
-                            <label><input type="radio" name="A7_jobb" value="3"> plicaszerű, nem vizsgálható</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A7_bal_null" value="">
-                            <label><input type="radio" name="A7_bal" value="1"> nincs szögeltérés</label>
-                            <label><input type="radio" name="A7_bal" value="2"> jelentős szögeltérés</label>
-                            <label><input type="radio" name="A7_bal" value="3"> plicaszerű, nem vizsgálható</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A8<br>a tuberculum alakváltozása szájnyitás-szájzáráskor</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A8_jobb_null" value="">
-                            <label><input type="radio" name="A8_jobb" value="1"> nem változik</label>
-                            <label><input type="radio" name="A8_jobb" value="2"> kissé változik</label>
-                            <label><input type="radio" name="A8_jobb" value="3"> abszolút mozgékony</label>
-                        </td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A8_bal_null" value="">
-                            <label><input type="radio" name="A8_bal" value="1"> nem változik</label>
-                            <label><input type="radio" name="A8_bal" value="2"> kissé változik</label>
-                            <label><input type="radio" name="A8_bal" value="3"> abszolút mozgékony</label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            
 
 
             <table class="lower-jaw hidden">
@@ -430,50 +230,12 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>A9<br>Az állcsont-reláció</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A9_null" value="">
-                            <label><input type="radio" name="A9" value="1"> Angle I. osztály</label>
-                            <label><input type="radio" name="A9" value="2"> Angle II. osztály</label>
-                            <label><input type="radio" name="A9" value="3"> Angle III. osztály</label>
+                        <td>A10<br>Az állcsont-reláció</td>
+                        <td><input type="number" step="0.01" placeholder="Enter value"> &deg;</td>
+
                         </td>
                     </tr>
-                    <tr>
-                        <td>A10<br>A szublingualis tájék vizsgálata</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A10_null" value="">
-                            <label><input type="radio" name="A10" value="1"> nem elő-domborodó</label>
-                            <label><input type="radio" name="A10" value="2"> puhán elő-domborodó</label>
-                            <label><input type="radio" name="A10" value="3"> tömött elő-domborodó</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A11<br>A spinae mentales</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A11_null" value="">
-                            <label><input type="radio" name="A11" value="1"> nem tapintható</label>
-                            <label><input type="radio" name="A11" value="2"> tapintható</label>
-                            <label><input type="radio" name="A11" value="3"> nyomásra érzékeny</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A12<br>TMI funkció</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A12_null" value="">
-                            <label><input type="radio" name="A12" value="1"> panaszmentes</label>
-                            <label><input type="radio" name="A12" value="2"> hangjelenség fájdalom vagy mozgáskorlátozottság nélkül</label>
-                            <label><input type="radio" name="A12" value="3"> fájdalom és/vagy mozgáskorlátozottság</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>A13<br>Az antagonista fogazat</td>
-                        <td class="radio-group">
-                            <input type="hidden" name="A13_null" value="">
-                            <label><input type="radio" name="A13" value="1"> nincs</label>
-                            <label><input type="radio" name="A13" value="2"> teljes lemezes fogpótlás vagy overdenture vagy részleges fémlemezes fogpótlás</label>
-                            <label><input type="radio" name="A13" value="3"> teljesen megtartott vagy rögzített fogpótlással helyreállított</label>
-                        </td>
-                    </tr>
+                    
                 </tbody>
             </table>
 
