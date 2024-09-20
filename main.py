@@ -192,28 +192,28 @@ def submit_questionnaire1():
     # Fetch responses for OHIP questions
     OHIP_questions = [request.form[f'OHIP_{i}'] for i in range(1, 6)]
 
-    F5 = request.form['F5']
-    F7 = request.form['F7']
-    F8 = request.form['F8']
-    A1_Kaan = request.form['A1_Kaan']
-    A3_jobb = request.form['A3_jobb']
-    A3_bal = request.form['A3_bal']
-    A4_jobb = request.form['A4_jobb']
-    A4_bal = request.form['A4_bal']
-    A5_jobb = request.form['A5_jobb']
-    A5_bal = request.form['A5_bal']
-    A6_jobb = request.form['A6_jobb']
-    A6_bal = request.form['A6_bal']
-    A7_jobb = request.form['A7_jobb']
-    A7_bal = request.form['A7_bal']
-    A8_jobb = request.form['A8_jobb']
-    A8_bal = request.form['A8_bal']
-    A9_jobb = request.form['A9_jobb']
-    A9_bal = request.form['A9_bal']
-    A11 = request.form['A11']
-    A12 = request.form['A12']
-    A13 = request.form['A13']
-    A14 = request.form['A14']
+    F5 = request.form.get('F5')
+    F7 = request.form.get('F7')
+    F8 = request.form.get('F8')
+    A1_Kaan = request.form.get('A1_Kaan')
+    A3_jobb = request.form.get('A3_jobb')
+    A3_bal = request.form.get('A3_bal')
+    A4_jobb = request.form.get('A4_jobb')
+    A4_bal = request.form.get('A4_bal')
+    A5_jobb = request.form.get('A5_jobb')
+    A5_bal = request.form.get('A5_bal')
+    A6_jobb = request.form.get('A6_jobb')
+    A6_bal = request.form.get('A6_bal')
+    A7_jobb = request.form.get('A7_jobb')
+    A7_bal = request.form.get('A7_bal')
+    A8_jobb = request.form.get('A8_jobb')
+    A8_bal = request.form.get('A8_bal')
+    A9_jobb = request.form.get('A9_jobb')
+    A9_bal = request.form.get('A9_bal')
+    A11 = request.form.get('A11')
+    A12 = request.form.get('A12')
+    A13 = request.form.get('A13')
+    A14 = request.form.get('A14')
 
     sql = """
     INSERT INTO patients (TAJ, birthdate, gender, denture_type, GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12, OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5, responsiveness_today_situation, chewing_today_situation, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14)
@@ -565,22 +565,22 @@ def results():
     plt.grid(axis='x')
     age_gender_img = plot_to_base64(fig_age_gender)
 
-#     # Q1 subjective chewing ability
-#     cursor.execute("SELECT chewing_today_situation FROM patients WHERE chewing_today_situation IS NOT NULL")
-#     subjective_chewing = cursor.fetchall()
-#     subjective_chewing = [row[0] for row in subjective_chewing]
-#         # Convert the list to a pandas DataFrame
-#     df = pd.DataFrame(subjective_chewing, columns=['today_situation'])
-#         # Count the occurrences of each response
-#     response_counts = df['today_situation'].value_counts().reindex(["Kiváló", "Jó", "Átlagos", "Rossz", "Nagyon rossz"], fill_value=0)
-#         # Plotting the bar chart
-#     fig_q1 = plt.figure(figsize=(8, 4))
-#     response_counts.plot(kind='bar', color='skyblue')
-#     plt.xlabel(None)
-#     plt.ylabel('A válaszolók száma')
-#     plt.title('Szubjektív rágóképességre vonatkozó kérdésre adott válaszok megoszlása')
-#     plt.xticks(rotation=0)
-#     q1_barchart = plot_to_base64(fig_q1)
+    # Q1 subjective chewing ability
+    cursor.execute("SELECT chewing_today_situation FROM patients WHERE chewing_today_situation IS NOT NULL")
+    subjective_chewing = cursor.fetchall()
+    subjective_chewing = [row[0] for row in subjective_chewing]
+        # Convert the list to a pandas DataFrame
+    df = pd.DataFrame(subjective_chewing, columns=['today_situation'])
+        # Count the occurrences of each response
+    response_counts = df['today_situation'].value_counts().reindex(["Kiváló", "Jó", "Átlagos", "Rossz", "Nagyon rossz"], fill_value=0)
+        # Plotting the bar chart
+    fig_q1 = plt.figure(figsize=(8, 4))
+    response_counts.plot(kind='bar', color='skyblue')
+    plt.xlabel(None)
+    plt.ylabel('A válaszolók száma')
+    plt.title('Szubjektív rágóképességre vonatkozó kérdésre adott válaszok megoszlása')
+    plt.xticks(rotation=0)
+    q1_barchart = plot_to_base64(fig_q1)
 
 #     # Q2 subjective CHANGE IN chewing ability
 #     cursor.execute("SELECT chewing_change FROM patients WHERE chewing_change IS NOT NULL")
@@ -599,18 +599,18 @@ def results():
 #     plt.xticks(rotation=0)
 #     q2_barchart = plot_to_base64(fig_q2)
     
-#     # Initial OHIP and GOHAI calculations
-#     cursor.execute("SELECT OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5 FROM patients WHERE OHIP_1 IS NOT NULL AND OHIP_2 IS NOT NULL AND OHIP_3 IS NOT NULL AND OHIP_4 IS NOT NULL AND OHIP_5 IS NOT NULL")
-#     initial_ohip_scores = cursor.fetchall()
-#     ohip_init_scores = [sum(row) for row in initial_ohip_scores]
-#     ohip_init_mean = np.mean(ohip_init_scores)
-#     ohip_init_std = np.std(ohip_init_scores)
+    # Initial OHIP and GOHAI calculations
+    cursor.execute("SELECT OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5 FROM patients WHERE OHIP_1 IS NOT NULL AND OHIP_2 IS NOT NULL AND OHIP_3 IS NOT NULL AND OHIP_4 IS NOT NULL AND OHIP_5 IS NOT NULL")
+    initial_ohip_scores = cursor.fetchall()
+    ohip_init_scores = [sum(row) for row in initial_ohip_scores]
+    ohip_init_mean = np.mean(ohip_init_scores)
+    ohip_init_std = np.std(ohip_init_scores)
     
-#     cursor.execute("SELECT GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12 FROM patients WHERE GOHAI_1 IS NOT NULL AND GOHAI_2 IS NOT NULL AND GOHAI_3 IS NOT NULL AND GOHAI_4 IS NOT NULL AND GOHAI_5 IS NOT NULL AND GOHAI_6 IS NOT NULL AND GOHAI_7 IS NOT NULL AND GOHAI_8 IS NOT NULL AND GOHAI_9 IS NOT NULL AND GOHAI_10 IS NOT NULL AND GOHAI_11 IS NOT NULL AND GOHAI_12 IS NOT NULL")
-#     gohai_scores = cursor.fetchall()
-#     gohai_init_scores = [sum(row) for row in gohai_scores]
-#     gohai_init_mean = np.mean(gohai_init_scores)
-#     gohai_init_std = np.std(gohai_init_scores)
+    cursor.execute("SELECT GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12 FROM patients WHERE GOHAI_1 IS NOT NULL AND GOHAI_2 IS NOT NULL AND GOHAI_3 IS NOT NULL AND GOHAI_4 IS NOT NULL AND GOHAI_5 IS NOT NULL AND GOHAI_6 IS NOT NULL AND GOHAI_7 IS NOT NULL AND GOHAI_8 IS NOT NULL AND GOHAI_9 IS NOT NULL AND GOHAI_10 IS NOT NULL AND GOHAI_11 IS NOT NULL AND GOHAI_12 IS NOT NULL")
+    gohai_scores = cursor.fetchall()
+    gohai_init_scores = [sum(row) for row in gohai_scores]
+    gohai_init_mean = np.mean(gohai_init_scores)
+    gohai_init_std = np.std(gohai_init_scores)
 
 #     # Final OHIP and GOHAI calculations
 #     cursor.execute("SELECT OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall FROM patients WHERE OHIP_1_recall IS NOT NULL AND OHIP_2_recall IS NOT NULL AND OHIP_3_recall IS NOT NULL AND OHIP_4_recall IS NOT NULL AND OHIP_5_recall IS NOT NULL")
@@ -982,14 +982,14 @@ def results():
                         female_age_distribution=female_age_distribution,
                         dentures_img=dentures_img,
                         age_gender_img=age_gender_img,
-                        # q1_barchart = q1_barchart,
+                        q1_barchart = q1_barchart,
                         # q2_barchart = q2_barchart,
-                        # ohip_init_mean=ohip_init_mean,
-                        # ohip_init_std=ohip_init_std,
+                        ohip_init_mean=ohip_init_mean,
+                        ohip_init_std=ohip_init_std,
                         # ohip_final_mean=ohip_final_mean,
                         # ohip_final_std=ohip_final_std,
-                        # gohai_init_mean=gohai_init_mean,
-                        # gohai_init_std=gohai_init_std,
+                        gohai_init_mean=gohai_init_mean,
+                        gohai_init_std=gohai_init_std,
                         # gohai_final_mean=gohai_final_mean,
                         # gohai_final_std=gohai_final_std,
                         # init_mai_mean=init_mai_mean,
