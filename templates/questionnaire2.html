@@ -112,7 +112,7 @@
     <div class="container">
         <h1>Modellanalízis mérései</h1>
         <div><body>Itt csak azok szerepelnek, amit nem a páciens direkt vizsgálatával állapítunk meg!</body></div>
-        <form action="/submit_questionnaire2" method="post">
+        <form action="/submit_questionnaire2" method="post" enctype="multipart/form-data">
             <label for="TAJ">TAJ:</label>
             <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
             <label for="jawSelection">Melyik állkapcsot vizsgáljuk?</label>
