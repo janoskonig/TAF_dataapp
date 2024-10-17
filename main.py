@@ -235,25 +235,32 @@ def submit_questionnaire2():
         value = request.form.get(field_name, None)
         return value if value else None
     # F1 = uploading stl files to NAS
-    F1_gerinc = request.files['stlFile_gerincelvonal']
-    filename_gerinc = secure_filename(F1_gerinc.filename)
-    if filename_gerinc.rsplit('.', 1)[1].lower() == 'stl':
-        file_path_gerinc = os.path.join(app.config['UPLOAD_FOLDER'], filename_gerinc)
-        F1_gerinc.save(file_path_gerinc)
-        # Upload to NAS and get the NAS path
-        F1_nas_file_path_gerinc = upload_to_nas(file_path_gerinc, TAJ, 'modellanalízis')
-        # Clean up the temporary file
-        os.remove(file_path_gerinc)
+    try:
+        F1_gerinc = request.files['stlFile_gerincelvonal']
+        filename_gerinc = secure_filename(F1_gerinc.filename)
+        if filename_gerinc.rsplit('.', 1)[1].lower() == 'stl':
+            file_path_gerinc = os.path.join(app.config['UPLOAD_FOLDER'], filename_gerinc)
+            F1_gerinc.save(file_path_gerinc)
+            # Upload to NAS and get the NAS path
+            F1_nas_file_path_gerinc = upload_to_nas(file_path_gerinc, TAJ, 'modellanalízis')
+            # Clean up the temporary file
+            os.remove(file_path_gerinc)
+    except Exception as e:
+        return render_template('error.html', message="A felső gerincélvonal STL feltöltésével probléma van. Kérlek próbáld újra!")
 
-    F1_bukkalis = request.files['stlFile_bukkalis']
-    filename_bukkalis = secure_filename(F1_bukkalis.filename)
-    if filename_bukkalis.rsplit('.', 1)[1].lower() == 'stl':
-        file_path_bukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_bukkalis)
-        F1_bukkalis.save(file_path_bukkal)
-        # Upload to NAS and get the NAS path
-        F1_nas_file_path_bukkal = upload_to_nas(file_path_bukkal, TAJ, 'modellanalízis')
-        # Clean up the temporary file
-        os.remove(file_path_bukkal)
+
+    try:
+        F1_bukkalis = request.files['stlFile_bukkalis']
+        filename_bukkalis = secure_filename(F1_bukkalis.filename)
+        if filename_bukkalis.rsplit('.', 1)[1].lower() == 'stl':
+            file_path_bukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_bukkalis)
+            F1_bukkalis.save(file_path_bukkal)
+            # Upload to NAS and get the NAS path
+            F1_nas_file_path_bukkal = upload_to_nas(file_path_bukkal, TAJ, 'modellanalízis')
+            # Clean up the temporary file
+            os.remove(file_path_bukkal)
+    except Exception as e:
+        return render_template('error.html', message="A felső bukkális STL feltöltésével probléma van. Kérlek próbáld újra!")
     
     # Fetch the float values for F2
     F2 = get_form_data('F2') # alámenősség köbmilliméterben
@@ -265,32 +272,40 @@ def submit_questionnaire2():
     
     # Fetch responses for A1 and new questions
     
-    A2_gerinc = request.files['stlFile_also_gerincelvonal']
-    filename_alsogerinc = secure_filename(A2_gerinc.filename)
-    if filename_alsogerinc.rsplit('.', 1)[1].lower() == 'stl':
-        file_path_alsogerinc = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsogerinc)
-        A2_gerinc.save(file_path_alsogerinc)
-        # Upload to NAS and get the NAS path
-        A2_nas_file_path_gerinc = upload_to_nas(file_path_alsogerinc, TAJ, 'modellanalízis')
-        # Clean up the temporary file
-        os.remove(file_path_alsogerinc)
+    try:
+        A2_gerinc = request.files['stlFile_also_gerincelvonal']
+        filename_alsogerinc = secure_filename(A2_gerinc.filename)
+        if filename_alsogerinc.rsplit('.', 1)[1].lower() == 'stl':
+            file_path_alsogerinc = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsogerinc)
+            A2_gerinc.save(file_path_alsogerinc)
+            # Upload to NAS and get the NAS path
+            A2_nas_file_path_gerinc = upload_to_nas(file_path_alsogerinc, TAJ, 'modellanalízis')
+            # Clean up the temporary file
+            os.remove(file_path_alsogerinc)
+    except Exception as e:
+        return render_template('error.html', message="Az alsó gerincélvonal STL feltöltésével probléma van. Kérlek próbáld újra!")
     
-    A2_bukkal = request.files["stlFile_also_bukkalis"]
-    filename_alsobukkal = secure_filename(A2_bukkal.filename)
-    if filename_alsobukkal.rsplit('.', 1)[1].lower() == 'stl':
-        file_path_alsobukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsobukkal)
-        A2_bukkal.save(file_path_alsobukkal)
-        A2_nas_file_path_bukkal = upload_to_nas(file_path_alsobukkal, TAJ, 'modellanalízis')
-        os.remove(file_path_alsobukkal)
+    try:
+        A2_bukkal = request.files["stlFile_also_bukkalis"]
+        filename_alsobukkal = secure_filename(A2_bukkal.filename)
+        if filename_alsobukkal.rsplit('.', 1)[1].lower() == 'stl':
+            file_path_alsobukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsobukkal)
+            A2_bukkal.save(file_path_alsobukkal)
+            A2_nas_file_path_bukkal = upload_to_nas(file_path_alsobukkal, TAJ, 'modellanalízis')
+            os.remove(file_path_alsobukkal)
+    except Exception as e:
+        return render_template('error.html', message="Az alsó bukkális STL feltöltésével probléma van. Kérlek próbáld újra!")
 
-    A2_lingual = request.files["stlFile_also_lingualis"]
-    filename_alsolingual = secure_filename(A2_lingual.filename)
-    if filename_alsolingual.rsplit('.', 1)[1].lower() == 'stl':
-        file_path_alsolingual = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsolingual)
-        A2_lingual.save(file_path_alsolingual)
-        A2_nas_file_path_lingual = upload_to_nas(file_path_alsolingual, TAJ, 'modellanalízis')
-        os.remove(file_path_alsolingual)
-    
+    try:
+        A2_lingual = request.files["stlFile_also_lingualis"]
+        filename_alsolingual = secure_filename(A2_lingual.filename)
+        if filename_alsolingual.rsplit('.', 1)[1].lower() == 'stl':
+            file_path_alsolingual = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsolingual)
+            A2_lingual.save(file_path_alsolingual)
+            A2_nas_file_path_lingual = upload_to_nas(file_path_alsolingual, TAJ, 'modellanalízis')
+            os.remove(file_path_alsolingual)
+    except Exception as e:
+        return render_template('error.html', message="Az alsó lingualis STL feltöltésével probléma van. Kérlek próbáld újra!")
 
     A10 = get_form_data('A10') # állcsontreláció szögértéke
 
