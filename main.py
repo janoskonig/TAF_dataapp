@@ -283,7 +283,7 @@ def submit_questionnaire2():
         A2_nas_file_path_bukkal = upload_to_nas(file_path_alsobukkal, TAJ, 'modellanalízis')
         os.remove(file_path_alsobukkal)
 
-    A2_lingual = request.files("stlFile_also_lingualis")
+    A2_lingual = request.files["stlFile_also_lingualis"]
     filename_alsolingual = secure_filename(A2_lingual.filename)
     if filename_alsolingual.rsplit('.', 1)[1].lower() == 'stl':
         file_path_alsolingual = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsolingual)
