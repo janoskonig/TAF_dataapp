@@ -36,10 +36,13 @@ nas_password = os.getenv("NAS_PASS")
 nas_folder = os.getenv("NAS_DIR")
 
 def upload_to_nas(file_path, TAJ, measurement_type):
-    if measurement_type not in ['initial', 'final', 'modellanalízis']:
-        raise ValueError("measurement_type must be either 'initial' or 'final'")
-    filename = f"mai_{measurement_type}_{TAJ}.tiff"
-
+    if measurement_type not in ['mai_initial', 'mai_final', 'F1_gerinc', 'F1_bukkalis' 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
+        raise ValueError("measurement_type must be either 'initial_mai', 'final_mai', 'F1_gerinc', 'F1_bukkalis', 'A2_gerinc', 'A2_bukkalis', or 'A2_lingualis'")
+    if measurement_type == 'initial' or 'final':
+        filename = f"mai_{measurement_type}_{TAJ}.tiff"
+    else:
+        filename = f"modellanalizis_{TAJ}_{measurement_type}.stl"
+    
     with FTP(nas_host) as ftp:
         ftp.login(nas_user, nas_password)
         ftp.cwd(nas_folder)
@@ -242,7 +245,7 @@ def submit_questionnaire2():
             file_path_gerinc = os.path.join(app.config['UPLOAD_FOLDER'], filename_gerinc)
             F1_gerinc.save(file_path_gerinc)
             # Upload to NAS and get the NAS path
-            F1_nas_file_path_gerinc = upload_to_nas(file_path_gerinc, TAJ, 'modellanalízis')
+            F1_nas_file_path_gerinc = upload_to_nas(file_path_gerinc, TAJ, 'F1_gerinc')
             # Clean up the temporary file
             os.remove(file_path_gerinc)
     except Exception as e:
@@ -256,7 +259,7 @@ def submit_questionnaire2():
             file_path_bukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_bukkalis)
             F1_bukkalis.save(file_path_bukkal)
             # Upload to NAS and get the NAS path
-            F1_nas_file_path_bukkal = upload_to_nas(file_path_bukkal, TAJ, 'modellanalízis')
+            F1_nas_file_path_bukkal = upload_to_nas(file_path_bukkal, TAJ, 'F1_bukkalis')
             # Clean up the temporary file
             os.remove(file_path_bukkal)
     except Exception as e:
@@ -279,7 +282,7 @@ def submit_questionnaire2():
             file_path_alsogerinc = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsogerinc)
             A2_gerinc.save(file_path_alsogerinc)
             # Upload to NAS and get the NAS path
-            A2_nas_file_path_gerinc = upload_to_nas(file_path_alsogerinc, TAJ, 'modellanalízis')
+            A2_nas_file_path_gerinc = upload_to_nas(file_path_alsogerinc, TAJ, 'A2_gerinc')
             # Clean up the temporary file
             os.remove(file_path_alsogerinc)
     except Exception as e:
@@ -291,7 +294,7 @@ def submit_questionnaire2():
         if filename_alsobukkal.rsplit('.', 1)[1].lower() == 'stl':
             file_path_alsobukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsobukkal)
             A2_bukkal.save(file_path_alsobukkal)
-            A2_nas_file_path_bukkal = upload_to_nas(file_path_alsobukkal, TAJ, 'modellanalízis')
+            A2_nas_file_path_bukkal = upload_to_nas(file_path_alsobukkal, TAJ, 'A2_bukkalis')
             os.remove(file_path_alsobukkal)
     except Exception as e:
         return render_template('error.html', message=f"Az alsó bukkális STL feltöltésével probléma van. Kérlek próbáld újra! Üzenet: {str(e)}")
@@ -302,7 +305,7 @@ def submit_questionnaire2():
         if filename_alsolingual.rsplit('.', 1)[1].lower() == 'stl':
             file_path_alsolingual = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsolingual)
             A2_lingual.save(file_path_alsolingual)
-            A2_nas_file_path_lingual = upload_to_nas(file_path_alsolingual, TAJ, 'modellanalízis')
+            A2_nas_file_path_lingual = upload_to_nas(file_path_alsolingual, TAJ, 'A2_lingualis')
             os.remove(file_path_alsolingual)
     except Exception as e:
         return render_template('error.html', message=f"Az alsó lingualis STL feltöltésével probléma van. Kérlek próbáld újra! Üzenet: {str(e)}")
@@ -311,8 +314,8 @@ def submit_questionnaire2():
 
     print(request.form)
     print(request.files)  
-    
-      
+
+
     # Check if TAJ exists
     cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
     result = cursor.fetchone()
@@ -437,7 +440,7 @@ def submit_init_mai():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        nas_file_path = upload_to_nas(file_path, TAJ, 'initial')
+        nas_file_path = upload_to_nas(file_path, TAJ, 'mai_initial')
         os.remove(file_path)  # Clean up temporary file
 
         # Calculate MAI
@@ -483,7 +486,7 @@ def submit_final_mai():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        nas_file_path = upload_to_nas(file_path, TAJ, 'final')
+        nas_file_path = upload_to_nas(file_path, TAJ, 'mai_final')
         os.remove(file_path)  # Clean up temporary file
 
         # Calculate MAI
