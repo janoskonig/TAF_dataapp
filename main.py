@@ -36,9 +36,9 @@ nas_password = os.getenv("NAS_PASS")
 nas_folder = os.getenv("NAS_DIR")
 
 def upload_to_nas(file_path, TAJ, measurement_type):
-    if measurement_type not in ['mai_initial', 'mai_final', 'F1_gerinc', 'F1_bukkalis' 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
+    if measurement_type not in ['mai_initial', 'mai_final', 'F1_gerinc', 'F1_bukkalis', 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
         raise ValueError("measurement_type must be either 'initial_mai', 'final_mai', 'F1_gerinc', 'F1_bukkalis', 'A2_gerinc', 'A2_bukkalis', or 'A2_lingualis'")
-    if measurement_type == 'initial' or 'final':
+    if measurement_type == 'mai_initial' or measurement_type == 'mai_final':
         filename = f"mai_{measurement_type}_{TAJ}.tiff"
     else:
         filename = f"modellanalizis_{TAJ}_{measurement_type}.stl"
