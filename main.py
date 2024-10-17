@@ -269,7 +269,7 @@ def submit_questionnaire2():
     filename_alsogerinc = secure_filename(A2_gerinc.filename)
     if filename_alsogerinc.rsplit('.', 1)[1].lower() == 'stl':
         file_path_alsogerinc = os.path.join(app.config['UPLOAD_FOLDER'], filename_alsogerinc)
-        A2_gerinc.save(file_path_bukkal)
+        A2_gerinc.save(file_path_alsogerinc)
         # Upload to NAS and get the NAS path
         A2_nas_file_path_gerinc = upload_to_nas(file_path_alsogerinc, TAJ, 'modellanalízis')
         # Clean up the temporary file
