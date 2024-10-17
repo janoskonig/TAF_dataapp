@@ -246,7 +246,7 @@ def submit_questionnaire2():
             # Clean up the temporary file
             os.remove(file_path_gerinc)
     except Exception as e:
-        return render_template('error.html', message="A felső gerincélvonal STL feltöltésével probléma van. Kérlek próbáld újra!")
+        return render_template('error.html', message=f"A felső gerincélvonal STL feltöltésével probléma van. Kérlek próbáld újra! Üzenet: {str(e)}")
 
 
     try:
@@ -260,7 +260,7 @@ def submit_questionnaire2():
             # Clean up the temporary file
             os.remove(file_path_bukkal)
     except Exception as e:
-        return render_template('error.html', message="A felső bukkális STL feltöltésével probléma van. Kérlek próbáld újra!")
+        return render_template('error.html', message=f"A felső bukkális STL feltöltésével probléma van. Kérlek próbáld újra! Üzenet: {str(e)}")
     
     # Fetch the float values for F2
     F2 = get_form_data('F2') # alámenősség köbmilliméterben
@@ -283,7 +283,7 @@ def submit_questionnaire2():
             # Clean up the temporary file
             os.remove(file_path_alsogerinc)
     except Exception as e:
-        return render_template('error.html', message="Az alsó gerincélvonal STL feltöltésével probléma van. Kérlek próbáld újra!")
+        return render_template('error.html', message=f"Az alsó gerincélvonal STL feltöltésével probléma van. Kérlek próbáld újra! Üzenet: {str(e)}")
     
     try:
         A2_bukkal = request.files["stlFile_also_bukkalis"]
@@ -294,7 +294,7 @@ def submit_questionnaire2():
             A2_nas_file_path_bukkal = upload_to_nas(file_path_alsobukkal, TAJ, 'modellanalízis')
             os.remove(file_path_alsobukkal)
     except Exception as e:
-        return render_template('error.html', message="Az alsó bukkális STL feltöltésével probléma van. Kérlek próbáld újra!")
+        return render_template('error.html', message=f"Az alsó bukkális STL feltöltésével probléma van. Kérlek próbáld újra! Üzenet: {str(e)}")
 
     try:
         A2_lingual = request.files["stlFile_also_lingualis"]
@@ -305,7 +305,7 @@ def submit_questionnaire2():
             A2_nas_file_path_lingual = upload_to_nas(file_path_alsolingual, TAJ, 'modellanalízis')
             os.remove(file_path_alsolingual)
     except Exception as e:
-        return render_template('error.html', message="Az alsó lingualis STL feltöltésével probléma van. Kérlek próbáld újra!")
+        return render_template('error.html', message=f"Az alsó lingualis STL feltöltésével probléma van. Kérlek próbáld újra! Üzenet: {str(e)}")
 
     A10 = get_form_data('A10') # állcsontreláció szögértéke
 
