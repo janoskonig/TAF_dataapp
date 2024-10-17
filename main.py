@@ -309,7 +309,10 @@ def submit_questionnaire2():
 
     A10 = get_form_data('A10') # állcsontreláció szögértéke
 
+    print(request.form)
+    print(request.files)  
     
+      
     # Check if TAJ exists
     cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
     result = cursor.fetchone()
