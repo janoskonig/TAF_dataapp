@@ -246,9 +246,9 @@ def submit_questionnaire2():
         os.remove(file_path_gerinc)
 
     F1_bukkalis = request.files['stlFile_bukkalis']
-    filename_gerinc = secure_filename(F1_bukkalis.filename)
-    if filename_gerinc.rsplit('.', 1)[1].lower() == 'stl':
-        file_path_bukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_gerinc)
+    filename_bukkalis = secure_filename(F1_bukkalis.filename)
+    if filename_bukkalis.rsplit('.', 1)[1].lower() == 'stl':
+        file_path_bukkal = os.path.join(app.config['UPLOAD_FOLDER'], filename_bukkalis)
         F1_bukkalis.save(file_path_bukkal)
         # Upload to NAS and get the NAS path
         F1_nas_file_path_bukkal = upload_to_nas(file_path_bukkal, TAJ, 'modellanalízis')
