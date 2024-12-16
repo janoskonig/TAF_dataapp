@@ -373,8 +373,8 @@ def submit_questionnaire3():
     GOHAI_11_recall = get_form_data('GOHAI_11_recall')
     GOHAI_12_recall = get_form_data('GOHAI_12_recall')
 
-    # Fetch responses for MFIQ questions
-    MFIQ_questions = [get_form_data(f'MFIQ_{i}') for i in range(1, 18)]
+    # # Fetch responses for MFIQ questions
+    # MFIQ_questions = [get_form_data(f'MFIQ_{i}') for i in range(1, 18)]
 
     # Check if TAJ exists
     cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
@@ -391,18 +391,14 @@ def submit_questionnaire3():
     OHIP_1_recall = %s, OHIP_2_recall = %s, OHIP_3_recall = %s, OHIP_4_recall = %s, OHIP_5_recall = %s,
     GOHAI_1_recall = %s, GOHAI_2_recall = %s, GOHAI_3_recall = %s, GOHAI_4_recall = %s, GOHAI_5_recall = %s,
     GOHAI_6_recall = %s, GOHAI_7_recall = %s, GOHAI_8_recall = %s, GOHAI_9_recall = %s, GOHAI_10_recall = %s,
-    GOHAI_11_recall = %s, GOHAI_12_recall = %s,
-    MFIQ_1 = %s, MFIQ_2 = %s, MFIQ_3 = %s, MFIQ_4 = %s, MFIQ_5 = %s,
-    MFIQ_6 = %s, MFIQ_7 = %s, MFIQ_8 = %s, MFIQ_9 = %s, MFIQ_10 = %s,
-    MFIQ_11 = %s, MFIQ_12 = %s, MFIQ_13 = %s, MFIQ_14 = %s, MFIQ_15 = %s,
-    MFIQ_16 = %s, MFIQ_17 = %s
+    GOHAI_11_recall = %s, GOHAI_12_recall = %s
     WHERE TAJ = %s
     """
     values = (today_situation_recall, change,
               OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall,
               GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall,
               GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall,
-              GOHAI_11_recall, GOHAI_12_recall, *MFIQ_questions, TAJ)
+              GOHAI_11_recall, GOHAI_12_recall, TAJ)
     cursor.execute(sql, values)
     db.commit()
     return render_template('confirmation.html')
