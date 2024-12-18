@@ -349,8 +349,11 @@ def submit_questionnaire3():
         return request.form.get(field_name, '')
 
     # Fetch responses for today's situation
-    today_situation_recall = get_form_data('today_situation_recall')
-    change = get_form_data('change')
+    responsiveness_today_situation_recall = get_form_data('responsiveness_today_situation_recall')
+    responsiveness_change = get_form_data('responsiveness_change')
+    chewing_today_situation_recall = get_form_data('chewing_today_situation_recall')
+    chewing_change = get_form_data('chewing_change')
+
     
     # Fetch responses for OHIP recall questions
     OHIP_1_recall = get_form_data('OHIP_1_recall')
@@ -387,14 +390,16 @@ def submit_questionnaire3():
 
     sql = """
     UPDATE patients SET 
-    today_situation_recall = %s, perceived_change = %s,
+    responsiveness_today_situation_recall = %s, responsiveness_change = %s,
+    chewing_today_situation_recall = %s, chewing_change = %s,
     OHIP_1_recall = %s, OHIP_2_recall = %s, OHIP_3_recall = %s, OHIP_4_recall = %s, OHIP_5_recall = %s,
     GOHAI_1_recall = %s, GOHAI_2_recall = %s, GOHAI_3_recall = %s, GOHAI_4_recall = %s, GOHAI_5_recall = %s,
     GOHAI_6_recall = %s, GOHAI_7_recall = %s, GOHAI_8_recall = %s, GOHAI_9_recall = %s, GOHAI_10_recall = %s,
     GOHAI_11_recall = %s, GOHAI_12_recall = %s
     WHERE TAJ = %s
     """
-    values = (today_situation_recall, change,
+    values = (responsiveness_today_situation_recall, responsiveness_change,
+              chewing_today_situation_recall, chewing_change,
               OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall,
               GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall,
               GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall,
