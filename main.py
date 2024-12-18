@@ -635,18 +635,18 @@ def results():
     gohai_init_mean = np.mean(gohai_init_scores)
     gohai_init_std = np.std(gohai_init_scores)
 
-#     # Final OHIP and GOHAI calculations
-#     cursor.execute("SELECT OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall FROM patients WHERE OHIP_1_recall IS NOT NULL AND OHIP_2_recall IS NOT NULL AND OHIP_3_recall IS NOT NULL AND OHIP_4_recall IS NOT NULL AND OHIP_5_recall IS NOT NULL")
-#     final_ohip_scores = cursor.fetchall()
-#     ohip_final_scores = [sum(row) for row in final_ohip_scores]
-#     ohip_final_mean = np.mean(ohip_final_scores)
-#     ohip_final_std = np.std(ohip_final_scores)
+    # Final OHIP and GOHAI calculations
+    cursor.execute("SELECT OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall FROM patients WHERE OHIP_1_recall IS NOT NULL AND OHIP_2_recall IS NOT NULL AND OHIP_3_recall IS NOT NULL AND OHIP_4_recall IS NOT NULL AND OHIP_5_recall IS NOT NULL")
+    final_ohip_scores = cursor.fetchall()
+    ohip_final_scores = [sum(row) for row in final_ohip_scores]
+    ohip_final_mean = np.mean(ohip_final_scores)
+    ohip_final_std = np.std(ohip_final_scores)
     
-#     cursor.execute("SELECT GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall, GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall, GOHAI_11_recall, GOHAI_12_recall FROM patients WHERE GOHAI_1_recall IS NOT NULL AND GOHAI_2_recall IS NOT NULL AND GOHAI_3_recall IS NOT NULL AND GOHAI_4_recall IS NOT NULL AND GOHAI_5_recall IS NOT NULL AND GOHAI_6_recall IS NOT NULL AND GOHAI_7_recall IS NOT NULL AND GOHAI_8_recall IS NOT NULL AND GOHAI_9_recall IS NOT NULL AND GOHAI_10_recall IS NOT NULL AND GOHAI_11_recall IS NOT NULL AND GOHAI_12_recall IS NOT NULL")
-#     final_gohai_scores = cursor.fetchall()
-#     gohai_final_scores = [sum(row) for row in final_gohai_scores]
-#     gohai_final_mean = np.mean(gohai_final_scores)
-#     gohai_final_std = np.std(gohai_final_scores)
+    cursor.execute("SELECT GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall, GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall, GOHAI_11_recall, GOHAI_12_recall FROM patients WHERE GOHAI_1_recall IS NOT NULL AND GOHAI_2_recall IS NOT NULL AND GOHAI_3_recall IS NOT NULL AND GOHAI_4_recall IS NOT NULL AND GOHAI_5_recall IS NOT NULL AND GOHAI_6_recall IS NOT NULL AND GOHAI_7_recall IS NOT NULL AND GOHAI_8_recall IS NOT NULL AND GOHAI_9_recall IS NOT NULL AND GOHAI_10_recall IS NOT NULL AND GOHAI_11_recall IS NOT NULL AND GOHAI_12_recall IS NOT NULL")
+    final_gohai_scores = cursor.fetchall()
+    gohai_final_scores = [sum(row) for row in final_gohai_scores]
+    gohai_final_mean = np.mean(gohai_final_scores)
+    gohai_final_std = np.std(gohai_final_scores)
 
 #     # MAI calculations
 #     cursor.execute("SELECT init_mai, final_mai FROM patients WHERE init_mai IS NOT NULL AND final_mai IS NOT NULL")
@@ -1009,12 +1009,12 @@ def results():
                         # q2_barchart = q2_barchart,
                         ohip_init_mean=ohip_init_mean,
                         ohip_init_std=ohip_init_std,
-                        # ohip_final_mean=ohip_final_mean,
-                        # ohip_final_std=ohip_final_std,
+                        ohip_final_mean=ohip_final_mean,
+                        ohip_final_std=ohip_final_std,
                         gohai_init_mean=gohai_init_mean,
                         gohai_init_std=gohai_init_std,
-                        # gohai_final_mean=gohai_final_mean,
-                        # gohai_final_std=gohai_final_std,
+                        gohai_final_mean=gohai_final_mean,
+                        gohai_final_std=gohai_final_std,
                         # init_mai_mean=init_mai_mean,
                         # init_mai_std=init_mai_std,
                         # final_mai_mean=final_mai_mean,
