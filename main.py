@@ -556,6 +556,8 @@ def results():
     plt.bar(labels, values, color=['#4CAF50', '#FFC107'])
     plt.title('Teljes lemezes fogpótlások száma állcsontonként')
     plt.ylabel('Szám')
+    # Make sure that the y_axis has only integers as ticks
+    plt.yticks(np.arange(0, max(values) + 1, step=1))
     dentures_img = plot_to_base64(fig_dentures)
     
     # Age and gender distribution logic
@@ -603,24 +605,27 @@ def results():
     plt.ylabel('A válaszolók száma')
     plt.title('Szubjektív rágóképességre vonatkozó kérdésre adott válaszok megoszlása')
     plt.xticks(rotation=0)
+    # Make sure the y-axis has integers as ticks
+    plt.yticks(np.arange(0, max(response_counts) + 1, step=1))
     q1_barchart = plot_to_base64(fig_q1)
 
-#     # Q2 subjective CHANGE IN chewing ability
-#     cursor.execute("SELECT chewing_change FROM patients WHERE chewing_change IS NOT NULL")
-#     subjective_chewing_change = cursor.fetchall()
-#     subjective_chewing_change = [row[0] for row in subjective_chewing_change]
-#         # Convert the list to a pandas DataFrame
-#     df_subjective_chewing_change = pd.DataFrame(subjective_chewing_change, columns=['subjective_chewing_change'])
-#         # Count the occurrences of each response
-#     response_counts_subjective_chewing_change = df_subjective_chewing_change['subjective_chewing_change'].value_counts().reindex(["Sokat romlott", "Kicsit romlott", "Változatlan maradt", "Kicsit javult", "Sokat javult"], fill_value=0)
-#         # Plotting the bar chart
-#     fig_q2 = plt.figure(figsize=(8, 4))
-#     response_counts_subjective_chewing_change.plot(kind='bar', color='skyblue')
-#     plt.xlabel(None)
-#     plt.ylabel('A válaszolók száma')
-#     plt.title('Szubjektív rágóképességVÁLTOZÁSra vonatkozó kérdésre adott válaszok megoszlása')
-#     plt.xticks(rotation=0)
-#     q2_barchart = plot_to_base64(fig_q2)
+    # Q2 subjective CHANGE IN chewing ability
+    cursor.execute("SELECT chewing_change FROM patients WHERE chewing_change IS NOT NULL")
+    subjective_chewing_change = cursor.fetchall()
+    subjective_chewing_change = [row[0] for row in subjective_chewing_change]
+        # Convert the list to a pandas DataFrame
+    df_subjective_chewing_change = pd.DataFrame(subjective_chewing_change, columns=['subjective_chewing_change'])
+        # Count the occurrences of each response
+    response_counts_subjective_chewing_change = df_subjective_chewing_change['subjective_chewing_change'].value_counts().reindex(["Sokat romlott", "Kicsit romlott", "Változatlan maradt", "Kicsit javult", "Sokat javult"], fill_value=0)
+        # Plotting the bar chart
+    fig_q2 = plt.figure(figsize=(8, 4))
+    response_counts_subjective_chewing_change.plot(kind='bar', color='skyblue')
+    plt.xlabel(None)
+    plt.ylabel('A válaszolók száma')
+    plt.title('Szubjektív rágóképességVÁLTOZÁSra vonatkozó kérdésre adott válaszok megoszlása')
+    plt.xticks(rotation=0)
+    plt.yticks(np.arange(0, max(response_counts_subjective_chewing_change) + 1, step=1))
+    q2_barchart = plot_to_base64(fig_q2)
     
     # Initial OHIP and GOHAI calculations
     cursor.execute("SELECT OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5 FROM patients WHERE OHIP_1 IS NOT NULL AND OHIP_2 IS NOT NULL AND OHIP_3 IS NOT NULL AND OHIP_4 IS NOT NULL AND OHIP_5 IS NOT NULL")
@@ -648,15 +653,20 @@ def results():
     gohai_final_mean = np.mean(gohai_final_scores)
     gohai_final_std = np.std(gohai_final_scores)
 
-#     # MAI calculations
-#     cursor.execute("SELECT init_mai, final_mai FROM patients WHERE init_mai IS NOT NULL AND final_mai IS NOT NULL")
-#     mai_scores = cursor.fetchall()
-#     init_mai_scores = [row[0] for row in mai_scores]
-#     final_mai_scores = [row[1] for row in mai_scores]
-#     init_mai_mean = np.mean(init_mai_scores)
-#     init_mai_std = np.std(init_mai_scores)
-#     final_mai_mean = np.mean(final_mai_scores)
-#     final_mai_std = np.std(final_mai_scores)
+    # Initial MAI calculations
+    cursor.execute("SELECT init_mai FROM patients WHERE init_mai IS NOT NULL")
+    init_scores = cursor.fetchall()
+    init_mai_scores = [row[0] for row in init_scores]
+    init_mai_mean = np.mean(init_mai_scores)
+    init_mai_std = np.std(init_mai_scores)
+    
+    # Final MAI calc
+    cursor.execute("SELECT final_mai FROM patients WHERE final_mai IS NOT NULL")
+    final_scores = cursor.fetchall()
+    final_mai_scores = [row[1] for row in final_scores]
+    final_mai_mean = np.mean(final_mai_scores)
+    final_mai_std = np.std(final_mai_scores)
+
 
 # # Filter valid data for ROC analysis
 #     cursor.execute("SELECT TAJ, init_mai, final_mai, chewing_change FROM patients WHERE init_mai IS NOT NULL AND final_mai IS NOT NULL AND chewing_change IS NOT NULL")
@@ -1006,7 +1016,7 @@ def results():
                         dentures_img=dentures_img,
                         age_gender_img=age_gender_img,
                         q1_barchart = q1_barchart,
-                        # q2_barchart = q2_barchart,
+                        q2_barchart = q2_barchart,
                         ohip_init_mean=ohip_init_mean,
                         ohip_init_std=ohip_init_std,
                         ohip_final_mean=ohip_final_mean,
@@ -1015,10 +1025,10 @@ def results():
                         gohai_init_std=gohai_init_std,
                         gohai_final_mean=gohai_final_mean,
                         gohai_final_std=gohai_final_std,
-                        # init_mai_mean=init_mai_mean,
-                        # init_mai_std=init_mai_std,
-                        # final_mai_mean=final_mai_mean,
-                        # final_mai_std=final_mai_std,
+                        init_mai_mean=init_mai_mean,
+                        init_mai_std=init_mai_std,
+                        final_mai_mean=final_mai_mean,
+                        final_mai_std=final_mai_std,
                         # fpr=fpr,
                         # tpr=tpr,
                         # optimal_threshold_mai=optimal_threshold_mai,
