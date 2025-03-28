@@ -663,7 +663,7 @@ def results():
     # Final MAI calc
     cursor.execute("SELECT final_mai FROM patients WHERE final_mai IS NOT NULL")
     final_scores = cursor.fetchall()
-    final_mai_scores = [row[1] for row in final_scores]
+    final_mai_scores = [row[0] for row in final_scores]
     final_mai_mean = np.mean(final_mai_scores)
     final_mai_std = np.std(final_mai_scores)
 
