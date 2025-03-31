@@ -667,49 +667,54 @@ def results():
     final_mai_mean = np.mean(final_mai_scores)
     final_mai_std = np.std(final_mai_scores)
 
+    def create_blank_plot(message="Nincs elegendő adat – várjuk a final_mai adatokat"):
+        fig = plt.figure(figsize=(6, 1))
+        plt.text(0.5, 0.5, message, ha='center', va='center', fontsize=14, wrap=True)
+        plt.axis('off')
+        return plot_to_base64(fig)
 
-# # Filter valid data for ROC analysis
-#     cursor.execute("SELECT TAJ, init_mai, final_mai, chewing_change FROM patients WHERE init_mai IS NOT NULL AND final_mai IS NOT NULL AND chewing_change IS NOT NULL")
-#     roc_data = cursor.fetchall()
-#     if len(roc_data) > 0:
-#         roc_df = pd.DataFrame(roc_data, columns=["TAJ", "init_mai", "final_mai", "perceived_change"])
-#         mai_score_difference = roc_df["final_mai"] - roc_df["init_mai"]
-#         reported_improvement = roc_df["perceived_change"].apply(lambda x: 1 if x in ['Kicsit javult', 'Sokat javult'] else 0)
+# Filter valid data for ROC analysis
+    cursor.execute("SELECT TAJ, init_mai, final_mai, chewing_change FROM patients WHERE init_mai IS NOT NULL AND final_mai IS NOT NULL AND chewing_change IS NOT NULL")
+    roc_data = cursor.fetchall()
+    if len(roc_data) > 0:
+        roc_df = pd.DataFrame(roc_data, columns=["TAJ", "init_mai", "final_mai", "perceived_change"])
+        mai_score_difference = roc_df["final_mai"] - roc_df["init_mai"]
+        reported_improvement = roc_df["perceived_change"].apply(lambda x: 1 if x in ['Kicsit javult', 'Sokat javult'] else 0)
 
-#         if len(reported_improvement.unique()) > 1:
-#             fpr, tpr, thresholds = roc_curve(reported_improvement, mai_score_difference)
-#             roc_auc = roc_auc_score(reported_improvement, mai_score_difference)
-#             optimal_idx = np.argmax(tpr - fpr)
-#             optimal_threshold_mai = thresholds[optimal_idx]
+        if len(reported_improvement.unique()) > 1:
+            fpr, tpr, thresholds = roc_curve(reported_improvement, mai_score_difference)
+            roc_auc = roc_auc_score(reported_improvement, mai_score_difference)
+            optimal_idx = np.argmax(tpr - fpr)
+            optimal_threshold_mai = thresholds[optimal_idx]
 
-#             # Plot ROC curve for MAI
-#             fig_roc_mai = plt.figure(figsize=(8, 6))
-#             plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
-#             plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-#             plt.scatter(fpr[optimal_idx], tpr[optimal_idx], marker='o', color='red', label='Optimal Threshold')
-#             plt.xlim([0.0, 1.0])
-#             plt.ylim([0.0, 1.05])
-#             plt.xlabel('Fals pozitívok aránya')
-#             plt.ylabel('Valódi pozitívok aránya')
-#             plt.title('Receiver Operating Characteristic (ROC) görbe (MAI)')
-#             plt.legend(loc="lower right")
-#             roc_img_mai = plot_to_base64(fig_roc_mai)
+            # Plot ROC curve for MAI
+            fig_roc_mai = plt.figure(figsize=(8, 6))
+            plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
+            plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+            plt.scatter(fpr[optimal_idx], tpr[optimal_idx], marker='o', color='red', label='Optimal Threshold')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('Fals pozitívok aránya')
+            plt.ylabel('Valódi pozitívok aránya')
+            plt.title('Receiver Operating Characteristic (ROC) görbe (MAI)')
+            plt.legend(loc="lower right")
+            roc_img_mai = plot_to_base64(fig_roc_mai)
 
-#             # Plot Score Difference vs Reported Improvement for MAI
-#             fig_diff_mai = plt.figure(figsize=(10, 6))
-#             plt.scatter(mai_score_difference, reported_improvement, alpha=0.5, label='résztvevők')
-#             plt.axvline(x=optimal_threshold_mai, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_mai:.2f}')
-#             plt.title('Rágóképesség pontkülönbség és a szubjektív javulás (MAI)')
-#             plt.xlabel('ΔMAI')
-#             plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
-#             plt.legend()
-#             diff_img_mai = plot_to_base64(fig_diff_mai)
-#         else:
-#             roc_img_mai = None
-#             diff_img_mai = None
-#     else:
-#         roc_img_mai = None
-#         diff_img_mai = None
+            # Plot Score Difference vs Reported Improvement for MAI
+            fig_diff_mai = plt.figure(figsize=(10, 6))
+            plt.scatter(mai_score_difference, reported_improvement, alpha=0.5, label='résztvevők')
+            plt.axvline(x=optimal_threshold_mai, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_mai:.2f}')
+            plt.title('Rágóképesség pontkülönbség és a szubjektív javulás (MAI)')
+            plt.xlabel('ΔMAI')
+            plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
+            plt.legend()
+            diff_img_mai = plot_to_base64(fig_diff_mai)
+        else:
+            roc_img_mai = create_blank_plot("Nem áll rendelkezésre elegendő eltérő szubjektív válasz – várjuk a final_mai adatokat")
+            diff_img_mai = create_blank_plot("Nincs elegendő adat az összehasonlításhoz – final_mai hiányzik")
+    else:
+        roc_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai adatokat")
+        diff_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai adatokat")
 
 #     # ROC Analysis for OHIP
 #     cursor.execute("SELECT TAJ, OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5, OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall, chewing_change FROM patients WHERE OHIP_1 IS NOT NULL AND OHIP_2 IS NOT NULL AND OHIP_3 IS NOT NULL AND OHIP_4 IS NOT NULL AND OHIP_5 IS NOT NULL AND OHIP_1_recall IS NOT NULL AND OHIP_2_recall IS NOT NULL AND OHIP_3_recall IS NOT NULL AND OHIP_4_recall IS NOT NULL AND OHIP_5_recall IS NOT NULL AND chewing_change IS NOT NULL")
@@ -1035,8 +1040,8 @@ def results():
                         # optimal_threshold_ohip=optimal_threshold_ohip,
                         # optimal_threshold_gohai=optimal_threshold_gohai,
                         # roc_auc=roc_auc,
-                        # roc_img_mai=roc_img_mai,
-                        # diff_img_mai=diff_img_mai,
+                        roc_img_mai=roc_img_mai,
+                        diff_img_mai=diff_img_mai,
                         # roc_img_ohip=roc_img_ohip,
                         # diff_img_ohip=diff_img_ohip,
                         # roc_img_gohai=roc_img_gohai,
