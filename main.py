@@ -133,6 +133,14 @@ def stdev(histogram):
     return np.sqrt(variancia)
 
 def process_image(image_path):
+    # Check if the image_path is an FTP URL
+    if image_path.startswith('ftp://'):
+        # If the image is on the NAS, download it to a temporary local path
+        filename = os.path.basename(urlparse(image_path).path)
+        local_temp_path = os.path.join('/tmp', filename)
+        download_from_nas(image_path, local_temp_path)
+        image_path = local_temp_path  # Now use the local path for processing
+    
     image = Image.open(image_path)
     rgb_image = image.convert('RGB')
     r, g, b = rgb_image.split()
