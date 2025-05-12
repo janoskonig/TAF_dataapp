@@ -39,7 +39,7 @@ def upload_to_nas(file_path, TAJ, measurement_type):
     if measurement_type not in ['mai_initial', 'mai_final', 'F1_gerinc', 'F1_bukkalis', 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
         raise ValueError("measurement_type must be either 'initial_mai', 'final_mai', 'F1_gerinc', 'F1_bukkalis', 'A2_gerinc', 'A2_bukkalis', or 'A2_lingualis'")
     if measurement_type == 'mai_initial' or measurement_type == 'mai_final':
-        filename = f"mai_{measurement_type}_{TAJ}.tiff"
+        filename = f"{measurement_type}_{TAJ}.tiff"
     else:
         filename = f"modellanalizis_{TAJ}_{measurement_type}.stl"
     
@@ -125,38 +125,49 @@ def get_db_cursor():
         db = create_db_connection()
     return db.cursor()
 
-def calculate_standard_deviation(histogram):
-    intensity_levels = np.arange(256)
-    mean_intensity = np.average(intensity_levels, weights=histogram)
-    variance = np.average((intensity_levels - mean_intensity)**2, weights=histogram)
-    return np.sqrt(variance)
-
-def calculate_mixing_index(std_dev_red, std_dev_blue):
-    return std_dev_red + std_dev_blue
+def stdev(histogram):
+    start=0
+    pixelintenzitas = np.arange(start, start + len(histogram))
+    mean_intenzitas = np.average(pixelintenzitas, weights=histogram)
+    variancia = np.average((pixelintenzitas - mean_intenzitas)**2, weights=histogram)
+    return np.sqrt(variancia)
 
 def process_image(image_path):
-    # Check if the image_path is an FTP URL
-    if image_path.startswith('ftp://'):
-        # If the image is on the NAS, download it to a temporary local path
-        filename = os.path.basename(urlparse(image_path).path)
-        local_temp_path = os.path.join('/tmp', filename)
-        download_from_nas(image_path, local_temp_path)
-        image_path = local_temp_path  # Now use the local path for processing
-    
-    # Open the image using Pillow
     image = Image.open(image_path)
     rgb_image = image.convert('RGB')
     r, g, b = rgb_image.split()
-    
+    r = r.point(lambda i: i * 0.66)
+    g = g.point(lambda i: i * 0.66)
+    b = b.point(lambda i: i * 0.66)
     histogram_r = r.histogram()
     histogram_b = b.histogram()
+
+    print(histogram_r)
+    print(histogram_b)
+
+    # leave out the first value of the list
+    histogram_r = histogram_r[2:]
+    histogram_b = histogram_b[2:]
+    print(histogram_r)
+    print(histogram_b)
+    plt.figure(figsize=(10, 5))
+    plt.plot(histogram_r, color='red', label="Vörös csatorna")
+    plt.plot(histogram_b, color='blue', label="Kék csatorna")
+    plt.title('A vörös és kék csatornák hisztogramja')
+    plt.xlabel("Pixel intenzitás")
+    plt.ylabel('Pixel szám')
+    plt.xticks(np.arange(0, 256, 5))
+    plt.xticks(rotation=90)
+    plt.grid()
+    plt.legend()
+
+    std_dev_red = stdev(histogram_r)
+    std_dev_blue = stdev(histogram_b)
     
-    std_dev_red = calculate_standard_deviation(histogram_r)
-    std_dev_blue = calculate_standard_deviation(histogram_b)
-    
-    mai = calculate_mixing_index(std_dev_red, std_dev_blue)
-    
+    mai = std_dev_red + std_dev_blue
     return mai
+
+
 
 def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'tiff', 'tif'}
