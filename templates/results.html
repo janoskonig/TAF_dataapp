@@ -129,7 +129,7 @@
         <h2>I. A megmért páciensek karakterisztikája</h2>
         <h3>1. Eddig összesen {{ patient_count }} beteg adatait rögzítettük</h3>
         <p>Az elemszámbecslés a pilot eredményei alapján történik.</p>
-        <p>A felvett páciensekből dropout-tá vált: ***ide kellene a drop-out páciensek száma***</p>
+        <p>A felvett páciensekből dropout-tá vált: {{ dropout_count }}</p>
         <div class="chart-container">
             <h3>2. Teljes lemezes fogpótlások száma állcsontonként</h3>
             <img src="data:image/png;base64,{{ dentures_img }}" alt="Dentures Chart">

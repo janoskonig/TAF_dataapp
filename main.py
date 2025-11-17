@@ -395,6 +395,9 @@ def submit_questionnaire3():
     GOHAI_11_recall = get_form_data('GOHAI_11_recall')
     GOHAI_12_recall = get_form_data('GOHAI_12_recall')
 
+    # Fetch dropout status (checkbox: checked = 1, unchecked = 0)
+    dropout = 1 if 'dropout' in request.form and request.form['dropout'] == '1' else 0
+
     # # Fetch responses for MFIQ questions
     # MFIQ_questions = [get_form_data(f'MFIQ_{i}') for i in range(1, 18)]
 
@@ -414,7 +417,7 @@ def submit_questionnaire3():
     OHIP_1_recall = %s, OHIP_2_recall = %s, OHIP_3_recall = %s, OHIP_4_recall = %s, OHIP_5_recall = %s,
     GOHAI_1_recall = %s, GOHAI_2_recall = %s, GOHAI_3_recall = %s, GOHAI_4_recall = %s, GOHAI_5_recall = %s,
     GOHAI_6_recall = %s, GOHAI_7_recall = %s, GOHAI_8_recall = %s, GOHAI_9_recall = %s, GOHAI_10_recall = %s,
-    GOHAI_11_recall = %s, GOHAI_12_recall = %s
+    GOHAI_11_recall = %s, GOHAI_12_recall = %s, dropout = %s
     WHERE TAJ = %s
     """
     values = (responsiveness_today_situation_recall, responsiveness_change,
@@ -422,7 +425,7 @@ def submit_questionnaire3():
               OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall,
               GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall,
               GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall,
-              GOHAI_11_recall, GOHAI_12_recall, TAJ)
+              GOHAI_11_recall, GOHAI_12_recall, dropout, TAJ)
     cursor.execute(sql, values)
     db.commit()
     return render_template('confirmation.html')
@@ -562,6 +565,10 @@ def results():
     cursor = get_db_cursor()
     cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ IS NOT NULL")
     patient_count = cursor.fetchone()[0]
+    
+    # Count dropouts (where dropout = 1 or TRUE)
+    cursor.execute("SELECT COUNT(*) FROM patients WHERE dropout = 1 OR dropout = TRUE")
+    dropout_count = cursor.fetchone()[0]
     
     cursor.execute("SELECT COUNT(*) FROM patients WHERE (denture_type = 'lower' OR denture_type = 'both') AND denture_type IS NOT NULL")
     lower_denture_count = cursor.fetchone()[0]
@@ -1033,6 +1040,7 @@ def results():
 
     return render_template('results.html',
                         patient_count=patient_count,
+                        dropout_count=dropout_count,
                         lower_denture_count=lower_denture_count,
                         upper_denture_count=upper_denture_count,
                         male_age_distribution=male_age_distribution,
