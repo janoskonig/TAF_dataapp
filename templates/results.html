@@ -1,11 +1,127 @@
-<!-- templates/results.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Eddigi eredmények</title>
-
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ebf2fa 0%, #d4e4f0 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #064789;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(6, 71, 137, 0.15);
+            padding: 25px 20px;
+            margin-top: 15px;
+        }
+        
+        h1 {
+            color: #064789;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #427aa1;
+        }
+        
+        h2 {
+            color: #427aa1;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 25px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ebf2fa;
+        }
+        
+        h3 {
+            color: #427aa1;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0 12px;
+        }
+        
+        h4 {
+            color: #064789;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 15px 0 10px;
+        }
+        
+        p {
+            color: #064789;
+            font-size: 14px;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+        
+        .chart-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #ebf2fa;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(6, 71, 137, 0.1);
+        }
+        
+        .stat-box {
+            background: #ebf2fa;
+            border-left: 4px solid #427aa1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        
+        .stat-box p {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            h2 {
+                font-size: 16px;
+            }
+            
+            h3 {
+                font-size: 15px;
+            }
+            
+            .chart-container {
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -25,82 +141,128 @@
         <h2>II. Első mérés eredményei (leíró statisztika)</h2>
         <h3>1. Szubjektív rágóképesség</h3>
         <h4>Hogyan jellemezné a rágóképességét a mai napon?</h4>
+        <div class="chart-container">
             <img src="data:image/png;base64,{{ q1_barchart }}" alt="Subjective Chewing Chart">
+        </div>
         <h3>2. OHIP_init és GOHAI_init score számítása</h3>
-        <h4>OHIP_init</h4>
-        <p>Az OHIP_init átlag és szórás: {{ ohip_init_mean }} ± {{ ohip_init_std }}</p>
-        <h4>GOHAI_init</h4>
-        <p>A GOHAI_init átlag és szórás: {{ gohai_init_mean }} ± {{ gohai_init_std }}</p>
-        <h3>3. A kezdeti MAI pontszáma</h3>
-        <p>Az init_MAI átlag és szórás: {{ init_mai_mean }} ± {{ init_mai_std }}</p>
+        <div class="stat-box">
+            <h4>OHIP_init</h4>
+            <p>Az OHIP_init átlag és szórás: {{ ohip_init_mean }} ± {{ ohip_init_std }}</p>
+        </div>
+        <div class="stat-box">
+            <h4>GOHAI_init</h4>
+            <p>A GOHAI_init átlag és szórás: {{ gohai_init_mean }} ± {{ gohai_init_std }}</p>
+        </div>
+        <div class="stat-box">
+            <h3>3. A kezdeti MAI pontszáma</h3>
+            <p>Az init_MAI átlag és szórás: {{ init_mai_mean }} ± {{ init_mai_std }}</p>
+        </div>
         
-        
-        
-        <h2>II. Második mérés eredményei (leíró statisztika)</h2>
+        <h2>III. Második mérés eredményei (leíró statisztika)</h2>
         <h3>1. Szubjektív rágóképesség</h3>
         <h4>Hogyan értékelné rágóképességének változását a klinikánkon történt legutóbbi kezeléssorozat megkezdése óta?</h4>
-        <img src="data:image/png;base64,{{ q2_barchart }}" alt="Subjective CHANGE IN Chewing Chart">
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ q2_barchart }}" alt="Subjective CHANGE IN Chewing Chart">
+        </div>
         <h3>2. OHIP_final és GOHAI_final score számítása</h3>
-        <h4>OHIP_final</h4>
-        <p>Az OHIP_final átlag és szórás: {{ ohip_final_mean }} ± {{ ohip_final_std }}</p>
-        <h4>GOHAI_final</h4>
-        <p>A GOHAI_final átlag és szórás: {{ gohai_final_mean }} ± {{ gohai_final_std }}</p>
-        <h3>3. Az egyhónapos viselést követő MAI pontszám</h3>
-        <p>A final_MAI átlag és szórás: {{ final_mai_mean }} ± {{ final_mai_std }}</p>
-        <h2>III. Inferenciális statisztika</h2>
+        <div class="stat-box">
+            <h4>OHIP_final</h4>
+            <p>Az OHIP_final átlag és szórás: {{ ohip_final_mean }} ± {{ ohip_final_std }}</p>
+        </div>
+        <div class="stat-box">
+            <h4>GOHAI_final</h4>
+            <p>A GOHAI_final átlag és szórás: {{ gohai_final_mean }} ± {{ gohai_final_std }}</p>
+        </div>
+        <div class="stat-box">
+            <h3>3. Az egyhónapos viselést követő MAI pontszám</h3>
+            <p>A final_MAI átlag és szórás: {{ final_mai_mean }} ± {{ final_mai_std }}</p>
+        </div>
+        <h2>IV. Inferenciális statisztika</h2>
         <h3>1. Szignifikáns rágóképességváltozás számítása ROC analízissel</h3>
         <h3>1.1. Egyszerű kérdéssel</h3>
-        <h4>1.1.1.1. MAI ROC görbe</h4>
-        <img src="data:image/png;base64,{{ roc_img_mai }}" alt="ROC Curve MAI">
-        <h4>1.1.1.1. Rágóképesség-pontkülönbség (ΔMAI) és a szubjektíven tapasztalt változás</h4>
-        <img src="data:image/png;base64,{{ diff_img_mai }}" alt="Score Difference MAI">
-        <p>Az optimális vágópont MAI-különbség esetén: {{ optimal_threshold_mai }}</p>
-        <h4>1.1.2.1. OHIP ROC görbe</h4>
-        <img src="data:image/png;base64,{{ roc_img_ohip }}" alt="ROC Curve OHIP">
-        <h4>1.1.2.2. OHIP-pontkülönbség (ΔOHIP) és a szubjektíven tapasztalt változás</h4>
-        <img src="data:image/png;base64,{{ diff_img_ohip }}" alt="Score Difference OHIP">
-        <p>Az optimális vágópont OHIP-különbség esetén: {{ optimal_threshold_ohip }}</p>
-        <h4>1.1.3.1. GOHAI ROC görbe</h4>
-        <img src="data:image/png;base64,{{ roc_img_gohai }}" alt="ROC Curve GOHAI">
-        <h4>1.1.3.2. GOHAI-pontkülönbség (ΔGOHAI) és a szubjektíven tapasztalt változás</h4>
-        <img src="data:image/png;base64,{{ diff_img_gohai }}" alt="Score Difference GOHAI">
-        <p>Az optimális vágópont GOHAI-különbség esetén: {{ optimal_threshold_gohai }}</p>
+        <div class="chart-container">
+            <h4>1.1.1.1. MAI ROC görbe</h4>
+            <img src="data:image/png;base64,{{ roc_img_mai }}" alt="ROC Curve MAI">
+        </div>
+        <div class="chart-container">
+            <h4>1.1.1.2. Rágóképesség-pontkülönbség (ΔMAI) és a szubjektíven tapasztalt változás</h4>
+            <img src="data:image/png;base64,{{ diff_img_mai }}" alt="Score Difference MAI">
+        </div>
+        <div class="stat-box">
+            <p>Az optimális vágópont MAI-különbség esetén: {{ optimal_threshold_mai }}</p>
+        </div>
+        <div class="chart-container">
+            <h4>1.1.2.1. OHIP ROC görbe</h4>
+            <img src="data:image/png;base64,{{ roc_img_ohip }}" alt="ROC Curve OHIP">
+        </div>
+        <div class="chart-container">
+            <h4>1.1.2.2. OHIP-pontkülönbség (ΔOHIP) és a szubjektíven tapasztalt változás</h4>
+            <img src="data:image/png;base64,{{ diff_img_ohip }}" alt="Score Difference OHIP">
+        </div>
+        <div class="stat-box">
+            <p>Az optimális vágópont OHIP-különbség esetén: {{ optimal_threshold_ohip }}</p>
+        </div>
+        <div class="chart-container">
+            <h4>1.1.3.1. GOHAI ROC görbe</h4>
+            <img src="data:image/png;base64,{{ roc_img_gohai }}" alt="ROC Curve GOHAI">
+        </div>
+        <div class="chart-container">
+            <h4>1.1.3.2. GOHAI-pontkülönbség (ΔGOHAI) és a szubjektíven tapasztalt változás</h4>
+            <img src="data:image/png;base64,{{ diff_img_gohai }}" alt="Score Difference GOHAI">
+        </div>
+        <div class="stat-box">
+            <p>Az optimális vágópont GOHAI-különbség esetén: {{ optimal_threshold_gohai }}</p>
+        </div>
         <h3>1.2. MFIQ függvényében</h3>
-            {% if no_valid_dijkstra %}
+        {% if no_valid_dijkstra %}
+        <div class="stat-box">
             <p>Nincs elég adat még ehhez</p>
-            {% else %}
+        </div>
+        {% else %}
+        <div class="chart-container">
             <img src="data:image/png;base64,{{ dijkstra_img }}" alt="Dijkstra ROC">
-            {% endif %}
+        </div>
+        {% endif %}
         <h2>2. Odds ratio-k és konfidenciaintervallumaik</h2>
         <h3>2.1. Egyszerű kérdéses ROC alapján</h3>
         <div>
             <h3>Számottevő rágóképességváltozás esélyhányadosai a MAI-változást vizsgálva</h3>
             {% if insufficient_data_mai %}
-                <p>Nincs elég adat még hogy valid hőtérképet generáljunk MAI-különbséget nézve.</p>
+                <div class="stat-box">
+                    <p>Nincs elég adat még hogy valid hőtérképet generáljunk MAI-különbséget nézve.</p>
+                </div>
             {% else %}
-                <img src="data:image/png;base64,{{ odds_ratios_img_mai }}" />
+                <div class="chart-container">
+                    <img src="data:image/png;base64,{{ odds_ratios_img_mai }}" />
+                </div>
             {% endif %}
         </div>
         
         <div>
             <h3>Számottevő rágóképességváltozás esélyhányadosai az OHIP-változást vizsgálva</h3>
             {% if insufficient_data_ohip %}
-                <p>Nincs elég adat még hogy valid hőtérképet generáljunk OHIP-különbséget nézve</p>
+                <div class="stat-box">
+                    <p>Nincs elég adat még hogy valid hőtérképet generáljunk OHIP-különbséget nézve</p>
+                </div>
             {% else %}
-                <img src="data:image/png;base64,{{ odds_ratios_img_ohip }}" />
+                <div class="chart-container">
+                    <img src="data:image/png;base64,{{ odds_ratios_img_ohip }}" />
+                </div>
             {% endif %}
         </div>
         
         <div>
             <h3>Számottevő rágóképességváltozás esélyhányadosai a GOHAI-változást vizsgálva</h3>
             {% if insufficient_data_gohai %}
-                <p>Nincs elég adat még hogy valid hőtérképet generáljunk GOHAI-különbséget nézve</p>
+                <div class="stat-box">
+                    <p>Nincs elég adat még hogy valid hőtérképet generáljunk GOHAI-különbséget nézve</p>
+                </div>
             {% else %}
-                <img src="data:image/png;base64,{{ odds_ratios_img_gohai }}" />
+                <div class="chart-container">
+                    <img src="data:image/png;base64,{{ odds_ratios_img_gohai }}" />
+                </div>
             {% endif %}
         </div>
-
     </div>
-
 </body>
 </html>

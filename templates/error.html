@@ -1,44 +1,88 @@
-<!-- templates/error.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Error</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ebf2fa 0%, #d4e4f0 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
         }
+        
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(6, 71, 137, 0.15);
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            border-left: 5px solid #e74c3c;
+        }
+        
         h1 {
             color: #e74c3c;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
         }
+        
         p {
-            color: #333;
+            color: #064789;
+            font-size: 16px;
+            margin: 15px 0;
+            line-height: 1.6;
         }
+        
         a {
             display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+            margin-top: 25px;
+            padding: 16px 30px;
+            background: linear-gradient(135deg, #427aa1 0%, #064789 100%);
+            color: #ffffff;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(6, 71, 137, 0.3);
         }
+        
+        a:active {
+            transform: scale(0.98);
+        }
+        
         a:hover {
-            background-color: #45a049;
+            box-shadow: 0 6px 16px rgba(6, 71, 137, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            p {
+                font-size: 15px;
+            }
         }
     </style>
 </head>

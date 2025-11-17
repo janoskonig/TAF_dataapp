@@ -1,54 +1,142 @@
-<!-- templates/upload_final_mai.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Upload Final MAI</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ebf2fa 0%, #d4e4f0 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #064789;
+            line-height: 1.6;
+        }
+        
         .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(6, 71, 137, 0.15);
+            padding: 30px 25px;
+            margin-top: 20px;
+        }
+        
+        h1 {
+            color: #064789;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 25px;
             text-align: center;
         }
-        h1 {
-            color: #333;
-        }
+        
         form {
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
-        input, select {
-            margin: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        
+        label {
+            display: block;
+            color: #064789;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 20px 0 10px;
         }
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ebf2fa;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #064789;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #427aa1;
+            box-shadow: 0 0 0 3px rgba(66, 122, 161, 0.1);
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px dashed #427aa1;
+            border-radius: 12px;
+            background: #ebf2fa;
+            color: #064789;
+            font-size: 15px;
             cursor: pointer;
+            margin: 15px 0;
+            transition: all 0.3s ease;
         }
+        
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #064789;
+            background: #d4e4f0;
+        }
+        
+        input[type="submit"] {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #427aa1 0%, #064789 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(6, 71, 137, 0.3);
+        }
+        
+        input[type="submit"]:active {
+            transform: scale(0.98);
+        }
+        
         input[type="submit"]:hover {
-            background-color: #45a049;
+            box-shadow: 0 6px 16px rgba(6, 71, 137, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .info-text {
+            background: #ebf2fa;
+            border-left: 4px solid #427aa1;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #064789;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
         }
     </style>
     <script>
         function formatTAJ(input) {
-            let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+            let value = input.value.replace(/\D/g, '');
             if (value.length > 6) {
                 value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 9);
             } else if (value.length > 3) {
@@ -61,14 +149,15 @@
 <body>
     <div class="container">
         <h1>Töltsd fel az egyhónapos panaszmentes viselést követően nyert viaszpellet képét!</h1>
+        <div class="info-text">Kérjük, csak TIFF formátumú fájlokat tölts fel!</div>
         <form action="/submit_final_mai" method="post" enctype="multipart/form-data">
             <label for="TAJ">TAJ:</label>
             <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
             
             <label for="image">Képfeltöltés (CSAK TIFF!!!):</label>
-            <input type="file" id="image" name="image" accept="image/*" required>
+            <input type="file" id="image" name="image" accept="image/tiff,image/tif,.tiff,.tif" required>
 
-            <input type="submit" value="Submit">
+            <input type="submit" value="Feltöltés">
         </form>
     </div>
 </body>

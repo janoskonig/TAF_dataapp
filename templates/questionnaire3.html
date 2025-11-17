@@ -1,90 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>PREDICT II. mérése</title>
     <style>
-        /* body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
             box-sizing: border-box;
         }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ebf2fa 0%, #d4e4f0 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #064789;
+            line-height: 1.6;
+        }
+        
         .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(6, 71, 137, 0.15);
+            padding: 25px 20px;
+            margin-top: 15px;
+        }
+        
+        h1 {
+            color: #064789;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
             text-align: center;
-            width: 100%;
-            max-width: 1200px;
-            overflow-y: auto;
-            max-height: 100vh;
         }
-        h1, h2, h3 {
-            color: #333;
+        
+        h2 {
+            color: #427aa1;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 12px 0 8px;
+            text-align: center;
         }
+        
+        h3 {
+            color: #427aa1;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ebf2fa;
+        }
+        
+        h4 {
+            color: #064789;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 15px 0 10px;
+        }
+        
         form {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            width: 100%;
         }
-        label, input, select {
+        
+        label {
             display: block;
-            margin: 10px 0;
+            color: #064789;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 15px 0 8px;
+        }
+        
+        input[type="text"] {
             width: 100%;
-            max-width: 300px;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 12px 15px;
+            border: 2px solid #ebf2fa;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #064789;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
         }
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 15px;
-            margin-bottom: 20px;
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #427aa1;
+            box-shadow: 0 0 0 3px rgba(66, 122, 161, 0.1);
         }
-        th, td {
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        th {
-            background-color: #f4f4f4;
-        }
+        
         .radio-group {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px 0 20px;
+            padding: 12px;
+            background: #ebf2fa;
+            border-radius: 10px;
         }
+        
         .radio-group label {
-            margin: 5px 0;
-            font-size: 0.9em;
-        }
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+            display: flex;
+            align-items: center;
+            margin: 0;
+            font-weight: 500;
             cursor: pointer;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-            width: auto;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
         }
+        
+        .radio-group label:hover {
+            background: rgba(66, 122, 161, 0.1);
+        }
+        
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            accent-color: #427aa1;
+            cursor: pointer;
+        }
+        
+        input[type="submit"] {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #427aa1 0%, #064789 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(6, 71, 137, 0.3);
+        }
+        
+        input[type="submit"]:active {
+            transform: scale(0.98);
+        }
+        
         input[type="submit"]:hover {
-            background-color: #45a049;
-        } */
+            box-shadow: 0 6px 16px rgba(6, 71, 137, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            h2 {
+                font-size: 16px;
+            }
+            
+            h3 {
+                font-size: 15px;
+            }
+        }
     </style>
     <script>
         function formatTAJ(input) {
