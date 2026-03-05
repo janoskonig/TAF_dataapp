@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Hallgatói fizikális vizsgálat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ebf2fa 0%, #d4e4f0 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #064789;
+            line-height: 1.6;
+        }
+        
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(6, 71, 137, 0.15);
+            padding: 25px 20px;
+            margin-top: 15px;
+        }
+        
+        h1 {
+            color: #064789;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #427aa1;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 12px 0 8px;
+            text-align: center;
+        }
+        
+        h3 {
+            color: #427aa1;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ebf2fa;
+        }
+        
+        h4 {
+            color: #064789;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 15px 0 10px;
+        }
+        
+        .study-description {
+            background: #ebf2fa;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 12px 0 20px;
+            font-size: 13px;
+            color: #427aa1;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            display: block;
+            color: #064789;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 15px 0 8px;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ebf2fa;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #064789;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #427aa1;
+            box-shadow: 0 0 0 3px rgba(66, 122, 161, 0.1);
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px 0 20px;
+            padding: 12px;
+            background: #ebf2fa;
+            border-radius: 10px;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+        
+        .radio-group label:hover {
+            background: rgba(66, 122, 161, 0.1);
+        }
+        
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            accent-color: #427aa1;
+            cursor: pointer;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(6, 71, 137, 0.1);
+            table-layout: fixed;
+        }
+        
+        table thead {
+            background: linear-gradient(135deg, #427aa1 0%, #064789 100%);
+            color: #ffffff;
+        }
+        
+        table th {
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        table td {
+            padding: 12px 10px;
+            border-top: 1px solid #ebf2fa;
+            font-size: 13px;
+            color: #064789;
+            vertical-align: top;
+        }
+        
+        table tbody tr:hover {
+            background: #ebf2fa;
+        }
+        
+        table .radio-group {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            min-width: 0;
+        }
+        
+        table .radio-group div {
+            margin: 0;
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            min-width: 0;
+        }
+        
+        table .radio-group label {
+            font-size: 11px;
+            padding: 4px 6px;
+            margin: 0;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            min-width: 0;
+            cursor: pointer;
+        }
+        
+        table .radio-group input[type="radio"] {
+            margin-right: 6px;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        
+        table td:nth-child(2) .radio-group,
+        table td:nth-child(3) .radio-group {
+            padding: 4px 0;
+        }
+        
+        table td:first-child,
+        table th:first-child {
+            width: 30%;
+            font-weight: 500;
+        }
+        
+        table thead th:nth-child(2),
+        table td:nth-child(2) {
+            width: 35%;
+        }
+        
+        table thead th:nth-child(3),
+        table td:nth-child(3) {
+            width: 35%;
+        }
+        
+        table.lower-jaw thead th,
+        table.lower-jaw td {
+            display: table-cell !important;
+            visibility: visible !important;
+        }
+        
+        table:not(.lower-jaw) td:nth-child(2),
+        table:not(.lower-jaw) th:nth-child(2) {
+            width: 70%;
+        }
+        
+        @media (max-width: 768px) {
+            .form-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                min-width: 600px;
+                display: table;
+            }
+            
+            table td:first-child {
+                min-width: 150px;
+                max-width: 200px;
+            }
+            
+            table td:nth-child(2),
+            table td:nth-child(3) {
+                min-width: 120px;
+                max-width: 150px;
+            }
+        }
+        
+        input[type="submit"] {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #427aa1 0%, #064789 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(6, 71, 137, 0.3);
+        }
+        
+        input[type="submit"]:active {
+            transform: scale(0.98);
+        }
+        
+        input[type="submit"]:hover {
+            box-shadow: 0 6px 16px rgba(6, 71, 137, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            h2 {
+                font-size: 16px;
+            }
+            
+            h3 {
+                font-size: 15px;
+            }
+            
+            table {
+                font-size: 11px;
+            }
+            
+            table th,
+            table td {
+                padding: 8px 6px;
+            }
+        }
+        
+        @media (min-width: 481px) and (max-width: 768px) {
+            .form-container {
+                max-width: 600px;
+            }
+        }
+    </style>
+    <script>
+        function formatTAJ(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 6) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 9);
+            } else if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6);
+            }
+            input.value = value;
+        }
+        
+        function showQuestions() {
+            const jawSelection = document.getElementById('denture_type').value;
+            const lowerJawQuestions = document.querySelectorAll('.lower-jaw');
+            const upperJawQuestions = document.querySelectorAll('.upper-jaw');
+
+            lowerJawQuestions.forEach(question => question.classList.add('hidden'));
+            upperJawQuestions.forEach(question => question.classList.add('hidden'));
+
+            if (jawSelection === 'lower') {
+                lowerJawQuestions.forEach(question => question.classList.remove('hidden'));
+            } else if (jawSelection === 'upper') {
+                upperJawQuestions.forEach(question => question.classList.remove('hidden'));
+            } else if (jawSelection === 'both') {
+                lowerJawQuestions.forEach(question => question.classList.remove('hidden'));
+                upperJawQuestions.forEach(question => question.classList.remove('hidden'));
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>PREDICT STUDY</h1>
+        <h2>Hallgatói fizikális vizsgálat</h2>
+        <div class="study-description">
+            Tapasztalt fogorvos és fogorvostan-hallgatók klinikai anatómiai felismerőképességének összehasonlítása
+        </div>
+        <form action="/submit_student_exam" method="post">
+            <label for="student_name">Vizsgáló hallgató neve:</label>
+            <select id="student_name" name="student_name" required>
+                <option value="" disabled selected>Válasszon</option>
+                <option value="Székelyhidi Kata">Székelyhidi Kata</option>
+                <option value="Tokaji Tamás">Tokaji Tamás</option>
+            </select>
+
+            <label for="TAJ">TAJ:</label>
+            <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
+
+            <div>
+                <label for="denture_type">Milyen fogsort készítünk?:</label>
+                <select id="denture_type" name="denture_type" onchange="showQuestions()" required>
+                    <option value="" disabled selected>Válasszon</option> 
+                    <option value="lower">csak alsót</option>
+                    <option value="upper">csak felsőt</option>
+                    <option value="both">felsőt és alsót is</option>
+                </select>
+            </div>
+
+            <h3>Fizikális vizsgálat</h3>
+            <h4>Klinikai anatómiai képletek a felső állcsonton:</h4>
+            <table class="upper-jaw hidden">
+                <thead>
+                    <tr>
+                        <th>Anatómiai képlet</th>
+                        <th>Válaszok</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>F5<br>Lötyögő, csontmag nélküli gerinc jelenléte</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="F5_null" value="">
+                            <div><label><input type="radio" name="F5" value="1"> nincs</label></div>
+                            <div><label><input type="radio" name="F5" value="2"> van, „lötyögő" tuberek</label></div>
+                            <div><label><input type="radio" name="F5" value="3"> van, frontális gerincen</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>F7<br>Torus palatinus</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="F7_null" value="">
+                            <div><label><input type="radio" name="F7" value="1"> nincs</label></div>
+                            <div><label><input type="radio" name="F7" value="2"> plató alakú</label></div>
+                            <div><label><input type="radio" name="F7" value="3"> orsó alakú</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>F8<br>Az antagonista fogazat</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="F8_null" value="">
+                            <div><label><input type="radio" name="F8" value="1"> nincs, most készül</label></div>
+                            <div><label><input type="radio" name="F8" value="2"> teljes lemezes fogpótlás vagy overdenture vagy részleges fémlemezes fogpótlás</label></div>
+                            <div><label><input type="radio" name="F8" value="3"> teljesen megtartott vagy rögzített fogpótlással helyreállított</label></div>
+                        </td>
+                    </tr>
+            </table>
+            <h4>Klinikai anatómiai képletek az alsó állcsonton:</h4>
+            <table class="lower-jaw hidden">
+                <thead>
+                    <tr>
+                        <th>Anatómiai képlet</th>
+                        <th>Válaszok</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A1 Kaán szerint: <br>Az alsó állcsontgerinc alakja</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A1_Kaan_null" value="">
+                            <div><label><input type="radio" name="A1_Kaan" value="1"> egészében megtartott</label></div>
+                            <div><label><input type="radio" name="A1_Kaan" value="2"> elöl megtartott, oldalt lapos</label></div>
+                            <div><label><input type="radio" name="A1_Kaan" value="3"> egészében lapos</label></div>
+                            <div><label><input type="radio" name="A1_Kaan" value="4"> negatív</label></div>
+                            <div><label><input type="radio" name="A1_Kaan" value="5"> mélyült negatív</label></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="lower-jaw hidden">
+                <thead>
+                    <tr>
+                        <th>Oldalanként vizsgálandók</th>
+                        <th>Jobb</th>
+                        <th>Bal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A3<br>A buccinator tasak</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A3_jobb_null" value="">
+                            <div><label><input type="radio" name="A3_jobb" value="1"> szájnyitáskor beszűkülő</label></div>
+                            <div><label><input type="radio" name="A3_jobb" value="2"> szájnyitáskor kiszélesedő</label></div>
+                            <div><label><input type="radio" name="A3_jobb" value="3"> lebenyezett felszínű</label></div>
+                        </td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A3_bal_null" value="">
+                            <div><label><input type="radio" name="A3_bal" value="1"> szájnyitáskor beszűkülő</label></div>
+                            <div><label><input type="radio" name="A3_bal" value="2"> szájnyitáskor kiszélesedő</label></div>
+                            <div><label><input type="radio" name="A3_bal" value="3"> lebenyezett felszínű</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A4<br>Torus mandibularis</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A4_jobb_null" value="">
+                            <div><label><input type="radio" name="A4_jobb" value="1"> nincs</label></div>
+                            <div><label><input type="radio" name="A4_jobb" value="2"> nagy méretű</label></div>
+                            <div><label><input type="radio" name="A4_jobb" value="3"> kis méretű</label></div>
+                        </td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A4_bal_null" value="">
+                            <div><label><input type="radio" name="A4_bal" value="1"> nincs</label></div>
+                            <div><label><input type="radio" name="A4_bal" value="2"> nagy méretű</label></div>
+                            <div><label><input type="radio" name="A4_bal" value="3"> kis méretű</label></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="lower-jaw hidden">
+                <thead>
+                    <tr>
+                        <th>A retromolaris tájék értékelése</th>
+                        <th>Jobb</th>
+                        <th>Bal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A5<br>a lingualis tasak</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A5_jobb_null" value="">
+                            <div><label><input type="radio" name="A5_jobb" value="1"> nyeléskor a környező izmok nem szűkítik</label></div>
+                            <div><label><input type="radio" name="A5_jobb" value="2"> nyeléskor a környező izmok ujjunkat a mandibulához préselik</label></div>
+                            <div><label><input type="radio" name="A5_jobb" value="3"> nyeléskor a környező izmok ujjunkat kifelé préselik</label></div>
+                        </td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A5_bal_null" value="">
+                            <div><label><input type="radio" name="A5_bal" value="1"> nyeléskor a környező izmok nem szűkítik</label></div>
+                            <div><label><input type="radio" name="A5_bal" value="2"> nyeléskor a környező izmok ujjunkat a mandibulához préselik</label></div>
+                            <div><label><input type="radio" name="A5_bal" value="3"> nyeléskor a környező izmok ujjunkat kifelé préselik</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A6<br>a tuberculum mekkora hányadát borítja feszes íny?</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A6_jobb_null" value="">
+                            <div><label><input type="radio" name="A6_jobb" value="1"> az egészet</label></div>
+                            <div><label><input type="radio" name="A6_jobb" value="2"> elülső harmadát</label></div>
+                            <div><label><input type="radio" name="A6_jobb" value="3"> egyáltalán nem</label></div>
+                        </td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A6_bal_null" value="">
+                            <div><label><input type="radio" name="A6_bal" value="1"> az egészet</label></div>
+                            <div><label><input type="radio" name="A6_bal" value="2"> elülső harmadát</label></div>
+                            <div><label><input type="radio" name="A6_bal" value="3"> egyáltalán nem</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A7<br>a tuberculum alakja, mérete</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A7_jobb_null" value="">
+                            <div><label><input type="radio" name="A7_jobb" value="1"> fordított körte alakú</label></div>
+                            <div><label><input type="radio" name="A7_jobb" value="2"> kicsi, de környezetétől elváló</label></div>
+                            <div><label><input type="radio" name="A7_jobb" value="3"> plicaszerű</label></div>
+                        </td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A7_bal_null" value="">
+                            <div><label><input type="radio" name="A7_bal" value="1"> fordított körte alakú</label></div>
+                            <div><label><input type="radio" name="A7_bal" value="2"> kicsi, de környezetétől elváló</label></div>
+                            <div><label><input type="radio" name="A7_bal" value="3"> plicaszerű</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A8<br>a tuberculum-gerinc inklinációs szög</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A8_jobb_null" value="">
+                            <div><label><input type="radio" name="A8_jobb" value="1"> nincs szögeltérés</label></div>
+                            <div><label><input type="radio" name="A8_jobb" value="2"> jelentős szögeltérés</label></div>
+                            <div><label><input type="radio" name="A8_jobb" value="3"> plicaszerű, nem vizsgálható</label></div>
+                        </td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A8_bal_null" value="">
+                            <div><label><input type="radio" name="A8_bal" value="1"> nincs szögeltérés</label></div>
+                            <div><label><input type="radio" name="A8_bal" value="2"> jelentős szögeltérés</label></div>
+                            <div><label><input type="radio" name="A8_bal" value="3"> plicaszerű, nem vizsgálható</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A9<br>a tuberculum alakváltozása szájnyitás-szájzáráskor</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A9_jobb_null" value="">
+                            <div><label><input type="radio" name="A9_jobb" value="1"> nem változik</label></div>
+                            <div><label><input type="radio" name="A9_jobb" value="2"> kissé változik</label></div>
+                            <div><label><input type="radio" name="A9_jobb" value="3"> abszolút mozgékony</label></div>
+                        </td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A9_bal_null" value="">
+                            <div><label><input type="radio" name="A9_bal" value="1"> nem változik</label></div>
+                            <div><label><input type="radio" name="A9_bal" value="2"> kissé változik</label></div>
+                            <div><label><input type="radio" name="A9_bal" value="3"> abszolút mozgékony</label></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="lower-jaw hidden">
+                <thead>
+                    <tr>
+                        <th>Globálisan vizsgálandók</th>
+                        <th>Válaszok</th>
+                    </tr>
+                </thead>
+                <tbody>
+              
+                    <tr>
+                        <td>A11<br>A szublingualis tájék vizsgálata</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A11_null" value="">
+                            <div><label><input type="radio" name="A11" value="1"> nem elődomborodó</label></div>
+                            <div><label><input type="radio" name="A11" value="2"> puhán elődomborodó</label></div>
+                            <div><label><input type="radio" name="A11" value="3"> tömött, elődomborodó</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A12<br>A spinae mentales</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A12_null" value="">
+                            <div><label><input type="radio" name="A12" value="1"> nem tapintható</label></div>
+                            <div><label><input type="radio" name="A12" value="2"> tapintható</label></div>
+                            <div><label><input type="radio" name="A12" value="3"> nyomásra érzékeny</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A13<br>TMI funkció</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A13_null" value="">
+                            <div><label><input type="radio" name="A13" value="1"> panaszmentes</label></div>
+                            <div><label><input type="radio" name="A13" value="2"> hangjelenség fájdalom vagy mozgáskorlátozottság nélkül</label></div>
+                            <div><label><input type="radio" name="A13" value="3"> fájdalom és/vagy mozgáskorlátozottság</label></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A14<br>Az antagonista fogazat</td>
+                        <td class="radio-group">
+                            <input type="hidden" name="A14_null" value="">
+                            <div><label><input type="radio" name="A14" value="1"> nincs</label></div>
+                            <div><label><input type="radio" name="A14" value="2"> teljes lemezes fogpótlás vagy overdenture vagy részleges fémlemezes fogpótlás</label></div>
+                            <div><label><input type="radio" name="A14" value="3"> teljesen megtartott vagy rögzített fogpótlással helyreállított</label></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div><input type="submit" value="Beküldés"></div>
+        </form>
+    </div>
+</body>
+</html>

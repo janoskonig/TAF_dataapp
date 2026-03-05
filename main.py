@@ -191,6 +191,50 @@ def questionnaire2():
 def questionnaire3():
     return render_template('questionnaire3.html')
 
+@app.route('/student_exam')
+def student_exam():
+    return render_template('student_exam.html')
+
+@app.route('/submit_student_exam', methods=['POST'])
+def submit_student_exam():
+    cursor = get_db_cursor()
+    student_name = request.form['student_name']
+    TAJ = request.form['TAJ']
+    denture_type = request.form['denture_type']
+
+    F5 = request.form.get('F5')
+    F7 = request.form.get('F7')
+    F8 = request.form.get('F8')
+    A1_Kaan = request.form.get('A1_Kaan')
+    A3_jobb = request.form.get('A3_jobb')
+    A3_bal = request.form.get('A3_bal')
+    A4_jobb = request.form.get('A4_jobb')
+    A4_bal = request.form.get('A4_bal')
+    A5_jobb = request.form.get('A5_jobb')
+    A5_bal = request.form.get('A5_bal')
+    A6_jobb = request.form.get('A6_jobb')
+    A6_bal = request.form.get('A6_bal')
+    A7_jobb = request.form.get('A7_jobb')
+    A7_bal = request.form.get('A7_bal')
+    A8_jobb = request.form.get('A8_jobb')
+    A8_bal = request.form.get('A8_bal')
+    A9_jobb = request.form.get('A9_jobb')
+    A9_bal = request.form.get('A9_bal')
+    A11 = request.form.get('A11')
+    A12 = request.form.get('A12')
+    A13 = request.form.get('A13')
+    A14 = request.form.get('A14')
+
+    sql = """
+    INSERT INTO student_examinations (TAJ, student_name, denture_type, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    values = (TAJ, student_name, denture_type, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14)
+    cursor.execute(sql, values)
+    db.commit()
+
+    return render_template('confirmation.html')
+
 @app.route('/submit_questionnaire1', methods=['POST'])
 def submit_questionnaire1():
     cursor = get_db_cursor()
