@@ -2,23 +2,16 @@
 Ez a program egy SQL adatbázis lekérdező program... akarna lenni.
 """
 
-import mysql.connector
+import psycopg2
 import os
+from dotenv import load_dotenv
 
-host = os.getenv("DB_HOST")
-port = os.getenv("DB_PORT")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-database = os.getenv("DB_NAME")
+load_dotenv(dotenv_path=".env")
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Kapcsolódás az adatbázishoz
-connection = mysql.connector.connect(
-    host=host,
-    user=user,
-    port=port,
-    password=password,
-    database=database
-)
+connection = psycopg2.connect(DATABASE_URL)
 
 # Lekérdezés
 cursor = connection.cursor()

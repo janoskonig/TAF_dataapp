@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, flash
 from werkzeug.utils import secure_filename
-import mysql.connector
+import psycopg2
 import os
 from dotenv import load_dotenv
 from PIL import Image
@@ -34,45 +34,35 @@ if not os.path.exists(UPLOAD_FOLDER):
 # Load environment variables from .env file
 load_dotenv(dotenv_path=".env")
 
-# Retrieve environment variables
-host = os.getenv("DB_HOST")
-port = os.getenv("DB_PORT")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-database = os.getenv("DB_NAME")
-# Ensure all variables are retrieved correctly
-if not all([host, port, user, password, database]):
-    raise ValueError("Missing one or more environment variables")
-# Print environment variables
-print("DB_HOST:", host)
-print("DB_PORT:", port)
-print("DB_USER:", user)
-print("DB_PASSWORD:", password)
-print("DB_NAME:", database)
+# Retrieve PostgreSQL connection URL
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("Missing DATABASE_URL environment variable")
+print("DATABASE_URL:", DATABASE_URL)
 
-# MySQL database connection
 def create_db_connection():
-    return mysql.connector.connect(
-        host=host,
-        port=port,
-        user=user,
-        password=password,
-        database=database
-    )
+    return psycopg2.connect(DATABASE_URL)
 
 db = create_db_connection()
 
 def ping_db():
     global db
     while True:
-        time.sleep(600)  # Sleep for 10 minutes
+        time.sleep(600)
         try:
-            db.ping(reconnect=True, attempts=3, delay=5)
-        except mysql.connector.Error as err:
-            print(f"Error pinging MySQL: {err}")
-            db = create_db_connection()
+            if db.closed:
+                db = create_db_connection()
+            else:
+                cur = db.cursor()
+                cur.execute("SELECT 1")
+                cur.close()
+        except psycopg2.Error as err:
+            print(f"Error pinging PostgreSQL: {err}")
+            try:
+                db = create_db_connection()
+            except psycopg2.Error:
+                pass
 
-# Start the background thread to ping the database
 thread = threading.Thread(target=ping_db)
 thread.daemon = True
 thread.start()
@@ -80,8 +70,11 @@ thread.start()
 def get_db_cursor():
     global db
     try:
-        db.ping(reconnect=True, attempts=3, delay=5)
-    except mysql.connector.Error:
+        if db.closed:
+            db = create_db_connection()
+        else:
+            db.rollback()
+    except psycopg2.Error:
         db = create_db_connection()
     return db.cursor()
 

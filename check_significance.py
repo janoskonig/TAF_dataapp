@@ -6,7 +6,7 @@ Script to check for statistically significant results in the cross-sectional ana
 import sys
 import os
 from dotenv import load_dotenv
-import mysql.connector
+import psycopg2
 
 # Add the current directory to path to import from main
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -14,21 +14,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # Load environment variables
 load_dotenv(dotenv_path=".env")
 
-# Database connection
-host = os.getenv("DB_HOST")
-port = os.getenv("DB_PORT")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-database = os.getenv("DB_NAME")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("Missing DATABASE_URL environment variable")
 
 def create_db_connection():
-    return mysql.connector.connect(
-        host=host,
-        port=int(port),
-        user=user,
-        password=password,
-        database=database
-    )
+    return psycopg2.connect(DATABASE_URL)
 
 def get_db_cursor():
     db = create_db_connection()

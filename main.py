@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, flash
 from werkzeug.utils import secure_filename
-import mysql.connector
+import psycopg2
 import os
 from dotenv import load_dotenv
 from PIL import Image
@@ -74,45 +74,35 @@ if not os.path.exists(UPLOAD_FOLDER):
 # Load environment variables from .env file
 load_dotenv(dotenv_path=".env")
 
-# Retrieve environment variables
-host = os.getenv("DB_HOST")
-port = os.getenv("DB_PORT")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-database = os.getenv("DB_NAME")
-# Ensure all variables are retrieved correctly
-if not all([host, port, user, password, database]):
-    raise ValueError("Missing one or more environment variables")
-# Print environment variables
-print("DB_HOST:", host)
-print("DB_PORT:", port)
-print("DB_USER:", user)
-print("DB_PASSWORD:", password)
-print("DB_NAME:", database)
+# Retrieve PostgreSQL connection URL
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("Missing DATABASE_URL environment variable")
+print("DATABASE_URL:", DATABASE_URL)
 
-# MySQL database connection
 def create_db_connection():
-    return mysql.connector.connect(
-        host=host,
-        port=port,
-        user=user,
-        password=password,
-        database=database
-    )
+    return psycopg2.connect(DATABASE_URL)
 
 db = create_db_connection()
 
 def ping_db():
     global db
     while True:
-        time.sleep(600)  # Sleep for 10 minutes
+        time.sleep(600)
         try:
-            db.ping(reconnect=True, attempts=3, delay=5)
-        except mysql.connector.Error as err:
-            print(f"Error pinging MySQL: {err}")
-            db = create_db_connection()
+            if db.closed:
+                db = create_db_connection()
+            else:
+                cur = db.cursor()
+                cur.execute("SELECT 1")
+                cur.close()
+        except psycopg2.Error as err:
+            print(f"Error pinging PostgreSQL: {err}")
+            try:
+                db = create_db_connection()
+            except psycopg2.Error:
+                pass
 
-# Start the background thread to ping the database
 thread = threading.Thread(target=ping_db)
 thread.daemon = True
 thread.start()
@@ -120,8 +110,11 @@ thread.start()
 def get_db_cursor():
     global db
     try:
-        db.ping(reconnect=True, attempts=3, delay=5)
-    except mysql.connector.Error:
+        if db.closed:
+            db = create_db_connection()
+        else:
+            db.rollback()
+    except psycopg2.Error:
         db = create_db_connection()
     return db.cursor()
 
@@ -393,7 +386,7 @@ def submit_questionnaire3():
     F9 = get_form_data('F9')
 
     # Fetch dropout status (checkbox: checked = 1, unchecked = 0)
-    dropout = 1 if 'dropout' in request.form and request.form['dropout'] == '1' else 0
+    dropout = True if 'dropout' in request.form and request.form['dropout'] == '1' else False
 
     # Check if TAJ exists
     cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
@@ -2159,7 +2152,7 @@ def results():
     patient_count = cursor.fetchone()[0]
     
     # Count dropouts (where dropout = 1 or TRUE)
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE dropout = 1 OR dropout = TRUE")
+    cursor.execute("SELECT COUNT(*) FROM patients WHERE dropout = TRUE")
     dropout_count = cursor.fetchone()[0]
     
     cursor.execute("SELECT COUNT(*) FROM patients WHERE (denture_type = 'lower' OR denture_type = 'both') AND denture_type IS NOT NULL")
@@ -2551,7 +2544,7 @@ def results():
             'GOHAI_7', 'GOHAI_8', 'GOHAI_9', 'GOHAI_10', 'GOHAI_11', 'GOHAI_12'
         ])
         
-        # Convert numeric columns from Decimal to float (MySQL DECIMAL types cause issues)
+        # Convert numeric columns from Decimal to float (NUMERIC types cause issues with scipy)
         numeric_cols = ['F1', 'F2', 'F3', 'F4', 'F6', 'init_mai', 'final_mai',
                        'OHIP_1', 'OHIP_2', 'OHIP_3', 'OHIP_4', 'OHIP_5',
                        'GOHAI_1', 'GOHAI_2', 'GOHAI_3', 'GOHAI_4', 'GOHAI_5', 'GOHAI_6',
