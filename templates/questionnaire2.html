@@ -215,7 +215,7 @@
         }
 
         function toggleRequiredFields(group, required) {
-            const inputs = group.querySelectorAll('input[type=radio]');
+            const inputs = group.querySelectorAll('input[type=radio], input[type=file], input[type=number]');
             inputs.forEach(input => {
                 if (required) {
                     input.setAttribute('required', 'required');
@@ -226,7 +226,7 @@
         }
 
         function toggleDisabledFields(group, disabled) {
-            const inputs = group.querySelectorAll('input[type=radio]');
+            const inputs = group.querySelectorAll('input[type=radio], input[type=file], input[type=number]');
             inputs.forEach(input => {
                 input.disabled = disabled;
             });
@@ -293,12 +293,35 @@
         }
 
         function handleSubmit(event) {
+            console.log("Form submit handler called");
+            // Remove required attributes from all hidden inputs before submission
+            const allHiddenInputs = document.querySelectorAll('.hidden input[required]');
+            console.log("Found", allHiddenInputs.length, "hidden required inputs");
+            allHiddenInputs.forEach(input => {
+                input.removeAttribute('required');
+            });
             setNullValues();
+            
+            // Check if form is valid
+            const form = event.target;
+            if (!form.checkValidity()) {
+                console.log("Form validation failed");
+                event.preventDefault();
+                event.stopPropagation();
+                form.reportValidity();
+                return false;
+            }
+            console.log("Form is valid, submitting...");
+            // Form will submit normally
+            return true;
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            const form = document.querySelector("form");
+            const form = document.getElementById("questionnaireForm");
+            // Initialize: hide all questions and remove required attributes
+            showQuestions();
             form.addEventListener("submit", handleSubmit);
+            console.log("Form initialized");
         });
     </script>
 </head>
@@ -306,7 +329,7 @@
     <div class="container">
         <h1>Modellanalízis mérései</h1>
         <div class="info-text">Itt csak azok szerepelnek, amit nem a páciens direkt vizsgálatával állapítunk meg!</div>
-        <form action="/submit_questionnaire2" method="post" enctype="multipart/form-data">
+        <form action="/submit_questionnaire2" method="post" enctype="multipart/form-data" id="questionnaireForm">
             <label for="TAJ">TAJ:</label>
             <input type="text" id="TAJ" name="TAJ" pattern="\d{3}-\d{3}-\d{3}" oninput="formatTAJ(this)" maxlength="11" required>
             <label for="jawSelection">Melyik állkapcsot vizsgáljuk?</label>
@@ -324,23 +347,13 @@
                 <thead>
                     <tr>
                         <th>Anatómiai képlet</th>
+                        <th>Válaszok</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>F1 Modellanalízis során mért profil szerint:<br>A felső állcsontgerinc profilja</td>
-                        <td>
-                            <div>
-                                <label for="gerincélvonal">A felső állcsont gerincélvonalának profilja:</label>
-                                <input type="hidden" name="F1_null_gerincelvonal" value="">
-                                <input type="file" id="gerincelvonal" name="stlFile_gerincelvonal" accept=".stl" required>
-                            </div>
-                            <div>
-                                <label for="bukkalisathajlas">A felső állcsont bukkális áthajlásának profilja:</label>
-                                <input type="hidden" name="F1_null_bukkalis" value="">
-                                <input type="file" id="bukkalisathajlas" name="stlFile_bukkalis" accept=".stl" required>
-                            </div>
-                        </td>
+                        <td>F1<br>A felső állcsontgerinc profilja</td>
+                        <td><input type="number" step="0.01" name="F1" placeholder="Enter value" min="0"> mm</td>
                     </tr>
                     <tr>
                         <td>F2<br>Alámenős területek nagysága a felső állcsonton</td>
@@ -395,17 +408,17 @@
                             <div>
                                 <label for="gerincélvonal">A felső állcsont gerincélvonalának profilja:</label>
                                 <input type="hidden" name="A1_conti_null_gerincelvonal" value="">
-                                <input type="file" id="gerincelvonal" name="stlFile_also_gerincelvonal" accept=".stl" required>
+                                <input type="file" id="gerincelvonal" name="stlFile_also_gerincelvonal" accept=".stl">
                             </div>
                             <div>
                                 <label for="bukkalisathajlas">A felső állcsont bukkális áthajlásának profilja:</label>
                                 <input type="hidden" name="A1_conti_null_bukkalis" value="">
-                                <input type="file" id="bukkalisathajlas" name="stlFile_also_bukkalis" accept=".stl" required>
+                                <input type="file" id="bukkalisathajlas" name="stlFile_also_bukkalis" accept=".stl">
                             </div>
                             <div>
                                 <label for="lingualisathajlas">A felső állcsont lingualis áthajlásának profilja:</label>
                                 <input type="hidden" name="A1_conti_null_lingualis" value="">
-                                <input type="file" id="lingualisathajlas" name="stlFile_also_lingualis" accept=".stl" required>
+                                <input type="file" id="lingualisathajlas" name="stlFile_also_lingualis" accept=".stl">
                             </div>
                         </td>
                     </tr>

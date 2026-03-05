@@ -213,16 +213,6 @@
         <div class="stat-box">
             <p>Az optimális vágópont GOHAI-különbség esetén: {{ optimal_threshold_gohai }}</p>
         </div>
-        <h3>1.2. MFIQ függvényében</h3>
-        {% if no_valid_dijkstra %}
-        <div class="stat-box">
-            <p>Nincs elég adat még ehhez</p>
-        </div>
-        {% else %}
-        <div class="chart-container">
-            <img src="data:image/png;base64,{{ dijkstra_img }}" alt="Dijkstra ROC">
-        </div>
-        {% endif %}
         <h2>2. Odds ratio-k és konfidenciaintervallumaik</h2>
         <h3>2.1. Egyszerű kérdéses ROC alapján</h3>
         <div>
@@ -263,6 +253,287 @@
                 </div>
             {% endif %}
         </div>
+        
+        <h2>V. F1-F9 mérések statisztikai elemzése</h2>
+        <p>Ez a szekció a modellanalízis során mért F1-F9 változók leíró statisztikáit és korrelációit tartalmazza.</p>
+        
+        {% if f_analysis.get('status') == 'success' %}
+            <h3>1. Leíró statisztika</h3>
+            {% for f_name in ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9'] %}
+                {% set f_stat = f_analysis.get('descriptive_stats', {}).get(f_name, {}) %}
+                {% if f_stat.get('status') != 'no_data' %}
+                    <div class="stat-box">
+                        <h4>{{ f_name }}</h4>
+                        {% if f_stat.get('mean') is not none %}
+                            {# Numeric variable #}
+                            <p><strong>Átlag:</strong> {{ "%.2f"|format(f_stat.get('mean', 0)) }} ± {{ "%.2f"|format(f_stat.get('std', 0)) }} {{ f_stat.get('unit', '') }}</p>
+                            <p><strong>Medián:</strong> {{ "%.2f"|format(f_stat.get('median', 0)) }} {{ f_stat.get('unit', '') }}</p>
+                            <p><strong>Min-Max:</strong> {{ "%.2f"|format(f_stat.get('min', 0)) }} - {{ "%.2f"|format(f_stat.get('max', 0)) }} {{ f_stat.get('unit', '') }}</p>
+                            <p><strong>Minta méret:</strong> n = {{ f_stat.get('n', 0) }}</p>
+                            {% if f_analysis.get('distribution_plots', {}).get(f_name) %}
+                                <div class="chart-container">
+                                    <img src="data:image/png;base64,{{ f_analysis.get('distribution_plots', {}).get(f_name) }}" alt="{{ f_name }} Distribution">
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            {# Categorical variable #}
+                            <p><strong>Minta méret:</strong> n = {{ f_stat.get('n', 0) }}</p>
+                            <h5>Értékek megoszlása:</h5>
+                            {% for value, count in f_stat.get('value_counts', {}).items() %}
+                                <p style="margin-left: 20px;">{{ value }}: {{ count }} ({{ "%.1f"|format(f_stat.get('percentages', {}).get(value, 0)) }}%)</p>
+                            {% endfor %}
+                            {% if f_analysis.get('distribution_plots', {}).get(f_name) %}
+                                <div class="chart-container">
+                                    <img src="data:image/png;base64,{{ f_analysis.get('distribution_plots', {}).get(f_name) }}" alt="{{ f_name }} Distribution">
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            <h3>2. Korrelációs elemzés</h3>
+            {% if f_analysis.get('correlation_heatmap') %}
+                <div class="chart-container">
+                    <h4>Korrelációs mátrix: F1-F9 mérések és kimeneti változók</h4>
+                    <img src="data:image/png;base64,{{ f_analysis.get('correlation_heatmap') }}" alt="Correlation Heatmap">
+                </div>
+            {% endif %}
+            
+            <h4>Egyedi korrelációk:</h4>
+            {% for f_name in ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9'] %}
+                {% set f_corrs = f_analysis.get('correlations', {}).get(f_name, {}) %}
+                {% if f_corrs %}
+                    <div class="stat-box">
+                        <h4>{{ f_name }} korrelációi</h4>
+                        {% for outcome_name in ['init_mai', 'final_mai', 'OHIP_total', 'GOHAI_total'] %}
+                            {% set corr_data = f_corrs.get(outcome_name, {}) %}
+                            {% if corr_data.get('status') != 'insufficient_data' and corr_data.get('status') != 'insufficient_groups' %}
+                                <p><strong>{{ outcome_name }}:</strong>
+                                {% if corr_data.get('correlation') is not none %}
+                                    r = {{ "%.3f"|format(corr_data.get('correlation', 0)) }} (p = {{ "%.4f"|format(corr_data.get('p_value', 1)) }}, n = {{ corr_data.get('n', 0) }})
+                                    {% if corr_data.get('p_value', 1) < 0.05 %}
+                                        <span style="color: #d32f2f; font-weight: bold;">*</span>
+                                    {% endif %}
+                                {% elif corr_data.get('test') == 'Kruskal-Wallis' %}
+                                    Kruskal-Wallis: stat = {{ "%.3f"|format(corr_data.get('statistic', 0)) }}, p = {{ "%.4f"|format(corr_data.get('p_value', 1)) }} (n = {{ corr_data.get('n', 0) }})
+                                    {% if corr_data.get('p_value', 1) < 0.05 %}
+                                        <span style="color: #d32f2f; font-weight: bold;">*</span>
+                                    {% endif %}
+                                    {% if corr_data.get('group_means') %}
+                                        <br><span style="margin-left: 20px;">Csoport átlagok: 
+                                        {% for group_val, mean_val in corr_data.get('group_means', {}).items() %}
+                                            {{ group_val }}: {{ "%.2f"|format(mean_val) }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% elif f_analysis.get('status') == 'insufficient_data' %}
+            <div class="stat-box">
+                <p>{{ f_analysis.get('message', 'Nincs elegendő adat az F1-F9 elemzéshez') }}</p>
+            </div>
+        {% endif %}
+        
+        <h2>VI. Keresztmetszeti vizsgálat</h2>
+        <p>Ez a szekció a kezdeti mérési időpontban végzett statisztikai elemzéseket tartalmazza.</p>
+        
+        {% for hyp_id in ['H1a', 'H1b', 'H1c', 'H2a', 'H2b', 'H2c', 'H3a', 'H3b', 'H4a', 'H4b', 'H5', 'H6a', 'H6b', 'H7', 'H8', 'H9', 'H10'] %}
+            {% set hyp = cross_sectional_results.get(hyp_id, {}) %}
+            <div class="stat-box" style="margin-top: 20px;">
+                <h3>{{ hyp_id }}</h3>
+                <h4>Null hipotézis:</h4>
+                <p>{{ hyp.get('null_hypothesis', 'N/A') }}</p>
+                <h4>Alternatív hipotézis:</h4>
+                <p>{{ hyp.get('alternative_hypothesis', 'N/A') }}</p>
+                
+                {% if hyp.get('status') == 'success' %}
+                    {% if hyp.get('plot_img') %}
+                        <div class="chart-container" style="margin: 15px 0;">
+                            <img src="data:image/png;base64,{{ hyp.get('plot_img') }}" alt="{{ hyp_id }} Plot" style="max-width: 100%; height: auto;">
+                        </div>
+                    {% endif %}
+                    
+                    <h4>Eredmények:</h4>
+                    <p><strong>Statisztikai teszt:</strong> {{ hyp.get('test_name', 'N/A') }}</p>
+                    
+                    {% if 'concordance_rate' in hyp %}
+                        {# H6a: Discordance analysis #}
+                        <p><strong>Konkordancia arány:</strong> {{ "%.2f"|format(hyp.get('concordance_rate', 0) * 100) }}%</p>
+                        <p><strong>Konkordáns páciensek:</strong> {{ hyp.get('concordant_n', 0) }}</p>
+                        <p><strong>Diszkordáns páciensek:</strong> {{ hyp.get('discordant_n', 0) }}</p>
+                        <p><strong>Minta méret:</strong> n = {{ hyp.get('n', 0) }}</p>
+                        {% if hyp.get('discordant_n', 0) > 0 %}
+                            <p style="color: #d32f2f; font-weight: bold;">Diszkordancia felfedezve: {{ hyp.get('discordant_n', 0) }} páciens mutat eltérést szubjektív és objektív értékelés között.</p>
+                        {% else %}
+                            <p style="color: #1976d2;">Nincs diszkordancia: minden páciens konkordáns.</p>
+                        {% endif %}
+                    {% elif 'r_squared' in hyp and 'f_p_value' in hyp %}
+                        {# Multiple regression analyses (H3b, H4b, H7) #}
+                        <p><strong>R²:</strong> {{ "%.3f"|format(hyp.get('r_squared', 0)) }}</p>
+                        {% if hyp.get('adjusted_r_squared') %}
+                            <p><strong>Korrigált R²:</strong> {{ "%.3f"|format(hyp.get('adjusted_r_squared', 0)) }}</p>
+                        {% endif %}
+                        <p><strong>F-statisztika:</strong> {{ "%.3f"|format(hyp.get('f_statistic', 0)) }} (p = {{ "%.4f"|format(hyp.get('f_p_value', 1)) }})</p>
+                        <p><strong>Minta méret:</strong> n = {{ hyp.get('n', 0) }}</p>
+                        
+                        {% if hyp.get('age_coefficient') %}
+                            <p><strong>Kor együttható:</strong> {{ "%.3f"|format(hyp.get('age_coefficient', {}).get('coefficient', 0)) }} (p = {{ "%.4f"|format(hyp.get('age_coefficient', {}).get('p_value', 1)) }})</p>
+                        {% endif %}
+                        {% if hyp.get('denture_coefficients') %}
+                            <p><strong>Fogpótlás típus együtthatók:</strong></p>
+                            {% for denture_type, coef_data in hyp.get('denture_coefficients', {}).items() %}
+                                <p style="margin-left: 20px;">{{ denture_type }}: {{ "%.3f"|format(coef_data.get('coefficient', 0)) }} (p = {{ "%.4f"|format(coef_data.get('p_value', 1)) }})</p>
+                            {% endfor %}
+                        {% endif %}
+                        {% if hyp.get('significant_predictors') %}
+                            <p><strong>Szignifikáns prediktorok (p < 0.05):</strong> {{ ', '.join(hyp.get('significant_predictors', [])) }}</p>
+                        {% endif %}
+                        
+                        {% if hyp.get('f_p_value', 1) < 0.05 %}
+                            <p style="color: #d32f2f; font-weight: bold;">A modell szignifikáns (p < 0.05).</p>
+                        {% else %}
+                            <p style="color: #1976d2;">A modell nem szignifikáns (p ≥ 0.05).</p>
+                        {% endif %}
+                    {% elif 'regression_coefficient' in hyp %}
+                        {# H2c: Regression analysis #}
+                        <p><strong>Korreláció:</strong> {{ "%.3f"|format(hyp.get('correlation', 0)) }} (p = {{ "%.4f"|format(hyp.get('p_value', 1)) }})</p>
+                        <p><strong>Regressziós együttható:</strong> {{ "%.3f"|format(hyp.get('regression_coefficient', 0)) }} (p = {{ "%.4f"|format(hyp.get('regression_p_value', 1)) }})</p>
+                        {% if hyp.get('r_squared') %}
+                            <p><strong>R²:</strong> {{ "%.3f"|format(hyp.get('r_squared', 0)) }}</p>
+                        {% endif %}
+                        <p><strong>Minta méret:</strong> n = {{ hyp.get('n', 0) }}</p>
+                        {% if hyp.get('p_value', 1) < 0.05 %}
+                            <p style="color: #d32f2f; font-weight: bold;">A null hipotézist elutasítjuk (p < 0.05).</p>
+                        {% else %}
+                            <p style="color: #1976d2;">A null hipotézist nem utasítjuk el (p ≥ 0.05).</p>
+                        {% endif %}
+                    {% elif 'trend_correlation' in hyp %}
+                        {# H8/H9/H10: Cumulative anatomical risk dose-response #}
+                        <p><strong>Kruskal-Wallis teszt:</strong> statisztika = {{ "%.3f"|format(hyp.get('kruskal_statistic', 0)) }}, p = {{ "%.4f"|format(hyp.get('kruskal_p_value', 1)) }}</p>
+                        <p><strong>Trend teszt (Spearman):</strong> r = {{ "%.3f"|format(hyp.get('trend_correlation', 0)) }}, p = {{ "%.4f"|format(hyp.get('trend_p_value', 1)) }}</p>
+                        {% if hyp.get('optimal_cutoff') %}
+                            <p><strong>Optimális vágópont:</strong> {{ hyp.get('optimal_cutoff') }} ({{ hyp.get('optimal_cutoff') + 1 }}+ problémás tényező = magas kockázat)</p>
+                            <p style="font-size: 0.9em; color: #666;"><em>Megjegyzés: A vágópontot ROC analízissel határoztuk meg (Youden index), hogy elkerüljük a p-hacking problémát.</em></p>
+                            {% if hyp.get('cutoff_effect_size') %}
+                                <p><strong>Vágópontnál mért effect size:</strong> {{ "%.3f"|format(hyp.get('cutoff_effect_size', 0)) }} (Cohen's d{% if hyp.get('data_needed', '') and 'responsiveness' in hyp.get('data_needed', '') %} / AUC{% endif %})</p>
+                            {% endif %}
+                        {% endif %}
+                        <p><strong>Minta méret:</strong> n = {{ hyp.get('n', 0) }}</p>
+                        
+                        {% if hyp.get('category_means') %}
+                            {% if 'GOHAI' in hyp.get('data_needed', '') %}
+                                <h4>GOHAI_total átlagok kategóriánként:</h4>
+                            {% elif 'responsiveness' in hyp.get('data_needed', '') %}
+                                <h4>Responsiveness átlagok kategóriánként:</h4>
+                            {% else %}
+                                <h4>OHIP_total átlagok kategóriánként:</h4>
+                            {% endif %}
+                            {% for category, mean_val in hyp.get('category_means', {}).items() %}
+                                <p style="margin-left: 20px;"><strong>{{ category }}:</strong> {{ "%.2f"|format(mean_val) }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% if hyp.get('is_monotonic_increase') %}
+                            <p style="color: #d32f2f; font-weight: bold;">✅ Monoton növekvő tendencia felfedezve! (Több kockázati tényező → magasabb OHIP)</p>
+                        {% elif hyp.get('is_monotonic_decrease') %}
+                            {% if 'responsiveness' in hyp.get('data_needed', '') %}
+                                <p style="color: #d32f2f; font-weight: bold;">✅ Monoton csökkenő tendencia felfedezve! (Több kockázati tényező → rosszabb responsiveness)</p>
+                            {% else %}
+                                <p style="color: #d32f2f; font-weight: bold;">✅ Monoton csökkenő tendencia felfedezve! (Több kockázati tényező → alacsonyabb GOHAI)</p>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if hyp.get('trend_p_value', 1) < 0.05 %}
+                            <p style="color: #d32f2f; font-weight: bold;">A null hipotézist elutasítjuk (p < 0.05). Dose-response effect szignifikáns!</p>
+                            {% if hyp.get('trend_correlation', 0) < 0 %}
+                                {% if 'responsiveness' in hyp.get('data_needed', '') %}
+                                    <p style="color: #d32f2f;">Negatív korreláció: több kockázati tényező → rosszabb responsiveness.</p>
+                                {% else %}
+                                    <p style="color: #d32f2f;">Negatív korreláció: több kockázati tényező → rosszabb QoL (alacsonyabb GOHAI).</p>
+                                {% endif %}
+                            {% elif hyp.get('trend_correlation', 0) > 0 %}
+                                <p style="color: #d32f2f;">Pozitív korreláció: több kockázati tényező → rosszabb QoL (magasabb OHIP).</p>
+                            {% endif %}
+                        {% else %}
+                            <p style="color: #1976d2;">A null hipotézist nem utasítjuk el (p ≥ 0.05).</p>
+                        {% endif %}
+                    {% elif 'correlation' in hyp %}
+                        {# Correlation analyses (H1b, H1c, H2b, H4a) #}
+                        <p><strong>Korreláció:</strong> {{ "%.3f"|format(hyp.get('correlation', 0)) }} (p = {{ "%.4f"|format(hyp.get('p_value', 1)) }})</p>
+                        <p><strong>Minta méret:</strong> n = {{ hyp.get('n', 0) }}</p>
+                        {% if hyp.get('p_value', 1) < 0.05 %}
+                            <p style="color: #d32f2f; font-weight: bold;">A null hipotézist elutasítjuk (p < 0.05).</p>
+                        {% else %}
+                            <p style="color: #1976d2;">A null hipotézist nem utasítjuk el (p ≥ 0.05).</p>
+                        {% endif %}
+                    {% else %}
+                        {# Group comparison analyses (H1a, H3a, H5, H6b) #}
+                        <p><strong>Statisztika:</strong> {{ "%.3f"|format(hyp.get('statistic', 0)) }} (p = {{ "%.4f"|format(hyp.get('p_value', 1)) }})</p>
+                        <p><strong>Minta méret:</strong> n = {{ hyp.get('n', 0) }}</p>
+                        {% if hyp.get('p_value', 1) < 0.05 %}
+                            <p style="color: #d32f2f; font-weight: bold;">A null hipotézist elutasítjuk (p < 0.05).</p>
+                        {% else %}
+                            <p style="color: #1976d2;">A null hipotézist nem utasítjuk el (p ≥ 0.05).</p>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if hyp.get('descriptive_stats') %}
+                        <h4>Leíró statisztika:</h4>
+                        {% if 'correlation' in hyp %}
+                            <p><strong>init_mai:</strong> átlag = {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('init_mai', {}).get('mean', 0)) }} ± {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('init_mai', {}).get('std', 0)) }}</p>
+                            {% if 'OHIP_total' in hyp.get('descriptive_stats', {}) %}
+                                <p><strong>OHIP_total:</strong> átlag = {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('OHIP_total', {}).get('mean', 0)) }} ± {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('OHIP_total', {}).get('std', 0)) }}</p>
+                            {% elif 'GOHAI_total' in hyp.get('descriptive_stats', {}) %}
+                                <p><strong>GOHAI_total:</strong> átlag = {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('GOHAI_total', {}).get('mean', 0)) }} ± {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('GOHAI_total', {}).get('std', 0)) }}</p>
+                            {% elif 'age' in hyp.get('descriptive_stats', {}) %}
+                                <p><strong>Kor:</strong> átlag = {{ "%.1f"|format(hyp.get('descriptive_stats', {}).get('age', {}).get('mean', 0)) }} ± {{ "%.1f"|format(hyp.get('descriptive_stats', {}).get('age', {}).get('std', 0)) }} év</p>
+                            {% endif %}
+                        {% else %}
+                            {% for category, stats_dict in hyp.get('descriptive_stats', {}).items() %}
+                                <p><strong>{{ category }}:</strong> átlag = {{ "%.2f"|format(stats_dict.get('mean', 0)) }} ± {{ "%.2f"|format(stats_dict.get('std', 0)) }} (n = {{ stats_dict.get('count', 0) }})</p>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+                    
+                {% elif hyp.get('status') == 'insufficient_data' %}
+                    <div style="background-color: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p style="color: #856404; font-weight: bold;">Nincs elegendő adat az elemzéshez</p>
+                        <p><strong>Üzenet:</strong> {{ hyp.get('message', 'Ismeretlen hiba') }}</p>
+                        {% if 'n' in hyp %}
+                            <p><strong>Jelenlegi adatpontok száma:</strong> {{ hyp.get('n', 0) }}</p>
+                        {% endif %}
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                    </div>
+                    
+                {% elif hyp.get('status') == 'error' %}
+                    <div style="background-color: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p style="color: #721c24; font-weight: bold;">Hiba történt az elemzés során</p>
+                        <p><strong>Hibaüzenet:</strong> {{ hyp.get('message', 'Ismeretlen hiba') }}</p>
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                    </div>
+                    
+                {% elif hyp.get('status') == 'not_implemented' %}
+                    <div style="background-color: #e2e3e5; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p style="color: #383d41; font-weight: bold;">Komplex elemzés - még nincs implementálva</p>
+                        <p><strong>Üzenet:</strong> {{ hyp.get('message', 'Komplex elemzés, további implementáció szükséges') }}</p>
+                        <p><strong>Javasolt módszer:</strong> {{ hyp.get('method', 'N/A') }}</p>
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                    </div>
+                    
+                {% else %}
+                    <div style="background-color: #e2e3e5; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p style="color: #383d41;">Az elemzés még nem futott le vagy ismeretlen állapot.</p>
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
     </div>
 </body>
 </html>
