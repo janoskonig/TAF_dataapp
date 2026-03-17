@@ -78,7 +78,6 @@ load_dotenv(dotenv_path=".env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Missing DATABASE_URL environment variable")
-print("DATABASE_URL:", DATABASE_URL)
 
 def create_db_connection():
     return psycopg2.connect(DATABASE_URL)
@@ -276,8 +275,8 @@ def submit_questionnaire1():
 
     initials = request.form.get('initials')
     sql = """
-    INSERT INTO patients (TAJ, birthdate, gender, denture_type, GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12, OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5, responsiveness_today_situation, chewing_today_situation, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14, data_uploader)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO patients ("id", "TAJ", "birthdate", "gender", "denture_type", "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12", "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5", "responsiveness_today_situation", "chewing_today_situation", "F5", "F7", "F8", "A1_Kaan", "A3_jobb", "A3_bal", "A4_jobb", "A4_bal", "A5_jobb", "A5_bal", "A6_jobb", "A6_bal", "A7_jobb", "A7_bal", "A8_jobb", "A8_bal", "A9_jobb", "A9_bal", "A11", "A12", "A13", "A14", "data_uploader")
+    VALUES ((SELECT COALESCE(MAX("id"), 0) + 1 FROM patients), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     values = (TAJ, birthdate, gender, denture_type, *GOHAI_questions, *OHIP_questions, responsiveness_today_situation, chewing_today_situation, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14, initials)
     cursor.execute(sql, values)
@@ -362,7 +361,7 @@ def submit_questionnaire2():
 
 
     # Check if TAJ exists
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
+    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
     result = cursor.fetchone()
     
     if result[0] == 0:
@@ -373,9 +372,9 @@ def submit_questionnaire2():
     try:
         sql = """
             UPDATE patients SET 
-            F1 = %s, F2 = %s, F3 = %s, F4 = %s, F6 = %s,
-            A2_gerincelvonal = %s, A2_bukkalisathajlas = %s, A2_lingualisathajlas = %s, A10 = %s
-            WHERE TAJ = %s
+            "F1" = %s, "F2" = %s, "F3" = %s, "F4" = %s, "F6" = %s,
+            "A2_gerincelvonal" = %s, "A2_bukkalisathajlas" = %s, "A2_lingualisathajlas" = %s, "A10" = %s
+            WHERE "TAJ" = %s
             """
         values = (F1, F2, F3, F4, F6, 
                   A2_nas_file_path_gerinc, A2_nas_file_path_bukkal, A2_nas_file_path_lingual, A10,
@@ -433,7 +432,7 @@ def submit_questionnaire3():
     dropout = True if 'dropout' in request.form and request.form['dropout'] == '1' else False
 
     # Check if TAJ exists
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
+    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
     result = cursor.fetchone()
     
     if result[0] == 0:
@@ -443,13 +442,13 @@ def submit_questionnaire3():
 
     sql = """
     UPDATE patients SET 
-    responsiveness_today_situation_recall = %s, responsiveness_change = %s,
-    chewing_today_situation_recall = %s, chewing_change = %s,
-    OHIP_1_recall = %s, OHIP_2_recall = %s, OHIP_3_recall = %s, OHIP_4_recall = %s, OHIP_5_recall = %s,
-    GOHAI_1_recall = %s, GOHAI_2_recall = %s, GOHAI_3_recall = %s, GOHAI_4_recall = %s, GOHAI_5_recall = %s,
-    GOHAI_6_recall = %s, GOHAI_7_recall = %s, GOHAI_8_recall = %s, GOHAI_9_recall = %s, GOHAI_10_recall = %s,
-    GOHAI_11_recall = %s, GOHAI_12_recall = %s, F9 = %s, dropout = %s
-    WHERE TAJ = %s
+    "responsiveness_today_situation_recall" = %s, "responsiveness_change" = %s,
+    "chewing_today_situation_recall" = %s, "chewing_change" = %s,
+    "OHIP_1_recall" = %s, "OHIP_2_recall" = %s, "OHIP_3_recall" = %s, "OHIP_4_recall" = %s, "OHIP_5_recall" = %s,
+    "GOHAI_1_recall" = %s, "GOHAI_2_recall" = %s, "GOHAI_3_recall" = %s, "GOHAI_4_recall" = %s, "GOHAI_5_recall" = %s,
+    "GOHAI_6_recall" = %s, "GOHAI_7_recall" = %s, "GOHAI_8_recall" = %s, "GOHAI_9_recall" = %s, "GOHAI_10_recall" = %s,
+    "GOHAI_11_recall" = %s, "GOHAI_12_recall" = %s, "F9" = %s, "dropout" = %s
+    WHERE "TAJ" = %s
     """
     values = (responsiveness_today_situation_recall, responsiveness_change,
               chewing_today_situation_recall, chewing_change,
@@ -475,7 +474,7 @@ def submit_init_mai():
     TAJ = request.form['TAJ']
     
     # Check if TAJ exists
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
+    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
     result = cursor.fetchone()
     
     if result[0] == 0:
@@ -503,8 +502,8 @@ def submit_init_mai():
         # Update the database
         sql = """
         UPDATE patients SET 
-        init_mai = %s, init_image_path = %s
-        WHERE TAJ = %s
+        "init_mai" = %s, "init_image_path" = %s
+        WHERE "TAJ" = %s
         """
         values = (mai, nas_file_path, TAJ)
         cursor.execute(sql, values)
@@ -521,7 +520,7 @@ def submit_final_mai():
     TAJ = request.form['TAJ']
     
     # Check if TAJ exists
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ = %s", (TAJ,))
+    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
     result = cursor.fetchone()
     
     if result[0] == 0:
@@ -549,8 +548,8 @@ def submit_final_mai():
         # Update the database
         sql = """
         UPDATE patients SET 
-        final_mai = %s, final_image_path = %s
-        WHERE TAJ = %s
+        "final_mai" = %s, "final_image_path" = %s
+        WHERE "TAJ" = %s
         """
         values = (mai, nas_file_path, TAJ)
         cursor.execute(sql, values)
@@ -779,7 +778,7 @@ def perform_cross_sectional_analysis(cursor):
     # Helper function to check data availability
     def check_data_availability(required_fields):
         """Check if sufficient data exists for analysis."""
-        conditions = " AND ".join([f"{field} IS NOT NULL" for field in required_fields])
+        conditions = " AND ".join([f'"{field}" IS NOT NULL' for field in required_fields])
         query = f"SELECT COUNT(*) FROM patients WHERE {conditions}"
         cursor.execute(query)
         count = cursor.fetchone()[0]
@@ -788,10 +787,10 @@ def perform_cross_sectional_analysis(cursor):
     # Helper function to get data
     def get_data(fields, conditions=None):
         """Fetch data for analysis."""
-        where_clause = " AND ".join([f"{field} IS NOT NULL" for field in fields])
+        where_clause = " AND ".join([f'"{field}" IS NOT NULL' for field in fields])
         if conditions:
             where_clause += " AND " + conditions
-        query = f"SELECT {', '.join(fields)} FROM patients WHERE {where_clause}"
+        query = f'''SELECT {', '.join(f'"{f}"' for f in fields)} FROM patients WHERE {where_clause}'''
         cursor.execute(query)
         return cursor.fetchall()
     
@@ -2192,17 +2191,17 @@ def perform_cross_sectional_analysis(cursor):
 @app.route('/results')
 def results():
     cursor = get_db_cursor()
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE TAJ IS NOT NULL")
+    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" IS NOT NULL')
     patient_count = cursor.fetchone()[0]
     
     # Count dropouts (where dropout = 1 or TRUE)
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE dropout = TRUE")
+    cursor.execute('SELECT COUNT(*) FROM patients WHERE "dropout" = TRUE')
     dropout_count = cursor.fetchone()[0]
     
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE (denture_type = 'lower' OR denture_type = 'both') AND denture_type IS NOT NULL")
+    cursor.execute("""SELECT COUNT(*) FROM patients WHERE ("denture_type" = 'lower' OR "denture_type" = 'both') AND "denture_type" IS NOT NULL""")
     lower_denture_count = cursor.fetchone()[0]
     
-    cursor.execute("SELECT COUNT(*) FROM patients WHERE (denture_type = 'upper' OR denture_type = 'both') AND denture_type IS NOT NULL")
+    cursor.execute("""SELECT COUNT(*) FROM patients WHERE ("denture_type" = 'upper' OR "denture_type" = 'both') AND "denture_type" IS NOT NULL""")
     upper_denture_count = cursor.fetchone()[0]
     # Denture Type Chart
     fig_dentures = plt.figure(figsize=(8, 6))
@@ -2216,7 +2215,7 @@ def results():
     dentures_img = plot_to_base64(fig_dentures)
     
     # Age and gender distribution logic
-    cursor.execute("SELECT gender, birthdate FROM patients WHERE gender IS NOT NULL AND birthdate IS NOT NULL")
+    cursor.execute('SELECT "gender", "birthdate" FROM patients WHERE "gender" IS NOT NULL AND "birthdate" IS NOT NULL')
     patients = cursor.fetchall()
     male_age_distribution = [calculate_age(row[1]) for row in patients if row[0] == 'Male']
     female_age_distribution = [calculate_age(row[1]) for row in patients if row[0] == 'Female']
@@ -2246,7 +2245,7 @@ def results():
     age_gender_img = plot_to_base64(fig_age_gender)
 
     # Q1 subjective chewing ability
-    cursor.execute("SELECT chewing_today_situation FROM patients WHERE chewing_today_situation IS NOT NULL")
+    cursor.execute('SELECT "chewing_today_situation" FROM patients WHERE "chewing_today_situation" IS NOT NULL')
     subjective_chewing = cursor.fetchall()
     subjective_chewing = [row[0] for row in subjective_chewing]
         # Convert the list to a pandas DataFrame
@@ -2265,7 +2264,7 @@ def results():
     q1_barchart = plot_to_base64(fig_q1)
 
     # Q2 subjective CHANGE IN chewing ability
-    cursor.execute("SELECT chewing_change FROM patients WHERE chewing_change IS NOT NULL")
+    cursor.execute('SELECT "chewing_change" FROM patients WHERE "chewing_change" IS NOT NULL')
     subjective_chewing_change = cursor.fetchall()
     subjective_chewing_change = [row[0] for row in subjective_chewing_change]
         # Convert the list to a pandas DataFrame
@@ -2283,40 +2282,40 @@ def results():
     q2_barchart = plot_to_base64(fig_q2)
     
     # Initial OHIP and GOHAI calculations
-    cursor.execute("SELECT OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5 FROM patients WHERE OHIP_1 IS NOT NULL AND OHIP_2 IS NOT NULL AND OHIP_3 IS NOT NULL AND OHIP_4 IS NOT NULL AND OHIP_5 IS NOT NULL")
+    cursor.execute('SELECT "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5" FROM patients WHERE "OHIP_1" IS NOT NULL AND "OHIP_2" IS NOT NULL AND "OHIP_3" IS NOT NULL AND "OHIP_4" IS NOT NULL AND "OHIP_5" IS NOT NULL')
     initial_ohip_scores = cursor.fetchall()
     ohip_init_scores = [sum(row) for row in initial_ohip_scores]
     ohip_init_mean = np.mean(ohip_init_scores)
     ohip_init_std = np.std(ohip_init_scores)
     
-    cursor.execute("SELECT GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12 FROM patients WHERE GOHAI_1 IS NOT NULL AND GOHAI_2 IS NOT NULL AND GOHAI_3 IS NOT NULL AND GOHAI_4 IS NOT NULL AND GOHAI_5 IS NOT NULL AND GOHAI_6 IS NOT NULL AND GOHAI_7 IS NOT NULL AND GOHAI_8 IS NOT NULL AND GOHAI_9 IS NOT NULL AND GOHAI_10 IS NOT NULL AND GOHAI_11 IS NOT NULL AND GOHAI_12 IS NOT NULL")
+    cursor.execute('SELECT "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12" FROM patients WHERE "GOHAI_1" IS NOT NULL AND "GOHAI_2" IS NOT NULL AND "GOHAI_3" IS NOT NULL AND "GOHAI_4" IS NOT NULL AND "GOHAI_5" IS NOT NULL AND "GOHAI_6" IS NOT NULL AND "GOHAI_7" IS NOT NULL AND "GOHAI_8" IS NOT NULL AND "GOHAI_9" IS NOT NULL AND "GOHAI_10" IS NOT NULL AND "GOHAI_11" IS NOT NULL AND "GOHAI_12" IS NOT NULL')
     gohai_scores = cursor.fetchall()
     gohai_init_scores = [sum(row) for row in gohai_scores]
     gohai_init_mean = np.mean(gohai_init_scores)
     gohai_init_std = np.std(gohai_init_scores)
 
     # Final OHIP and GOHAI calculations
-    cursor.execute("SELECT OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall FROM patients WHERE OHIP_1_recall IS NOT NULL AND OHIP_2_recall IS NOT NULL AND OHIP_3_recall IS NOT NULL AND OHIP_4_recall IS NOT NULL AND OHIP_5_recall IS NOT NULL")
+    cursor.execute('SELECT "OHIP_1_recall", "OHIP_2_recall", "OHIP_3_recall", "OHIP_4_recall", "OHIP_5_recall" FROM patients WHERE "OHIP_1_recall" IS NOT NULL AND "OHIP_2_recall" IS NOT NULL AND "OHIP_3_recall" IS NOT NULL AND "OHIP_4_recall" IS NOT NULL AND "OHIP_5_recall" IS NOT NULL')
     final_ohip_scores = cursor.fetchall()
     ohip_final_scores = [sum(row) for row in final_ohip_scores]
     ohip_final_mean = np.mean(ohip_final_scores)
     ohip_final_std = np.std(ohip_final_scores)
     
-    cursor.execute("SELECT GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall, GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall, GOHAI_11_recall, GOHAI_12_recall FROM patients WHERE GOHAI_1_recall IS NOT NULL AND GOHAI_2_recall IS NOT NULL AND GOHAI_3_recall IS NOT NULL AND GOHAI_4_recall IS NOT NULL AND GOHAI_5_recall IS NOT NULL AND GOHAI_6_recall IS NOT NULL AND GOHAI_7_recall IS NOT NULL AND GOHAI_8_recall IS NOT NULL AND GOHAI_9_recall IS NOT NULL AND GOHAI_10_recall IS NOT NULL AND GOHAI_11_recall IS NOT NULL AND GOHAI_12_recall IS NOT NULL")
+    cursor.execute('SELECT "GOHAI_1_recall", "GOHAI_2_recall", "GOHAI_3_recall", "GOHAI_4_recall", "GOHAI_5_recall", "GOHAI_6_recall", "GOHAI_7_recall", "GOHAI_8_recall", "GOHAI_9_recall", "GOHAI_10_recall", "GOHAI_11_recall", "GOHAI_12_recall" FROM patients WHERE "GOHAI_1_recall" IS NOT NULL AND "GOHAI_2_recall" IS NOT NULL AND "GOHAI_3_recall" IS NOT NULL AND "GOHAI_4_recall" IS NOT NULL AND "GOHAI_5_recall" IS NOT NULL AND "GOHAI_6_recall" IS NOT NULL AND "GOHAI_7_recall" IS NOT NULL AND "GOHAI_8_recall" IS NOT NULL AND "GOHAI_9_recall" IS NOT NULL AND "GOHAI_10_recall" IS NOT NULL AND "GOHAI_11_recall" IS NOT NULL AND "GOHAI_12_recall" IS NOT NULL')
     final_gohai_scores = cursor.fetchall()
     gohai_final_scores = [sum(row) for row in final_gohai_scores]
     gohai_final_mean = np.mean(gohai_final_scores)
     gohai_final_std = np.std(gohai_final_scores)
 
     # Initial MAI calculations
-    cursor.execute("SELECT init_mai FROM patients WHERE init_mai IS NOT NULL")
+    cursor.execute('SELECT "init_mai" FROM patients WHERE "init_mai" IS NOT NULL')
     init_scores = cursor.fetchall()
     init_mai_scores = [row[0] for row in init_scores]
     init_mai_mean = np.mean(init_mai_scores)
     init_mai_std = np.std(init_mai_scores)
     
     # Final MAI calc
-    cursor.execute("SELECT final_mai FROM patients WHERE final_mai IS NOT NULL")
+    cursor.execute('SELECT "final_mai" FROM patients WHERE "final_mai" IS NOT NULL')
     final_scores = cursor.fetchall()
     final_mai_scores = [row[0] for row in final_scores]
     final_mai_mean = np.mean(final_mai_scores)
@@ -2329,7 +2328,7 @@ def results():
         return plot_to_base64(fig)
 
 # Filter valid data for ROC analysis
-    cursor.execute("SELECT TAJ, init_mai, final_mai, chewing_change FROM patients WHERE init_mai IS NOT NULL AND final_mai IS NOT NULL AND chewing_change IS NOT NULL")
+    cursor.execute('SELECT "TAJ", "init_mai", "final_mai", "chewing_change" FROM patients WHERE "init_mai" IS NOT NULL AND "final_mai" IS NOT NULL AND "chewing_change" IS NOT NULL')
     roc_data = cursor.fetchall()
     if len(roc_data) > 0:
         roc_df = pd.DataFrame(roc_data, columns=["TAJ", "init_mai", "final_mai", "perceived_change"])
