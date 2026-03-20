@@ -9,6 +9,9 @@ import time
 import threading
 from sklearn.metrics import roc_curve, roc_auc_score
 from datetime import datetime, date
+from zoneinfo import ZoneInfo
+
+BUDAPEST_TZ = ZoneInfo("Europe/Budapest")
 import statsmodels.api as sm
 import pandas as pd
 import matplotlib
@@ -274,11 +277,13 @@ def submit_questionnaire1():
     A14 = request.form.get('A14')
 
     initials = request.form.get('initials')
+    # Wall-clock time in Europe/Budapest (naive for TIMESTAMP columns)
+    record_datetime = datetime.now(BUDAPEST_TZ).replace(tzinfo=None)
     sql = """
-    INSERT INTO patients ("id", "TAJ", "birthdate", "gender", "denture_type", "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12", "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5", "responsiveness_today_situation", "chewing_today_situation", "F5", "F7", "F8", "A1_Kaan", "A3_jobb", "A3_bal", "A4_jobb", "A4_bal", "A5_jobb", "A5_bal", "A6_jobb", "A6_bal", "A7_jobb", "A7_bal", "A8_jobb", "A8_bal", "A9_jobb", "A9_bal", "A11", "A12", "A13", "A14", "data_uploader")
-    VALUES ((SELECT COALESCE(MAX("id"), 0) + 1 FROM patients), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO patients ("id", "TAJ", "record_datetime", "birthdate", "gender", "denture_type", "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12", "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5", "responsiveness_today_situation", "chewing_today_situation", "F5", "F7", "F8", "A1_Kaan", "A3_jobb", "A3_bal", "A4_jobb", "A4_bal", "A5_jobb", "A5_bal", "A6_jobb", "A6_bal", "A7_jobb", "A7_bal", "A8_jobb", "A8_bal", "A9_jobb", "A9_bal", "A11", "A12", "A13", "A14", "data_uploader")
+    VALUES ((SELECT COALESCE(MAX("id"), 0) + 1 FROM patients), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    values = (TAJ, birthdate, gender, denture_type, *GOHAI_questions, *OHIP_questions, responsiveness_today_situation, chewing_today_situation, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14, initials)
+    values = (TAJ, record_datetime, birthdate, gender, denture_type, *GOHAI_questions, *OHIP_questions, responsiveness_today_situation, chewing_today_situation, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14, initials)
     cursor.execute(sql, values)
     db.commit()
 
