@@ -2495,14 +2495,14 @@ def results():
         
         # Fetch F1-F9 data
         cursor.execute("""
-            SELECT F1, F2, F3, F4, F5, F6, F7, F8, F9, 
-                   init_mai, final_mai, 
-                   OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5,
-                   GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6,
-                   GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12
+            SELECT "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
+                   "init_mai", "final_mai",
+                   "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5",
+                   "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6",
+                   "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12"
             FROM patients
-            WHERE (F1 IS NOT NULL OR F2 IS NOT NULL OR F3 IS NOT NULL OR F4 IS NOT NULL 
-                   OR F5 IS NOT NULL OR F6 IS NOT NULL OR F7 IS NOT NULL OR F8 IS NOT NULL OR F9 IS NOT NULL)
+            WHERE ("F1" IS NOT NULL OR "F2" IS NOT NULL OR "F3" IS NOT NULL OR "F4" IS NOT NULL
+                   OR "F5" IS NOT NULL OR "F6" IS NOT NULL OR "F7" IS NOT NULL OR "F8" IS NOT NULL OR "F9" IS NOT NULL)
         """)
         data = cursor.fetchall()
         
