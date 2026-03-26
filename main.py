@@ -2332,7 +2332,8 @@ def results():
         plt.axis('off')
         return plot_to_base64(fig)
 
-# Filter valid data for ROC analysis
+    # Filter valid data for ROC analysis
+    optimal_threshold_mai = None
     cursor.execute('SELECT "TAJ", "init_mai", "final_mai", "chewing_change" FROM patients WHERE "init_mai" IS NOT NULL AND "final_mai" IS NOT NULL AND "chewing_change" IS NOT NULL')
     roc_data = cursor.fetchall()
     if len(roc_data) > 0:
@@ -2375,177 +2376,101 @@ def results():
         roc_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai adatokat")
         diff_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai adatokat")
 
-#     # ROC Analysis for OHIP
-#     cursor.execute("SELECT TAJ, OHIP_1, OHIP_2, OHIP_3, OHIP_4, OHIP_5, OHIP_1_recall, OHIP_2_recall, OHIP_3_recall, OHIP_4_recall, OHIP_5_recall, chewing_change FROM patients WHERE OHIP_1 IS NOT NULL AND OHIP_2 IS NOT NULL AND OHIP_3 IS NOT NULL AND OHIP_4 IS NOT NULL AND OHIP_5 IS NOT NULL AND OHIP_1_recall IS NOT NULL AND OHIP_2_recall IS NOT NULL AND OHIP_3_recall IS NOT NULL AND OHIP_4_recall IS NOT NULL AND OHIP_5_recall IS NOT NULL AND chewing_change IS NOT NULL")
-#     ohip_data = cursor.fetchall()
-#     if len(ohip_data) > 0:
-#         ohip_df = pd.DataFrame(ohip_data, columns=["TAJ", "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5", "OHIP_1_recall", "OHIP_2_recall", "OHIP_3_recall", "OHIP_4_recall", "OHIP_5_recall", "perceived_change"])
-#         ohip_init_scores = ohip_df[["OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5"]].sum(axis=1)
-#         ohip_final_scores = ohip_df[["OHIP_1_recall", "OHIP_2_recall", "OHIP_3_recall", "OHIP_4_recall", "OHIP_5_recall"]].sum(axis=1)
-#         ohip_score_difference = ohip_final_scores - ohip_init_scores
-#         reported_improvement = ohip_df["perceived_change"].apply(lambda x: 1 if x in ['Kicsit javult', 'Sokat javult'] else 0)
+    # ROC Analysis for OHIP
+    optimal_threshold_ohip = None
+    cursor.execute('SELECT "TAJ", "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5", "OHIP_1_recall", "OHIP_2_recall", "OHIP_3_recall", "OHIP_4_recall", "OHIP_5_recall", "chewing_change" FROM patients WHERE "OHIP_1" IS NOT NULL AND "OHIP_2" IS NOT NULL AND "OHIP_3" IS NOT NULL AND "OHIP_4" IS NOT NULL AND "OHIP_5" IS NOT NULL AND "OHIP_1_recall" IS NOT NULL AND "OHIP_2_recall" IS NOT NULL AND "OHIP_3_recall" IS NOT NULL AND "OHIP_4_recall" IS NOT NULL AND "OHIP_5_recall" IS NOT NULL AND "chewing_change" IS NOT NULL')
+    ohip_data = cursor.fetchall()
+    if len(ohip_data) > 0:
+        ohip_roc_df = pd.DataFrame(ohip_data, columns=["TAJ", "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5", "OHIP_1_recall", "OHIP_2_recall", "OHIP_3_recall", "OHIP_4_recall", "OHIP_5_recall", "perceived_change"])
+        ohip_init_roc = ohip_roc_df[["OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5"]].sum(axis=1)
+        ohip_final_roc = ohip_roc_df[["OHIP_1_recall", "OHIP_2_recall", "OHIP_3_recall", "OHIP_4_recall", "OHIP_5_recall"]].sum(axis=1)
+        ohip_score_difference = ohip_final_roc - ohip_init_roc
+        reported_improvement_ohip = ohip_roc_df["perceived_change"].apply(lambda x: 1 if x in ['Kicsit javult', 'Sokat javult'] else 0)
 
-#         if len(reported_improvement.unique()) > 1:
-#             fpr, tpr, thresholds = roc_curve(reported_improvement, ohip_score_difference)
-#             roc_auc = roc_auc_score(reported_improvement, ohip_score_difference)
-#             optimal_idx = np.argmax(tpr - fpr)
-#             optimal_threshold_ohip = thresholds[optimal_idx]
+        if len(reported_improvement_ohip.unique()) > 1:
+            fpr_o, tpr_o, thresholds_o = roc_curve(reported_improvement_ohip, ohip_score_difference)
+            roc_auc_o = roc_auc_score(reported_improvement_ohip, ohip_score_difference)
+            optimal_idx_o = np.argmax(tpr_o - fpr_o)
+            optimal_threshold_ohip = thresholds_o[optimal_idx_o]
 
-#             # Plot ROC curve for OHIP
-#             fig_roc_ohip = plt.figure(figsize=(8, 6))
-#             plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
-#             plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-#             plt.scatter(fpr[optimal_idx], tpr[optimal_idx], marker='o', color='red', label='Optimal Threshold')
-#             plt.xlim([0.0, 1.0])
-#             plt.ylim([0.0, 1.05])
-#             plt.xlabel('Fals pozitívok aránya')
-#             plt.ylabel('Valódi pozitívok aránya')
-#             plt.title('Receiver Operating Characteristic (ROC) görbe (OHIP)')
-#             plt.legend(loc="lower right")
-#             roc_img_ohip = plot_to_base64(fig_roc_ohip)
+            fig_roc_ohip = plt.figure(figsize=(8, 6))
+            plt.plot(fpr_o, tpr_o, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc_o:.2f})')
+            plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+            plt.scatter(fpr_o[optimal_idx_o], tpr_o[optimal_idx_o], marker='o', color='red', label='Optimal Threshold')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('Fals pozitívok aránya')
+            plt.ylabel('Valódi pozitívok aránya')
+            plt.title('Receiver Operating Characteristic (ROC) görbe (OHIP)')
+            plt.legend(loc="lower right")
+            roc_img_ohip = plot_to_base64(fig_roc_ohip)
 
-#             # Plot Score Difference vs Reported Improvement for OHIP
-#             fig_diff_ohip = plt.figure(figsize=(10, 6))
-#             plt.scatter(ohip_score_difference, reported_improvement, alpha=0.5, label='résztvevők')
-#             plt.axvline(x=optimal_threshold_ohip, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_ohip:.2f}')
-#             plt.title('OHIP pontkülönbség és a szubjektív javulás (OHIP)')
-#             plt.xlabel('ΔOHIP')
-#             plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
-#             plt.legend()
-#             diff_img_ohip = plot_to_base64(fig_diff_ohip)
-#         else:
-#             roc_img_ohip = None
-#             diff_img_ohip = None
-#     else:
-#         roc_img_ohip = None
-#         diff_img_ohip = None
+            fig_diff_ohip = plt.figure(figsize=(10, 6))
+            plt.scatter(ohip_score_difference, reported_improvement_ohip, alpha=0.5, label='résztvevők')
+            plt.axvline(x=optimal_threshold_ohip, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_ohip:.2f}')
+            plt.title('OHIP pontkülönbség és a szubjektív javulás (OHIP)')
+            plt.xlabel('ΔOHIP')
+            plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
+            plt.legend()
+            diff_img_ohip = plot_to_base64(fig_diff_ohip)
+        else:
+            roc_img_ohip = create_blank_plot("Nem áll rendelkezésre elegendő eltérő szubjektív válasz – várjuk az OHIP visszamérési adatokat")
+            diff_img_ohip = create_blank_plot("Nincs elegendő adat az összehasonlításhoz – OHIP visszamérés hiányzik")
+    else:
+        roc_img_ohip = create_blank_plot("Nincs elegendő adat – várjuk az OHIP visszamérési adatokat")
+        diff_img_ohip = create_blank_plot("Nincs elegendő adat – várjuk az OHIP visszamérési adatokat")
 
-#     # ROC Analysis for GOHAI
-#     cursor.execute("SELECT TAJ, GOHAI_1, GOHAI_2, GOHAI_3, GOHAI_4, GOHAI_5, GOHAI_6, GOHAI_7, GOHAI_8, GOHAI_9, GOHAI_10, GOHAI_11, GOHAI_12, GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall, GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall, GOHAI_11_recall, GOHAI_12_recall, chewing_change FROM patients WHERE GOHAI_1 IS NOT NULL AND GOHAI_2 IS NOT NULL AND GOHAI_3 IS NOT NULL AND GOHAI_4 IS NOT NULL AND GOHAI_5 IS NOT NULL AND GOHAI_6 IS NOT NULL AND GOHAI_7 IS NOT NULL AND GOHAI_8 IS NOT NULL AND GOHAI_9 IS NOT NULL AND GOHAI_10 IS NOT NULL AND GOHAI_11 IS NOT NULL AND GOHAI_12 IS NOT NULL AND GOHAI_1_recall IS NOT NULL AND GOHAI_2_recall IS NOT NULL AND GOHAI_3_recall IS NOT NULL AND GOHAI_4_recall IS NOT NULL AND GOHAI_5_recall IS NOT NULL AND GOHAI_6_recall IS NOT NULL AND GOHAI_7_recall IS NOT NULL AND GOHAI_8_recall IS NOT NULL AND GOHAI_9_recall IS NOT NULL AND GOHAI_10_recall IS NOT NULL AND GOHAI_11_recall IS NOT NULL AND GOHAI_12_recall IS NOT NULL AND chewing_change IS NOT NULL")
-#     gohai_data = cursor.fetchall()
-#     if len(gohai_data) > 0:
-#         gohai_df = pd.DataFrame(gohai_data, columns=["TAJ", "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12", "GOHAI_1_recall", "GOHAI_2_recall", "GOHAI_3_recall", "GOHAI_4_recall", "GOHAI_5_recall", "GOHAI_6_recall", "GOHAI_7_recall", "GOHAI_8_recall", "GOHAI_9_recall", "GOHAI_10_recall", "GOHAI_11_recall", "GOHAI_12_recall", "perceived_change"])
-#         gohai_init_scores = gohai_df[["GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12"]].sum(axis=1)
-#         gohai_final_scores = gohai_df[["GOHAI_1_recall", "GOHAI_2_recall", "GOHAI_3_recall", "GOHAI_4_recall", "GOHAI_5_recall", "GOHAI_6_recall", "GOHAI_7_recall", "GOHAI_8_recall", "GOHAI_9_recall", "GOHAI_10_recall", "GOHAI_11_recall", "GOHAI_12_recall"]].sum(axis=1)
-#         gohai_score_difference = gohai_final_scores - gohai_init_scores
-#         reported_improvement = gohai_df["perceived_change"].apply(lambda x: 1 if x in ['Kicsit javult', 'Sokat javult'] else 0)
+    # ROC Analysis for GOHAI
+    optimal_threshold_gohai = None
+    cursor.execute('SELECT "TAJ", "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12", "GOHAI_1_recall", "GOHAI_2_recall", "GOHAI_3_recall", "GOHAI_4_recall", "GOHAI_5_recall", "GOHAI_6_recall", "GOHAI_7_recall", "GOHAI_8_recall", "GOHAI_9_recall", "GOHAI_10_recall", "GOHAI_11_recall", "GOHAI_12_recall", "chewing_change" FROM patients WHERE "GOHAI_1" IS NOT NULL AND "GOHAI_2" IS NOT NULL AND "GOHAI_3" IS NOT NULL AND "GOHAI_4" IS NOT NULL AND "GOHAI_5" IS NOT NULL AND "GOHAI_6" IS NOT NULL AND "GOHAI_7" IS NOT NULL AND "GOHAI_8" IS NOT NULL AND "GOHAI_9" IS NOT NULL AND "GOHAI_10" IS NOT NULL AND "GOHAI_11" IS NOT NULL AND "GOHAI_12" IS NOT NULL AND "GOHAI_1_recall" IS NOT NULL AND "GOHAI_2_recall" IS NOT NULL AND "GOHAI_3_recall" IS NOT NULL AND "GOHAI_4_recall" IS NOT NULL AND "GOHAI_5_recall" IS NOT NULL AND "GOHAI_6_recall" IS NOT NULL AND "GOHAI_7_recall" IS NOT NULL AND "GOHAI_8_recall" IS NOT NULL AND "GOHAI_9_recall" IS NOT NULL AND "GOHAI_10_recall" IS NOT NULL AND "GOHAI_11_recall" IS NOT NULL AND "GOHAI_12_recall" IS NOT NULL AND "chewing_change" IS NOT NULL')
+    gohai_data = cursor.fetchall()
+    if len(gohai_data) > 0:
+        gohai_roc_df = pd.DataFrame(gohai_data, columns=["TAJ", "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12", "GOHAI_1_recall", "GOHAI_2_recall", "GOHAI_3_recall", "GOHAI_4_recall", "GOHAI_5_recall", "GOHAI_6_recall", "GOHAI_7_recall", "GOHAI_8_recall", "GOHAI_9_recall", "GOHAI_10_recall", "GOHAI_11_recall", "GOHAI_12_recall", "perceived_change"])
+        gohai_init_roc = gohai_roc_df[["GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12"]].sum(axis=1)
+        gohai_final_roc = gohai_roc_df[["GOHAI_1_recall", "GOHAI_2_recall", "GOHAI_3_recall", "GOHAI_4_recall", "GOHAI_5_recall", "GOHAI_6_recall", "GOHAI_7_recall", "GOHAI_8_recall", "GOHAI_9_recall", "GOHAI_10_recall", "GOHAI_11_recall", "GOHAI_12_recall"]].sum(axis=1)
+        gohai_score_difference = gohai_final_roc - gohai_init_roc
+        reported_improvement_gohai = gohai_roc_df["perceived_change"].apply(lambda x: 1 if x in ['Kicsit javult', 'Sokat javult'] else 0)
 
-#         if len(reported_improvement.unique()) > 1:
-#             fpr, tpr, thresholds = roc_curve(reported_improvement, gohai_score_difference)
-#             roc_auc = roc_auc_score(reported_improvement, gohai_score_difference)
-#             optimal_idx = np.argmax(tpr - fpr)
-#             optimal_threshold_gohai = thresholds[optimal_idx]
+        if len(reported_improvement_gohai.unique()) > 1:
+            fpr_g, tpr_g, thresholds_g = roc_curve(reported_improvement_gohai, gohai_score_difference)
+            roc_auc_g = roc_auc_score(reported_improvement_gohai, gohai_score_difference)
+            optimal_idx_g = np.argmax(tpr_g - fpr_g)
+            optimal_threshold_gohai = thresholds_g[optimal_idx_g]
 
-#             # Plot ROC curve for GOHAI
-#             fig_roc_gohai = plt.figure(figsize=(8, 6))
-#             plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
-#             plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-#             plt.scatter(fpr[optimal_idx], tpr[optimal_idx], marker='o', color='red', label='Optimal Threshold')
-#             plt.xlim([0.0, 1.0])
-#             plt.ylim([0.0, 1.05])
-#             plt.xlabel('Fals pozitívok aránya')
-#             plt.ylabel('Valódi pozitívok aránya')
-#             plt.title('Receiver Operating Characteristic (ROC) görbe (GOHAI)')
-#             plt.legend(loc="lower right")
-#             roc_img_gohai = plot_to_base64(fig_roc_gohai)
+            fig_roc_gohai = plt.figure(figsize=(8, 6))
+            plt.plot(fpr_g, tpr_g, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc_g:.2f})')
+            plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+            plt.scatter(fpr_g[optimal_idx_g], tpr_g[optimal_idx_g], marker='o', color='red', label='Optimal Threshold')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('Fals pozitívok aránya')
+            plt.ylabel('Valódi pozitívok aránya')
+            plt.title('Receiver Operating Characteristic (ROC) görbe (GOHAI)')
+            plt.legend(loc="lower right")
+            roc_img_gohai = plot_to_base64(fig_roc_gohai)
 
-#             # Plot Score Difference vs Reported Improvement for GOHAI
-#             fig_diff_gohai = plt.figure(figsize=(10, 6))
-#             plt.scatter(gohai_score_difference, reported_improvement, alpha=0.5, label='résztvevők')
-#             plt.axvline(x=optimal_threshold_gohai, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_gohai:.2f}')
-#             plt.title('GOHAI pontkülönbség és a szubjektív javulás (GOHAI)')
-#             plt.xlabel('ΔGOHAI')
-#             plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
-#             plt.legend()
-#             diff_img_gohai = plot_to_base64(fig_diff_gohai)
-#         else:
-#             roc_img_gohai = None
-#             diff_img_gohai = None
-#     else:
-#         roc_img_gohai = None
-#         diff_img_gohai = None
-    
-#     def safe_float_conversion(x):
-#         try:
-#             return np.nan if x == "N/A" or x is None else float(x.split()[0])
-#         except AttributeError:
-#             return np.nan
+            fig_diff_gohai = plt.figure(figsize=(10, 6))
+            plt.scatter(gohai_score_difference, reported_improvement_gohai, alpha=0.5, label='résztvevők')
+            plt.axvline(x=optimal_threshold_gohai, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_gohai:.2f}')
+            plt.title('GOHAI pontkülönbség és a szubjektív javulás (GOHAI)')
+            plt.xlabel('ΔGOHAI')
+            plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
+            plt.legend()
+            diff_img_gohai = plot_to_base64(fig_diff_gohai)
+        else:
+            roc_img_gohai = create_blank_plot("Nem áll rendelkezésre elegendő eltérő szubjektív válasz – várjuk a GOHAI visszamérési adatokat")
+            diff_img_gohai = create_blank_plot("Nincs elegendő adat az összehasonlításhoz – GOHAI visszamérés hiányzik")
+    else:
+        roc_img_gohai = create_blank_plot("Nincs elegendő adat – várjuk a GOHAI visszamérési adatokat")
+        diff_img_gohai = create_blank_plot("Nincs elegendő adat – várjuk a GOHAI visszamérési adatokat")
 
-#     # Helper function to calculate heatmap data
-#     def calculate_heatmap_data(data_df, binary_col):
-#         heatmap_data = []
-#         no_valid_odds_ratios = True
-
-#         for feature in features:
-#             feature_data_for_heatmap = []
-#             for score in range(1, feature_scales[feature] + 1):  # Ensure proper range for scoring
-#                 data_copy = data_df.copy()
-#                 data_copy[feature] = (data_copy[feature] == score).astype(int)
-#                 odds_ratio, (ci_lower, ci_upper) = calculate_odds_ratios_and_ci(data_copy.assign(MAI_változás_binary=data_copy[binary_col]), feature)
-#                 feature_data_for_heatmap.append(f"{odds_ratio:.2f} ({ci_lower:.2f}, {ci_upper:.2f})")
-#                 if not np.isnan(odds_ratio):
-#                     no_valid_odds_ratios = False
-#             heatmap_data.append(feature_data_for_heatmap)
-
-#         if no_valid_odds_ratios:
-#             heatmap_data = [["N/A" for _ in range(1, max(feature_scales.values()) + 1)] for _ in features]
-        
-#         heatmap_df = pd.DataFrame(heatmap_data, index=features, columns=[f"Score {i}" for i in range(1, max(feature_scales.values()) + 1)])
-#         return heatmap_df, no_valid_odds_ratios
-#     # Features to analyze with scales
-#     features = [
-#         'F1_jobb', 'F1_bal', 'F2_jobb', 'F2_bal', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 
-#         'A1', 'A1a_jobb', 'A1a_bal', 'A1b_jobb', 'A1b_bal', 'A2_jobb', 'A2_bal', 'A3_jobb', 
-#         'A3_bal', 'A4_jobb', 'A4_bal', 'A5_jobb', 'A5_bal', 'A6_jobb', 'A6_bal', 'A7_jobb', 
-#         'A7_bal', 'A8_jobb', 'A8_bal', 'A9', 'A10', 'A11', 'A12', 'A13'
-#     ]
-#     feature_scales = {
-#         'F1_jobb': 3, 'F1_bal': 3, 'F2_jobb': 3, 'F2_bal': 3, 'F3': 3, 'F4': 3, 'F5': 3, 'F6': 3, 'F7': 3, 'F8': 3, 'F9': 3, 
-#         'A1': 5, 'A1a_jobb': 3, 'A1a_bal': 3, 'A1b_jobb': 3, 'A1b_bal': 3, 'A2_jobb': 3, 'A2_bal': 3, 'A3_jobb': 3, 'A3_bal': 3, 
-#         'A4_jobb': 3, 'A4_bal': 3, 'A5_jobb': 3, 'A5_bal': 3, 'A6_jobb': 3, 'A6_bal': 3, 'A7_jobb': 3, 'A7_bal': 3, 'A8_jobb': 3, 
-#         'A8_bal': 3, 'A9': 3, 'A10': 3, 'A11': 3, 'A12': 3, 'A13': 3
-#     }
-#     columns = ["TAJ", "birthdate"] + features + ["init_mai", "final_mai"]
-
-#     # Build the WHERE clause to exclude rows with NULL values for relevant columns
-#     where_clause = " AND ".join([f"{column} IS NOT NULL" for column in columns])
-
-#     # Fetch the patient count excluding rows with NULL values
-#     cursor.execute(f"SELECT {', '.join(columns)} FROM patients WHERE {where_clause}")
-#     all_data = cursor.fetchall()
-
-#     data_df = pd.DataFrame(all_data, columns=columns)
-#     # Calculate heatmap data for MAI
-#     data_df["MAI_változás_binary"] = (data_df["final_mai"] - data_df["init_mai"] > optimal_threshold_mai).astype(int)
-#     heatmap_df_mai, no_valid_odds_ratios_mai = calculate_heatmap_data(data_df, "MAI_változás_binary")
-#     fig_heatmap_mai = plt.figure(figsize=(12, 20))
-#     sns.heatmap(heatmap_df_mai.applymap(safe_float_conversion), annot=heatmap_df_mai, cmap="YlGnBu", fmt='')
-#     plt.title('Esélyhányadosok hőtérképe konfidenciaintervallumokkal a rágóképességváltozás tekintetében (MAI)')
-#     odds_ratios_img_mai = plot_to_base64(fig_heatmap_mai)
-
-#     # Calculate heatmap data for OHIP
-#     if len(data_df) == len(ohip_final_scores):
-#         data_df["OHIP_változás_binary"] = (np.array(ohip_final_scores) - np.array(ohip_init_scores) > optimal_threshold_ohip).astype(int)
-#         heatmap_df_ohip, no_valid_odds_ratios_ohip = calculate_heatmap_data(data_df.assign(MAI_változás_binary=data_df["OHIP_változás_binary"]), "OHIP_változás_binary")
-#         fig_heatmap_ohip = plt.figure(figsize=(12, 20))
-#         sns.heatmap(heatmap_df_ohip.applymap(safe_float_conversion), annot=heatmap_df_ohip, cmap="YlGnBu", fmt='')
-#         plt.title('Esélyhányadosok hőtérképe konfidenciaintervallumokkal a OHIP-pontszámváltozás tekintetében')
-#         odds_ratios_img_ohip = plot_to_base64(fig_heatmap_ohip)
-#     else:
-#         no_valid_odds_ratios_ohip = True
-#         odds_ratios_img_ohip = None
-
-#     # Calculate heatmap data for GOHAI
-#     if len(data_df) == len(gohai_final_scores):
-#         data_df["GOHAI_változás_binary"] = (np.array(gohai_final_scores) - np.array(gohai_init_scores) > optimal_threshold_gohai).astype(int)
-#         heatmap_df_gohai, no_valid_odds_ratios_gohai = calculate_heatmap_data(data_df.assign(MAI_változás_binary=data_df["GOHAI_változás_binary"]), "GOHAI_változás_binary")
-#         fig_heatmap_gohai = plt.figure(figsize=(12, 20))
-#         sns.heatmap(heatmap_df_gohai.applymap(safe_float_conversion), annot=heatmap_df_gohai, cmap="YlGnBu", fmt='')
-#         plt.title('Esélyhányadosok hőtérképe konfidenciaintervallumokkal a GOHAI-pontszámváltozás tekintetében')
-#         odds_ratios_img_gohai = plot_to_base64(fig_heatmap_gohai)
-#     else:
-#         no_valid_odds_ratios_gohai = True
-#         odds_ratios_img_gohai = None
+    # Odds ratio heatmaps require more data – mark as insufficient for now
+    insufficient_data_mai = True
+    insufficient_data_ohip = True
+    insufficient_data_gohai = True
+    odds_ratios_img_mai = None
+    odds_ratios_img_ohip = None
+    odds_ratios_img_gohai = None
 
     # Perform cross-sectional analysis
     cross_sectional_results = perform_cross_sectional_analysis(cursor)
@@ -2777,24 +2702,21 @@ def results():
                         init_mai_std=init_mai_std,
                         final_mai_mean=final_mai_mean,
                         final_mai_std=final_mai_std,
-                        # fpr=fpr,
-                        # tpr=tpr,
-                        # optimal_threshold_mai=optimal_threshold_mai,
-                        # optimal_threshold_ohip=optimal_threshold_ohip,
-                        # optimal_threshold_gohai=optimal_threshold_gohai,
-                        # roc_auc=roc_auc,
                         roc_img_mai=roc_img_mai,
                         diff_img_mai=diff_img_mai,
-                        # roc_img_ohip=roc_img_ohip,
-                        # diff_img_ohip=diff_img_ohip,
-                        # roc_img_gohai=roc_img_gohai,
-                        # diff_img_gohai=diff_img_gohai,
-                        # insufficient_data_mai=no_valid_odds_ratios_mai,
-                        # insufficient_data_ohip=no_valid_odds_ratios_ohip,
-                        # insufficient_data_gohai=no_valid_odds_ratios_gohai,
-                        # odds_ratios_img_mai=odds_ratios_img_mai,
-                        # odds_ratios_img_ohip=odds_ratios_img_ohip,
-                        # odds_ratios_img_gohai=odds_ratios_img_gohai
+                        roc_img_ohip=roc_img_ohip,
+                        diff_img_ohip=diff_img_ohip,
+                        roc_img_gohai=roc_img_gohai,
+                        diff_img_gohai=diff_img_gohai,
+                        optimal_threshold_mai=optimal_threshold_mai,
+                        optimal_threshold_ohip=optimal_threshold_ohip,
+                        optimal_threshold_gohai=optimal_threshold_gohai,
+                        insufficient_data_mai=insufficient_data_mai,
+                        insufficient_data_ohip=insufficient_data_ohip,
+                        insufficient_data_gohai=insufficient_data_gohai,
+                        odds_ratios_img_mai=odds_ratios_img_mai,
+                        odds_ratios_img_ohip=odds_ratios_img_ohip,
+                        odds_ratios_img_gohai=odds_ratios_img_gohai,
                         cross_sectional_results=cross_sectional_results,
                         f_analysis=f_analysis
                         )
