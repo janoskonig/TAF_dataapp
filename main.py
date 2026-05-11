@@ -27,6 +27,7 @@ from statsmodels.tools.sm_exceptions import PerfectSeparationWarning
 from scipy.stats import ttest_ind, kruskal, mannwhitneyu, spearmanr, f_oneway, shapiro, normaltest
 from ftplib import FTP
 from urllib.parse import urlparse
+from skimage.color import rgb2hsv
 
 
 app = Flask(__name__)
@@ -170,6 +171,43 @@ def process_image(image_path):
     mai = std_dev_red + std_dev_blue
     return mai
 
+
+def calculate_hue_circular_sd(image_path, saturation_threshold=0.20, value_min=0.05, value_max=0.98):
+    # Check if the image_path is an FTP URL
+    if image_path.startswith('ftp://'):
+        filename = os.path.basename(urlparse(image_path).path)
+        local_temp_path = os.path.join('/tmp', filename)
+        download_from_nas(image_path, local_temp_path)
+        image_path = local_temp_path
+
+    image = Image.open(image_path).convert("RGB")
+    rgb_array = np.asarray(image).astype(np.float32) / 255.0
+    hsv = rgb2hsv(rgb_array)
+
+    hue = hsv[:, :, 0]
+    saturation = hsv[:, :, 1]
+    value = hsv[:, :, 2]
+
+    mask = (
+        (saturation > saturation_threshold) &
+        (value > value_min) &
+        (value < value_max)
+    )
+
+    hue_angles = hue[mask] * 2 * np.pi
+
+    if len(hue_angles) == 0:
+        return np.nan
+
+    mean_cos = np.mean(np.cos(hue_angles))
+    mean_sin = np.mean(np.sin(hue_angles))
+    R = np.sqrt(mean_cos**2 + mean_sin**2)
+    R = np.clip(R, 1e-12, 1.0)
+
+    circular_sd_rad = np.sqrt(-2 * np.log(R))
+    circular_sd_deg = np.degrees(circular_sd_rad)
+
+    return float(circular_sd_deg)
 
 
 def allowed_file(filename):
@@ -498,19 +536,21 @@ def submit_init_mai():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+
+        # Calculate both MAI metrics from the same image
+        mai = process_image(file_path)
+        mai_huedegree = calculate_hue_circular_sd(file_path)
+
         nas_file_path = upload_to_nas(file_path, TAJ, 'mai_initial')
         os.remove(file_path)  # Clean up temporary file
-
-        # Calculate MAI
-        mai = process_image(nas_file_path)
 
         # Update the database
         sql = """
         UPDATE patients SET 
-        "init_mai" = %s, "init_image_path" = %s
+        "init_mai" = %s, "init_mai_huedegree" = %s, "init_image_path" = %s
         WHERE "TAJ" = %s
         """
-        values = (mai, nas_file_path, TAJ)
+        values = (mai, mai_huedegree, nas_file_path, TAJ)
         cursor.execute(sql, values)
         db.commit()
 
@@ -544,19 +584,21 @@ def submit_final_mai():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+
+        # Calculate both MAI metrics from the same image
+        mai = process_image(file_path)
+        mai_huedegree = calculate_hue_circular_sd(file_path)
+
         nas_file_path = upload_to_nas(file_path, TAJ, 'mai_final')
         os.remove(file_path)  # Clean up temporary file
-
-        # Calculate MAI
-        mai = process_image(nas_file_path)
 
         # Update the database
         sql = """
         UPDATE patients SET 
-        "final_mai" = %s, "final_image_path" = %s
+        "final_mai" = %s, "final_mai_huedegree" = %s, "final_image_path" = %s
         WHERE "TAJ" = %s
         """
-        values = (mai, nas_file_path, TAJ)
+        values = (mai, mai_huedegree, nas_file_path, TAJ)
         cursor.execute(sql, values)
         db.commit()
 
