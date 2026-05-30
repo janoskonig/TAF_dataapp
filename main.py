@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
 from werkzeug.utils import secure_filename
 import psycopg2
 import os
@@ -822,10 +822,16 @@ def perform_cross_sectional_analysis(cursor):
     """Perform cross-sectional statistical analyses for all hypotheses."""
     results = {}
     
+    # Route legacy init_mai requests to the new hue-degree MAI field.
+    def _actual_db_field(field_name):
+        if field_name == 'init_mai':
+            return 'init_mai_huedegree'
+        return field_name
+    
     # Helper function to check data availability
     def check_data_availability(required_fields):
         """Check if sufficient data exists for analysis."""
-        conditions = " AND ".join([f'"{field}" IS NOT NULL' for field in required_fields])
+        conditions = " AND ".join([f'"{_actual_db_field(field)}" IS NOT NULL' for field in required_fields])
         query = f"SELECT COUNT(*) FROM patients WHERE {conditions}"
         cursor.execute(query)
         count = cursor.fetchone()[0]
@@ -834,10 +840,12 @@ def perform_cross_sectional_analysis(cursor):
     # Helper function to get data
     def get_data(fields, conditions=None):
         """Fetch data for analysis."""
-        where_clause = " AND ".join([f'"{field}" IS NOT NULL' for field in fields])
+        db_fields = [_actual_db_field(field) for field in fields]
+        where_clause = " AND ".join([f'"{field}" IS NOT NULL' for field in db_fields])
         if conditions:
+            conditions = conditions.replace('"init_mai"', '"init_mai_huedegree"')
             where_clause += " AND " + conditions
-        query = f'''SELECT {', '.join(f'"{f}"' for f in fields)} FROM patients WHERE {where_clause}'''
+        query = f'''SELECT {', '.join(f'"{f}"' for f in db_fields)} FROM patients WHERE {where_clause}'''
         cursor.execute(query)
         return cursor.fetchall()
     
@@ -2354,21 +2362,21 @@ def results():
     gohai_final_mean = np.mean(gohai_final_scores)
     gohai_final_std = np.std(gohai_final_scores)
 
-    # Initial MAI calculations
-    cursor.execute('SELECT "init_mai" FROM patients WHERE "init_mai" IS NOT NULL')
+    # Initial MAI calculations (hue degree method)
+    cursor.execute('SELECT "init_mai_huedegree" FROM patients WHERE "init_mai_huedegree" IS NOT NULL')
     init_scores = cursor.fetchall()
     init_mai_scores = [row[0] for row in init_scores]
     init_mai_mean = np.mean(init_mai_scores)
     init_mai_std = np.std(init_mai_scores)
     
-    # Final MAI calc
-    cursor.execute('SELECT "final_mai" FROM patients WHERE "final_mai" IS NOT NULL')
+    # Final MAI calculations (hue degree method)
+    cursor.execute('SELECT "final_mai_huedegree" FROM patients WHERE "final_mai_huedegree" IS NOT NULL')
     final_scores = cursor.fetchall()
     final_mai_scores = [row[0] for row in final_scores]
     final_mai_mean = np.mean(final_mai_scores)
     final_mai_std = np.std(final_mai_scores)
 
-    def create_blank_plot(message="Nincs elegendő adat – várjuk a final_mai adatokat"):
+    def create_blank_plot(message="Nincs elegendő adat – várjuk a final_mai_huedegree adatokat"):
         fig = plt.figure(figsize=(6, 1))
         plt.text(0.5, 0.5, message, ha='center', va='center', fontsize=14, wrap=True)
         plt.axis('off')
@@ -2376,11 +2384,11 @@ def results():
 
     # Filter valid data for ROC analysis
     optimal_threshold_mai = None
-    cursor.execute('SELECT "TAJ", "init_mai", "final_mai", "chewing_change" FROM patients WHERE "init_mai" IS NOT NULL AND "final_mai" IS NOT NULL AND "chewing_change" IS NOT NULL')
+    cursor.execute('SELECT "TAJ", "init_mai_huedegree", "final_mai_huedegree", "chewing_change" FROM patients WHERE "init_mai_huedegree" IS NOT NULL AND "final_mai_huedegree" IS NOT NULL AND "chewing_change" IS NOT NULL')
     roc_data = cursor.fetchall()
     if len(roc_data) > 0:
-        roc_df = pd.DataFrame(roc_data, columns=["TAJ", "init_mai", "final_mai", "perceived_change"])
-        mai_score_difference = roc_df["final_mai"] - roc_df["init_mai"]
+        roc_df = pd.DataFrame(roc_data, columns=["TAJ", "init_mai_huedegree", "final_mai_huedegree", "perceived_change"])
+        mai_score_difference = roc_df["final_mai_huedegree"] - roc_df["init_mai_huedegree"]
         reported_improvement = roc_df["perceived_change"].apply(lambda x: 1 if x in ['Kicsit javult', 'Sokat javult'] else 0)
 
         if len(reported_improvement.unique()) > 1:
@@ -2398,7 +2406,7 @@ def results():
             plt.ylim([0.0, 1.05])
             plt.xlabel('Fals pozitívok aránya')
             plt.ylabel('Valódi pozitívok aránya')
-            plt.title('Receiver Operating Characteristic (ROC) görbe (MAI)')
+            plt.title('Receiver Operating Characteristic (ROC) görbe (MAI hue degree)')
             plt.legend(loc="lower right")
             roc_img_mai = plot_to_base64(fig_roc_mai)
 
@@ -2406,17 +2414,17 @@ def results():
             fig_diff_mai = plt.figure(figsize=(10, 6))
             plt.scatter(mai_score_difference, reported_improvement, alpha=0.5, label='résztvevők')
             plt.axvline(x=optimal_threshold_mai, color='r', linestyle='--', label=f'Az optimális vágópont: {optimal_threshold_mai:.2f}')
-            plt.title('Rágóképesség pontkülönbség és a szubjektív javulás (MAI)')
-            plt.xlabel('ΔMAI')
+            plt.title('Rágóképesség pontkülönbség és a szubjektív javulás (MAI hue degree)')
+            plt.xlabel('ΔMAI_huedegree')
             plt.ylabel('Tapasztalt-e változást a \nrágóképességének tekintetében? \n(1 = igen, 0 = nem)')
             plt.legend()
             diff_img_mai = plot_to_base64(fig_diff_mai)
         else:
-            roc_img_mai = create_blank_plot("Nem áll rendelkezésre elegendő eltérő szubjektív válasz – várjuk a final_mai adatokat")
-            diff_img_mai = create_blank_plot("Nincs elegendő adat az összehasonlításhoz – final_mai hiányzik")
+            roc_img_mai = create_blank_plot("Nem áll rendelkezésre elegendő eltérő szubjektív válasz – várjuk a final_mai_huedegree adatokat")
+            diff_img_mai = create_blank_plot("Nincs elegendő adat az összehasonlításhoz – final_mai_huedegree hiányzik")
     else:
-        roc_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai adatokat")
-        diff_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai adatokat")
+        roc_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai_huedegree adatokat")
+        diff_img_mai = create_blank_plot("Nincs elegendő adat – várjuk a final_mai_huedegree adatokat")
 
     # ROC Analysis for OHIP
     optimal_threshold_ohip = None
@@ -2506,10 +2514,189 @@ def results():
         roc_img_gohai = create_blank_plot("Nincs elegendő adat – várjuk a GOHAI visszamérési adatokat")
         diff_img_gohai = create_blank_plot("Nincs elegendő adat – várjuk a GOHAI visszamérési adatokat")
 
-    # Odds ratio heatmaps require more data – mark as insufficient for now
-    insufficient_data_mai = True
-    insufficient_data_ohip = True
-    insufficient_data_gohai = True
+    # Binned odds ratios for low-sample settings (grouped anatomical predictors)
+    def _or_from_2x2(a, b, c, d):
+        correction = 0.5 if min(a, b, c, d) == 0 else 0.0
+        a_c, b_c, c_c, d_c = a + correction, b + correction, c + correction, d + correction
+        return (a_c * d_c) / (b_c * c_c)
+
+    def _bootstrap_or_ci(temp_df, exposure_col, outcome_col, n_boot=3000, seed=42):
+        rng = np.random.default_rng(seed)
+        n = len(temp_df)
+        boot_vals = []
+        for _ in range(n_boot):
+            idx = rng.integers(0, n, n)
+            sample = temp_df.iloc[idx]
+            a = int(((sample[exposure_col] == 1) & (sample[outcome_col] == 1)).sum())
+            b = int(((sample[exposure_col] == 1) & (sample[outcome_col] == 0)).sum())
+            c = int(((sample[exposure_col] == 0) & (sample[outcome_col] == 1)).sum())
+            d = int(((sample[exposure_col] == 0) & (sample[outcome_col] == 0)).sum())
+            boot_vals.append(_or_from_2x2(a, b, c, d))
+        return np.percentile(boot_vals, [2.5, 97.5])
+
+    def compute_or_row(df, exposure_col, outcome_col, label):
+        temp = df[[exposure_col, outcome_col]].dropna().copy()
+        if len(temp) < 8:
+            return None
+        temp[exposure_col] = temp[exposure_col].astype(int)
+        temp[outcome_col] = temp[outcome_col].astype(int)
+        if temp[exposure_col].nunique() < 2 or temp[outcome_col].nunique() < 2:
+            return None
+        a = int(((temp[exposure_col] == 1) & (temp[outcome_col] == 1)).sum())
+        b = int(((temp[exposure_col] == 1) & (temp[outcome_col] == 0)).sum())
+        c = int(((temp[exposure_col] == 0) & (temp[outcome_col] == 1)).sum())
+        d = int(((temp[exposure_col] == 0) & (temp[outcome_col] == 0)).sum())
+        odds_ratio = _or_from_2x2(a, b, c, d)
+        
+        # Default (analytic) CI
+        correction = 0.5 if min(a, b, c, d) == 0 else 0.0
+        a_c, b_c, c_c, d_c = a + correction, b + correction, c + correction, d + correction
+        se = np.sqrt((1 / a_c) + (1 / b_c) + (1 / c_c) + (1 / d_c))
+        ci_low_analytic = np.exp(np.log(odds_ratio) - 1.96 * se)
+        ci_high_analytic = np.exp(np.log(odds_ratio) + 1.96 * se)
+
+        # For low-sample or sparse tables prefer bootstrap CI
+        use_bootstrap = (len(temp) < 30) or (min(a, b, c, d) < 5)
+        if use_bootstrap:
+            ci_low, ci_high = _bootstrap_or_ci(temp, exposure_col, outcome_col)
+            ci_method = 'bootstrap'
+        else:
+            ci_low, ci_high = ci_low_analytic, ci_high_analytic
+            ci_method = 'analytic'
+        return {
+            'predictor': label,
+            'n': len(temp),
+            'events_exposed': a,
+            'total_exposed': a + b,
+            'events_unexposed': c,
+            'total_unexposed': c + d,
+            'odds_ratio': float(odds_ratio),
+            'ci_low': float(ci_low),
+            'ci_high': float(ci_high),
+            'ci_method': ci_method,
+        }
+
+    def build_binned_or_table(df, outcome_col):
+        rows = []
+        # Risk bins: low (0-6), medium (7-11), high (12+)
+        risk_bin = pd.cut(
+            df['anatomical_risk_score'],
+            bins=[-0.1, 6, 11, np.inf],
+            labels=['0-6', '7-11', '12+']
+        )
+        df_local = df.copy()
+        df_local['risk_bin'] = risk_bin.astype(str)
+        for comp, label in [('7-11', 'Kumulativ kockazat: 7-11 vs 0-6'),
+                            ('12+', 'Kumulativ kockazat: 12+ vs 0-6')]:
+            subset = df_local[df_local['risk_bin'].isin(['0-6', comp])].copy()
+            subset['exposure_tmp'] = (subset['risk_bin'] == comp).astype(int)
+            row = compute_or_row(subset, 'exposure_tmp', outcome_col, label)
+            if row:
+                rows.append(row)
+
+        # F-group aggregation
+        row = compute_or_row(df_local, 'f_unfavorable_any', outcome_col, 'F csoport: legalabb 1 kedvezotlen (F5/F7/F8)')
+        if row:
+            rows.append(row)
+        row = compute_or_row(df_local, 'f_unfavorable_heavy', outcome_col, 'F csoport: legalabb 2 kedvezotlen (F5/F7/F8)')
+        if row:
+            rows.append(row)
+
+        # A-group aggregation
+        row = compute_or_row(df_local, 'a_unfavorable_heavy', outcome_col, 'A csoport: median feletti kedvezotlen terheles')
+        if row:
+            rows.append(row)
+        return rows
+
+    anatomy_cols = ['F5', 'F7', 'F8', 'A1_Kaan',
+                    'A3_jobb', 'A3_bal', 'A4_jobb', 'A4_bal', 'A5_jobb', 'A5_bal',
+                    'A6_jobb', 'A6_bal', 'A7_jobb', 'A7_bal', 'A8_jobb', 'A8_bal',
+                    'A9_jobb', 'A9_bal', 'A11', 'A12', 'A13', 'A14']
+    a_cols = ['A3_jobb', 'A3_bal', 'A4_jobb', 'A4_bal', 'A5_jobb', 'A5_bal',
+              'A6_jobb', 'A6_bal', 'A7_jobb', 'A7_bal', 'A8_jobb', 'A8_bal',
+              'A9_jobb', 'A9_bal', 'A11', 'A12', 'A13']
+    cols_sql = ', '.join([f'"{c}"' for c in anatomy_cols])
+    cursor.execute(f'''
+        WITH latest AS (
+            SELECT DISTINCT ON ("TAJ")
+                "TAJ", "id", {cols_sql},
+                "init_mai_huedegree", "final_mai_huedegree",
+                "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5",
+                "OHIP_1_recall", "OHIP_2_recall", "OHIP_3_recall", "OHIP_4_recall", "OHIP_5_recall",
+                "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6", "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12",
+                "GOHAI_1_recall", "GOHAI_2_recall", "GOHAI_3_recall", "GOHAI_4_recall", "GOHAI_5_recall", "GOHAI_6_recall", "GOHAI_7_recall", "GOHAI_8_recall", "GOHAI_9_recall", "GOHAI_10_recall", "GOHAI_11_recall", "GOHAI_12_recall"
+            FROM patients
+            ORDER BY "TAJ", "id" DESC
+        )
+        SELECT * FROM latest
+    ''')
+    or_rows = cursor.fetchall()
+    or_columns = (
+        ['TAJ', 'id'] + anatomy_cols +
+        ['init_mai_huedegree', 'final_mai_huedegree'] +
+        [f'OHIP_{i}' for i in range(1, 6)] + [f'OHIP_{i}_recall' for i in range(1, 6)] +
+        [f'GOHAI_{i}' for i in range(1, 13)] + [f'GOHAI_{i}_recall' for i in range(1, 13)]
+    )
+    or_df = pd.DataFrame(or_rows, columns=or_columns)
+    for col in anatomy_cols + ['init_mai_huedegree', 'final_mai_huedegree'] + \
+               [f'OHIP_{i}' for i in range(1, 6)] + [f'OHIP_{i}_recall' for i in range(1, 6)] + \
+               [f'GOHAI_{i}' for i in range(1, 13)] + [f'GOHAI_{i}_recall' for i in range(1, 13)]:
+        or_df[col] = pd.to_numeric(or_df[col], errors='coerce')
+
+    # Keep only complete anatomy rows for stable risk computation
+    or_df = or_df.dropna(subset=anatomy_cols).copy()
+
+    # Anatomical risk score (same principle as H2c)
+    risk_score = np.zeros(len(or_df), dtype=int)
+    for var in ['F5', 'F7', 'F8']:
+        risk_score += (or_df[var] >= 2).astype(int)
+    for var in a_cols:
+        threshold = or_df[var].median()
+        risk_score += (or_df[var] > threshold).astype(int)
+    or_df['anatomical_risk_score'] = risk_score
+
+    # Grouped predictors
+    or_df['f_unfavorable_any'] = ((or_df['F5'] >= 2) | (or_df['F7'] >= 2) | (or_df['F8'] >= 2)).astype(int)
+    or_df['f_unfavorable_heavy'] = (((or_df['F5'] >= 2).astype(int) + (or_df['F7'] >= 2).astype(int) + (or_df['F8'] >= 2).astype(int)) >= 2).astype(int)
+    a_unf_counts = np.zeros(len(or_df), dtype=int)
+    for var in a_cols:
+        a_unf_counts += (or_df[var] > or_df[var].median()).astype(int)
+    a_median = np.median(a_unf_counts) if len(a_unf_counts) > 0 else 0
+    or_df['a_unfavorable_heavy'] = (a_unf_counts > a_median).astype(int)
+
+    # Binary outcomes from ROC-derived thresholds
+    if optimal_threshold_mai is not None:
+        or_df['mai_change_binary'] = np.where(
+            or_df[['init_mai_huedegree', 'final_mai_huedegree']].notna().all(axis=1),
+            (or_df['final_mai_huedegree'] - or_df['init_mai_huedegree'] > optimal_threshold_mai).astype(int),
+            np.nan
+        )
+    else:
+        or_df['mai_change_binary'] = np.nan
+    ohip_init_cols = [f'OHIP_{i}' for i in range(1, 6)]
+    ohip_final_cols = [f'OHIP_{i}_recall' for i in range(1, 6)]
+    gohai_init_cols = [f'GOHAI_{i}' for i in range(1, 13)]
+    gohai_final_cols = [f'GOHAI_{i}_recall' for i in range(1, 13)]
+    ohip_init = or_df[ohip_init_cols].sum(axis=1).where(or_df[ohip_init_cols].notna().all(axis=1), np.nan)
+    ohip_final = or_df[ohip_final_cols].sum(axis=1).where(or_df[ohip_final_cols].notna().all(axis=1), np.nan)
+    gohai_init = or_df[gohai_init_cols].sum(axis=1).where(or_df[gohai_init_cols].notna().all(axis=1), np.nan)
+    gohai_final = or_df[gohai_final_cols].sum(axis=1).where(or_df[gohai_final_cols].notna().all(axis=1), np.nan)
+    if optimal_threshold_ohip is not None:
+        or_df['ohip_change_binary'] = np.where(ohip_init.notna() & ohip_final.notna(), ((ohip_final - ohip_init) > optimal_threshold_ohip).astype(int), np.nan)
+    else:
+        or_df['ohip_change_binary'] = np.nan
+    if optimal_threshold_gohai is not None:
+        or_df['gohai_change_binary'] = np.where(gohai_init.notna() & gohai_final.notna(), ((gohai_final - gohai_init) > optimal_threshold_gohai).astype(int), np.nan)
+    else:
+        or_df['gohai_change_binary'] = np.nan
+
+    odds_ratios_table_mai = build_binned_or_table(or_df, 'mai_change_binary')
+    odds_ratios_table_ohip = build_binned_or_table(or_df, 'ohip_change_binary')
+    odds_ratios_table_gohai = build_binned_or_table(or_df, 'gohai_change_binary')
+
+    insufficient_data_mai = len(odds_ratios_table_mai) == 0
+    insufficient_data_ohip = len(odds_ratios_table_ohip) == 0
+    insufficient_data_gohai = len(odds_ratios_table_gohai) == 0
     odds_ratios_img_mai = None
     odds_ratios_img_ohip = None
     odds_ratios_img_gohai = None
@@ -2521,6 +2708,25 @@ def results():
     def analyze_f_measurements(cursor):
         """Analyze F1-F9 measurements: descriptive stats, distributions, and correlations."""
         results = {}
+
+        def hedges_g(group_a, group_b):
+            """Effect size for two groups with small-sample correction."""
+            a = pd.to_numeric(pd.Series(group_a), errors='coerce').dropna().values
+            b = pd.to_numeric(pd.Series(group_b), errors='coerce').dropna().values
+            n1, n2 = len(a), len(b)
+            if n1 < 2 or n2 < 2:
+                return np.nan
+            s1, s2 = np.std(a, ddof=1), np.std(b, ddof=1)
+            pooled_num = ((n1 - 1) * (s1 ** 2)) + ((n2 - 1) * (s2 ** 2))
+            pooled_den = (n1 + n2 - 2)
+            if pooled_den <= 0:
+                return np.nan
+            pooled_sd = np.sqrt(pooled_num / pooled_den)
+            if pooled_sd == 0 or np.isnan(pooled_sd):
+                return np.nan
+            d = (np.mean(b) - np.mean(a)) / pooled_sd
+            correction = 1 - (3 / (4 * (n1 + n2) - 9)) if (n1 + n2) > 2 else 1
+            return float(d * correction)
         
         # F1-F9 definitions
         f_measurements = {
@@ -2528,39 +2734,67 @@ def results():
             'F2': {'type': 'numeric', 'unit': 'mm³', 'description': 'Alámenős területek'},
             'F3': {'type': 'numeric', 'unit': 'mm', 'description': 'A szájpad boltozata'},
             'F4': {'type': 'numeric', 'unit': '°', 'description': 'A felső állcsontgerinc alakja'},
-            'F5': {'type': 'categorical', 'values': {1: 'nincs', 2: 'van, „lötyögő" tuberek', 3: 'van, frontális gerincen'}, 'description': 'Lötyögő, csontmag nélküli gerinc'},
+            'F5': {'type': 'categorical', 'values': {1: 'nincs', 2: 'van, „lötyögő" tuberek', 3: 'van, frontális gerincen'}, 'description': 'Lötyögő, csontmag nélküli gerinc', 'higher_code_worse': True},
             'F6': {'type': 'numeric', 'unit': '°', 'description': 'Az interalveoláris vonal és a rágósík által bezárt szög'},
-            'F7': {'type': 'categorical', 'values': {1: 'nincs', 2: 'plató alakú', 3: 'orsó alakú'}, 'description': 'A torus palatinus'},
-            'F8': {'type': 'categorical', 'values': {1: 'nincs, most készül', 2: 'teljes lemezes/overdenture/részleges fémlemezes', 3: 'teljesen megtartott/rögzített'}, 'description': 'Az antagonista fogazati státusz'},
-            'F9': {'type': 'categorical', 'values': {1: 'a páciens elmondása szerint sincs', 2: 'van, de nem befolyásolta', 3: 'van és jelentősen befolyásolta'}, 'description': 'A garatreflex erőssége'}
+            'F7': {'type': 'categorical', 'values': {1: 'nincs', 2: 'plató alakú', 3: 'orsó alakú'}, 'description': 'A torus palatinus', 'higher_code_worse': True},
+            'F8': {'type': 'categorical', 'values': {1: 'nincs, most készül', 2: 'teljes lemezes/overdenture/részleges fémlemezes', 3: 'teljesen megtartott/rögzített'}, 'description': 'Az antagonista fogazati státusz', 'higher_code_worse': False},
+            'F9': {'type': 'categorical', 'values': {1: 'a páciens elmondása szerint sincs', 2: 'van, de nem befolyásolta', 3: 'van és jelentősen befolyásolta'}, 'description': 'A garatreflex erőssége', 'higher_code_worse': True}
         }
+        a_measurements = {
+            'A1_Kaan': {'type': 'categorical', 'description': 'A mandibulagerinc topográfiája', 'values': {1: 'egészében megtartott', 2: 'elöl megtartott, oldalt lapos', 3: 'egészében lapos', 4: 'negatív', 5: 'mélyült negatív'}, 'higher_code_worse': True},
+            'A3_any_side': {'type': 'categorical', 'description': 'A3 buccinator tasak (jobb+bal összevont)', 'values': {0: 'nincs eltérés egyik oldalon sem', 1: 'legalább egy oldalon eltérés'}, 'higher_code_worse': True},
+            'A4_any_side': {'type': 'categorical', 'description': 'A4 torus mandibularis (jobb+bal összevont)', 'values': {0: 'nincs eltérés egyik oldalon sem', 1: 'legalább egy oldalon eltérés'}, 'higher_code_worse': True},
+            'A5_any_side': {'type': 'categorical', 'description': 'A5 lingualis tasak (jobb+bal összevont)', 'values': {0: 'nincs eltérés egyik oldalon sem', 1: 'legalább egy oldalon eltérés'}, 'higher_code_worse': True},
+            'A6_any_side': {'type': 'categorical', 'description': 'A6 feszes ínyborítás (jobb+bal összevont)', 'values': {0: 'nincs eltérés egyik oldalon sem', 1: 'legalább egy oldalon eltérés'}, 'higher_code_worse': True},
+            'A7_any_side': {'type': 'categorical', 'description': 'A7 tuberculum forma (jobb+bal összevont)', 'values': {0: 'nincs eltérés egyik oldalon sem', 1: 'legalább egy oldalon eltérés'}, 'higher_code_worse': True},
+            'A8_any_side': {'type': 'categorical', 'description': 'A8 inklinációs szög (jobb+bal összevont)', 'values': {0: 'nincs eltérés egyik oldalon sem', 1: 'legalább egy oldalon eltérés'}, 'higher_code_worse': True},
+            'A9_any_side': {'type': 'categorical', 'description': 'A9 alakváltozás nyitás-záráskor (jobb+bal összevont)', 'values': {0: 'nincs eltérés egyik oldalon sem', 1: 'legalább egy oldalon eltérés'}, 'higher_code_worse': True},
+            'A10': {'type': 'numeric', 'unit': '°', 'description': 'Állcsontreláció szögértéke'},
+            'A11': {'type': 'categorical', 'description': 'Nyelvhelyzet (A11)', 'values': {1: 'nem elődomborodó', 2: 'puhán elődomborodó', 3: 'tömött, elődomborodó'}},
+            'A12': {'type': 'categorical', 'description': 'Mucosalis állapot (A12)', 'values': {1: 'nem tapintható', 2: 'tapintható', 3: 'nyomásra érzékeny'}, 'higher_code_worse': True},
+            'A13': {'type': 'categorical', 'description': 'Mandibuláris szegmentális rizikó (A13)', 'values': {1: 'panaszmentes', 2: 'hangjelenség fájdalom nélkül', 3: 'fájdalom/mzg.korlát'}, 'higher_code_worse': True},
+            'A14': {'type': 'categorical', 'description': 'Protetikai szituáció (A14)', 'values': {1: 'nincs', 2: 'teljes lemezes/overdenture/részleges fémlemezes', 3: 'teljesen megtartott/rögzített'}, 'higher_code_worse': False}
+        }
+        all_measurements = {**f_measurements, **a_measurements}
         
-        # Fetch F1-F9 data
+        # Fetch F/A data
         cursor.execute("""
-            SELECT "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
-                   "init_mai", "final_mai",
+            SELECT "id", "TAJ", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
+                   "A1_Kaan", "A3_jobb", "A3_bal", "A4_jobb", "A4_bal", "A5_jobb", "A5_bal",
+                   "A6_jobb", "A6_bal", "A7_jobb", "A7_bal", "A8_jobb", "A8_bal", "A9_jobb", "A9_bal",
+                   "A10", "A11", "A12", "A13", "A14",
+                   "init_mai_huedegree", "final_mai_huedegree",
                    "OHIP_1", "OHIP_2", "OHIP_3", "OHIP_4", "OHIP_5",
                    "GOHAI_1", "GOHAI_2", "GOHAI_3", "GOHAI_4", "GOHAI_5", "GOHAI_6",
                    "GOHAI_7", "GOHAI_8", "GOHAI_9", "GOHAI_10", "GOHAI_11", "GOHAI_12"
             FROM patients
             WHERE ("F1" IS NOT NULL OR "F2" IS NOT NULL OR "F3" IS NOT NULL OR "F4" IS NOT NULL
-                   OR "F5" IS NOT NULL OR "F6" IS NOT NULL OR "F7" IS NOT NULL OR "F8" IS NOT NULL OR "F9" IS NOT NULL)
+                   OR "F5" IS NOT NULL OR "F6" IS NOT NULL OR "F7" IS NOT NULL OR "F8" IS NOT NULL OR "F9" IS NOT NULL
+                   OR "A1_Kaan" IS NOT NULL OR "A3_jobb" IS NOT NULL OR "A3_bal" IS NOT NULL OR "A4_jobb" IS NOT NULL
+                   OR "A4_bal" IS NOT NULL OR "A5_jobb" IS NOT NULL OR "A5_bal" IS NOT NULL OR "A6_jobb" IS NOT NULL
+                   OR "A6_bal" IS NOT NULL OR "A7_jobb" IS NOT NULL OR "A7_bal" IS NOT NULL OR "A8_jobb" IS NOT NULL
+                   OR "A8_bal" IS NOT NULL OR "A9_jobb" IS NOT NULL OR "A9_bal" IS NOT NULL OR "A10" IS NOT NULL
+                   OR "A11" IS NOT NULL OR "A12" IS NOT NULL OR "A13" IS NOT NULL OR "A14" IS NOT NULL)
+            ORDER BY "id" DESC
         """)
         data = cursor.fetchall()
         
         if len(data) == 0:
-            return {'status': 'insufficient_data', 'message': 'Nincs F1-F9 adat'}
+            return {'status': 'insufficient_data', 'message': 'Nincs F/A anatómiai adat'}
         
         df = pd.DataFrame(data, columns=[
-            'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9',
-            'init_mai', 'final_mai',
+            'id', 'TAJ', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9',
+            'A1_Kaan', 'A3_jobb', 'A3_bal', 'A4_jobb', 'A4_bal', 'A5_jobb', 'A5_bal',
+            'A6_jobb', 'A6_bal', 'A7_jobb', 'A7_bal', 'A8_jobb', 'A8_bal', 'A9_jobb', 'A9_bal',
+            'A10', 'A11', 'A12', 'A13', 'A14',
+            'init_mai_huedegree', 'final_mai_huedegree',
             'OHIP_1', 'OHIP_2', 'OHIP_3', 'OHIP_4', 'OHIP_5',
             'GOHAI_1', 'GOHAI_2', 'GOHAI_3', 'GOHAI_4', 'GOHAI_5', 'GOHAI_6',
             'GOHAI_7', 'GOHAI_8', 'GOHAI_9', 'GOHAI_10', 'GOHAI_11', 'GOHAI_12'
         ])
         
         # Convert numeric columns from Decimal to float (NUMERIC types cause issues with scipy)
-        numeric_cols = ['F1', 'F2', 'F3', 'F4', 'F6', 'init_mai', 'final_mai',
+        numeric_cols = ['F1', 'F2', 'F3', 'F4', 'F6', 'A10', 'init_mai_huedegree', 'final_mai_huedegree',
                        'OHIP_1', 'OHIP_2', 'OHIP_3', 'OHIP_4', 'OHIP_5',
                        'GOHAI_1', 'GOHAI_2', 'GOHAI_3', 'GOHAI_4', 'GOHAI_5', 'GOHAI_6',
                        'GOHAI_7', 'GOHAI_8', 'GOHAI_9', 'GOHAI_10', 'GOHAI_11', 'GOHAI_12']
@@ -2569,10 +2803,27 @@ def results():
                 df[col] = pd.to_numeric(df[col], errors='coerce')
         
         # Convert categorical columns to int (they might be Decimal too)
-        categorical_cols = ['F5', 'F7', 'F8', 'F9']
+        categorical_cols = ['F5', 'F7', 'F8', 'F9', 'A1_Kaan', 'A3_jobb', 'A3_bal', 'A4_jobb', 'A4_bal',
+                            'A5_jobb', 'A5_bal', 'A6_jobb', 'A6_bal', 'A7_jobb', 'A7_bal', 'A8_jobb', 'A8_bal',
+                            'A9_jobb', 'A9_bal', 'A11', 'A12', 'A13', 'A14']
         for col in categorical_cols:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')  # Int64 allows NaN
+
+        # Combine right/left lower-jaw fields into single clinical flags (any-side abnormality)
+        for base in ['A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9']:
+            right_col = f'{base}_jobb'
+            left_col = f'{base}_bal'
+            combined_col = f'{base}_any_side'
+            right_vals = pd.to_numeric(df[right_col], errors='coerce')
+            left_vals = pd.to_numeric(df[left_col], errors='coerce')
+            both_missing = right_vals.isna() & left_vals.isna()
+            any_abnormal = (right_vals >= 2).fillna(False) | (left_vals >= 2).fillna(False)
+            combined = pd.Series(pd.NA, index=df.index, dtype='Int64')
+            has_any_side_data = ~both_missing
+            combined.loc[has_any_side_data] = 0
+            combined.loc[has_any_side_data & any_abnormal] = 1
+            df[combined_col] = combined
         
         # Calculate OHIP and GOHAI totals
         df['OHIP_total'] = df[['OHIP_1', 'OHIP_2', 'OHIP_3', 'OHIP_4', 'OHIP_5']].sum(axis=1)
@@ -2642,8 +2893,8 @@ def results():
         correlations = {}
         
         outcomes = {
-            'init_mai': 'Kezdeti MAI',
-            'final_mai': 'Végső MAI',
+            'init_mai_huedegree': 'Kezdeti MAI (hue degree)',
+            'final_mai_huedegree': 'Végső MAI (hue degree)',
             'OHIP_total': 'OHIP_total',
             'GOHAI_total': 'GOHAI_total'
         }
@@ -2694,7 +2945,7 @@ def results():
         # Create correlation heatmap for numeric F measurements
         numeric_f = [f for f, info in f_measurements.items() if info['type'] == 'numeric']
         if len(numeric_f) > 0:
-            numeric_df = df[numeric_f + ['init_mai', 'final_mai', 'OHIP_total', 'GOHAI_total']].dropna()
+            numeric_df = df[numeric_f + ['init_mai_huedegree', 'final_mai_huedegree', 'OHIP_total', 'GOHAI_total']].dropna()
             
             if len(numeric_df) >= 10:
                 corr_matrix = numeric_df.corr(method='spearman')
@@ -2709,6 +2960,259 @@ def results():
                 correlation_heatmap = None
         else:
             correlation_heatmap = None
+
+        # Effect-size heatmap (clinical signal focus): F1-F9 vs MAI/OHIP outcomes
+        effect_size_heatmap = None
+        top_effects = []
+        try:
+            effect_df = df.copy()
+            effect_df['delta_mai_huedegree'] = effect_df['final_mai_huedegree'] - effect_df['init_mai_huedegree']
+            outcomes_for_effect = ['init_mai_huedegree', 'delta_mai_huedegree', 'OHIP_total']
+            outcome_labels = {
+                'init_mai_huedegree': 'init_mai_huedegree',
+                'delta_mai_huedegree': 'delta_mai_huedegree',
+                'OHIP_total': 'OHIP_total'
+            }
+
+            effect_rows = []
+            row_labels = []
+            for f_name, f_info in f_measurements.items():
+                row_vals = []
+                for out in outcomes_for_effect:
+                    sub = effect_df[[f_name, out]].dropna()
+                    if len(sub) < 8:
+                        row_vals.append(np.nan)
+                        continue
+
+                    if f_info['type'] == 'categorical':
+                        # Favorable = 1, unfavorable = 2-3 for F5/F7/F8/F9
+                        g0 = sub[sub[f_name] == 1][out].values
+                        g1 = sub[sub[f_name] >= 2][out].values
+                    else:
+                        # Numeric F variables: median split for robust low-n comparison
+                        thr = sub[f_name].median()
+                        g0 = sub[sub[f_name] <= thr][out].values
+                        g1 = sub[sub[f_name] > thr][out].values
+
+                    g_val = hedges_g(g0, g1)
+                    row_vals.append(g_val)
+                    if np.isfinite(g_val):
+                        top_effects.append({
+                            'feature': f_name,
+                            'outcome': outcome_labels[out],
+                            'hedges_g': float(g_val),
+                            'abs_g': float(abs(g_val)),
+                            'n': int(len(sub))
+                        })
+                effect_rows.append(row_vals)
+                row_labels.append(f_name)
+
+            effect_matrix = pd.DataFrame(effect_rows, index=row_labels, columns=[outcome_labels[o] for o in outcomes_for_effect])
+            if effect_matrix.notna().sum().sum() > 0:
+                fig_eff = plt.figure(figsize=(9, 6))
+                sns.heatmap(
+                    effect_matrix,
+                    annot=True,
+                    fmt='.2f',
+                    cmap='coolwarm',
+                    center=0,
+                    mask=effect_matrix.isna(),
+                    cbar_kws={"label": "Hedges' g (unfavourable - favourable)"}
+                )
+                plt.title("F1-F9 effektusméret hőtérkép (p-érték helyett)\nPozitív g: kedvezőtlen anatómia -> magasabb (rosszabb) kimenet")
+                plt.xlabel("Kimeneti változók")
+                plt.ylabel("Anatómiai változók")
+                plt.tight_layout()
+                effect_size_heatmap = plot_to_base64(fig_eff)
+                plt.close(fig_eff)
+
+            top_effects = sorted(top_effects, key=lambda x: x['abs_g'], reverse=True)[:8]
+        except Exception:
+            effect_size_heatmap = None
+            top_effects = []
+
+        # Clinical relevance summary:
+        # do "difference from reference patient (919-191-919)" flags link to QoL/mixing?
+        clinical_links = []
+        clinical_summary = {
+            'tested_pairs': 0,
+            'significant_pairs': 0,
+            'moderate_or_stronger_pairs': 0
+        }
+        clinical_heatmap = None
+        reference_taj = '919-191-919'
+        reference_found = False
+        reference_usable = False
+        reference_message = ''
+        try:
+            clinical_df = df.copy()
+            clinical_df['delta_mai_huedegree'] = clinical_df['final_mai_huedegree'] - clinical_df['init_mai_huedegree']
+            clinical_df['TAJ_normalized'] = clinical_df['TAJ'].astype(str).str.replace(r'\D', '', regex=True)
+            reference_taj_normalized = str(reference_taj).replace('-', '')
+
+            # Use the latest row for the reference patient as etalon
+            reference_rows = clinical_df[clinical_df['TAJ_normalized'] == reference_taj_normalized].copy()
+            if len(reference_rows) == 0:
+                # The TAJ may exist, but without F/A anatomy values (thus filtered out above)
+                cursor.execute('SELECT "TAJ" FROM patients WHERE "TAJ" IS NOT NULL')
+                all_tajs = [str(r[0]) for r in cursor.fetchall()]
+                all_tajs_norm = [t.replace('-', '').replace(' ', '') for t in all_tajs]
+                if reference_taj_normalized in all_tajs_norm:
+                    reference_found = True
+                    reference_message = f'Az etalon páciens ({reference_taj}) megtalálható, de nincs rögzített F/A anatómiai adata, ezért nem használható referenciaként.'
+                else:
+                    reference_message = f'Az etalon páciens ({reference_taj}) nem található az adatbázisban.'
+                raise ValueError(reference_message)
+            reference_found = True
+            # Pick the reference row with the most available anatomy values
+            ref_feature_cols = [c for c in all_measurements.keys() if c in reference_rows.columns]
+            if len(ref_feature_cols) == 0:
+                reference_message = f'Az etalon páciens ({reference_taj}) sorában nincs elemezhető anatómiai mező.'
+                raise ValueError(reference_message)
+            reference_rows['_nonnull_features'] = reference_rows[ref_feature_cols].notna().sum(axis=1)
+            reference_row = reference_rows.sort_values(['_nonnull_features', 'id'], ascending=[False, False]).iloc[0]
+            if int(reference_row.get('_nonnull_features', 0)) == 0:
+                reference_message = f'Az etalon páciens ({reference_taj}) megtalálható, de nincs rögzített F/A anatómiai adata, ezért nem használható referenciaként.'
+                raise ValueError(reference_message)
+            reference_usable = True
+
+            # Exclude reference patient rows from association testing
+            analysis_df = clinical_df[clinical_df['TAJ_normalized'] != reference_taj_normalized].copy()
+            clinical_outcomes = ['init_mai_huedegree', 'final_mai_huedegree', 'delta_mai_huedegree', 'OHIP_total', 'GOHAI_total']
+            outcome_labels = {
+                'init_mai_huedegree': 'Mixing ability (init MAI)',
+                'final_mai_huedegree': 'Mixing ability (final MAI)',
+                'delta_mai_huedegree': 'Mixing változás (delta MAI)',
+                'OHIP_total': 'OHIP (magasabb = rosszabb QoL)',
+                'GOHAI_total': 'GOHAI (magasabb = jobb QoL)'
+            }
+
+            heatmap_rows = []
+            heatmap_idx = []
+            for feature_name, feature_info in all_measurements.items():
+                ref_value = reference_row.get(feature_name, np.nan)
+                if pd.isna(ref_value):
+                    continue
+
+                # Binary exposure: differs from reference (1) vs matches reference (0)
+                differs_col = f'{feature_name}_differs_from_reference'
+                feature_vals = analysis_df[feature_name]
+                differs_bool = (feature_vals != ref_value)
+                if hasattr(differs_bool, 'fillna'):
+                    differs_bool = differs_bool.fillna(False)
+                differs_series = pd.Series(np.nan, index=analysis_df.index, dtype='float64')
+                has_feature = feature_vals.notna()
+                differs_series.loc[has_feature] = differs_bool.loc[has_feature].astype(int)
+                analysis_df[differs_col] = differs_series
+
+                row_vals = []
+                for outcome_name in clinical_outcomes:
+                    pair_df = analysis_df[[differs_col, outcome_name]].dropna()
+                    if len(pair_df) < 10:
+                        row_vals.append(np.nan)
+                        continue
+                    if pair_df[differs_col].nunique() < 2 or pair_df[outcome_name].nunique() < 2:
+                        row_vals.append(np.nan)
+                        continue
+
+                    rho, p_value = spearmanr(pair_df[differs_col], pair_df[outcome_name])
+                    if not np.isfinite(rho) or not np.isfinite(p_value):
+                        row_vals.append(np.nan)
+                        continue
+
+                    abs_rho = float(abs(rho))
+                    if abs_rho < 0.20:
+                        effect_class = 'gyenge'
+                    elif abs_rho < 0.40:
+                        effect_class = 'kisebb-közepes'
+                    elif abs_rho < 0.60:
+                        effect_class = 'közepes'
+                    else:
+                        effect_class = 'erős'
+
+                    if outcome_name == 'OHIP_total':
+                        direction_hint = (
+                            'eltérés az etalontól -> rosszabb QoL'
+                            if rho > 0 else
+                            'eltérés az etalontól -> jobb QoL'
+                        )
+                    elif outcome_name == 'GOHAI_total':
+                        direction_hint = (
+                            'eltérés az etalontól -> rosszabb QoL'
+                            if rho < 0 else
+                            'eltérés az etalontól -> jobb QoL'
+                        )
+                    else:
+                        direction_hint = (
+                            'eltérés az etalontól -> rosszabb objektív mixing'
+                            if rho > 0 else
+                            'eltérés az etalontól -> jobb objektív mixing'
+                        )
+
+                    values_map = feature_info.get('values', {})
+                    if values_map and ref_value in values_map:
+                        coding_note = f'etalon érték: {ref_value} ({values_map.get(ref_value)})'
+                    else:
+                        coding_note = f'etalon érték: {ref_value}'
+
+                    clinical_links.append({
+                        'feature': feature_name,
+                        'feature_label': feature_info.get('description', feature_name),
+                        'coding_note': coding_note,
+                        'outcome': outcome_name,
+                        'outcome_label': outcome_labels[outcome_name],
+                        'rho': float(rho),
+                        'p_value': float(p_value),
+                        'n': int(len(pair_df)),
+                        'abs_rho': abs_rho,
+                        'effect_class': effect_class,
+                        'is_significant': bool(p_value < 0.05),
+                        'direction_hint': direction_hint
+                    })
+                    clinical_summary['tested_pairs'] += 1
+                    if p_value < 0.05:
+                        clinical_summary['significant_pairs'] += 1
+                    if abs_rho >= 0.30:
+                        clinical_summary['moderate_or_stronger_pairs'] += 1
+
+                    row_vals.append(float(rho))
+                heatmap_rows.append(row_vals)
+                heatmap_idx.append(feature_name)
+
+            clinical_heatmap_matrix = pd.DataFrame(
+                heatmap_rows,
+                index=heatmap_idx,
+                columns=[outcome_labels[o] for o in clinical_outcomes]
+            )
+            if clinical_heatmap_matrix.notna().sum().sum() > 0:
+                fig_clin = plt.figure(figsize=(10, 12))
+                sns.heatmap(
+                    clinical_heatmap_matrix,
+                    annot=True,
+                    fmt='.2f',
+                    cmap='coolwarm',
+                    center=0,
+                    mask=clinical_heatmap_matrix.isna(),
+                    cbar_kws={"label": "Spearman rho"}
+                )
+                plt.title('F + A anatómiai változók klinikai kapcsolata\n(QoL és mixing ability kimenetek)')
+                plt.xlabel('Kimenetek')
+                plt.ylabel('Anatómiai változók')
+                plt.tight_layout()
+                clinical_heatmap = plot_to_base64(fig_clin)
+                plt.close(fig_clin)
+
+            clinical_links = sorted(clinical_links, key=lambda x: x['abs_rho'], reverse=True)
+        except Exception:
+            clinical_links = []
+            clinical_heatmap = None
+            clinical_summary = {
+                'tested_pairs': 0,
+                'significant_pairs': 0,
+                'moderate_or_stronger_pairs': 0
+            }
+            if not reference_message:
+                reference_message = 'Az etalon referencia elemzése sikertelen.'
         
         return {
             'status': 'success',
@@ -2716,6 +3220,15 @@ def results():
             'distribution_plots': distribution_plots,
             'correlations': correlations,
             'correlation_heatmap': correlation_heatmap,
+            'effect_size_heatmap': effect_size_heatmap,
+            'top_effects': top_effects,
+            'clinical_links': clinical_links,
+            'clinical_summary': clinical_summary,
+            'clinical_heatmap': clinical_heatmap,
+            'reference_taj': reference_taj,
+            'reference_found': reference_found,
+            'reference_usable': reference_usable,
+            'reference_message': reference_message,
             'total_n': len(df)
         }
     
@@ -2759,9 +3272,54 @@ def results():
                         odds_ratios_img_mai=odds_ratios_img_mai,
                         odds_ratios_img_ohip=odds_ratios_img_ohip,
                         odds_ratios_img_gohai=odds_ratios_img_gohai,
+                        odds_ratios_table_mai=odds_ratios_table_mai,
+                        odds_ratios_table_ohip=odds_ratios_table_ohip,
+                        odds_ratios_table_gohai=odds_ratios_table_gohai,
                         cross_sectional_results=cross_sectional_results,
                         f_analysis=f_analysis
                         )
+
+
+BLENDER_API_KEY = os.getenv("BLENDER_API_KEY")
+
+
+@app.route('/api/morphometria', methods=['POST'])
+def api_morphometria():
+    """Blender addon végpont: morphometriai adatok feltöltése TAJ szerint."""
+    api_key = request.headers.get('X-API-Key')
+    if not BLENDER_API_KEY or api_key != BLENDER_API_KEY:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({'error': 'JSON body szükséges'}), 400
+
+    TAJ = data.get('TAJ', '').strip()
+    if not TAJ:
+        return jsonify({'error': 'Hiányzó TAJ'}), 400
+
+    cursor = get_db_cursor()
+    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
+    if cursor.fetchone()[0] == 0:
+        return jsonify({'error': f'TAJ ({TAJ}) nem található a rendszerben'}), 404
+
+    try:
+        cursor.execute(
+            """UPDATE patients SET
+               "F1" = %s, "F2" = %s, "F3" = %s, "F4" = %s,
+               "F6" = %s, "A10" = %s
+               WHERE "TAJ" = %s""",
+            (
+                data.get('F1'), data.get('F2'), data.get('F3'),
+                data.get('F4'), data.get('F6'), data.get('A10'),
+                TAJ,
+            )
+        )
+        db.commit()
+        return jsonify({'success': True, 'TAJ': TAJ})
+    except Exception as e:
+        db.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
