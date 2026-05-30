@@ -3307,11 +3307,13 @@ def api_morphometria():
         cursor.execute(
             """UPDATE patients SET
                "F1" = %s, "F2" = %s, "F3" = %s, "F4" = %s,
-               "F6" = %s, "A10" = %s
+               "F6" = %s, "A10" = %s,
+               "A2_mag_mm" = %s, "A2_modszer" = %s
                WHERE "TAJ" = %s""",
             (
                 data.get('F1'), data.get('F2'), data.get('F3'),
                 data.get('F4'), data.get('F6'), data.get('A10'),
+                data.get('A2_mag_mm'), data.get('A2_modszer'),
                 TAJ,
             )
         )
