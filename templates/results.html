@@ -155,7 +155,7 @@
         </div>
         <div class="stat-box">
             <h3>3. A kezdeti MAI pontszáma</h3>
-            <p>Az init_MAI átlag és szórás: {{ init_mai_mean }} ± {{ init_mai_std }}</p>
+            <p>Az init_MAI_huedegree átlag és szórás: {{ init_mai_mean }} ± {{ init_mai_std }}</p>
         </div>
         
         <h2>III. Második mérés eredményei (leíró statisztika)</h2>
@@ -175,7 +175,7 @@
         </div>
         <div class="stat-box">
             <h3>3. Az egyhónapos viselést követő MAI pontszám</h3>
-            <p>A final_MAI átlag és szórás: {{ final_mai_mean }} ± {{ final_mai_std }}</p>
+            <p>A final_MAI_huedegree átlag és szórás: {{ final_mai_mean }} ± {{ final_mai_std }}</p>
         </div>
         <h2>IV. Inferenciális statisztika</h2>
         <h3>1. Szignifikáns rágóképességváltozás számítása ROC analízissel</h3>
@@ -185,7 +185,7 @@
             <img src="data:image/png;base64,{{ roc_img_mai }}" alt="ROC Curve MAI">
         </div>
         <div class="chart-container">
-            <h4>1.1.1.2. Rágóképesség-pontkülönbség (ΔMAI) és a szubjektíven tapasztalt változás</h4>
+            <h4>1.1.1.2. Rágóképesség-pontkülönbség (ΔMAI_huedegree) és a szubjektíven tapasztalt változás</h4>
             <img src="data:image/png;base64,{{ diff_img_mai }}" alt="Score Difference MAI">
         </div>
         <div class="stat-box">
@@ -214,17 +214,40 @@
             <p>Az optimális vágópont GOHAI-különbség esetén: {{ optimal_threshold_gohai }}</p>
         </div>
         <h2>2. Odds ratio-k és konfidenciaintervallumaik</h2>
+        <p>Kis mintaszám vagy ritka cellák esetén az OR konfidenciaintervallumok bootstrap eljárással készülnek (stabilabb becsléshez).</p>
         <h3>2.1. Egyszerű kérdéses ROC alapján</h3>
         <div>
             <h3>Számottevő rágóképességváltozás esélyhányadosai a MAI-változást vizsgálva</h3>
             {% if insufficient_data_mai %}
                 <div class="stat-box">
-                    <p>Nincs elég adat még hogy valid hőtérképet generáljunk MAI-különbséget nézve.</p>
+                    <p>Nincs elég adat még hogy stabil, binelt MAI_huedegree odds ratio-kat számoljunk.</p>
                 </div>
             {% else %}
-                <div class="chart-container">
-                    <img src="data:image/png;base64,{{ odds_ratios_img_mai }}" />
-                </div>
+                <table style="width:100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;">
+                    <thead>
+                        <tr style="background:#ebf2fa;">
+                            <th style="text-align:left; padding:8px; border:1px solid #d4e4f0;">Prediktor (binelt)</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">n</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">OR (95% CI)</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">Esemény / Exponált</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">Esemény / Kontroll</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in odds_ratios_table_mai %}
+                        <tr>
+                            <td style="padding:8px; border:1px solid #d4e4f0;">{{ row.get('predictor') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('n') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">
+                                {{ "%.2f"|format(row.get('odds_ratio', 0)) }} ({{ "%.2f"|format(row.get('ci_low', 0)) }}, {{ "%.2f"|format(row.get('ci_high', 0)) }})
+                                <br><span style="font-size:11px; color:#6b7b8c;">CI: {{ row.get('ci_method', 'analytic') }}</span>
+                            </td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('events_exposed', 0) }}/{{ row.get('total_exposed', 0) }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('events_unexposed', 0) }}/{{ row.get('total_unexposed', 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
         
@@ -232,12 +255,34 @@
             <h3>Számottevő rágóképességváltozás esélyhányadosai az OHIP-változást vizsgálva</h3>
             {% if insufficient_data_ohip %}
                 <div class="stat-box">
-                    <p>Nincs elég adat még hogy valid hőtérképet generáljunk OHIP-különbséget nézve</p>
+                    <p>Nincs elég adat még hogy stabil, binelt OHIP odds ratio-kat számoljunk.</p>
                 </div>
             {% else %}
-                <div class="chart-container">
-                    <img src="data:image/png;base64,{{ odds_ratios_img_ohip }}" />
-                </div>
+                <table style="width:100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;">
+                    <thead>
+                        <tr style="background:#ebf2fa;">
+                            <th style="text-align:left; padding:8px; border:1px solid #d4e4f0;">Prediktor (binelt)</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">n</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">OR (95% CI)</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">Esemény / Exponált</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">Esemény / Kontroll</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in odds_ratios_table_ohip %}
+                        <tr>
+                            <td style="padding:8px; border:1px solid #d4e4f0;">{{ row.get('predictor') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('n') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">
+                                {{ "%.2f"|format(row.get('odds_ratio', 0)) }} ({{ "%.2f"|format(row.get('ci_low', 0)) }}, {{ "%.2f"|format(row.get('ci_high', 0)) }})
+                                <br><span style="font-size:11px; color:#6b7b8c;">CI: {{ row.get('ci_method', 'analytic') }}</span>
+                            </td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('events_exposed', 0) }}/{{ row.get('total_exposed', 0) }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('events_unexposed', 0) }}/{{ row.get('total_unexposed', 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
         
@@ -245,98 +290,106 @@
             <h3>Számottevő rágóképességváltozás esélyhányadosai a GOHAI-változást vizsgálva</h3>
             {% if insufficient_data_gohai %}
                 <div class="stat-box">
-                    <p>Nincs elég adat még hogy valid hőtérképet generáljunk GOHAI-különbséget nézve</p>
+                    <p>Nincs elég adat még hogy stabil, binelt GOHAI odds ratio-kat számoljunk.</p>
                 </div>
             {% else %}
-                <div class="chart-container">
-                    <img src="data:image/png;base64,{{ odds_ratios_img_gohai }}" />
-                </div>
+                <table style="width:100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;">
+                    <thead>
+                        <tr style="background:#ebf2fa;">
+                            <th style="text-align:left; padding:8px; border:1px solid #d4e4f0;">Prediktor (binelt)</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">n</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">OR (95% CI)</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">Esemény / Exponált</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">Esemény / Kontroll</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in odds_ratios_table_gohai %}
+                        <tr>
+                            <td style="padding:8px; border:1px solid #d4e4f0;">{{ row.get('predictor') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('n') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">
+                                {{ "%.2f"|format(row.get('odds_ratio', 0)) }} ({{ "%.2f"|format(row.get('ci_low', 0)) }}, {{ "%.2f"|format(row.get('ci_high', 0)) }})
+                                <br><span style="font-size:11px; color:#6b7b8c;">CI: {{ row.get('ci_method', 'analytic') }}</span>
+                            </td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('events_exposed', 0) }}/{{ row.get('total_exposed', 0) }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('events_unexposed', 0) }}/{{ row.get('total_unexposed', 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
         
-        <h2>V. F1-F9 mérések statisztikai elemzése</h2>
-        <p>Ez a szekció a modellanalízis során mért F1-F9 változók leíró statisztikáit és korrelációit tartalmazza.</p>
+        <h2>V. Eltérés az etalon pácienshez képest (F + A)</h2>
+        <p>Fő kérdés: az adott anatómiai képlet eltérése a {{ f_analysis.get('reference_taj', '919-191-919') }} etalon pácienshez képest összefügg-e a klinikai kimenetekkel (OHIP/GOHAI, MAI)?</p>
         
         {% if f_analysis.get('status') == 'success' %}
-            <h3>1. Leíró statisztika</h3>
-            {% for f_name in ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9'] %}
-                {% set f_stat = f_analysis.get('descriptive_stats', {}).get(f_name, {}) %}
-                {% if f_stat.get('status') != 'no_data' %}
-                    <div class="stat-box">
-                        <h4>{{ f_name }}</h4>
-                        {% if f_stat.get('mean') is not none %}
-                            {# Numeric variable #}
-                            <p><strong>Átlag:</strong> {{ "%.2f"|format(f_stat.get('mean', 0)) }} ± {{ "%.2f"|format(f_stat.get('std', 0)) }} {{ f_stat.get('unit', '') }}</p>
-                            <p><strong>Medián:</strong> {{ "%.2f"|format(f_stat.get('median', 0)) }} {{ f_stat.get('unit', '') }}</p>
-                            <p><strong>Min-Max:</strong> {{ "%.2f"|format(f_stat.get('min', 0)) }} - {{ "%.2f"|format(f_stat.get('max', 0)) }} {{ f_stat.get('unit', '') }}</p>
-                            <p><strong>Minta méret:</strong> n = {{ f_stat.get('n', 0) }}</p>
-                            {% if f_analysis.get('distribution_plots', {}).get(f_name) %}
-                                <div class="chart-container">
-                                    <img src="data:image/png;base64,{{ f_analysis.get('distribution_plots', {}).get(f_name) }}" alt="{{ f_name }} Distribution">
-                                </div>
-                            {% endif %}
-                        {% else %}
-                            {# Categorical variable #}
-                            <p><strong>Minta méret:</strong> n = {{ f_stat.get('n', 0) }}</p>
-                            <h5>Értékek megoszlása:</h5>
-                            {% for value, count in f_stat.get('value_counts', {}).items() %}
-                                <p style="margin-left: 20px;">{{ value }}: {{ count }} ({{ "%.1f"|format(f_stat.get('percentages', {}).get(value, 0)) }}%)</p>
-                            {% endfor %}
-                            {% if f_analysis.get('distribution_plots', {}).get(f_name) %}
-                                <div class="chart-container">
-                                    <img src="data:image/png;base64,{{ f_analysis.get('distribution_plots', {}).get(f_name) }}" alt="{{ f_name }} Distribution">
-                                </div>
-                            {% endif %}
-                        {% endif %}
-                    </div>
-                {% endif %}
-            {% endfor %}
-            
-            <h3>2. Korrelációs elemzés</h3>
-            {% if f_analysis.get('correlation_heatmap') %}
+            {% if not f_analysis.get('reference_usable') %}
+                <div class="stat-box">
+                    <p style="color:#d32f2f; font-weight:bold;">{{ f_analysis.get('reference_message', 'Az etalon páciens nem használható referenciaként.') }}</p>
+                </div>
+            {% else %}
+            <div class="stat-box">
+                <h3>1. Klinikai összkép</h3>
+                <p><strong>Kiértékelhető páciens:</strong> n = {{ f_analysis.get('total_n', 0) }}</p>
+                <p><strong>Vizsgált F/A × kimenet párok:</strong> {{ f_analysis.get('clinical_summary', {}).get('tested_pairs', 0) }}</p>
+                <p><strong>Szignifikáns kapcsolatok (p &lt; 0.05):</strong> {{ f_analysis.get('clinical_summary', {}).get('significant_pairs', 0) }}</p>
+                <p><strong>Klinikailag legalább közepes erősségű jelek (|rho| ≥ 0.30):</strong> {{ f_analysis.get('clinical_summary', {}).get('moderate_or_stronger_pairs', 0) }}</p>
+            </div>
+
+            {% if f_analysis.get('clinical_heatmap') %}
                 <div class="chart-container">
-                    <h4>Korrelációs mátrix: F1-F9 mérések és kimeneti változók</h4>
-                    <img src="data:image/png;base64,{{ f_analysis.get('correlation_heatmap') }}" alt="Correlation Heatmap">
+                    <h3>2. Etalontól eltérés (igen/nem) vs QoL / mixing ability (Spearman rho)</h3>
+                    <p style="margin-bottom: 10px;">A bináris prediktor: 0 = megegyezik az etalon értékével, 1 = eltér az etalontól. Az abszolút érték a kapcsolat erőssége.</p>
+                    <img src="data:image/png;base64,{{ f_analysis.get('clinical_heatmap') }}" alt="F and A Clinical Heatmap">
                 </div>
             {% endif %}
-            
-            <h4>Egyedi korrelációk:</h4>
-            {% for f_name in ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9'] %}
-                {% set f_corrs = f_analysis.get('correlations', {}).get(f_name, {}) %}
-                {% if f_corrs %}
-                    <div class="stat-box">
-                        <h4>{{ f_name }} korrelációi</h4>
-                        {% for outcome_name in ['init_mai', 'final_mai', 'OHIP_total', 'GOHAI_total'] %}
-                            {% set corr_data = f_corrs.get(outcome_name, {}) %}
-                            {% if corr_data.get('status') != 'insufficient_data' and corr_data.get('status') != 'insufficient_groups' %}
-                                <p><strong>{{ outcome_name }}:</strong>
-                                {% if corr_data.get('correlation') is not none %}
-                                    r = {{ "%.3f"|format(corr_data.get('correlation', 0)) }} (p = {{ "%.4f"|format(corr_data.get('p_value', 1)) }}, n = {{ corr_data.get('n', 0) }})
-                                    {% if corr_data.get('p_value', 1) < 0.05 %}
-                                        <span style="color: #d32f2f; font-weight: bold;">*</span>
-                                    {% endif %}
-                                {% elif corr_data.get('test') == 'Kruskal-Wallis' %}
-                                    Kruskal-Wallis: stat = {{ "%.3f"|format(corr_data.get('statistic', 0)) }}, p = {{ "%.4f"|format(corr_data.get('p_value', 1)) }} (n = {{ corr_data.get('n', 0) }})
-                                    {% if corr_data.get('p_value', 1) < 0.05 %}
-                                        <span style="color: #d32f2f; font-weight: bold;">*</span>
-                                    {% endif %}
-                                    {% if corr_data.get('group_means') %}
-                                        <br><span style="margin-left: 20px;">Csoport átlagok: 
-                                        {% for group_val, mean_val in corr_data.get('group_means', {}).items() %}
-                                            {{ group_val }}: {{ "%.2f"|format(mean_val) }}{% if not loop.last %}, {% endif %}
-                                        {% endfor %}
-                                        </span>
-                                    {% endif %}
+
+            {% if f_analysis.get('clinical_links') %}
+                <h3>3. Legerősebb klinikai kapcsolatok (|rho| szerint rendezve)</h3>
+                <table style="width:100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;">
+                    <thead>
+                        <tr style="background:#ebf2fa;">
+                            <th style="text-align:left; padding:8px; border:1px solid #d4e4f0;">Anatómiai változó</th>
+                            <th style="text-align:left; padding:8px; border:1px solid #d4e4f0;">Kódolás</th>
+                            <th style="text-align:left; padding:8px; border:1px solid #d4e4f0;">Kimenet</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">rho</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">p</th>
+                            <th style="text-align:right; padding:8px; border:1px solid #d4e4f0;">n</th>
+                            <th style="text-align:left; padding:8px; border:1px solid #d4e4f0;">Értelmezés</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in f_analysis.get('clinical_links', [])[:15] %}
+                        <tr>
+                            <td style="padding:8px; border:1px solid #d4e4f0;">{{ row.get('feature') }} - {{ row.get('feature_label') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0;">{{ row.get('coding_note', 'n/a') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0;">{{ row.get('outcome_label') }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">
+                                {{ "%.3f"|format(row.get('rho', 0)) }}
+                                {% if row.get('is_significant') %}
+                                    <span style="color:#d32f2f; font-weight:bold;">*</span>
                                 {% endif %}
-                                </p>
-                            {% endif %}
+                            </td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ "%.4f"|format(row.get('p_value', 1)) }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0; text-align:right;">{{ row.get('n', 0) }}</td>
+                            <td style="padding:8px; border:1px solid #d4e4f0;">
+                                {{ row.get('effect_class', 'n/a') }}{% if row.get('direction_hint') %} - {{ row.get('direction_hint') }}{% endif %}
+                            </td>
+                        </tr>
                         {% endfor %}
-                    </div>
-                {% endif %}
-            {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="stat-box">
+                    <p>Nincs elég adat a stabil etalon-eltérés alapú klinikai összefüggés-elemzéshez.</p>
+                </div>
+            {% endif %}
+            {% endif %}
         {% elif f_analysis.get('status') == 'insufficient_data' %}
             <div class="stat-box">
-                <p>{{ f_analysis.get('message', 'Nincs elegendő adat az F1-F9 elemzéshez') }}</p>
+                <p>{{ f_analysis.get('message', 'Nincs elegendő adat az F/A elemzéshez') }}</p>
             </div>
         {% endif %}
         
@@ -348,9 +401,9 @@
             <div class="stat-box" style="margin-top: 20px;">
                 <h3>{{ hyp_id }}</h3>
                 <h4>Null hipotézis:</h4>
-                <p>{{ hyp.get('null_hypothesis', 'N/A') }}</p>
+                <p>{{ hyp.get('null_hypothesis', 'N/A')|replace('init_mai', 'init_mai_huedegree') }}</p>
                 <h4>Alternatív hipotézis:</h4>
-                <p>{{ hyp.get('alternative_hypothesis', 'N/A') }}</p>
+                <p>{{ hyp.get('alternative_hypothesis', 'N/A')|replace('init_mai', 'init_mai_huedegree') }}</p>
                 
                 {% if hyp.get('status') == 'success' %}
                     {% if hyp.get('plot_img') %}
@@ -486,7 +539,7 @@
                     {% if hyp.get('descriptive_stats') %}
                         <h4>Leíró statisztika:</h4>
                         {% if 'correlation' in hyp %}
-                            <p><strong>init_mai:</strong> átlag = {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('init_mai', {}).get('mean', 0)) }} ± {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('init_mai', {}).get('std', 0)) }}</p>
+                            <p><strong>init_mai_huedegree:</strong> átlag = {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('init_mai', {}).get('mean', 0)) }} ± {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('init_mai', {}).get('std', 0)) }}</p>
                             {% if 'OHIP_total' in hyp.get('descriptive_stats', {}) %}
                                 <p><strong>OHIP_total:</strong> átlag = {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('OHIP_total', {}).get('mean', 0)) }} ± {{ "%.2f"|format(hyp.get('descriptive_stats', {}).get('OHIP_total', {}).get('std', 0)) }}</p>
                             {% elif 'GOHAI_total' in hyp.get('descriptive_stats', {}) %}
@@ -508,14 +561,14 @@
                         {% if 'n' in hyp %}
                             <p><strong>Jelenlegi adatpontok száma:</strong> {{ hyp.get('n', 0) }}</p>
                         {% endif %}
-                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A')|replace('init_mai', 'init_mai_huedegree') }}</p>
                     </div>
                     
                 {% elif hyp.get('status') == 'error' %}
                     <div style="background-color: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 10px;">
                         <p style="color: #721c24; font-weight: bold;">Hiba történt az elemzés során</p>
                         <p><strong>Hibaüzenet:</strong> {{ hyp.get('message', 'Ismeretlen hiba') }}</p>
-                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A')|replace('init_mai', 'init_mai_huedegree') }}</p>
                     </div>
                     
                 {% elif hyp.get('status') == 'not_implemented' %}
@@ -523,13 +576,13 @@
                         <p style="color: #383d41; font-weight: bold;">Komplex elemzés - még nincs implementálva</p>
                         <p><strong>Üzenet:</strong> {{ hyp.get('message', 'Komplex elemzés, további implementáció szükséges') }}</p>
                         <p><strong>Javasolt módszer:</strong> {{ hyp.get('method', 'N/A') }}</p>
-                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A')|replace('init_mai', 'init_mai_huedegree') }}</p>
                     </div>
                     
                 {% else %}
                     <div style="background-color: #e2e3e5; padding: 10px; border-radius: 5px; margin-top: 10px;">
                         <p style="color: #383d41;">Az elemzés még nem futott le vagy ismeretlen állapot.</p>
-                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A') }}</p>
+                        <p><strong>Szükséges adatok:</strong> {{ hyp.get('data_needed', 'N/A')|replace('init_mai', 'init_mai_huedegree') }}</p>
                     </div>
                 {% endif %}
             </div>
