@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
+import secrets
 from werkzeug.utils import secure_filename
 import psycopg2
 import os
@@ -270,10 +271,12 @@ def submit_student_exam():
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     values = (TAJ, student_name, denture_type, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14)
-    cursor.execute(sql, values)
-    db.commit()
-
-    return render_template('confirmation.html')
+    try:
+        cursor.execute(sql, values)
+        db.commit()
+        return render_template('confirmation.html')
+    finally:
+        cursor.close()
 
 @app.route('/submit_questionnaire1', methods=['POST'])
 def submit_questionnaire1():
@@ -322,10 +325,12 @@ def submit_questionnaire1():
     VALUES ((SELECT COALESCE(MAX("id"), 0) + 1 FROM patients), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     values = (TAJ, record_datetime, birthdate, gender, denture_type, *GOHAI_questions, *OHIP_questions, responsiveness_today_situation, chewing_today_situation, F5, F7, F8, A1_Kaan, A3_jobb, A3_bal, A4_jobb, A4_bal, A5_jobb, A5_bal, A6_jobb, A6_bal, A7_jobb, A7_bal, A8_jobb, A8_bal, A9_jobb, A9_bal, A11, A12, A13, A14, initials)
-    cursor.execute(sql, values)
-    db.commit()
-
-    return render_template('confirmation.html')
+    try:
+        cursor.execute(sql, values)
+        db.commit()
+        return render_template('confirmation.html')
+    finally:
+        cursor.close()
 
 @app.route('/submit_questionnaire2', methods=['POST'])
 def submit_questionnaire2():
@@ -408,18 +413,17 @@ def submit_questionnaire2():
     result = cursor.fetchone()
     
     if result[0] == 0:
-        # TAJ does not exist
-        db.close()
+        cursor.close()
         return render_template('error.html', message="Ilyen TAJ még nem található a rendszerben! Kérlek előbb az első kérdőívet töltsd ki!")
 
     try:
         sql = """
-            UPDATE patients SET 
+            UPDATE patients SET
             "F1" = %s, "F2" = %s, "F3" = %s, "F4" = %s, "F6" = %s,
             "A2_gerincelvonal" = %s, "A2_bukkalisathajlas" = %s, "A2_lingualisathajlas" = %s, "A10" = %s
             WHERE "TAJ" = %s
             """
-        values = (F1, F2, F3, F4, F6, 
+        values = (F1, F2, F3, F4, F6,
                   A2_nas_file_path_gerinc, A2_nas_file_path_bukkal, A2_nas_file_path_lingual, A10,
                   TAJ)
         cursor.execute(sql, values)
@@ -430,6 +434,8 @@ def submit_questionnaire2():
         error_msg = f"Adatbázis hiba történt: {str(e)}"
         print(f"Error in submit_questionnaire2: {error_msg}")
         return render_template('error.html', message=error_msg)
+    finally:
+        cursor.close()
 
 @app.route('/submit_questionnaire3', methods=['POST'])
 def submit_questionnaire3():
@@ -479,8 +485,6 @@ def submit_questionnaire3():
     result = cursor.fetchone()
     
     if result[0] == 0:
-        # TAJ does not exist
-        db.close()
         return render_template('error.html', message="Ilyen TAJ még nem található a rendszerben! Kérlek előbb az első kérdőívet töltsd ki!")
 
     sql = """
@@ -499,9 +503,12 @@ def submit_questionnaire3():
               GOHAI_1_recall, GOHAI_2_recall, GOHAI_3_recall, GOHAI_4_recall, GOHAI_5_recall,
               GOHAI_6_recall, GOHAI_7_recall, GOHAI_8_recall, GOHAI_9_recall, GOHAI_10_recall,
               GOHAI_11_recall, GOHAI_12_recall, F9, dropout, TAJ)
-    cursor.execute(sql, values)
-    db.commit()
-    return render_template('confirmation.html')
+    try:
+        cursor.execute(sql, values)
+        db.commit()
+        return render_template('confirmation.html')
+    finally:
+        cursor.close()
 
 @app.route('/upload_init_mai')
 def upload_init_mai():
@@ -514,98 +521,84 @@ def upload_final_mai():
 @app.route('/submit_init_mai', methods=['POST'])
 def submit_init_mai():
     cursor = get_db_cursor()
-    TAJ = request.form['TAJ']
-    
-    # Check if TAJ exists
-    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
-    result = cursor.fetchone()
-    
-    if result[0] == 0:
-        # TAJ does not exist
-        return render_template('error.html', message="Ilyen TAJ még nem található a rendszerben! Kérlek előbb az első kérdőívet töltsd ki!")
+    try:
+        TAJ = request.form['TAJ']
 
-    # Save the image
-    if 'image' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['image']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
+        if cursor.fetchone()[0] == 0:
+            return render_template('error.html', message="Ilyen TAJ még nem található a rendszerben! Kérlek előbb az első kérdőívet töltsd ki!")
 
-        # Calculate both MAI metrics from the same image
-        mai = process_image(file_path)
-        mai_huedegree = calculate_hue_circular_sd(file_path)
+        if 'image' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['image']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
 
-        nas_file_path = upload_to_nas(file_path, TAJ, 'mai_initial')
-        os.remove(file_path)  # Clean up temporary file
+            mai = process_image(file_path)
+            mai_huedegree = calculate_hue_circular_sd(file_path)
+            nas_file_path = upload_to_nas(file_path, TAJ, 'mai_initial')
+            os.remove(file_path)
 
-        # Update the database
-        sql = """
-        UPDATE patients SET 
-        "init_mai" = %s, "init_mai_huedegree" = %s, "init_image_path" = %s
-        WHERE "TAJ" = %s
-        """
-        values = (mai, mai_huedegree, nas_file_path, TAJ)
-        cursor.execute(sql, values)
-        db.commit()
-
-        return render_template('confirmation.html')
-    else:
-        flash('Allowed file types are tiff, tif')
-        return redirect(request.url)
+            sql = """
+            UPDATE patients SET
+            "init_mai" = %s, "init_mai_huedegree" = %s, "init_image_path" = %s
+            WHERE "TAJ" = %s
+            """
+            cursor.execute(sql, (mai, mai_huedegree, nas_file_path, TAJ))
+            db.commit()
+            return render_template('confirmation.html')
+        else:
+            flash('Allowed file types are tiff, tif')
+            return redirect(request.url)
+    finally:
+        cursor.close()
 
 @app.route('/submit_final_mai', methods=['POST'])
 def submit_final_mai():
     cursor = get_db_cursor()
-    TAJ = request.form['TAJ']
-    
-    # Check if TAJ exists
-    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
-    result = cursor.fetchone()
-    
-    if result[0] == 0:
-        # TAJ does not exist
-        return render_template('error.html', message="Ilyen TAJ még nem található a rendszerben! Kérlek előbb az első kérdőívet töltsd ki!")
+    try:
+        TAJ = request.form['TAJ']
 
-    # Save the image
-    if 'image' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['image']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
+        if cursor.fetchone()[0] == 0:
+            return render_template('error.html', message="Ilyen TAJ még nem található a rendszerben! Kérlek előbb az első kérdőívet töltsd ki!")
 
-        # Calculate both MAI metrics from the same image
-        mai = process_image(file_path)
-        mai_huedegree = calculate_hue_circular_sd(file_path)
+        if 'image' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['image']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
 
-        nas_file_path = upload_to_nas(file_path, TAJ, 'mai_final')
-        os.remove(file_path)  # Clean up temporary file
+            mai = process_image(file_path)
+            mai_huedegree = calculate_hue_circular_sd(file_path)
+            nas_file_path = upload_to_nas(file_path, TAJ, 'mai_final')
+            os.remove(file_path)
 
-        # Update the database
-        sql = """
-        UPDATE patients SET 
-        "final_mai" = %s, "final_mai_huedegree" = %s, "final_image_path" = %s
-        WHERE "TAJ" = %s
-        """
-        values = (mai, mai_huedegree, nas_file_path, TAJ)
-        cursor.execute(sql, values)
-        db.commit()
-
-        return render_template('confirmation.html')
-    else:
-        flash('Allowed file types are tiff, tif')
-        return redirect(request.url)
+            sql = """
+            UPDATE patients SET
+            "final_mai" = %s, "final_mai_huedegree" = %s, "final_image_path" = %s
+            WHERE "TAJ" = %s
+            """
+            cursor.execute(sql, (mai, mai_huedegree, nas_file_path, TAJ))
+            db.commit()
+            return render_template('confirmation.html')
+        else:
+            flash('Allowed file types are tiff, tif')
+            return redirect(request.url)
+    finally:
+        cursor.close()
 
 
 def calculate_age(birthdate):
@@ -3283,11 +3276,21 @@ def results():
 BLENDER_API_KEY = os.getenv("BLENDER_API_KEY")
 
 
+def _float_or_none(val):
+    """Cast to float, return None if missing or non-numeric."""
+    if val is None:
+        return None
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return False  # sentinel: field present but invalid
+
+
 @app.route('/api/morphometria', methods=['POST'])
 def api_morphometria():
     """Blender addon végpont: morphometriai adatok feltöltése TAJ szerint."""
-    api_key = request.headers.get('X-API-Key')
-    if not BLENDER_API_KEY or api_key != BLENDER_API_KEY:
+    api_key = request.headers.get('X-API-Key', '')
+    if not BLENDER_API_KEY or not secrets.compare_digest(api_key, BLENDER_API_KEY):
         return jsonify({'error': 'Unauthorized'}), 401
 
     data = request.get_json(silent=True)
@@ -3298,22 +3301,40 @@ def api_morphometria():
     if not TAJ:
         return jsonify({'error': 'Hiányzó TAJ'}), 400
 
-    cursor = get_db_cursor()
-    cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
-    if cursor.fetchone()[0] == 0:
-        return jsonify({'error': f'TAJ ({TAJ}) nem található a rendszerben'}), 404
+    numeric_fields = ('F1', 'F2', 'F3', 'F4', 'F6', 'A10', 'A2_mag_mm')
+    converted = {}
+    for field in numeric_fields:
+        val = _float_or_none(data.get(field))
+        if val is False:
+            return jsonify({'error': f'{field} nem szám'}), 400
+        converted[field] = val
 
+    a2_modszer = data.get('A2_modszer')
+    if a2_modszer not in ('A', 'B'):
+        a2_modszer = None
+
+    cursor = get_db_cursor()
     try:
+        cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
+        if cursor.fetchone()[0] == 0:
+            return jsonify({'error': f'TAJ ({TAJ}) nem található a rendszerben'}), 404
+
         cursor.execute(
             """UPDATE patients SET
-               "F1" = %s, "F2" = %s, "F3" = %s, "F4" = %s,
-               "F6" = %s, "A10" = %s,
-               "A2_mag_mm" = %s, "A2_modszer" = %s
+               "F1"                        = %s,
+               "F2"                        = %s,
+               "F3"                        = %s,
+               "F4"                        = %s,
+               "F6"                        = %s,
+               "A10"                       = %s,
+               "A2_mag_mm"                 = %s,
+               "A2_modszer"                = %s,
+               "modellanalizis_megtortent" = TRUE
                WHERE "TAJ" = %s""",
             (
-                data.get('F1'), data.get('F2'), data.get('F3'),
-                data.get('F4'), data.get('F6'), data.get('A10'),
-                data.get('A2_mag_mm'), data.get('A2_modszer'),
+                converted['F1'], converted['F2'], converted['F3'],
+                converted['F4'], converted['F6'], converted['A10'],
+                converted['A2_mag_mm'], a2_modszer,
                 TAJ,
             )
         )
@@ -3321,7 +3342,10 @@ def api_morphometria():
         return jsonify({'success': True, 'TAJ': TAJ})
     except Exception as e:
         db.rollback()
-        return jsonify({'error': str(e)}), 500
+        app.logger.error("api_morphometria hiba (TAJ=%s): %s", TAJ, e)
+        return jsonify({'error': 'Adatbázis hiba. Kérlek próbáld újra.'}), 500
+    finally:
+        cursor.close()
 
 
 if __name__ == '__main__':
