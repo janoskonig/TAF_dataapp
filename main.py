@@ -3351,9 +3351,9 @@ def results():
         yaxis='Relatív gerincmagasság (mm)',
         line_color='#1f77b4', include_plotlyjs='cdn')
     a2_profile_plot = _build_profile_figure(
-        a2_profile_rows, value='rel',
-        title='A2 – Alsó gerincprofil az áthajláshoz képest',
-        yaxis='Relatív gerincmagasság (mm)',
+        a2_profile_rows, value='d',
+        title='A2 – Alsó gerinc szabványosított magassága',
+        yaxis='Szabványosított gerincmagasság (mm)',
         line_color='#d62728', include_plotlyjs=False)
 
     return render_template('results.html',
@@ -3432,7 +3432,8 @@ def api_morphometria():
     if not TAJ:
         return jsonify({'error': 'Hiányzó TAJ'}), 400
 
-    numeric_fields = ('F1', 'F2', 'F3', 'F4', 'F6', 'A10', 'A2_mag_mm')
+    numeric_fields = ('F1', 'F2', 'F3', 'F4', 'F6', 'A10', 'A2_mag_mm',
+                      'A2_methodA', 'A2_methodB', 'A2_methodC')
     converted = {}
     for field in numeric_fields:
         val = _float_or_none(data.get(field))
@@ -3441,7 +3442,7 @@ def api_morphometria():
         converted[field] = val
 
     a2_modszer = data.get('A2_modszer')
-    if a2_modszer not in ('A', 'B'):
+    if a2_modszer not in ('A', 'B', 'C'):
         a2_modszer = None
 
     # Profile point arrays (list of dicts) → stored as JSON text in dedicated
@@ -3472,6 +3473,9 @@ def api_morphometria():
                "A10"                       = %s,
                "A2_mag_mm"                 = %s,
                "A2_modszer"                = %s,
+               "A2_methodA"                = COALESCE(%s, "A2_methodA"),
+               "A2_methodB"                = COALESCE(%s, "A2_methodB"),
+               "A2_methodC"                = COALESCE(%s, "A2_methodC"),
                "F1_profil"                 = COALESCE(%s, "F1_profil"),
                "A2_profil"                 = COALESCE(%s, "A2_profil"),
                "modellanalizis_megtortent" = TRUE
@@ -3480,6 +3484,7 @@ def api_morphometria():
                 converted['F1'], converted['F2'], converted['F3'],
                 converted['F4'], converted['F6'], converted['A10'],
                 converted['A2_mag_mm'], a2_modszer,
+                converted['A2_methodA'], converted['A2_methodB'], converted['A2_methodC'],
                 profiles['F1_profil'], profiles['A2_profil'],
                 TAJ,
             )
