@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
 import secrets
+import json
 from werkzeug.utils import secure_filename
 import psycopg2
 import os
@@ -3313,6 +3314,18 @@ def api_morphometria():
     if a2_modszer not in ('A', 'B'):
         a2_modszer = None
 
+    # Profile point arrays (list of dicts) → stored as JSON text in dedicated
+    # columns. Must be a list (or None/missing); reject anything else.
+    profiles = {}
+    for field in ('F1_profil', 'A2_profil'):
+        val = data.get(field)
+        if val is None:
+            profiles[field] = None
+        elif isinstance(val, list):
+            profiles[field] = json.dumps(val, ensure_ascii=False) if val else None
+        else:
+            return jsonify({'error': f'{field} nem lista'}), 400
+
     cursor = get_db_cursor()
     try:
         cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
@@ -3329,12 +3342,15 @@ def api_morphometria():
                "A10"                       = %s,
                "A2_mag_mm"                 = %s,
                "A2_modszer"                = %s,
+               "F1_profil"                 = COALESCE(%s, "F1_profil"),
+               "A2_profil"                 = COALESCE(%s, "A2_profil"),
                "modellanalizis_megtortent" = TRUE
                WHERE "TAJ" = %s""",
             (
                 converted['F1'], converted['F2'], converted['F3'],
                 converted['F4'], converted['F6'], converted['A10'],
                 converted['A2_mag_mm'], a2_modszer,
+                profiles['F1_profil'], profiles['A2_profil'],
                 TAJ,
             )
         )
