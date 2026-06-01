@@ -393,6 +393,27 @@
             </div>
         {% endif %}
         
+        <h2>V/B. Gerincprofilok (minden beteg)</h2>
+        <p>Az összes beteg modellanalízisből származó gerincprofilja egy ábrán, betegenként <code>alpha=0.2</code> opacitással. A zöld szaggatott vonal a betegek átlaggörbéje, a szürke sáv a ±1 szórás.</p>
+
+        {% if f1_profile_plot %}
+            <div class="chart-container" style="margin: 15px 0;">
+                <h3>F1 – Felső gerincprofil</h3>
+                {{ f1_profile_plot | safe }}
+            </div>
+        {% else %}
+            <div class="stat-box"><p>Nincs F1_profil adat a betegeknél.</p></div>
+        {% endif %}
+
+        {% if a2_profile_plot %}
+            <div class="chart-container" style="margin: 15px 0;">
+                <h3>A2 – Alsó gerincprofil</h3>
+                {{ a2_profile_plot | safe }}
+            </div>
+        {% else %}
+            <div class="stat-box"><p>Nincs A2_profil adat a betegeknél.</p></div>
+        {% endif %}
+
         <h2>VI. Keresztmetszeti vizsgálat</h2>
         <p>Ez a szekció a kezdeti mérési időpontban végzett statisztikai elemzéseket tartalmazza.</p>
         

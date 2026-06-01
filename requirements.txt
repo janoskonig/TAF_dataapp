@@ -12,3 +12,4 @@ seaborn==0.12.2
 gunicorn==20.1.0
 scipy
 scikit-image
+plotly>=5.0.0

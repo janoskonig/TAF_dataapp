@@ -30,6 +30,7 @@ from scipy.stats import ttest_ind, kruskal, mannwhitneyu, spearmanr, f_oneway, s
 from ftplib import FTP
 from urllib.parse import urlparse
 from skimage.color import rgb2hsv
+import plotly.graph_objects as go
 
 
 app = Flask(__name__)
@@ -2237,6 +2238,115 @@ def perform_cross_sectional_analysis(cursor):
     return results
 
 
+def _build_profile_figure(rows, value='rel', title='', yaxis='',
+                          line_color='#1f77b4', include_plotlyjs='cdn'):
+    """Minden beteg gerincprofilját egy plotly ábrára rajzolja (alpha=0.2),
+    az F1/A2 elemző szkriptek mintájára, kiegészítve egy átlaggörbével és
+    ±SD sávval.
+
+    `rows`     : F1_profil / A2_profil JSON szövegek listája (betegenként egy).
+    `value`    : 'rel' -> z - zref (relatív gerincmagasság, F1 szkript),
+                 'd'   -> d (perpendikuláris távolság, A2_b szkript).
+    Visszatérés: beágyazható plotly HTML töredék, vagy None ha nincs adat.
+    """
+    fig = go.Figure()
+    curves = []        # (xs, ys) np-tömbök az aggregáláshoz
+    n_patients = 0
+
+    for raw in rows:
+        if not raw:
+            continue
+        try:
+            pts = json.loads(raw) if isinstance(raw, str) else raw
+        except Exception:
+            continue
+        if not isinstance(pts, list) or not pts:
+            continue
+
+        # A2 'b' módszernél buccalis/lingualis görbék vannak (side tag) –
+        # oldalanként külön vonalként rajzoljuk, hogy ne ugráljon a görbe.
+        groups = {}
+        for p in pts:
+            groups.setdefault(p.get('side'), []).append(p)
+
+        drew = False
+        for gp in groups.values():
+            gp = sorted(gp, key=lambda r: r.get('x', 0))
+            xy = []
+            for r in gp:
+                x = r.get('x')
+                if x is None:
+                    continue
+                if value == 'd':
+                    y = r.get('d')
+                else:
+                    y = r.get('z')
+                    if y is not None and r.get('zref') is not None:
+                        y = y - r.get('zref')
+                    else:
+                        y = None
+                if y is not None:
+                    xy.append((x, y))
+            if len(xy) < 2:
+                continue
+            xs, ys = zip(*xy)
+            fig.add_trace(go.Scatter(
+                x=xs, y=ys, mode='lines',
+                line=dict(color=line_color, width=1), opacity=0.2,
+                showlegend=False, hoverinfo='skip'))
+            curves.append((np.array(xs, dtype=float), np.array(ys, dtype=float)))
+            drew = True
+        if drew:
+            n_patients += 1
+
+    if not curves:
+        return None
+
+    # Átlag ± SD közös x-rácson (a görbék saját tartományán kívül NaN, hogy
+    # az interpoláció ne torzítson a széleken). Csak legalább 2 betegnél van
+    # értelme — egy betegnél (pl. A2 'b': buccalis + lingualis él) az átlag
+    # félrevezető lenne, mert két oldalt vegyítene egyetlen páciensen belül.
+    if n_patients >= 2:
+        xmin = min(c[0].min() for c in curves)
+        xmax = max(c[0].max() for c in curves)
+        grid = np.linspace(xmin, xmax, 200)
+        stack = []
+        for xs, ys in curves:
+            yi = np.interp(grid, xs, ys)
+            yi[(grid < xs.min()) | (grid > xs.max())] = np.nan
+            stack.append(yi)
+        arr = np.vstack(stack)
+        count = np.sum(~np.isnan(arr), axis=0)
+        valid = count >= 2
+    else:
+        valid = np.array([False])
+    if valid.any():
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', category=RuntimeWarning)
+            mean = np.nanmean(arr, axis=0)
+            std = np.nanstd(arr, axis=0)
+        gx, gm, gs = grid[valid], mean[valid], std[valid]
+        # ±SD sáv
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([gx, gx[::-1]]),
+            y=np.concatenate([gm + gs, (gm - gs)[::-1]]),
+            fill='toself', fillcolor='rgba(120,120,120,0.2)',
+            line=dict(color='rgba(0,0,0,0)'), name='± SD', hoverinfo='skip'))
+        # átlaggörbe
+        fig.add_trace(go.Scatter(
+            x=gx, y=gm, mode='lines',
+            line=dict(color='green', width=2.5, dash='dash'), name='Átlag'))
+
+    fig.update_layout(
+        title=f'{title} (n = {n_patients} beteg)',
+        xaxis_title='Ívmenti távolság a középvonaltól (mm)',
+        yaxis_title=yaxis,
+        template='plotly_white', height=460,
+        margin=dict(l=60, r=20, t=60, b=55),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, x=0))
+    return fig.to_html(full_html=False, include_plotlyjs=include_plotlyjs)
+
+
 @app.route('/results')
 def results():
     cursor = get_db_cursor()
@@ -3228,7 +3338,27 @@ def results():
     
     f_analysis = analyze_f_measurements(cursor)
 
+    # Gerincprofilok: minden beteg F1_profil / A2_profil görbéje egy-egy
+    # plotly ábrán (alpha=0.2), az F1/A2 elemző szkriptek mintájára.
+    cursor.execute('SELECT "F1_profil" FROM patients WHERE "F1_profil" IS NOT NULL')
+    f1_profile_rows = [r[0] for r in cursor.fetchall()]
+    cursor.execute('SELECT "A2_profil" FROM patients WHERE "A2_profil" IS NOT NULL')
+    a2_profile_rows = [r[0] for r in cursor.fetchall()]
+
+    f1_profile_plot = _build_profile_figure(
+        f1_profile_rows, value='rel',
+        title='F1 – Felső gerincprofil az áthajláshoz képest',
+        yaxis='Relatív gerincmagasság (mm)',
+        line_color='#1f77b4', include_plotlyjs='cdn')
+    a2_profile_plot = _build_profile_figure(
+        a2_profile_rows, value='rel',
+        title='A2 – Alsó gerincprofil az áthajláshoz képest',
+        yaxis='Relatív gerincmagasság (mm)',
+        line_color='#d62728', include_plotlyjs=False)
+
     return render_template('results.html',
+                        f1_profile_plot=f1_profile_plot,
+                        a2_profile_plot=a2_profile_plot,
                         patient_count=patient_count,
                         dropout_count=dropout_count,
                         lower_denture_count=lower_denture_count,
