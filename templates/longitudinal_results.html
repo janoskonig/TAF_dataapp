@@ -46,7 +46,7 @@
     <nav class="results-nav"><a href="{{ url_for('welcome') }}">← PREDICT főoldal</a></nav>
     <header class="hero">
         <p class="eyebrow">Előre rögzített pilot elemzés · csak denture_type = both</p>
-        <h1>Anatómiai hátrányterhelés és utánkövetési kimenetek</h1>
+        <h1>Anatómiai képletek és utánkövetési kimenetek</h1>
         <p class="lead">Az elsődleges eredmény a nem dichotomizált OHIP-, GOHAI- és MAI-kimenetek kiindulási értékre korrigált β-együtthatója. Az ordinális OR kizárólag másodlagos anchor-validáció.</p>
     </header>
 
@@ -72,7 +72,7 @@
 
     <section class="viz-grid" aria-label="Valódi adatlefedettségi ábrák">
         <article class="card chart-card"><h2>Valódi adatlefedettség</h2><p class="muted small">Az értékelhető utánkövetések száma a teljes kétállcsontos kohorszhoz viszonyítva.</p><div class="plot-wrap">{{ report.charts.coverage | safe }}</div></article>
-        <article class="card chart-card"><h2>Valódi anatómiai tehereloszlás</h2><p class="muted small">A 0–5 előre definiált összpontszám gyakorisága a rendelkezésre álló kiindulási adatokban.</p><div class="plot-wrap">{{ report.charts.anatomy | safe }}</div></article>
+        <article class="card chart-card"><h2>Valódi anatómiai képletek</h2><p class="muted small">Minden képlet külön 0–1 kedvezőtlenségi skálán; 0 = kedvező, 1 = legkedvezőtlenebb. Ez nem összesített teherpontszám.</p><div class="plot-wrap">{{ report.charts.anatomy | safe }}</div></article>
     </section>
 
     <section class="card chart-card result-section" aria-label="Valódi párosított kimeneti ábra">
@@ -159,8 +159,10 @@
         {% endif %}
         <ul class="method-list">
             <li>Kizárólag a kétállcsontos kohorsz szerepel; a legfrissebb betegrekordot használjuk.</li>
-            <li>Az elsődleges prediktor a gerincatrophia, torus, lingualis tasak, tuberculum és szájfenék előre rögzített 0–5 összpontszáma.</li>
-            <li>A külön konstrukciók exploratívak; p-értékeik kimenetenként Benjamini–Hochberg FDR-korrekciót kapnak.</li>
+            <li>Nincs összesített anatómiai teherpontszám: az F5, F7, A1, A3–A9 és A11–A13 képletek külön prediktorként szerepelnek.</li>
+            <li>A kétoldali képletek két oldalát előre rögzített szabállyal egyetlen 0–1 képletszintű értékké vonjuk össze; a pontos kódolás minden táblázatsor mellett látható.</li>
+            <li>Az A3 kedvező/kedvezőtlen iránya klinikai feltevés, ezért érzékenységi jellegű. F8 és A14 az antagonista fogazat/protetikai státusz leírása, ezért nem anatómiai képletként szerepel.</li>
+            <li>A képletenkénti többszörös vizsgálatok p-értékei kimenetenként Benjamini–Hochberg FDR-korrekciót kapnak.</li>
             <li>Legalább {{ report.minimum_model_n }} teljes eset alatt valódi regressziós vagy OR-pontbecslés technikailag sem készül; a demonstráció helyét legalább {{ report.real_model_switch_n }} teljes esettel rendelkező valódi elsődleges modellek veszik át.</li>
             <li>A becslések asszociációk, nem bizonyítanak oksági hatást. A visszatérési szelekció és a széles intervallumok különösen fontos korlátok.</li>
         </ul>
