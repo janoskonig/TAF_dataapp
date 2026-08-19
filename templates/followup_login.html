@@ -1,0 +1,15 @@
+{% extends "followup_base.html" %}
+{% block title %}Belépés · PREDICT utánkövetés{% endblock %}
+{% block content %}
+<section class="login-card card">
+    <p class="eyebrow">Klinikai munkafelület</p>
+    <h1>Utánkövetési vizitek</h1>
+    <p class="lead">A beteglista és az egészségügyi adatok védett felületének megnyitása.</p>
+    <form method="post" class="stack-form">
+        <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+        <label for="access_code">Hozzáférési kód</label>
+        <input id="access_code" name="access_code" type="password" autocomplete="current-password" required autofocus>
+        <button class="button button-primary" type="submit">Belépés</button>
+    </form>
+</section>
+{% endblock %}

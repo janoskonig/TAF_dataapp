@@ -1,0 +1,63 @@
+{
+  "design": "cross-sectional",
+  "primary_outcome": "QoL_worse = z(mean(z(OHIP), -z(GOHAI)))",
+  "secondary_outcomes": [
+    "MAI_worse",
+    "chewing_worse"
+  ],
+  "qol_component_pearson_r": 0.7350612241680305,
+  "qol_two_item_alpha": 0.8473029238728975,
+  "neutral_prior": "Normal(0, 0.5^2)",
+  "directional_sensitivity_prior": "two-piece sign-weighted Normal magnitude prior; q weak=.80, moderate=.90, strong=.98",
+  "directional_sensitivity_warning": "Elicited mechanical directions are forced onto cross-sectional outcomes only as sensitivity.",
+  "multivariable_models": [
+    {
+      "model": "lower_expanded",
+      "outcome": "QoL_worse",
+      "n": 33,
+      "parameters_including_intercept": 10,
+      "importance_ess": 5864.162142098256,
+      "r_squared_likelihood_fit": 0.2991478151604542
+    },
+    {
+      "model": "upper_core",
+      "outcome": "QoL_worse",
+      "n": 33,
+      "parameters_including_intercept": 8,
+      "importance_ess": 67561.76451537498,
+      "r_squared_likelihood_fit": 0.1588119833941023
+    },
+    {
+      "model": "lower_expanded",
+      "outcome": "MAI_worse",
+      "n": 30,
+      "parameters_including_intercept": 10,
+      "importance_ess": 229.62093117926102,
+      "r_squared_likelihood_fit": 0.2940653761968748
+    },
+    {
+      "model": "upper_core",
+      "outcome": "MAI_worse",
+      "n": 31,
+      "parameters_including_intercept": 8,
+      "importance_ess": 30931.443269357613,
+      "r_squared_likelihood_fit": 0.25837634570591606
+    },
+    {
+      "model": "lower_expanded",
+      "outcome": "chewing_worse",
+      "n": 33,
+      "parameters_including_intercept": 10,
+      "importance_ess": 1430.753037595123,
+      "r_squared_likelihood_fit": 0.27539237616755763
+    },
+    {
+      "model": "upper_core",
+      "outcome": "chewing_worse",
+      "n": 33,
+      "parameters_including_intercept": 8,
+      "importance_ess": 81022.35783766244,
+      "r_squared_likelihood_fit": 0.1779385840215626
+    }
+  ]
+}

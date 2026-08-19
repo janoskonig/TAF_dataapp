@@ -1,0 +1,351 @@
+{
+  "analysis_date": "2026-08-19",
+  "status": "exploratory_cross_sectional_pilot",
+  "cohort": {
+    "source_n": 48,
+    "unique_record_id_n": 48,
+    "lower_or_both_n": 41,
+    "complete_score_n": 40,
+    "complete_score_OHIP_n": 40,
+    "digital_folder_n": 17,
+    "digital_matched_source_n": 17,
+    "digital_lower_or_both_n": 14
+  },
+  "score_distribution": {
+    "0": 6,
+    "1": 7,
+    "2": 8,
+    "3": 15,
+    "4": 3,
+    "5": 1
+  },
+  "score_descriptives": {
+    "binary_mean": 2.125,
+    "binary_median": 2.0,
+    "binary_q1": 1.0,
+    "binary_q3": 3.0,
+    "binary_min": 0.0,
+    "binary_max": 5.0,
+    "graded_mean": 2.1249999999999996,
+    "graded_median": 2.239583333333333,
+    "graded_q1": 1.203125,
+    "graded_q3": 2.755208333333333,
+    "graded_min": 0.0,
+    "graded_max": 4.375
+  },
+  "binary_component_prevalence": {
+    "Gerincatrophia": {
+      "events": 23,
+      "n": 41,
+      "proportion": 0.5609756097560976
+    },
+    "Torus mandibularis": {
+      "events": 8,
+      "n": 40,
+      "proportion": 0.2
+    },
+    "Lingualis tasak": {
+      "events": 27,
+      "n": 41,
+      "proportion": 0.6585365853658537
+    },
+    "Tuberculum-blokk": {
+      "events": 20,
+      "n": 41,
+      "proportion": 0.4878048780487805
+    },
+    "Szájfenék": {
+      "events": 7,
+      "n": 41,
+      "proportion": 0.17073170731707318
+    }
+  },
+  "OHIP_by_binary_score": {
+    "0": {
+      "n": 6,
+      "mean": 6.666666666666667,
+      "median": 5.0,
+      "q1": 2.25,
+      "q3": 7.0
+    },
+    "1": {
+      "n": 7,
+      "mean": 4.0,
+      "median": 2.0,
+      "q1": 0.0,
+      "q3": 5.0
+    },
+    "2": {
+      "n": 8,
+      "mean": 6.625,
+      "median": 5.5,
+      "q1": 4.0,
+      "q3": 8.0
+    },
+    "3": {
+      "n": 15,
+      "mean": 7.133333333333334,
+      "median": 6.0,
+      "q1": 4.5,
+      "q3": 8.5
+    },
+    "4": {
+      "n": 3,
+      "mean": 5.333333333333333,
+      "median": 6.0,
+      "q1": 4.0,
+      "q3": 7.0
+    },
+    "5": {
+      "n": 1,
+      "mean": 8.0,
+      "median": 8.0,
+      "q1": 8.0,
+      "q3": 8.0
+    }
+  },
+  "associations": {
+    "primary_binary_vs_OHIP": {
+      "label": "primary_binary_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.2079421995258264,
+      "ci_low": -0.1184443189401824,
+      "ci_high": 0.49825277216025304,
+      "permutation_p_two_sided": 0.19874006299685015
+    },
+    "graded_vs_OHIP": {
+      "label": "graded_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.28668614409526316,
+      "ci_low": -0.03983182762474385,
+      "ci_high": 0.5826024587976792,
+      "permutation_p_two_sided": 0.07239638018099095
+    },
+    "primary_binary_vs_GOHAI_worse": {
+      "label": "primary_binary_vs_GOHAI_worse",
+      "n": 40,
+      "status": "ok",
+      "rho": -0.04244432195226389,
+      "ci_low": -0.3566383146776448,
+      "ci_high": 0.2692358050950384,
+      "permutation_p_two_sided": 0.7884105794710264
+    },
+    "primary_binary_vs_MAI": {
+      "label": "primary_binary_vs_MAI",
+      "n": 34,
+      "status": "ok",
+      "rho": -0.22998601281429312,
+      "ci_low": -0.5527225967520677,
+      "ci_high": 0.12644041536924377,
+      "permutation_p_two_sided": 0.19074046297685116
+    },
+    "primary_binary_vs_chewing_worse": {
+      "label": "primary_binary_vs_chewing_worse",
+      "n": 40,
+      "status": "ok",
+      "rho": -0.021173989704598963,
+      "ci_low": -0.3537589593286034,
+      "ci_high": 0.3107764321297021,
+      "permutation_p_two_sided": 0.8950552472376381
+    },
+    "primary_binary_vs_QoL_composite": {
+      "label": "primary_binary_vs_QoL_composite",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.05791439956690328,
+      "ci_low": -0.2543407062237023,
+      "ci_high": 0.3631246014956064,
+      "permutation_p_two_sided": 0.7262636868156592
+    },
+    "graded_worst_side_vs_OHIP": {
+      "label": "graded_worst_side_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.21584963741076824,
+      "ci_low": -0.11539292171020409,
+      "ci_high": 0.5136652504955358,
+      "permutation_p_two_sided": 0.18094095295235238
+    },
+    "graded_without_A8_vs_OHIP": {
+      "label": "graded_without_A8_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.2832162272949539,
+      "ci_low": -0.04403857476615089,
+      "ci_high": 0.574543594067774,
+      "permutation_p_two_sided": 0.07369631518424079
+    },
+    "binary_A1_only_ridge_vs_OHIP": {
+      "label": "binary_A1_only_ridge_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.24816484292860522,
+      "ci_low": -0.06874330021863168,
+      "ci_high": 0.5388875964319979,
+      "permutation_p_two_sided": 0.12049397530123494
+    },
+    "binary_without_A8_vs_OHIP": {
+      "label": "binary_without_A8_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.18679025465680796,
+      "ci_low": -0.12515514696299432,
+      "ci_high": 0.4787246352515864,
+      "permutation_p_two_sided": 0.24763761811909404
+    },
+    "digital_binary_vs_OHIP": {
+      "label": "digital_binary_vs_OHIP",
+      "n": 13,
+      "status": "ok",
+      "rho": 0.4069968470031525,
+      "ci_low": -0.19557879403098133,
+      "ci_high": 0.8495930925363887,
+      "permutation_p_two_sided": 0.16604169791510426
+    }
+  },
+  "adjusted_models": {
+    "binary_count_OHIP": {
+      "predictor": "binary_count_0_5",
+      "outcome": "OHIP_sum",
+      "n": 34,
+      "status": "ok",
+      "beta_per_point": 0.5189291383522874,
+      "robust_se": 0.8130460703787902,
+      "ci_low": -1.0746118773619597,
+      "ci_high": 2.1124701540665343,
+      "p_two_sided": 0.523308965675757,
+      "r_squared": 0.13159684700717422
+    },
+    "graded_score_OHIP": {
+      "predictor": "graded_score_0_5",
+      "outcome": "OHIP_sum",
+      "n": 34,
+      "status": "ok",
+      "beta_per_point": 1.079083285360411,
+      "robust_se": 1.1837076870056449,
+      "ci_low": -1.2409411493938642,
+      "ci_high": 3.399107720114686,
+      "p_two_sided": 0.361972490019119,
+      "r_squared": 0.1501747184994362
+    }
+  },
+  "score_sensitivity": [
+    {
+      "specification": "Egész pontos, elsődleges",
+      "label": "primary_binary_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.2079421995258264,
+      "ci_low": -0.1184443189401824,
+      "ci_high": 0.49825277216025304,
+      "permutation_p_two_sided": 0.19874006299685015
+    },
+    {
+      "specification": "Fokozatos, oldalátlag",
+      "label": "graded_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.28668614409526316,
+      "ci_low": -0.03983182762474385,
+      "ci_high": 0.5826024587976792,
+      "permutation_p_two_sided": 0.07239638018099095
+    },
+    {
+      "specification": "Fokozatos, rosszabbik oldal",
+      "label": "graded_worst_side_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.21584963741076824,
+      "ci_low": -0.11539292171020409,
+      "ci_high": 0.5136652504955358,
+      "permutation_p_two_sided": 0.18094095295235238
+    },
+    {
+      "specification": "Fokozatos, A8 nélkül",
+      "label": "graded_without_A8_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.2832162272949539,
+      "ci_low": -0.04403857476615089,
+      "ci_high": 0.574543594067774,
+      "permutation_p_two_sided": 0.07369631518424079
+    },
+    {
+      "specification": "Egész pontos, gerinc csak A1",
+      "label": "binary_A1_only_ridge_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.24816484292860522,
+      "ci_low": -0.06874330021863168,
+      "ci_high": 0.5388875964319979,
+      "permutation_p_two_sided": 0.12049397530123494
+    },
+    {
+      "specification": "Egész pontos, tuberculum A8 nélkül",
+      "label": "binary_without_A8_vs_OHIP",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.18679025465680796,
+      "ci_low": -0.12515514696299432,
+      "ci_high": 0.4787246352515864,
+      "permutation_p_two_sided": 0.24763761811909404
+    }
+  ],
+  "leave_one_construct_out": {
+    "ridge_binary": {
+      "label": "leave_out_ridge_binary",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.19569703514998593,
+      "ci_low": -0.13535692723918624,
+      "ci_high": 0.5099032815104809,
+      "permutation_p_two_sided": 0.22548872556372182
+    },
+    "torus_binary": {
+      "label": "leave_out_torus_binary",
+      "n": 41,
+      "status": "ok",
+      "rho": 0.3087365363681145,
+      "ci_low": -0.009698559194748078,
+      "ci_high": 0.5779337557411229,
+      "permutation_p_two_sided": 0.04899755012249388
+    },
+    "lingual_binary": {
+      "label": "leave_out_lingual_binary",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.19261930074870523,
+      "ci_low": -0.1297415538773983,
+      "ci_high": 0.4904863895183426,
+      "permutation_p_two_sided": 0.22973851307434628
+    },
+    "tuberculum_binary": {
+      "label": "leave_out_tuberculum_binary",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.21575062303134762,
+      "ci_low": -0.07896282272224668,
+      "ci_high": 0.4847861569588585,
+      "permutation_p_two_sided": 0.17669116544172792
+    },
+    "floor_binary": {
+      "label": "leave_out_floor_binary",
+      "n": 40,
+      "status": "ok",
+      "rho": 0.12089390136592006,
+      "ci_low": -0.20257362146049182,
+      "ci_high": 0.42366305271380333,
+      "permutation_p_two_sided": 0.4610269486525674
+    }
+  },
+  "outputs": {
+    "figures": [
+      "anatomiai_hatranyterheles_score_eloszlas.png",
+      "anatomiai_hatranyterheles_ohip.png",
+      "anatomiai_hatranyterheles_kimenetek.png"
+    ],
+    "report": "PREDICT_anatomiai_hatranyterheles_report.md"
+  }
+}

@@ -3,3 +3,7 @@ test.py
 docs/
 taf_app_kapin.key
 mai/
+patients.csv
+__pycache__/
+*.py[cod]
+.DS_Store

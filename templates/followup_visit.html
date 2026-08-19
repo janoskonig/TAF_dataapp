@@ -1,0 +1,136 @@
+{% extends "followup_base.html" %}
+{% block title %}{{ patient.study_code }} · PREDICT utánkövetés{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{{ url_for('followup.dashboard') }}">← Vissza a beteglistához</a></div>
+<header class="visit-header">
+    <div>
+        <p class="eyebrow">Utánkövetési vizit</p>
+        <h1>{{ patient.study_code }}</h1>
+        <p class="lead">{{ patient.masked_taj }} · kizárólag kétállcsontos kohorsz</p>
+    </div>
+    {% if patient.completed_at %}<span class="badge badge-success">Vizit lezárva</span>{% endif %}
+</header>
+
+<section class="progress-grid" aria-label="Vizit előrehaladása">
+    <div class="progress-item {% if patient.consent_confirmed %}complete{% else %}pending{% endif %}">
+        <strong>1. Beléptetés</strong><span>{% if patient.consent_confirmed %}Kész{% else %}Beleegyezés hiányzik{% endif %}</span>
+    </div>
+    <div class="progress-item {% if patient.questionnaire_complete %}complete{% else %}pending{% endif %}">
+        <strong>2. Kérdőív</strong><span>{% if patient.questionnaire_complete %}Kész{% else %}Kitöltendő{% endif %}</span>
+    </div>
+    <div class="progress-item {% if patient.f9_complete %}complete{% else %}pending{% endif %}">
+        <strong>3. F9</strong><span>{% if patient.f9_complete %}Kész{% else %}Rögzítendő{% endif %}</span>
+    </div>
+    <div class="progress-item {% if patient.mai_complete or not patient.mai_eligible %}complete{% else %}pending{% endif %}">
+        <strong>4. MAI</strong>
+        <span>{% if not patient.mai_eligible %}Nincs kiindulási pár{% elif patient.mai_complete %}Kész{% else %}Elvégzendő{% endif %}</span>
+    </div>
+</section>
+
+<section class="card section-card">
+    <div class="section-head">
+        <div><h2>Megkeresés és időpont</h2><p class="muted">A visszautasítás vagy távolmaradás okát csak akkor rögzítsd, ha önként megadja.</p></div>
+    </div>
+    <form action="{{ url_for('followup.save_logistics', patient_id=patient.patient_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+        <div class="grid grid-3">
+            <div>
+                <label class="field-label" for="visit_status">Státusz</label>
+                {% set current_status = patient.visit_status or 'not_contacted' %}
+                <select id="visit_status" name="visit_status">
+                    <option value="not_contacted" {% if current_status == 'not_contacted' %}selected{% endif %}>Még nem kerestük</option>
+                    <option value="contacted" {% if current_status == 'contacted' %}selected{% endif %}>Elértük</option>
+                    <option value="scheduled" {% if current_status == 'scheduled' %}selected{% endif %}>Időpont egyeztetve</option>
+                    <option value="arrived" {% if current_status == 'arrived' %}selected{% endif %}>Megjelent</option>
+                    {% if current_status == 'completed' %}<option value="completed" selected>Lezárt vizit</option>{% endif %}
+                    <option value="declined" {% if current_status == 'declined' %}selected{% endif %}>Visszautasította</option>
+                    <option value="no_show" {% if current_status == 'no_show' %}selected{% endif %}>Nem jelent meg</option>
+                    <option value="unreachable" {% if current_status == 'unreachable' %}selected{% endif %}>Nem elérhető</option>
+                </select>
+            </div>
+            <div>
+                <label class="field-label" for="appointment_at">Időpont</label>
+                <input id="appointment_at" name="appointment_at" type="datetime-local" value="{% if patient.appointment_at %}{{ patient.appointment_at.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+            </div>
+            <div>
+                <label class="field-label" for="nonattendance_reason">Távolmaradás/visszautasítás oka</label>
+                <input id="nonattendance_reason" name="nonattendance_reason" type="text" value="{{ patient.nonattendance_reason or '' }}">
+            </div>
+        </div>
+        <label class="field-label" for="contact_note">Szervezési megjegyzés</label>
+        <textarea id="contact_note" name="contact_note">{{ patient.contact_note or '' }}</textarea>
+        <div class="form-actions"><button class="button button-primary" type="submit">Szervezési adatok mentése</button></div>
+    </form>
+</section>
+
+<section class="card section-card">
+    <div class="section-head"><div><h2>Beléptetés és F9</h2><p class="muted">A beleegyezést csak a jóváhagyott tájékoztatás után jelöld.</p></div></div>
+    <form action="{{ url_for('followup.save_intake', patient_id=patient.patient_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+        <label class="checkbox-line">
+            <input type="checkbox" name="consent_confirmed" value="1" {% if patient.consent_confirmed %}checked{% endif %}>
+            <span><strong>Az utánkövetéshez szükséges beleegyezés dokumentált</strong><br><span class="muted small">Ez nem helyettesíti a jóváhagyott beleegyezési folyamatot.</span></span>
+        </label>
+        <div class="grid grid-3" style="margin-top:16px">
+            <div><label class="field-label" for="data_collector">Adatfelvevő monogramja</label><input id="data_collector" name="data_collector" type="text" maxlength="30" value="{{ patient.data_collector or '' }}"></div>
+            <div><label class="field-label" for="months_since_delivery">Fogsorátadás óta eltelt hónap</label><input id="months_since_delivery" name="months_since_delivery" type="number" min="0" step="0.1" value="{{ patient.months_since_delivery if patient.months_since_delivery is not none else '' }}"></div>
+            <div>
+                <label class="field-label" for="f9">F9 – garatreflex</label>
+                <select id="f9" name="f9">
+                    <option value="">Válassz…</option>
+                    <option value="1" {% if patient.f9_value|string == '1' %}selected{% endif %}>1 – nincs</option>
+                    <option value="2" {% if patient.f9_value|string == '2' %}selected{% endif %}>2 – van, nem befolyásolta</option>
+                    <option value="3" {% if patient.f9_value|string == '3' %}selected{% endif %}>3 – jelentősen befolyásolta</option>
+                </select>
+            </div>
+        </div>
+        <div class="grid grid-2" style="margin-top:16px">
+            <div><label class="field-label" for="interim_adjustments">Köztes fogsorkorrekciók</label><textarea id="interim_adjustments" name="interim_adjustments">{{ patient.interim_adjustments or '' }}</textarea></div>
+            <div><label class="field-label" for="interim_events">Lényeges köztes események</label><textarea id="interim_events" name="interim_events">{{ patient.interim_events or '' }}</textarea></div>
+        </div>
+        <div class="form-actions"><button class="button button-primary" type="submit">Beléptetés mentése</button></div>
+    </form>
+</section>
+
+<section class="card section-card">
+    <div class="section-head">
+        <div><h2>OHIP–GOHAI–anchor kérdőív</h2><p class="muted">21 kötelező, előre ki nem választott válasz.</p></div>
+        {% if patient.questionnaire_complete %}
+            <span class="badge badge-success">Kész{% if patient.questionnaire_source == 'legacy' %}, korábbi adatból{% endif %}</span>
+        {% else %}
+            <a class="button button-primary" href="{{ url_for('followup.questionnaire', patient_id=patient.patient_id) }}">Kérdőív indítása</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="card section-card">
+    <div class="section-head">
+        <div><h2>Utánkövetési MAI</h2><p class="muted">Csak annál szükséges, akinél rendelkezésre áll kiindulási hue-degree.</p></div>
+        {% if patient.mai_complete %}<span class="badge badge-success">Kész</span>{% endif %}
+    </div>
+    {% if not patient.mai_eligible %}
+        <div class="flash flash-info">Nincs kiindulási MAI hue-degree; longitudinális MAI-pár utólag nem képezhető.</div>
+    {% elif patient.mai_complete %}
+        <p class="muted">Az utánkövetési MAI-adat már rendelkezésre áll.</p>
+    {% else %}
+        <form action="{{ url_for('followup.save_mai', patient_id=patient.patient_id) }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+            <div class="grid grid-2">
+                <div><label class="field-label" for="image">Standardizált TIFF-kép</label><input id="image" name="image" type="file" accept="image/tiff,.tif,.tiff" required></div>
+                <div><label class="field-label" for="mai_note">MAI-megjegyzés</label><input id="mai_note" name="mai_note" type="text"></div>
+            </div>
+            <div class="form-actions"><button class="button button-primary" type="submit">MAI feldolgozása és mentése</button></div>
+        </form>
+    {% endif %}
+</section>
+
+<section class="card section-card">
+    <div class="section-head">
+        <div><h2>Vizit lezárása</h2><p class="muted">A rendszer mentés előtt ellenőrzi a beleegyezést, a kérdőívet, az F9-et és – ha képezhető – a MAI-párt.</p></div>
+    </div>
+    <form action="{{ url_for('followup.complete_visit', patient_id=patient.patient_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+        <div class="form-actions"><button class="button button-primary" type="submit">Hiányellenőrzés és lezárás</button></div>
+    </form>
+</section>
+{% endblock %}

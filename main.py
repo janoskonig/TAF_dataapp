@@ -33,8 +33,9 @@ from skimage.color import rgb2hsv
 import plotly.graph_objects as go
 
 
+load_dotenv(dotenv_path=".env")
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 UPLOAD_FOLDER = 'uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 nas_host = os.getenv("NAS_HOST")
@@ -43,9 +44,12 @@ nas_password = os.getenv("NAS_PASS")
 nas_folder = os.getenv("NAS_DIR")
 
 def upload_to_nas(file_path, TAJ, measurement_type):
-    if measurement_type not in ['mai_initial', 'mai_final', 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
-        raise ValueError("measurement_type must be either 'initial_mai', 'final_mai', 'A2_gerinc', 'A2_bukkalis', or 'A2_lingualis'")
-    if measurement_type == 'mai_initial' or measurement_type == 'mai_final':
+    if measurement_type not in ['mai_initial', 'mai_final', 'mai_followup', 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
+        raise ValueError("Unsupported measurement_type")
+    if measurement_type == 'mai_followup':
+        timestamp = datetime.now(BUDAPEST_TZ).strftime('%Y%m%d_%H%M%S')
+        filename = f"{measurement_type}_{TAJ}_{timestamp}.tiff"
+    elif measurement_type == 'mai_initial' or measurement_type == 'mai_final':
         filename = f"{measurement_type}_{TAJ}.tiff"
     else:
         filename = f"modellanalizis_{TAJ}_{measurement_type}.stl"
@@ -78,9 +82,6 @@ def download_from_nas(ftp_url, local_path):
 # Create upload directory if it doesn't exist
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-# Load environment variables from .env file
-load_dotenv(dotenv_path=".env")
-
 # Retrieve PostgreSQL connection URL
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
@@ -217,6 +218,19 @@ def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'tiff', 'tif'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+from followup import create_followup_blueprint
+
+app.register_blueprint(
+    create_followup_blueprint(
+        connection_factory=create_db_connection,
+        hue_calculator=calculate_hue_circular_sd,
+        nas_uploader=upload_to_nas,
+        upload_folder=UPLOAD_FOLDER,
+        allowed_file=allowed_file,
+    )
+)
 
 @app.route('/')
 def welcome():
@@ -3135,8 +3149,8 @@ def results():
             effect_size_heatmap = None
             top_effects = []
 
-        # Clinical relevance summary:
-        # do "difference from reference patient (919-191-919)" flags link to QoL/mixing?
+        # Clinical relevance summary: does difference from the configured
+        # reference patient link to QoL/mixing outcomes?
         clinical_links = []
         clinical_summary = {
             'tested_pairs': 0,
@@ -3144,11 +3158,14 @@ def results():
             'moderate_or_stronger_pairs': 0
         }
         clinical_heatmap = None
-        reference_taj = '919-191-919'
+        reference_taj = os.getenv('REFERENCE_TAJ', '').strip()
         reference_found = False
         reference_usable = False
         reference_message = ''
         try:
+            if not reference_taj:
+                reference_message = 'Nincs etalon páciens beállítva.'
+                raise ValueError(reference_message)
             clinical_df = df.copy()
             clinical_df['delta_mai_huedegree'] = clinical_df['final_mai_huedegree'] - clinical_df['init_mai_huedegree']
             clinical_df['TAJ_normalized'] = clinical_df['TAJ'].astype(str).str.replace(r'\D', '', regex=True)

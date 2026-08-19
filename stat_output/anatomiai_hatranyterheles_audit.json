@@ -1,0 +1,26 @@
+{
+  "source_file": "patients.csv",
+  "source_sha256": "83cf95cb513ddd5b8bcfde5b9290e2399c3718f9477da40379cd6d511cce5c06",
+  "source_rows": 48,
+  "unique_record_ids": 48,
+  "duplicate_record_ids": 0,
+  "lower_or_both_rows": 41,
+  "complete_score_rows": 40,
+  "score_distribution_total": 40,
+  "distribution_reconciles": true,
+  "score_bounds_valid": true,
+  "strict_OHIP_complete_n": 41,
+  "strict_GOHAI_complete_n": 41,
+  "MAI_complete_n": 35,
+  "invalid_age_excluded_n": 0,
+  "digital_root_available": true,
+  "digital_folder_n": 17,
+  "digital_matched_source_n": 17,
+  "pii_columns_written": [],
+  "patient_level_rows_written": 0,
+  "resampling": {
+    "bootstrap": 10000,
+    "permutations": 20000,
+    "seed": 20260819
+  }
+}

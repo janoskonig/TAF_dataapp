@@ -1,0 +1,80 @@
+{
+  "analysis": "A1 mandibular ridge form outcome profile",
+  "status": "exploratory cross-sectional pilot",
+  "data_audit": {
+    "source_rows": 48,
+    "mandibular_target_rows": 41,
+    "common_complete_rows": 35,
+    "excluded_from_common_sample": 6,
+    "target_missing_A1": 0,
+    "target_missing_MAI": 6,
+    "target_missing_OHIP5": 0,
+    "target_missing_self_rated_chewing": 0
+  },
+  "bootstrap_replicates": 50000,
+  "associations": {
+    "OHIP5_worse": {
+      "label": "OHIP-5 – beteg által megélt teher",
+      "n": 35,
+      "spearman_rho": 0.3620797404722459,
+      "bootstrap_95_ci": [
+        0.05536571134015138,
+        0.6139228562100392
+      ],
+      "leave_one_out_range": [
+        0.3203497289231442,
+        0.40796513201426043
+      ]
+    },
+    "chewing_worse": {
+      "label": "Önértékelt rágóképesség",
+      "n": 35,
+      "spearman_rho": -0.06087807260217201,
+      "bootstrap_95_ci": [
+        -0.4266050773262443,
+        0.2955028449695713
+      ],
+      "leave_one_out_range": [
+        -0.13781070077037008,
+        -0.008361453681472966
+      ]
+    },
+    "MAI_worse": {
+      "label": "MAI – objektív rágásteljesítmény",
+      "n": 35,
+      "spearman_rho": 0.03525441826154563,
+      "bootstrap_95_ci": [
+        -0.3188001091215054,
+        0.3880463296601442
+      ],
+      "leave_one_out_range": [
+        -0.03346475646470077,
+        0.10774140445021409
+      ]
+    }
+  },
+  "contrasts": {
+    "OHIP5_minus_MAI": {
+      "delta_rho": 0.32682532221070026,
+      "bootstrap_95_ci": [
+        -0.1330369192874155,
+        0.7625259861481634
+      ],
+      "leave_one_out_range": [
+        0.2248360169658148,
+        0.39957997131549194
+      ]
+    },
+    "OHIP5_minus_self_rated_chewing": {
+      "delta_rho": 0.42295781307441793,
+      "bootstrap_95_ci": [
+        0.036999723085070185,
+        0.8057130078357925
+      ],
+      "leave_one_out_range": [
+        0.3350160228101299,
+        0.4943918350429496
+      ]
+    }
+  }
+}

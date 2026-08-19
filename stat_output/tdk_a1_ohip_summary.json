@@ -1,0 +1,43 @@
+{
+  "analysis": "TDK A1 mandibular ridge form vs OHIP-5",
+  "status": "exploratory cross-sectional pilot",
+  "data_audit": {
+    "source_rows": 48,
+    "target_jaw_rows": 41,
+    "primary_complete_rows": 41,
+    "target_rows_missing_A1": 0,
+    "target_rows_incomplete_OHIP5": 0,
+    "implausible_ages_set_missing": 0
+  },
+  "primary_association": {
+    "n": 41,
+    "spearman_rho": 0.3381931091617403,
+    "bootstrap_95_ci": [
+      0.045093430781853475,
+      0.592237268939904
+    ],
+    "permutation_p_two_sided": 0.030348482575871208,
+    "bootstrap_valid_replicates": 20000,
+    "permutation_replicates": 20000,
+    "leave_one_out_rho_range": [
+      0.30639921381728247,
+      0.40980614964955914
+    ]
+  },
+  "adjusted_sensitivity": {
+    "n": 35,
+    "contrast": "A1 risk 0 to 1 (category 1 to saturated categories 4-5)",
+    "ohip5_difference": 4.78035615637063,
+    "hc3_95_ci": [
+      0.4962634885130228,
+      9.064448824228236
+    ],
+    "p_value": 0.028742264388148434,
+    "r_squared": 0.1904353032682834,
+    "covariates": [
+      "age",
+      "sex",
+      "both vs lower denture type"
+    ]
+  }
+}

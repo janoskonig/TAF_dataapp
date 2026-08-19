@@ -1,0 +1,100 @@
+{% extends "followup_base.html" %}
+{% block title %}Beteglista · PREDICT utánkövetés{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Kétállcsontos kohorsz</p>
+        <h1>Utánkövetési beteglista</h1>
+        <p class="lead">Gyors áttekintés arról, kinél mi hiányzik. A lista csak maszkolt TAJ-t jelenít meg.</p>
+    </div>
+    <a class="button button-secondary" href="{{ url_for('followup.export_csv') }}">Pszedonimizált CSV</a>
+</div>
+
+<section class="stats-grid" aria-label="Összesítés">
+    <div class="stat"><strong>{{ stats.total }}</strong><span>kétállcsontos beteg</span></div>
+    <div class="stat"><strong>{{ stats.scheduled }}</strong><span>időpontra beírva</span></div>
+    <div class="stat"><strong>{{ stats.questionnaire }}</strong><span>teljes kérdőív</span></div>
+    <div class="stat"><strong>{{ stats.mai }}</strong><span>teljes MAI-pár</span></div>
+    <div class="stat"><strong>{{ stats.primary_ready }}</strong><span>elsődleges elemzésre kész</span></div>
+    <div class="stat stat-emphasis"><strong>{{ stats.fully_ready }}</strong><span>minden szükséges elem kész</span></div>
+</section>
+
+<section class="card">
+    <form class="toolbar" method="get">
+        <div class="search">
+            <label class="field-label" for="q">Keresés kutatási azonosító vagy TAJ alapján</label>
+            <input id="q" name="q" type="text" value="{{ query }}" placeholder="PRED-0012 vagy TAJ">
+        </div>
+        <div>
+            <label class="field-label" for="status">Szűrés</label>
+            <select id="status" name="status">
+                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Minden beteg</option>
+                <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Időpontra beírva</option>
+                <option value="missing_questionnaire" {% if status_filter == 'missing_questionnaire' %}selected{% endif %}>Kérdőív hiányzik</option>
+                <option value="missing_mai" {% if status_filter == 'missing_mai' %}selected{% endif %}>MAI hiányzik</option>
+                <option value="ready" {% if status_filter == 'ready' %}selected{% endif %}>Teljesen kész</option>
+            </select>
+        </div>
+        <button class="button button-primary" type="submit">Szűrés</button>
+    </form>
+
+    {% if patients %}
+    <div class="patient-table-wrap">
+        <table class="patient-table">
+            <thead>
+                <tr>
+                    <th>Beteg</th>
+                    <th>Időpont</th>
+                    <th>Kapcsolat</th>
+                    <th>Kérdőív</th>
+                    <th>F9</th>
+                    <th>MAI</th>
+                    <th>Összesen</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for patient in patients %}
+                <tr>
+                    <td class="patient-id"><strong>{{ patient.study_code }}</strong><small>{{ patient.masked_taj }}</small></td>
+                    <td>
+                        {% if patient.appointment_at %}
+                            {{ patient.appointment_at.strftime('%m. %d. %H:%M') }}
+                        {% else %}<span class="muted">nincs</span>{% endif %}
+                    </td>
+                    <td>
+                        {% set status = patient.visit_status or 'not_contacted' %}
+                        {% if status == 'scheduled' %}<span class="badge badge-success"><span class="dot"></span>időpontos</span>
+                        {% elif status == 'completed' %}<span class="badge badge-success"><span class="dot"></span>lezárt</span>
+                        {% elif status in ['declined', 'no_show', 'unreachable'] %}<span class="badge badge-danger"><span class="dot"></span>{{ status }}</span>
+                        {% elif status in ['contacted', 'arrived'] %}<span class="badge badge-warning"><span class="dot"></span>{{ status }}</span>
+                        {% else %}<span class="badge badge-muted"><span class="dot"></span>nem keresett</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if patient.questionnaire_complete %}<span class="badge badge-success">kész</span>
+                        {% else %}<span class="badge badge-warning">hiányzik</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if patient.f9_complete %}<span class="badge badge-success">kész</span>
+                        {% else %}<span class="badge badge-warning">hiányzik</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if not patient.mai_eligible %}<span class="badge badge-muted">nem képezhető pár</span>
+                        {% elif patient.mai_complete %}<span class="badge badge-success">kész</span>
+                        {% else %}<span class="badge badge-warning">hiányzik</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if patient.fully_ready %}<span class="badge badge-success">lezárható</span>
+                        {% else %}<span class="badge badge-muted">folyamatban</span>{% endif %}
+                    </td>
+                    <td><a class="button button-secondary" href="{{ url_for('followup.patient', patient_id=patient.patient_id) }}">Megnyitás</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">A szűrésnek egy beteg sem felel meg.</div>
+    {% endif %}
+</section>
+{% endblock %}

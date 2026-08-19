@@ -1,0 +1,203 @@
+{
+  "warning": "SYNTHETIC SIMULATION ONLY - NOT OBSERVED PATIENT DATA OR EMPIRICAL EVIDENCE",
+  "scenario": "NULL_ANATOMY_EFFECT_PIPELINE_TEST",
+  "seed": 20260819,
+  "n": 1000,
+  "outcome_definitions": {
+    "ohip_meaningful_improvement": {
+      "label": "Anchor-alapu szamottevo OHIP-5 javulas",
+      "baseline": "OHIP_baseline_total",
+      "score": "OHIP_change_improvement",
+      "anchor": "responsiveness_change",
+      "anchor_labels": [
+        "Kicsit javult",
+        "Sokat javult"
+      ]
+    },
+    "ohip_meaningful_deterioration": {
+      "label": "Anchor-alapu szamottevo OHIP-5 romlas",
+      "baseline": "OHIP_baseline_total",
+      "score": "OHIP_change_deterioration",
+      "anchor": "responsiveness_change",
+      "anchor_labels": [
+        "Kicsit romlott",
+        "Sokat romlott"
+      ]
+    },
+    "gohai_meaningful_improvement": {
+      "label": "Anchor-alapu szamottevo GOHAI javulas",
+      "baseline": "GOHAI_baseline_total",
+      "score": "GOHAI_change_improvement",
+      "anchor": "responsiveness_change",
+      "anchor_labels": [
+        "Kicsit javult",
+        "Sokat javult"
+      ]
+    },
+    "gohai_meaningful_deterioration": {
+      "label": "Anchor-alapu szamottevo GOHAI romlas",
+      "baseline": "GOHAI_baseline_total",
+      "score": "GOHAI_change_deterioration",
+      "anchor": "responsiveness_change",
+      "anchor_labels": [
+        "Kicsit romlott",
+        "Sokat romlott"
+      ]
+    },
+    "mai_meaningful_improvement": {
+      "label": "Anchor-alapu szamottevo MAI javulas",
+      "baseline": "init_mai_huedegree",
+      "score": "MAI_change_improvement",
+      "anchor": "chewing_change",
+      "anchor_labels": [
+        "Kicsit javult",
+        "Sokat javult"
+      ]
+    },
+    "mai_meaningful_deterioration": {
+      "label": "Anchor-alapu szamottevo MAI romlas",
+      "baseline": "init_mai_huedegree",
+      "score": "MAI_change_deterioration",
+      "anchor": "chewing_change",
+      "anchor_labels": [
+        "Kicsit romlott",
+        "Sokat romlott"
+      ]
+    }
+  },
+  "anchor_roc_thresholds": {
+    "ohip_meaningful_improvement": {
+      "score_column": "OHIP_change_improvement",
+      "anchor_column": "responsiveness_change",
+      "anchor_positive_labels": [
+        "Kicsit javult",
+        "Sokat javult"
+      ],
+      "threshold_youden": 3.0,
+      "roc_auc": 0.6966374538556405,
+      "sensitivity_at_threshold": 0.6239168110918544,
+      "specificity_at_threshold": 0.6784869976359338,
+      "anchor_positive_rate": 0.577,
+      "derived_event_rate": 0.496
+    },
+    "ohip_meaningful_deterioration": {
+      "score_column": "OHIP_change_deterioration",
+      "anchor_column": "responsiveness_change",
+      "anchor_positive_labels": [
+        "Kicsit romlott",
+        "Sokat romlott"
+      ],
+      "threshold_youden": 1.0,
+      "roc_auc": 0.7191558441558441,
+      "sensitivity_at_threshold": 0.4370629370629371,
+      "specificity_at_threshold": 0.8585434173669468,
+      "anchor_positive_rate": 0.286,
+      "derived_event_rate": 0.226
+    },
+    "gohai_meaningful_improvement": {
+      "score_column": "GOHAI_change_improvement",
+      "anchor_column": "responsiveness_change",
+      "anchor_positive_labels": [
+        "Kicsit javult",
+        "Sokat javult"
+      ],
+      "threshold_youden": 4.0,
+      "roc_auc": 0.7286424851784932,
+      "sensitivity_at_threshold": 0.7781629116117851,
+      "specificity_at_threshold": 0.5555555555555556,
+      "anchor_positive_rate": 0.577,
+      "derived_event_rate": 0.637
+    },
+    "gohai_meaningful_deterioration": {
+      "score_column": "GOHAI_change_deterioration",
+      "anchor_column": "responsiveness_change",
+      "anchor_positive_labels": [
+        "Kicsit romlott",
+        "Sokat romlott"
+      ],
+      "threshold_youden": 1.0,
+      "roc_auc": 0.7713046757164403,
+      "sensitivity_at_threshold": 0.3951048951048951,
+      "specificity_at_threshold": 0.9145658263305322,
+      "anchor_positive_rate": 0.286,
+      "derived_event_rate": 0.174
+    },
+    "mai_meaningful_improvement": {
+      "score_column": "MAI_change_improvement",
+      "anchor_column": "chewing_change",
+      "anchor_positive_labels": [
+        "Kicsit javult",
+        "Sokat javult"
+      ],
+      "threshold_youden": 7.316,
+      "roc_auc": 0.5971070011061227,
+      "sensitivity_at_threshold": 0.46631205673758863,
+      "specificity_at_threshold": 0.6743119266055047,
+      "anchor_positive_rate": 0.564,
+      "derived_event_rate": 0.405
+    },
+    "mai_meaningful_deterioration": {
+      "score_column": "MAI_change_deterioration",
+      "anchor_column": "chewing_change",
+      "anchor_positive_labels": [
+        "Kicsit romlott",
+        "Sokat romlott"
+      ],
+      "threshold_youden": 1.993,
+      "roc_auc": 0.5839694841483334,
+      "sensitivity_at_threshold": 0.35051546391752575,
+      "specificity_at_threshold": 0.7574047954866008,
+      "anchor_positive_rate": 0.291,
+      "derived_event_rate": 0.274
+    }
+  },
+  "exposure_definitions": {
+    "F5": "F5 >= 2 vs F5 = 1",
+    "F7": "F7 >= 2 vs F7 = 1",
+    "F8": "F8 >= 2 vs F8 = 1",
+    "A1_Kaan": "A1_Kaan >= 2 vs A1_Kaan = 1",
+    "A3_jobb": "A3_jobb in {2,3} vs 1",
+    "A3_bal": "A3_bal in {2,3} vs 1",
+    "A4_jobb": "A4_jobb in {2,3} vs 1",
+    "A4_bal": "A4_bal in {2,3} vs 1",
+    "A5_jobb": "A5_jobb in {1,3} vs 2",
+    "A5_bal": "A5_bal in {1,3} vs 2",
+    "A6_jobb": "A6_jobb in {2,3} vs 1",
+    "A6_bal": "A6_bal in {2,3} vs 1",
+    "A7_jobb": "A7_jobb in {2,3} vs 1",
+    "A7_bal": "A7_bal in {2,3} vs 1",
+    "A8_jobb": "A8_jobb in {2,3} vs 1",
+    "A8_bal": "A8_bal in {2,3} vs 1",
+    "A9_jobb": "A9_jobb in {2,3} vs 1",
+    "A9_bal": "A9_bal in {2,3} vs 1",
+    "A11": "A11 in {1,3} vs 2",
+    "A12": "A12 in {2,3} vs 1",
+    "A13": "A13 in {2,3} vs 1",
+    "A14": "A14 >= 2 vs A14 = 1 (protetikai szituacio)"
+  },
+  "model_adjustment": [
+    "age_per_10y",
+    "gender",
+    "denture_type",
+    "baseline_outcome"
+  ],
+  "multiple_testing": "Benjamini-Hochberg FDR across all 132 tests and within each outcome",
+  "audit": {
+    "row_count": 1000,
+    "unique_synthetic_ids": 1000,
+    "or_result_rows": 132,
+    "missing_cells": 0,
+    "event_rates": {
+      "ohip_meaningful_improvement": 0.496,
+      "ohip_meaningful_deterioration": 0.226,
+      "gohai_meaningful_improvement": 0.637,
+      "gohai_meaningful_deterioration": 0.174,
+      "mai_meaningful_improvement": 0.405,
+      "mai_meaningful_deterioration": 0.274
+    },
+    "global_fdr_significant_count": 0,
+    "global_fdr_significant_results": [],
+    "adjusted_or_min": 0.582707244194422,
+    "adjusted_or_max": 1.2996658654987565
+  }
+}

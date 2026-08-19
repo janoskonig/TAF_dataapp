@@ -322,7 +322,7 @@
         </div>
         
         <h2>V. Eltérés az etalon pácienshez képest (F + A)</h2>
-        <p>Fő kérdés: az adott anatómiai képlet eltérése a {{ f_analysis.get('reference_taj', '919-191-919') }} etalon pácienshez képest összefügg-e a klinikai kimenetekkel (OHIP/GOHAI, MAI)?</p>
+        <p>Fő kérdés: az adott anatómiai képlet eltérése a {{ f_analysis.get('reference_taj') or 'konfigurált' }} etalon pácienshez képest összefügg-e a klinikai kimenetekkel (OHIP/GOHAI, MAI)?</p>
         
         {% if f_analysis.get('status') == 'success' %}
             {% if not f_analysis.get('reference_usable') %}

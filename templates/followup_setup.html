@@ -1,0 +1,14 @@
+{% extends "followup_base.html" %}
+{% block title %}Beállítás szükséges · PREDICT{% endblock %}
+{% block content %}
+<section class="narrow-card card">
+    <p class="eyebrow">Egyszeri beállítás</p>
+    <h1>A felület még nincs aktiválva</h1>
+    {% if migration_missing %}
+    <p>Az elkülönített utánkövetési tábla hiányzik. Futtasd a <code>migrate_followup_visits.sql</code> migrációt az alkalmazás adatbázisán.</p>
+    {% else %}
+    <p>Állíts be egy erős <code>FOLLOWUP_ACCESS_CODE</code> értéket, majd indítsd újra az alkalmazást.</p>
+    {% endif %}
+    <p class="muted">A patients tábla meglévő sorait a migráció nem módosítja.</p>
+</section>
+{% endblock %}

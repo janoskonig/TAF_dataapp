@@ -1,0 +1,142 @@
+{
+  "analysis": "Mandibular anatomy vs baseline hue-degree MAI",
+  "status": "exploratory cross-sectional pilot",
+  "outcome": "init_mai_huedegree only; higher means worse mixing",
+  "data_audit": {
+    "source_records": 48,
+    "unique_patients": 47,
+    "duplicate_patient_groups_resolved": 1,
+    "duplicate_conflicts": 0,
+    "mandibular_target_patients": 40,
+    "patients_with_huedegree_MAI": 34,
+    "primary_complete_pairs": 33,
+    "target_missing_huedegree_MAI": 6,
+    "target_missing_complete_anatomical_score": 1
+  },
+  "primary": {
+    "predictor": "graded_score_0_5",
+    "label": "Fokozatos mandibularis anatómiai score (0–5)",
+    "n": 33,
+    "spearman_rho": -0.16277717695838353,
+    "bootstrap_95_ci": [
+      -0.48530465771224457,
+      0.18033961254681857
+    ],
+    "permutation_p_two_sided": 0.36543172841357935,
+    "leave_one_out_range": [
+      -0.2515597854752129,
+      -0.08422797073310385
+    ],
+    "bootstrap_replicates": 20000,
+    "permutation_replicates": 20000
+  },
+  "binary_score_sensitivity": {
+    "predictor": "binary_count_0_5",
+    "label": "Egész pontos anatómiai score (0–5)",
+    "n": 33,
+    "spearman_rho": -0.2935811783423403,
+    "bootstrap_95_ci": [
+      -0.6029484897388404,
+      0.051435831374924176
+    ],
+    "permutation_p_two_sided": 0.10059497025148742,
+    "leave_one_out_range": [
+      -0.39467383289904534,
+      -0.22751080072225155
+    ],
+    "bootstrap_replicates": 20000,
+    "permutation_replicates": 20000
+  },
+  "components": [
+    {
+      "predictor": "ridge",
+      "label": "Gerincatrophia (A1/A12)",
+      "n": 34,
+      "spearman_rho": -0.09217160325522415,
+      "bootstrap_95_ci": [
+        -0.4394949915544157,
+        0.2702887279460429
+      ],
+      "permutation_p_two_sided": 0.5996700164991751,
+      "leave_one_out_range": [
+        -0.1714753052793006,
+        -0.021774224383581904
+      ],
+      "bootstrap_replicates": 20000,
+      "permutation_replicates": 20000,
+      "holm_adjusted_p": 1.0
+    },
+    {
+      "predictor": "torus",
+      "label": "Torus mandibularis (A4)",
+      "n": 33,
+      "spearman_rho": -0.07426106572325059,
+      "bootstrap_95_ci": [
+        -0.41419632295335074,
+        0.28087173103246577
+      ],
+      "permutation_p_two_sided": 0.6967151642417879,
+      "leave_one_out_range": [
+        -0.18421131378760783,
+        0.02046792375417865
+      ],
+      "bootstrap_replicates": 19999,
+      "permutation_replicates": 20000,
+      "holm_adjusted_p": 1.0
+    },
+    {
+      "predictor": "lingual",
+      "label": "Lingualis tasak (A5)",
+      "n": 34,
+      "spearman_rho": -0.06972496815696938,
+      "bootstrap_95_ci": [
+        -0.40304640012633136,
+        0.27415191174471404
+      ],
+      "permutation_p_two_sided": 0.6897655117244138,
+      "leave_one_out_range": [
+        -0.12645043021758093,
+        -0.004650691615047956
+      ],
+      "bootstrap_replicates": 20000,
+      "permutation_replicates": 20000,
+      "holm_adjusted_p": 1.0
+    },
+    {
+      "predictor": "tuberculum",
+      "label": "Tuberculum-komplex (A6/A7/A9)",
+      "n": 34,
+      "spearman_rho": -0.13706959126647247,
+      "bootstrap_95_ci": [
+        -0.505828060357802,
+        0.23640463064642658
+      ],
+      "permutation_p_two_sided": 0.43882805859707014,
+      "leave_one_out_range": [
+        -0.22011524054489134,
+        -0.0778558872209967
+      ],
+      "bootstrap_replicates": 20000,
+      "permutation_replicates": 20000,
+      "holm_adjusted_p": 1.0
+    },
+    {
+      "predictor": "floor",
+      "label": "Szájfenék/sublingualis tájék (A11)",
+      "n": 34,
+      "spearman_rho": -0.05312311611064038,
+      "bootstrap_95_ci": [
+        -0.3834554313061061,
+        0.2887584122795168
+      ],
+      "permutation_p_two_sided": 0.7630618469076547,
+      "leave_one_out_range": [
+        -0.10586375380128496,
+        -0.008143365677021919
+      ],
+      "bootstrap_replicates": 20000,
+      "permutation_replicates": 20000,
+      "holm_adjusted_p": 1.0
+    }
+  ]
+}

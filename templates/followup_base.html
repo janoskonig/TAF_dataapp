@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>{% block title %}PREDICT utánkövetés{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-inner">
+            <a class="brand" href="{{ url_for('followup.dashboard') }}">
+                <span class="brand-mark">P</span>
+                <span><strong>PREDICT</strong><small>utánkövetési vizit</small></span>
+            </a>
+            {% if session.get('followup_authenticated') %}
+            <nav class="header-actions" aria-label="Fő navigáció">
+                <a href="{{ url_for('followup.dashboard') }}">Beteglista</a>
+                <a href="{{ url_for('followup.export_csv') }}">CSV-export</a>
+                <form action="{{ url_for('followup.logout') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+                    <button class="link-button" type="submit">Kilépés</button>
+                </form>
+            </nav>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="page-shell">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

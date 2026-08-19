@@ -1,0 +1,17 @@
+"pontszam","kimenet","modell","t","p_1old"
+"worst","nyers","both: +kor",-0.796732662343714,0.783122941394671
+"worst","nyers","teljes: +kor+típus",-1.46818791127416,0.924377717016543
+"worst","rang","both: +kor",-0.960795033671921,0.826676042334097
+"worst","rang","teljes: +kor+típus",-1.51538741495053,0.93054150987523
+"mean","nyers","both: +kor",-0.669011300524195,0.74492584542373
+"mean","nyers","teljes: +kor+típus",-1.18437101106187,0.877760056064868
+"mean","rang","both: +kor",-0.766932148166141,0.774538480569364
+"mean","rang","teljes: +kor+típus",-1.16002386762769,0.872939825386535
+"noambig","nyers","both: +kor",-1.11098830521503,0.860973484003216
+"noambig","nyers","teljes: +kor+típus",-1.64407413812109,0.94531124810938
+"noambig","rang","both: +kor",-1.35895933707133,0.906331196096833
+"noambig","rang","teljes: +kor+típus",-1.73364185179567,0.953978634462414
+"strictA1","nyers","both: +kor",-0.753840015831066,0.770703092262078
+"strictA1","nyers","teljes: +kor+típus",-1.61320992787747,0.942028230728527
+"strictA1","rang","both: +kor",-0.95396686669322,0.82499010832877
+"strictA1","rang","teljes: +kor+típus",-1.70674059025497,0.951505318446484

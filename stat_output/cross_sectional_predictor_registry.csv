@@ -1,0 +1,22 @@
+predictor,n_nonmissing,elicited_q,note
+F1_low_ridge,9,0.98,continuous pilot
+F3_low_palate,9,0.98,continuous pilot
+F4_low_angle,9,0.9,continuous pilot
+F5_any_flabby,39,0.8,any vs none
+F6_deviation_from_90,9,0.98,continuous pilot
+F7_any_torus,39,0.98,any vs none
+A1_ridge_saturated,41,0.98,primary mandibular ridge measure
+A4_any_torus,40,0.98,any side vs none
+A5_lingual_pouch_risk,41,0.98,bilateral mean
+A6_firm_gingiva_risk,41,0.98,bilateral mean
+A7_tuberculum_shape_risk,41,0.98,bilateral mean
+A8_inclination_risk,41,0.98,validation-sensitive
+A9_mobility_risk,41,0.98,bilateral mean
+A11_floor_of_mouth_risk,41,0.98,independent factor
+A12_spinae_present,41,0.98,ridge indicator sensitivity
+A13_TMJ_risk,40,0.98,clinical modifier
+A6_A7_A9_tuberculum_primary,41,0.98,formative primary; A8 excluded for validation inconsistency
+A6_A9_tuberculum_with_A8,41,0.98,sensitivity composite
+A3_category_2_proportion,41,,exploratory nominal contrast
+A3_category_3_proportion,41,,exploratory nominal contrast
+A3_A9_asymmetry_proportion,41,,exploratory asymmetry

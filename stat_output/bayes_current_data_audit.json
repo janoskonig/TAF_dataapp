@@ -1,0 +1,44 @@
+{
+  "rows": 48,
+  "denture_type": {
+    "both": 32,
+    "lower": 9,
+    "upper": 7
+  },
+  "baseline_complete": {
+    "OHIP": 48,
+    "GOHAI": 48,
+    "MAI": 41
+  },
+  "followup_complete": {
+    "OHIP": 9,
+    "GOHAI": 9,
+    "final_MAI": 5
+  },
+  "followup_exact_default_worst": {
+    "OHIP": 3,
+    "GOHAI": 3,
+    "both": 3
+  },
+  "A7_A8_validation": {
+    "jobb": {
+      "complete": 41,
+      "A7_eq_3": 5,
+      "A7_eq_3_and_A8_ne_3": 5
+    },
+    "bal": {
+      "complete": 40,
+      "A7_eq_3": 4,
+      "A7_eq_3_and_A8_ne_3": 3
+    }
+  },
+  "neutral_prior": {
+    "distribution": "Normal(0, 0.5^2)",
+    "rope": [
+      -0.1,
+      0.1
+    ]
+  },
+  "directional_priors_applied": false,
+  "directional_priors_not_applied_reason": "Expert directions have not yet been assigned to MAI/OHIP/GOHAI parameters."
+}

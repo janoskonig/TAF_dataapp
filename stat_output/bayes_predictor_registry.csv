@@ -1,0 +1,21 @@
+predictor,n_nonmissing,n_unique,certainty,elicited_q,note
+F1_low_ridge,9,8,strong,0.98,per 1 SD lower ridge
+F3_low_palate,9,9,strong,0.98,per 1 SD lower vault
+F4_low_angle,9,9,moderate,0.9,per 1 SD lower angle
+F5_any_flabby,39,2,weak,0.8,any vs none
+F6_deviation_from_90,9,9,strong,0.98,per 1 SD absolute deviation
+F7_any_torus,39,2,strong,0.98,any vs none
+A1_ridge_saturated,41,4,strong,0.98,best-to-worst saturated contrast
+A3_category_2_proportion,41,3,exploratory,,proportion of sides in category 2; category 1 reference
+A3_category_3_proportion,41,3,exploratory,,proportion of sides in category 3; category 1 reference
+A4_any_torus,40,2,strong,0.98,any side vs none
+A5_lingual_pouch_risk,41,5,strong,0.98,"bilateral mean, best-to-worst"
+A6_firm_gingiva_risk,41,5,strong,0.98,"bilateral mean, best-to-worst"
+A7_tuberculum_shape_risk,41,5,strong,0.98,"bilateral mean, best-to-worst"
+A8_inclination_risk,41,3,strong,0.98,bilateral mean; 2 and validation category 3 grouped
+A9_mobility_risk,41,5,strong,0.98,"bilateral mean, best-to-worst"
+A11_floor_of_mouth_risk,41,3,strong,0.98,best-to-worst
+A12_spinae_present,41,2,strong,0.98,palpable/painful vs not palpable
+A13_TMJ_risk,40,3,strong,0.98,additive clinical factor
+A6_A9_tuberculum_composite,41,14,construct_summary,,simple formative pilot summary; not a validated latent score
+A3_A9_asymmetry_proportion,41,6,exploratory,,proportion of bilateral items with unequal sides
