@@ -82,6 +82,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(55, 162, 157
 .patient-table tr:hover td { background: #f8fbfb; }
 .patient-id strong, .patient-id small { display: block; }
 .patient-id small { color: var(--muted); margin-top: 3px; }
+.phone-link { color: var(--brand-dark); font-weight: 750; text-decoration-thickness: 1px; text-underline-offset: 3px; white-space: nowrap; }
 
 .badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 5px 9px; font-size: 12px; font-weight: 750; white-space: nowrap; }
 .badge-success { background: var(--success-soft); color: var(--success); }

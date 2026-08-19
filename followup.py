@@ -6,6 +6,7 @@ import csv
 import io
 import math
 import os
+import re
 import secrets
 import uuid
 from datetime import datetime
@@ -157,6 +158,9 @@ def create_followup_blueprint(
         record = dict(record)
         record["study_code"] = study_code(record["patient_id"])
         record["masked_taj"] = mask_taj(record.get("taj"))
+        phone = str(record.get("patient_phone") or "").strip()
+        phone_digits = "".join(character for character in phone if character.isdigit())
+        record["phone_href"] = ("+" if phone.startswith("+") else "") + phone_digits if phone_digits else None
         new_complete = questionnaire_complete(record, "new_")
         legacy_complete = questionnaire_complete(record, "legacy_")
         record["questionnaire_complete"] = new_complete or legacy_complete
@@ -207,6 +211,7 @@ def create_followup_blueprint(
                 NULLIF(TRIM(f.patient_display_name), ''),
                 NULLIF(TRIM(c."paciens_neve"), '')
             ) AS patient_name,
+            f.patient_phone,
             c."gender" AS gender,
             c."birthdate" AS birthdate,
             c."init_mai_huedegree" AS init_mai_huedegree,
@@ -253,6 +258,7 @@ def create_followup_blueprint(
             "contact_attempted_at",
             "appointment_at",
             "patient_display_name",
+            "patient_phone",
             "contact_note",
             "nonattendance_reason",
             "consent_confirmed",
@@ -319,6 +325,11 @@ def create_followup_blueprint(
                 if query in patient["study_code"].lower()
                 or query in str(patient.get("patient_name") or "").lower()
                 or (query_digits and query_digits in "".join(c for c in str(patient["taj"]) if c.isdigit()))
+                or (
+                    query_digits
+                    and query_digits
+                    in "".join(c for c in str(patient.get("patient_phone") or "") if c.isdigit())
+                )
             ]
         if status_filter == "scheduled":
             patients = [patient for patient in patients if patient.get("visit_status") == "scheduled"]
@@ -370,10 +381,14 @@ def create_followup_blueprint(
                 appointment = datetime.strptime(appointment_raw, "%Y-%m-%dT%H:%M")
             except ValueError:
                 abort(400, description="Érvénytelen időpont.")
+        patient_phone = request.form.get("patient_phone", "").strip()
+        if patient_phone and not re.fullmatch(r"[0-9+()\-\s/.]{6,30}", patient_phone):
+            abort(400, description="A telefonszám formátuma nem érvényes.")
         values = {
             "visit_status": status,
             "appointment_at": appointment,
             "patient_display_name": request.form.get("patient_display_name", "").strip() or None,
+            "patient_phone": patient_phone or None,
             "contact_note": request.form.get("contact_note", "").strip() or None,
             "nonattendance_reason": request.form.get("nonattendance_reason", "").strip() or None,
         }

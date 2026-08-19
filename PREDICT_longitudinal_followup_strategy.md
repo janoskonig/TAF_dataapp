@@ -287,6 +287,7 @@ Fő funkciói:
 - kizárólag belépés után látható teljes név és TAJ, valamint kutatási
   azonosító szerinti beteglista;
 - megkeresési státusz, időpont, visszautasítás és távolmaradás naplózása;
+- telefonszám rögzítése és mobilról közvetlen hívás indítása;
 - beleegyezés, eltelt idő, köztes korrekciók és események rögzítése;
 - előre bejelölt válaszok nélküli, hiánytalan kitöltést megkövetelő
   OHIP–GOHAI–anchor kérdőív;
@@ -296,7 +297,8 @@ Fő funkciói:
 
 A közvetlen betegazonosítók csak a védett klinikai munkafelületen jelennek
 meg. A rendszer ezeknek az oldalaknak a böngésző-cache-elését tiltja; a
-kutatási CSV-export továbbra sem tartalmaz nevet, TAJ-t vagy születési dátumot.
+kutatási CSV-export továbbra sem tartalmaz nevet, TAJ-t, telefonszámot vagy
+születési dátumot.
 
 Az új adatok a `followup_visits` és `followup_contact_attempts` táblákba
 kerülnek. A felület nem frissíti és nem írja felül a `patients` tábla meglévő

@@ -22,8 +22,8 @@
 <section class="card">
     <form class="toolbar" method="get">
         <div class="search">
-            <label class="field-label" for="q">Keresés név, kutatási azonosító vagy TAJ alapján</label>
-            <input id="q" name="q" type="text" value="{{ query }}" placeholder="Név, PRED-0012 vagy TAJ">
+            <label class="field-label" for="q">Keresés név, telefonszám, kutatási azonosító vagy TAJ alapján</label>
+            <input id="q" name="q" type="text" value="{{ query }}" placeholder="Név, telefonszám, PRED-0012 vagy TAJ">
         </div>
         <div>
             <label class="field-label" for="status">Szűrés</label>
@@ -44,6 +44,7 @@
             <thead>
                 <tr>
                     <th>Beteg</th>
+                    <th>Telefon</th>
                     <th>Időpont</th>
                     <th>Kapcsolat</th>
                     <th>Kérdőív</th>
@@ -59,6 +60,11 @@
                     <td class="patient-id">
                         <strong>{{ patient.patient_name or 'Név nincs rögzítve' }}</strong>
                         <small>{{ patient.taj }} · {{ patient.study_code }}</small>
+                    </td>
+                    <td>
+                        {% if patient.patient_phone %}
+                            <a class="phone-link" href="tel:{{ patient.phone_href }}">{{ patient.patient_phone }}</a>
+                        {% else %}<span class="muted">nincs rögzítve</span>{% endif %}
                     </td>
                     <td>
                         {% if patient.appointment_at %}

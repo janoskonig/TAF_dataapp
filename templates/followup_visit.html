@@ -39,6 +39,10 @@
                 <input id="patient_display_name" name="patient_display_name" type="text" autocomplete="off" value="{{ patient.patient_name or '' }}" placeholder="Ha az eredeti adatból hiányzik, itt pótolható">
             </div>
             <div>
+                <label class="field-label" for="patient_phone">Telefonszám</label>
+                <input id="patient_phone" name="patient_phone" type="tel" inputmode="tel" autocomplete="off" maxlength="30" value="{{ patient.patient_phone or '' }}" placeholder="pl. +36 30 123 4567">
+            </div>
+            <div>
                 <label class="field-label" for="visit_status">Státusz</label>
                 {% set current_status = patient.visit_status or 'not_contacted' %}
                 <select id="visit_status" name="visit_status">
