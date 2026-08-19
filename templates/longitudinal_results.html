@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>PREDICT · Longitudinális eredmények</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
+    <style>
+        .results-shell { max-width: 1180px; margin: 0 auto; padding: 34px 22px 70px; }
+        .results-nav { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:32px; }
+        .results-nav a { font-weight:750; }
+        .hero { background:#0d3441; color:white; border-radius:22px; padding:clamp(24px,5vw,46px); margin-bottom:22px; }
+        .hero h1 { max-width:850px; margin:0 0 14px; }
+        .hero .lead { color:#c6dde1; max-width:850px; }
+        .hero .eyebrow { color:#62d2ca; }
+        .result-section { margin-top:22px; }
+        .result-section > h2 { font-size:27px; margin:0 0 8px; }
+        .section-intro { color:var(--muted); max-width:900px; line-height:1.6; }
+        .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:14px; margin-top:16px; }
+        .results-table { width:100%; border-collapse:collapse; background:white; font-size:13px; }
+        .results-table th { background:#edf4f5; color:#49626e; text-align:left; font-size:11px; letter-spacing:.04em; text-transform:uppercase; padding:12px; white-space:nowrap; }
+        .results-table td { padding:12px; border-top:1px solid var(--line); vertical-align:top; }
+        .results-table .number { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+        .primary-row td { background:#f0faf8; }
+        .status-note { max-width:330px; color:var(--muted); line-height:1.4; }
+        .interpretation { background:var(--brand-soft); border-left:4px solid var(--brand); padding:15px 17px; border-radius:10px; margin-top:16px; line-height:1.55; }
+        .anchor-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px; }
+        .anchor-counts { display:grid; gap:8px; margin-top:14px; }
+        .anchor-count { display:flex; justify-content:space-between; gap:16px; padding:8px 10px; border-radius:8px; background:#f3f7f8; }
+        .method-list { line-height:1.65; margin-bottom:0; }
+        @media (max-width:700px) { .results-shell { padding-left:14px; padding-right:14px; } .anchor-grid { grid-template-columns:1fr; } .results-nav { align-items:flex-start; flex-direction:column; } }
+    </style>
+</head>
+<body>
+<main class="results-shell">
+    <nav class="results-nav"><a href="{{ url_for('welcome') }}">← PREDICT főoldal</a></nav>
+    <header class="hero">
+        <p class="eyebrow">Előre rögzített pilot elemzés · csak denture_type = both</p>
+        <h1>Anatómiai hátrányterhelés és utánkövetési kimenetek</h1>
+        <p class="lead">A folytonos OHIP-, GOHAI- és MAI-kimeneteket nem dichotomizáljuk. Az ötfokú elhorgonyzó kérdéseket proporcionális odds modellel értékeljük.</p>
+    </header>
+
+    <section class="stats-grid stats-grid-4" aria-label="Kohorszállapot">
+        <div class="stat"><strong>{{ report.cohort.eligible }}</strong><span>alkalmas kétállcsontos beteg</span></div>
+        <div class="stat"><strong>{{ report.cohort.any_followup }}</strong><span>bármilyen utánkövetési adat</span></div>
+        <div class="stat"><strong>{{ report.cohort.questionnaire_pairs }}</strong><span>teljes OHIP–GOHAI pár</span></div>
+        <div class="stat stat-emphasis"><strong>{{ report.cohort.mai_pairs }}</strong><span>teljes MAI-pár</span></div>
+    </section>
+
+    {% if report.cohort.any_followup < report.minimum_model_n %}
+    <div class="flash flash-info">
+        Jelenleg csak {{ report.cohort.any_followup }} betegnek van utánkövetési adata. Ez leírásra alkalmas, de a regressziós és OR-modellek stabil becsléséhez még nem elég; a felület ezért nem közöl félrevezető pontbecslést.
+    </div>
+    {% endif %}
+
+    <section class="card result-section">
+        <h2>1. Párosított leíró eredmények</h2>
+        <p class="section-intro">Az alap- és utánkövetési értékek ugyanazon, mindkét időpontban mért betegekre vonatkoznak. A változás az utánkövetés mínusz a kiindulás.</p>
+        <div class="table-wrap"><table class="results-table">
+            <thead><tr><th>Kimenet</th><th class="number">Páros n</th><th class="number">Kiindulás: átlag</th><th class="number">Kiindulás: medián [IQR]</th><th class="number">Utánkövetés: átlag</th><th class="number">Utánkövetés: medián [IQR]</th><th class="number">Változás: átlag</th><th class="number">Változás: medián [IQR]</th></tr></thead>
+            <tbody>{% for row in report.descriptive %}<tr>
+                <td><strong>{{ row.label }}</strong><br><span class="muted">{{ row.scale_note }}</span></td>
+                <td class="number">{{ row.paired_n }}</td>
+                <td class="number">{{ '%.2f'|format(row.baseline_mean) if row.baseline_mean is not none else '—' }}</td>
+                <td class="number">{% if row.baseline_median is not none %}{{ '%.2f'|format(row.baseline_median) }} [{{ '%.2f'|format(row.baseline_q1) }}–{{ '%.2f'|format(row.baseline_q3) }}]{% else %}—{% endif %}</td>
+                <td class="number">{{ '%.2f'|format(row.followup_mean) if row.followup_mean is not none else '—' }}</td>
+                <td class="number">{% if row.followup_median is not none %}{{ '%.2f'|format(row.followup_median) }} [{{ '%.2f'|format(row.followup_q1) }}–{{ '%.2f'|format(row.followup_q3) }}]{% else %}—{% endif %}</td>
+                <td class="number">{{ '%+.2f'|format(row.change_mean) if row.change_mean is not none else '—' }}</td>
+                <td class="number">{% if row.change_median is not none %}{{ '%+.2f'|format(row.change_median) }} [{{ '%+.2f'|format(row.change_q1) }}–{{ '%+.2f'|format(row.change_q3) }}]{% else %}—{% endif %}</td>
+            </tr>{% endfor %}</tbody>
+        </table></div>
+    </section>
+
+    <section class="result-section">
+        <h2>2. Elhorgonyzó kérdések</h2>
+        <p class="section-intro">Az öt válaszkategória változatlanul marad; a „sokat romlott” a legalacsonyabb, a „sokat javult” a legmagasabb kategória.</p>
+        <div class="anchor-grid">{% for anchor in report.anchor_distributions %}
+            <article class="card"><p class="eyebrow">{{ anchor.role }}</p><h3>{{ anchor.label }}</h3><p class="muted">Értékelhető: n = {{ anchor.n }}</p><div class="anchor-counts">{% for item in anchor.counts %}<div class="anchor-count"><span>{{ item.label }}</span><strong>{{ item.count }}</strong></div>{% endfor %}</div></article>
+        {% endfor %}</div>
+    </section>
+
+    <section class="card result-section">
+        <h2>3. Folytonos regressziós modellek</h2>
+        <p class="section-intro">Modell: utánkövetési kimenet ~ kiindulási kimenet + anatómiai prediktor. A β az anatómiai prediktorhoz tartozó, HC3-robusztus 95%-os intervallummal közölt korrigált különbség.</p>
+        <div class="interpretation"><strong>Irány:</strong> pozitív β rosszabb OHIP- és MAI-, de jobb GOHAI-kimenetet jelent. Negatív β ennek ellenkezője.</div>
+        {% for outcome_key, outcome_label in [('ohip_followup','OHIP-5'),('gohai_followup','GOHAI'),('mai_followup','MAI hue-degree')] %}
+        <h3 class="question-section-title">{{ outcome_label }}</h3>
+        <div class="table-wrap"><table class="results-table">
+            <thead><tr><th>Anatómiai prediktor</th><th>Kódolás</th><th class="number">n</th><th class="number">β (95% CI)</th><th class="number">p</th><th class="number">FDR q</th><th>Státusz</th></tr></thead>
+            <tbody>{% for row in report.continuous_models if row.outcome == outcome_key %}<tr class="{{ 'primary-row' if row.predictor == 'anatomical_burden_0_5' else '' }}">
+                <td><strong>{{ row.predictor_label }}</strong>{% if row.predictor == 'anatomical_burden_0_5' %}<br><span class="badge badge-success">elsődleges</span>{% endif %}</td>
+                <td>{{ row.predictor_scale }}</td><td class="number">{{ row.n }}</td>
+                <td class="number">{% if row.status == 'ok' %}{{ '%+.2f'|format(row.beta) }} ({{ '%+.2f'|format(row.ci_low) }}; {{ '%+.2f'|format(row.ci_high) }}){% else %}—{% endif %}</td>
+                <td class="number">{{ '%.3f'|format(row.p_value) if row.status == 'ok' else '—' }}</td>
+                <td class="number">{{ '%.3f'|format(row.q_value) if row.q_value is defined else '—' }}</td>
+                <td class="status-note">{% if row.status == 'ok' %}{{ row.caution }}{% else %}{{ row.message }}{% endif %}</td>
+            </tr>{% endfor %}</tbody>
+        </table></div>
+        {% endfor %}
+    </section>
+
+    <section class="card result-section">
+        <h2>4. Ordinális odds ratio-k</h2>
+        <p class="section-intro">Az OR azt mutatja, hogyan változik a kedvezőbb anchor-kategóriába kerülés esélye. OR &lt; 1: kisebb esély kedvezőbb változásra; OR &gt; 1: nagyobb esély; OR = 1: nincs észlelhető kapcsolat.</p>
+        <div class="interpretation">Az OR nem az OHIP-, GOHAI- vagy MAI-pontszám önkényesen dichotomizált változására vonatkozik, hanem a beteg eredeti, ötfokú változásértékelésére.</div>
+        {% for anchor_key, anchor_label in [('oral_anchor','Szájüregi egészség változása'),('chewing_anchor','Rágóképesség változása')] %}
+        <h3 class="question-section-title">{{ anchor_label }}</h3>
+        <div class="table-wrap"><table class="results-table">
+            <thead><tr><th>Anatómiai prediktor</th><th>Kódolás</th><th class="number">n</th><th class="number">Kategóriák</th><th class="number">OR (95% CI)</th><th class="number">p</th><th class="number">FDR q</th><th>Státusz / PO-ellenőrzés</th></tr></thead>
+            <tbody>{% for row in report.ordinal_models if row.anchor == anchor_key %}<tr class="{{ 'primary-row' if row.predictor == 'anatomical_burden_0_5' else '' }}">
+                <td><strong>{{ row.predictor_label }}</strong>{% if row.predictor == 'anatomical_burden_0_5' %}<br><span class="badge badge-success">elsődleges</span>{% endif %}</td>
+                <td>{{ row.predictor_scale }}</td><td class="number">{{ row.n }}</td><td class="number">{{ row.categories }}</td>
+                <td class="number">{% if row.status == 'ok' %}{{ '%.2f'|format(row.odds_ratio) }} ({{ '%.2f'|format(row.ci_low) }}; {{ '%.2f'|format(row.ci_high) }}){% else %}—{% endif %}</td>
+                <td class="number">{{ '%.3f'|format(row.p_value) if row.status == 'ok' else '—' }}</td>
+                <td class="number">{{ '%.3f'|format(row.q_value) if row.q_value is defined else '—' }}</td>
+                <td class="status-note">{% if row.status == 'ok' %}{{ row.caution }}<br>{{ row.po_diagnostic }}{% else %}{{ row.message }}{% endif %}</td>
+            </tr>{% endfor %}</tbody>
+        </table></div>
+        {% endfor %}
+    </section>
+
+    <section class="card result-section">
+        <h2>5. Elemzési szabályok és korlátok</h2>
+        <ul class="method-list">
+            <li>Kizárólag a kétállcsontos kohorsz szerepel; a legfrissebb betegrekordot használjuk.</li>
+            <li>Az elsődleges prediktor a gerincatrophia, torus, lingualis tasak, tuberculum és szájfenék előre rögzített 0–5 összpontszáma.</li>
+            <li>A külön konstrukciók exploratívak; p-értékeik kimenetenként Benjamini–Hochberg FDR-korrekciót kapnak.</li>
+            <li>Legalább {{ report.minimum_model_n }} teljes eset alatt nem közlünk regressziós vagy OR-pontbecslést; 20 alatt minden modell nagyon kis mintás hipotézisgeneráló eredmény.</li>
+            <li>A becslések asszociációk, nem bizonyítanak oksági hatást. A visszatérési szelekció és a széles intervallumok különösen fontos korlátok.</li>
+        </ul>
+    </section>
+</main>
+</body>
+</html>

@@ -227,6 +227,7 @@ def allowed_file(filename):
 
 from followup import create_followup_blueprint
 from baseline import create_baseline_blueprint
+from longitudinal_analysis import build_longitudinal_report
 
 app.register_blueprint(
     create_followup_blueprint(
@@ -2404,6 +2405,15 @@ def _build_profile_figure(rows, value='rel', title='', yaxis='',
 
 @app.route('/results')
 def results():
+    connection = create_db_connection()
+    try:
+        report = build_longitudinal_report(connection)
+    finally:
+        connection.close()
+    return render_template('longitudinal_results.html', report=report)
+
+
+def legacy_results():
     cursor = get_db_cursor()
     cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" IS NOT NULL')
     patient_count = cursor.fetchone()[0]
