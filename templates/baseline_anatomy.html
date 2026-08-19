@@ -1,0 +1,53 @@
+{% extends "baseline_base.html" %}
+{% block title %}Klinikai anatómia · {{ visit.study_code }}{% endblock %}
+{% macro single_question(name, title, options) %}
+<fieldset class="question-group anatomy-question" data-question="{{ name }}"><legend>{{ title }}</legend><div class="answer-grid answer-grid-3">{% for value, label in options %}<div class="answer-option"><input type="radio" id="{{ name }}_{{ value }}" name="{{ name }}" value="{{ value }}" required {% if form_values.get(name)|string == value|string %}checked{% endif %}><label for="{{ name }}_{{ value }}">{{ value }} · {{ label }}</label></div>{% endfor %}</div></fieldset>
+{% endmacro %}
+{% macro bilateral(code, title, options) %}
+<section class="bilateral-question"><h3>{{ code }} · {{ title }}</h3><div class="grid grid-2"><div><p class="side-label">Jobb oldal</p>{{ single_question(code ~ '_jobb', '', options) }}</div><div><p class="side-label">Bal oldal</p>{{ single_question(code ~ '_bal', '', options) }}</div></div></section>
+{% endmacro %}
+{% block content %}
+<div class="questionnaire-shell">
+    <div class="breadcrumb"><a href="{{ url_for('baseline.patient', patient_id=visit.patient_id) }}">← Vissza a kezdővizithez</a></div>
+    <div class="page-heading"><div><p class="eyebrow">{{ visit.study_code }} · 3. lépés</p><h1>Klinikai anatómiai vizsgálat</h1><p class="lead">Minden megjelenő képlethez kötelező egy értéket választani. Nincs alapértelmezett válasz.</p></div></div>
+    <form method="post" id="anatomyForm">
+        <input type="hidden" name="csrf_token" value="{{ baseline_csrf_token() }}">
+        <section class="card">
+        {% if visit.denture_type in ['upper','both'] %}
+            <h2 class="question-section-title">Felső állcsont</h2>
+            {{ single_question('F5', 'F5 · Lötyögő, csontmag nélküli gerinc jelenléte', [('1','nincs'),('2','van, „lötyögő” tuberek'),('3','van, frontális gerincen')]) }}
+            {{ single_question('F7', 'F7 · Torus palatinus', [('1','nincs'),('2','plató alakú'),('3','orsó alakú')]) }}
+            {{ single_question('F8', 'F8 · Az antagonista fogazat', [('1','nincs, most készül'),('2','teljes lemezes, overdenture vagy részleges fémlemezes fogpótlás'),('3','teljesen megtartott vagy rögzített fogpótlással helyreállított')]) }}
+        {% endif %}
+        {% if visit.denture_type in ['lower','both'] %}
+            <h2 class="question-section-title">Alsó állcsont</h2>
+            {{ single_question('A1_Kaan', 'A1 Kaán szerint · Az alsó állcsontgerinc alakja', [('1','egészében megtartott'),('2','elöl megtartott, oldalt lapos'),('3','egészében lapos'),('4','negatív'),('5','mélyült negatív')]) }}
+            {{ bilateral('A3', 'A buccinator tasak', [('1','szájnyitáskor beszűkülő'),('2','szájnyitáskor kiszélesedő'),('3','lebenyezett felszínű')]) }}
+            {{ bilateral('A4', 'Torus mandibularis', [('1','nincs'),('2','nagy méretű'),('3','kis méretű')]) }}
+            {{ bilateral('A5', 'A lingualis tasak', [('1','nyeléskor a környező izmok nem szűkítik'),('2','nyeléskor a környező izmok ujjunkat a mandibulához préselik'),('3','nyeléskor a környező izmok ujjunkat kifelé préselik')]) }}
+            {{ bilateral('A6', 'A tuberculum mekkora hányadát borítja feszes íny?', [('1','az egészet'),('2','elülső harmadát'),('3','egyáltalán nem')]) }}
+            {{ bilateral('A7', 'A tuberculum alakja, mérete', [('1','fordított körte alakú'),('2','kicsi, de környezetétől elváló'),('3','plicaszerű')]) }}
+            {{ bilateral('A8', 'A tuberculum–gerinc inklinációs szög', [('1','nincs szögeltérés'),('2','jelentős szögeltérés'),('3','plicaszerű, nem vizsgálható')]) }}
+            {{ bilateral('A9', 'A tuberculum alakváltozása szájnyitás–szájzáráskor', [('1','nem változik'),('2','kissé változik'),('3','abszolút mozgékony')]) }}
+            {{ single_question('A11', 'A11 · A szublingualis tájék vizsgálata', [('1','nem elődomborodó'),('2','puhán elődomborodó'),('3','tömött, elődomborodó')]) }}
+            {{ single_question('A12', 'A12 · A spinae mentales', [('1','nem tapintható'),('2','tapintható'),('3','nyomásra érzékeny')]) }}
+            {{ single_question('A13', 'A13 · TMI-funkció', [('1','panaszmentes'),('2','hangjelenség fájdalom vagy mozgáskorlátozottság nélkül'),('3','fájdalom és/vagy mozgáskorlátozottság')]) }}
+            {{ single_question('A14', 'A14 · Az antagonista fogazat', [('1','nincs'),('2','teljes lemezes, overdenture vagy részleges fémlemezes fogpótlás'),('3','teljesen megtartott vagy rögzített fogpótlással helyreállított')]) }}
+        {% endif %}
+            <div class="form-actions"><a class="button button-secondary" href="{{ url_for('baseline.patient', patient_id=visit.patient_id) }}">Mégse</a><button class="button button-primary" id="submitButton" type="submit" disabled>Hiánytalan vizsgálat mentése</button></div>
+        </section>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+    const form = document.getElementById('anatomyForm');
+    const groups = [...form.querySelectorAll('[data-question]')];
+    const submit = document.getElementById('submitButton');
+    const update = () => submit.disabled = !groups.every(group => group.querySelector('input:checked'));
+    form.addEventListener('change', update);
+    update();
+})();
+</script>
+{% endblock %}

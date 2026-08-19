@@ -4,30 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>{% block title %}PREDICT utánkövetés{% endblock %}</title>
+    <title>{% block title %}PREDICT kezdővizit{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
 </head>
 <body>
     <header class="app-header">
         <div class="header-inner">
-            <a class="brand" href="{{ url_for('followup.dashboard') }}">
+            <a class="brand" href="{{ url_for('baseline.dashboard') }}">
                 <span class="brand-mark">P</span>
-                <span><strong>PREDICT</strong><small>utánkövetési vizit</small></span>
+                <span><strong>PREDICT</strong><small>kiindulási vizit</small></span>
             </a>
-            {% if session.get('followup_authenticated') %}
+            {% if session.get('followup_authenticated') and baseline_csrf_token is defined %}
             <nav class="header-actions" aria-label="Fő navigáció">
                 <a href="{{ url_for('baseline.dashboard') }}">Kezdővizitek</a>
-                <a href="{{ url_for('followup.dashboard') }}">Beteglista</a>
-                <a href="{{ url_for('followup.export_csv') }}">CSV-export</a>
+                <a href="{{ url_for('followup.dashboard') }}">Utánkövetés</a>
                 <form action="{{ url_for('followup.logout') }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+                    <input type="hidden" name="csrf_token" value="{{ baseline_csrf_token() }}">
                     <button class="link-button" type="submit">Kilépés</button>
                 </form>
             </nav>
             {% endif %}
         </div>
     </header>
-
     <main class="page-shell">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -40,7 +38,6 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
-
     {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -226,9 +226,20 @@ def allowed_file(filename):
 
 
 from followup import create_followup_blueprint
+from baseline import create_baseline_blueprint
 
 app.register_blueprint(
     create_followup_blueprint(
+        connection_factory=create_db_connection,
+        hue_calculator=calculate_hue_circular_sd,
+        nas_uploader=upload_to_nas,
+        upload_folder=UPLOAD_FOLDER,
+        allowed_file=allowed_file,
+    )
+)
+
+app.register_blueprint(
+    create_baseline_blueprint(
         connection_factory=create_db_connection,
         hue_calculator=calculate_hue_circular_sd,
         nas_uploader=upload_to_nas,
@@ -244,12 +255,23 @@ LEGACY_FOLLOWUP_PATHS = {
     "/submit_final_mai",
 }
 
+LEGACY_BASELINE_PATHS = {
+    "/questionnaire1",
+    "/submit_questionnaire1",
+    "/questionnaire2",
+    "/submit_questionnaire2",
+    "/upload_init_mai",
+    "/submit_init_mai",
+}
+
 
 @app.before_request
 def close_legacy_followup_routes():
     """Prevent every legacy follow-up route from writing to patients."""
     if request.path in LEGACY_FOLLOWUP_PATHS:
         return render_template("legacy_followup_closed.html"), 410
+    if request.path in LEGACY_BASELINE_PATHS:
+        return render_template("legacy_baseline_closed.html"), 410
 
 @app.route('/')
 def welcome():

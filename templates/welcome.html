@@ -1,198 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>P.R.E.D.I.C.T. study</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>PREDICT klinikai adatfelvitel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #ebf2fa 0%, #d4e4f0 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #064789;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(6, 71, 137, 0.15);
-            padding: 30px 20px;
-            margin-top: 20px;
-        }
-        
-        h1 {
-            color: #064789;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        h2 {
-            color: #427aa1;
-            font-size: 20px;
-            font-weight: 600;
-            margin: 15px 0 10px;
-            text-align: center;
-        }
-        
-        h3 {
-            color: #427aa1;
-            font-size: 16px;
-            font-weight: 500;
-            margin: 10px 0;
-            text-align: center;
-        }
-        
-        h4 {
-            color: #064789;
-            font-size: 14px;
-            font-weight: 500;
-            margin: 8px 0;
-            text-align: center;
-        }
-        
-        p {
-            color: #064789;
-            font-size: 14px;
-            margin: 12px 0;
-            text-align: center;
-        }
-        
-        .links {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 25px 0;
-        }
-        
-        .links a {
-            display: block;
-            padding: 16px 20px;
-            background: linear-gradient(135deg, #427aa1 0%, #064789 100%);
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(6, 71, 137, 0.2);
-            border: 2px solid transparent;
-        }
-        
-        .links a:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 8px rgba(6, 71, 137, 0.3);
-        }
-        
-        .links a:hover {
-            background: linear-gradient(135deg, #064789 0%, #427aa1 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(6, 71, 137, 0.3);
-        }
-        
-        .info-box {
-            background: #ebf2fa;
-            border-left: 4px solid #427aa1;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 8px;
-        }
-        
-        .info-box p {
-            text-align: left;
-            margin: 5px 0;
-            font-size: 13px;
-        }
-        
-        .copyright {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #ebf2fa;
-            text-align: center;
-            font-size: 12px;
-            color: #427aa1;
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px 15px;
-                margin-top: 10px;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
-            
-            h2 {
-                font-size: 18px;
-            }
-            
-            .links a {
-                padding: 14px 16px;
-                font-size: 14px;
-            }
-        }
-        
-        @media (min-width: 481px) and (max-width: 768px) {
-            .container {
-                max-width: 500px;
-            }
-        }
+        .home-shell { max-width: 920px; margin: 0 auto; padding: 64px 22px; }
+        .home-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 42px; }
+        .home-brand .brand-mark { width: 52px; height: 52px; color: white; font-size: 26px; }
+        .home-brand strong, .home-brand span { display: block; }
+        .home-brand strong { font-size: 22px; }
+        .home-brand span { color: var(--muted); margin-top: 2px; }
+        .home-intro { max-width: 720px; margin-bottom: 28px; }
+        .home-intro h1 { font-size: clamp(34px, 7vw, 58px); margin: 0 0 12px; }
+        .workflow-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .workflow-card { display: flex; flex-direction: column; min-height: 270px; }
+        .workflow-card .step-number { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--brand-soft); color: var(--brand-dark); font-weight: 850; }
+        .workflow-card h2 { font-size: 26px; margin: 24px 0 10px; }
+        .workflow-card p { color: var(--muted); line-height: 1.55; margin: 0 0 24px; }
+        .workflow-card .button { margin-top: auto; align-self: flex-start; }
+        .secondary-links { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
+        .secondary-links a { font-weight: 700; }
+        @media (max-width: 680px) { .home-shell { padding-top: 30px; } .workflow-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>Hellóka</h1>
-        <h3>Ez a</h3>
-        <h2>P.R.E.D.I.C.T. study</h2> 
-        <h3>PRognostic Evaluation of EDentulousness: Inspecting CriTical anatomy</h3>
-        <h4>adatfelvivő webalkalmazása</h4>
-        
-        <div class="info-box">
-            <p>Válaszd ki, most épp mit szeretnél feltölteni! 2024. szeptember 20-tól <u>CSAK IGAZI ADATOK</u> fogadására alkalmas!</p>
-        </div>
-        
-        <div class="info-box">
-            <p><b>Fontos:</b> ha nincs meg a TAJ-szám az adatbázisban, akkor a feltöltés nem fog működni! Csak az első stációnál lehet új TAJ-számot nyitni!</p>
-        </div>
-        
-        <div class="links">
-            <a href="/questionnaire1">1. Első felmérés kérdőíve</a>
-            <a href="{{ url_for('upload_init_mai') }}">2. Első MAI rágatás képének feltöltése</a>
-            <a href="/questionnaire2">3. A modellanalízis eredményei</a>
-            <a href="{{ url_for('followup.dashboard') }}">4. Utánkövetési vizit – kérdőív és MAI</a>
-        </div>
-        
-        <div class="links">
-            <a href="/results">Eddigi eredmények</a> 
-        </div>
-
-        <div class="links">
-            <a href="/student_exam">Hallgatói fizikális vizsgálat</a>
-        </div>
-
-        <div class="links">
-            <a href="{{ url_for('followup.dashboard') }}">Utánkövetési vizit munkafelület</a>
-        </div>
-        
-        <div class="copyright">
-            <p>&#169; Front- és backend: König János</p>
-        </div>
-    </div>
+<main class="home-shell">
+    <div class="home-brand"><span class="brand-mark">P</span><div><strong>PREDICT</strong><span>klinikai adatfelvitel</span></div></div>
+    <section class="home-intro">
+        <p class="eyebrow">PRognostic Evaluation of EDentulousness: Inspecting CriTical anatomy</p>
+        <h1>Milyen vizitet rögzítesz?</h1>
+        <p class="lead">Mindkét betegadat-kezelő munkafelület hozzáférési kóddal védett.</p>
+    </section>
+    <section class="workflow-grid">
+        <article class="card workflow-card">
+            <span class="step-number">1</span>
+            <h2>Új beteg és kezdővizit</h2>
+            <p>Betegfelvétel, OHIP–GOHAI kérdőív, klinikai anatómia, modellanalízis, kiindulási MAI és lezárás.</p>
+            <a class="button button-primary" href="{{ url_for('baseline.dashboard') }}">Kezdővizitek megnyitása</a>
+        </article>
+        <article class="card workflow-card">
+            <span class="step-number">2</span>
+            <h2>Utánkövetési vizit</h2>
+            <p>Kétállcsontos betegek megkeresése, időpont, recall OHIP–GOHAI, anchor-kérdések, F9 és utánkövetési MAI.</p>
+            <a class="button button-primary" href="{{ url_for('followup.dashboard') }}">Utánkövetés megnyitása</a>
+        </article>
+    </section>
+    <nav class="secondary-links" aria-label="További funkciók">
+        <a href="{{ url_for('results') }}">Eddigi eredmények</a>
+        <a href="{{ url_for('student_exam') }}">Hallgatói fizikális vizsgálat</a>
+    </nav>
+</main>
 </body>
 </html>

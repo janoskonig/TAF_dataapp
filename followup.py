@@ -24,6 +24,7 @@ from flask import (
     url_for,
 )
 from werkzeug.utils import secure_filename
+from urllib.parse import urlsplit
 
 
 OHIP_FIELDS = [f"ohip_{i}_recall" for i in range(1, 6)]
@@ -203,6 +204,7 @@ def create_followup_blueprint(
         ), cohort AS (
             SELECT * FROM latest
             WHERE LOWER(TRIM("denture_type")) = 'both'
+              AND "OHIP_1" IS NOT NULL
         )
         SELECT
             c."id" AS patient_id,
@@ -211,7 +213,10 @@ def create_followup_blueprint(
                 NULLIF(TRIM(f.patient_display_name), ''),
                 NULLIF(TRIM(c."paciens_neve"), '')
             ) AS patient_name,
-            f.patient_phone,
+            COALESCE(
+                NULLIF(TRIM(f.patient_phone), ''),
+                NULLIF(TRIM(c."paciens_telefonszam"), '')
+            ) AS patient_phone,
             c."gender" AS gender,
             c."birthdate" AS birthdate,
             c."init_mai_huedegree" AS init_mai_huedegree,
@@ -291,15 +296,19 @@ def create_followup_blueprint(
 
     @bp.route("/login", methods=["GET", "POST"])
     def login():
+        next_url = request.values.get("next", "")
+        parsed_next = urlsplit(next_url)
+        if not next_url.startswith("/") or parsed_next.netloc or next_url.startswith("//"):
+            next_url = ""
         if request.method == "POST":
             validate_csrf()
             configured = os.getenv("FOLLOWUP_ACCESS_CODE")
             supplied = request.form.get("access_code", "")
             if configured and secrets.compare_digest(configured, supplied):
                 session["followup_authenticated"] = True
-                return redirect(url_for("followup.dashboard"))
+                return redirect(next_url or url_for("followup.dashboard"))
             flash("Hibás hozzáférési kód.", "error")
-        return render_template("followup_login.html")
+        return render_template("followup_login.html", next_url=next_url)
 
     @bp.post("/logout")
     def logout():
@@ -580,7 +589,9 @@ def create_followup_blueprint(
                 WHERE "TAJ" IS NOT NULL
                 ORDER BY "TAJ", "id" DESC
             ), cohort AS (
-                SELECT * FROM latest WHERE LOWER(TRIM("denture_type")) = 'both'
+                SELECT * FROM latest
+                WHERE LOWER(TRIM("denture_type")) = 'both'
+                  AND "OHIP_1" IS NOT NULL
             )
             SELECT
                 c."id" AS source_patient_id,

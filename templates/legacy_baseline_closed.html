@@ -1,0 +1,11 @@
+{% extends "baseline_base.html" %}
+{% block title %}Régi adatbevitel lezárva · PREDICT{% endblock %}
+{% block content %}
+<section class="narrow-card card">
+    <p class="eyebrow">Adatbiztonsági védelem</p>
+    <h1>Ez a régi kezdővizites adatbevitel le van zárva</h1>
+    <p class="lead">A régi oldal TAJ alapján közvetlenül módosította a <code>patients</code> táblát, ezért már nem használható.</p>
+    <p>Az új felület piszkozatot ment, ellenőrzi a hiányokat, és csak a lezáráskor írja be a beteg adatait.</p>
+    <a class="button button-primary" href="{{ url_for('baseline.dashboard') }}">Új kezdővizites felület megnyitása</a>
+</section>
+{% endblock %}

@@ -3,10 +3,11 @@
 {% block content %}
 <section class="login-card card">
     <p class="eyebrow">Klinikai munkafelület</p>
-    <h1>Utánkövetési vizitek</h1>
-    <p class="lead">A beteglista és az egészségügyi adatok védett felületének megnyitása.</p>
+    <h1>Klinikai munkafelületek</h1>
+    <p class="lead">A kezdő- és utánkövetési vizitek egészségügyi adatainak védett megnyitása.</p>
     <form method="post" class="stack-form">
         <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
+        <input type="hidden" name="next" value="{{ next_url }}">
         <label for="access_code">Hozzáférési kód</label>
         <input id="access_code" name="access_code" type="password" autocomplete="current-password" required autofocus>
         <button class="button button-primary" type="submit">Belépés</button>

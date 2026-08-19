@@ -1,0 +1,75 @@
+{% extends "baseline_base.html" %}
+{% block title %}Kiindulási kérdőív · {{ visit.study_code }}{% endblock %}
+{% macro question(name, legend, options) %}
+<fieldset class="question-group" data-question="{{ name }}">
+    <legend>{{ legend }}</legend>
+    <div class="answer-grid">
+        {% for value, label in options %}
+        <div class="answer-option">
+            <input type="radio" id="{{ name }}_{{ loop.index }}" name="{{ name }}" value="{{ value }}" required {% if form_values.get(name)|string == value|string %}checked{% endif %}>
+            <label for="{{ name }}_{{ loop.index }}">{{ label }}</label>
+        </div>
+        {% endfor %}
+    </div>
+</fieldset>
+{% endmacro %}
+{% block content %}
+<div class="questionnaire-shell">
+    <div class="breadcrumb"><a href="{{ url_for('baseline.patient', patient_id=visit.patient_id) }}">← Vissza a kezdővizithez</a></div>
+    <div class="page-heading"><div><p class="eyebrow">{{ visit.study_code }} · 2. lépés</p><h1>Kiindulási kérdőív</h1><p class="lead">Minden kérdésnél egy választ kell megjelölni. Nincs előre kiválasztott válasz.</p></div></div>
+    <div class="question-progress" aria-live="polite"><strong><span id="answeredCount">0</span> / 19 kérdés megválaszolva</strong><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
+    <form method="post" id="questionnaireForm">
+        <input type="hidden" name="csrf_token" value="{{ baseline_csrf_token() }}">
+        <section class="card">
+            <h2 class="question-section-title">Szájüregi egészség és rágóképesség</h2>
+            {% set situation_options = [('Kiváló','Kiváló'),('Jó','Jó'),('Átlagos','Átlagos'),('Rossz','Rossz'),('Nagyon rossz','Nagyon rossz')] %}
+            {{ question('responsiveness_today_situation', 'Hogyan jellemezné fogai és szája egészségét a mai napon?', situation_options) }}
+            {{ question('chewing_today_situation', 'Hogyan jellemezné rágóképességét a mai napon?', situation_options) }}
+
+            <h2 class="question-section-title">OHIP-5</h2>
+            {% set ohip_options = [('0','Soha'),('1','Ritkán'),('2','Néha'),('3','Gyakran'),('4','Nagyon gyakran')] %}
+            {{ question('OHIP_1', 'Volt-e rágással kapcsolatos nehézsége a fogak, a száj vagy a protézis problémája miatt?', ohip_options) }}
+            {{ question('OHIP_2', 'Érzett-e fokozott fájdalmat a szájában?', ohip_options) }}
+            {{ question('OHIP_3', 'Érezte-e magát kényelmetlenül a fogak, a száj vagy a protézis megjelenése miatt?', ohip_options) }}
+            {{ question('OHIP_4', 'Kevésbé érzékelhető volt-e az étel íze a fogakkal, a szájjal vagy a protézissel kapcsolatos problémája miatt?', ohip_options) }}
+            {{ question('OHIP_5', 'Voltak-e nehézségei a szokásos munkavégzésben a fogakkal, a szájjal vagy a protézissel kapcsolatos problémája miatt?', ohip_options) }}
+
+            <h2 class="question-section-title">GOHAI</h2>
+            <p class="lead questionnaire-instruction">Milyen gyakran fordult elő az elmúlt 3 hónapban…</p>
+            {% set gohai_options = [('1','Mindig'),('2','Gyakran'),('3','Néha'),('4','Ritkán'),('5','Soha')] %}
+            {{ question('GOHAI_1', '…hogy fogai, fogpótlása vagy műfogsora miatt kevesebbet evett, vagy másfajta ételeket választott?', gohai_options) }}
+            {{ question('GOHAI_2', '…hogy nehézséget okozott valamilyen típusú étel harapása vagy rágása, például rostos hús vagy alma?', gohai_options) }}
+            {{ question('GOHAI_3', '…hogy nehezen nyelt?', gohai_options) }}
+            {{ question('GOHAI_4', '…hogy fogai, fogpótlása vagy műfogsora miatt nem tudta úgy kiejteni a szavakat, ahogy szerette volna?', gohai_options) }}
+            {{ question('GOHAI_5', '…hogy kellemetlenséggel járt az evés?', gohai_options) }}
+            {{ question('GOHAI_6', '…hogy fogai, fogpótlása vagy műfogsora állapota miatt kevesebbet találkozott másokkal?', gohai_options) }}
+            {{ question('GOHAI_7', '…hogy elégedetlen volt fogai, ínye, fogpótlása vagy műfogsora kinézetével?', gohai_options) }}
+            {{ question('GOHAI_8', '…hogy a szája vagy szája környéke fájdalmának vagy kellemetlenségének enyhítésére gyógyszert használt?', gohai_options) }}
+            {{ question('GOHAI_9', '…hogy aggódott fogai, ínye, fogpótlása vagy műfogsora állapota miatt?', gohai_options) }}
+            {{ question('GOHAI_10', '…hogy zavarba jött vagy kellemetlenül érezte magát fogai, ínye, fogpótlása vagy műfogsora állapota miatt?', gohai_options) }}
+            {{ question('GOHAI_11', '…hogy fogai, fogpótlása vagy műfogsora miatt kellemetlennek érezte, hogy mások jelenlétében egyen?', gohai_options) }}
+            {{ question('GOHAI_12', '…hogy fogai vagy ínye érzékenyek voltak melegre, hidegre vagy édesre?', gohai_options) }}
+            <div class="form-actions"><a class="button button-secondary" href="{{ url_for('baseline.patient', patient_id=visit.patient_id) }}">Mégse</a><button class="button button-primary" id="submitButton" type="submit" disabled>Hiánytalan kérdőív mentése</button></div>
+        </section>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+    const form = document.getElementById('questionnaireForm');
+    const groups = [...form.querySelectorAll('[data-question]')];
+    const count = document.getElementById('answeredCount');
+    const fill = document.getElementById('progressFill');
+    const submit = document.getElementById('submitButton');
+    function updateProgress() {
+        const answered = groups.filter(group => group.querySelector('input:checked')).length;
+        count.textContent = answered;
+        fill.style.width = `${(answered / groups.length) * 100}%`;
+        submit.disabled = answered !== groups.length;
+    }
+    form.addEventListener('change', updateProgress);
+    updateProgress();
+})();
+</script>
+{% endblock %}

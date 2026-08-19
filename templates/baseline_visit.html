@@ -1,0 +1,45 @@
+{% extends "baseline_base.html" %}
+{% block title %}{{ visit.study_code }} · PREDICT kezdővizit{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{{ url_for('baseline.dashboard') }}">← Vissza a kezdővizitekhez</a></div>
+<div class="visit-header">
+    <div><p class="eyebrow">{{ visit.study_code }}</p><h1>{{ visit.patient_name }}</h1><p class="lead">{{ visit.taj }} · {{ visit.patient_phone or 'nincs telefonszám' }} · {{ {'lower':'alsó','upper':'felső','both':'felső és alsó'}[visit.denture_type] }} fogsor</p></div>
+    {% if visit.status == 'completed' %}<span class="badge badge-success">Lezárt kezdővizit</span>{% endif %}
+</div>
+
+<section class="progress-grid">
+    {% for title, complete in [('Kérdőív',visit.questionnaire_complete),('Klinikai anatómia',visit.anatomy_complete),('Modellanalízis',visit.model_complete),('Kiindulási MAI',visit.mai_complete)] %}
+    <div class="progress-item {{ 'complete' if complete else 'pending' }}"><strong>{{ loop.index }}. {{ title }}</strong><span>{{ 'Kész' if complete else 'Hiányzik' }}</span></div>
+    {% endfor %}
+</section>
+
+{% if visit.status != 'completed' %}
+<section class="card section-card">
+    <div class="section-head"><div><h2>2. Beteg által kitöltött kérdőív</h2><p class="muted">OHIP-5, GOHAI-12 és a két jelenállapot-kérdés; összesen 19 kötelező válasz.</p></div><a class="button button-secondary" href="{{ url_for('baseline.questionnaire', patient_id=visit.patient_id) }}">{{ 'Ellenőrzés / javítás' if visit.questionnaire_complete else 'Kitöltés' }}</a></div>
+</section>
+<section class="card section-card">
+    <div class="section-head"><div><h2>3. Klinikai anatómiai vizsgálat</h2><p class="muted">Csak a kiválasztott állcsontnak megfelelő képletek jelennek meg.</p></div><a class="button button-secondary" href="{{ url_for('baseline.anatomy', patient_id=visit.patient_id) }}">{{ 'Ellenőrzés / javítás' if visit.anatomy_complete else 'Rögzítés' }}</a></div>
+</section>
+<section class="card section-card">
+    <div class="section-head"><div><h2>4. Modellanalízis</h2><p class="muted">Numerikus mérések és alsó állcsont esetén a három A2 STL-fájl.</p></div><a class="button button-secondary" href="{{ url_for('baseline.model', patient_id=visit.patient_id) }}">{{ 'Ellenőrzés / javítás' if visit.model_complete else 'Rögzítés' }}</a></div>
+</section>
+<section class="card section-card">
+    <div class="section-head"><div><h2>5. Kiindulási MAI</h2><p class="muted">TIFF kép; a hue-degree értéket a rendszer automatikusan számítja.</p></div>{% if visit.mai_complete %}<span class="badge badge-success">{{ '%.2f'|format(visit.init_mai_huedegree) }}°</span>{% endif %}</div>
+    <form method="post" action="{{ url_for('baseline.save_mai', patient_id=visit.patient_id) }}" enctype="multipart/form-data" class="stack-form">
+        <input type="hidden" name="csrf_token" value="{{ baseline_csrf_token() }}">
+        <div><label for="image">MAI-kép (TIFF/TIF)</label><input id="image" name="image" type="file" accept=".tif,.tiff,image/tiff" required></div>
+        <div><label for="mai_note">Megjegyzés (nem kötelező)</label><textarea id="mai_note" name="mai_note">{{ visit.mai_note or '' }}</textarea></div>
+        <div class="form-actions"><button class="button button-secondary" type="submit">{{ 'MAI cseréje' if visit.mai_complete else 'MAI feltöltése' }}</button></div>
+    </form>
+</section>
+<section class="card section-card">
+    <div class="section-head"><div><h2>6. Hiányellenőrzés és lezárás</h2><p class="muted">Lezárás után a kezdővizit nem módosítható, és az adatok bekerülnek az elemzési rekordba.</p></div></div>
+    <form method="post" action="{{ url_for('baseline.complete_visit', patient_id=visit.patient_id) }}">
+        <input type="hidden" name="csrf_token" value="{{ baseline_csrf_token() }}">
+        <button class="button button-primary" type="submit" {% if not visit.ready %}disabled{% endif %}>Hiánytalan kezdővizit lezárása</button>
+    </form>
+</section>
+{% else %}
+<section class="card"><h2>A kezdővizit lezárva</h2><p class="lead">A kérdőív, anatómia, modellanalízis és MAI adatai bekerültek a beteg elemzési rekordjába. A lezárt adatlap ezen a felületen már nem módosítható.</p></section>
+{% endif %}
+{% endblock %}

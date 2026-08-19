@@ -1,0 +1,30 @@
+{% extends "baseline_base.html" %}
+{% block title %}Új beteg · PREDICT{% endblock %}
+{% block content %}
+<div class="questionnaire-shell">
+    <div class="breadcrumb"><a href="{{ url_for('baseline.dashboard') }}">← Vissza a kezdővizitekhez</a></div>
+    <div class="page-heading"><div><p class="eyebrow">1. lépés</p><h1>Új beteg felvétele</h1><p class="lead">A TAJ-t a rendszer ellenőrzi, és meglévő beteghez nem enged új kezdővizitet nyitni.</p></div></div>
+    <form method="post" class="card stack-form" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="{{ baseline_csrf_token() }}">
+        <div class="grid grid-2">
+            <div><label for="patient_name">Beteg teljes neve</label><input id="patient_name" name="patient_name" type="text" maxlength="150" required></div>
+            <div><label for="taj">Teljes TAJ</label><input id="taj" name="taj" type="text" inputmode="numeric" maxlength="11" pattern="[0-9]{3}-[0-9]{3}-[0-9]{3}" placeholder="000-000-000" required></div>
+            <div><label for="patient_phone">Telefonszám</label><input id="patient_phone" name="patient_phone" type="tel" maxlength="30" placeholder="+36 30 123 4567"></div>
+            <div><label for="birthdate">Születési dátum</label><input id="birthdate" name="birthdate" type="date" required></div>
+            <div><label for="gender">Nem</label><select id="gender" name="gender" required><option value="">Válassz…</option><option value="Female">nő</option><option value="Male">férfi</option></select></div>
+            <div><label for="denture_type">Készítendő fogsor</label><select id="denture_type" name="denture_type" required><option value="">Válassz…</option><option value="lower">csak alsó</option><option value="upper">csak felső</option><option value="both">felső és alsó</option></select></div>
+            <div><label for="data_collector">Kitöltő monogramja</label><input id="data_collector" name="data_collector" type="text" maxlength="12" required></div>
+        </div>
+        <label class="checkbox-line"><input type="checkbox" name="consent_confirmed" value="1" required><span>Megerősítem, hogy a beteg dokumentált kutatási beleegyezése rendelkezésre áll.</span></label>
+        <div class="form-actions"><a class="button button-secondary" href="{{ url_for('baseline.dashboard') }}">Mégse</a><button class="button button-primary" type="submit">Beteg rögzítése</button></div>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('taj').addEventListener('input', event => {
+    const digits = event.target.value.replace(/\D/g, '').slice(0, 9);
+    event.target.value = [digits.slice(0,3), digits.slice(3,6), digits.slice(6,9)].filter(Boolean).join('-');
+});
+</script>
+{% endblock %}

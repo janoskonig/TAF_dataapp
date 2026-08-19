@@ -1,0 +1,14 @@
+{% extends "baseline_base.html" %}
+{% block title %}Beállítás szükséges · PREDICT{% endblock %}
+{% block content %}
+<section class="narrow-card card">
+    <p class="eyebrow">Egyszeri beállítás</p>
+    <h1>A kezdővizites felület még nincs aktiválva</h1>
+    {% if migration_missing %}
+    <p>Futtasd a <code>migrate_baseline_workflow.sql</code> migrációt az alkalmazás adatbázisán.</p>
+    {% else %}
+    <p>Állíts be egy erős <code>FOLLOWUP_ACCESS_CODE</code> értéket, majd indítsd újra az alkalmazást.</p>
+    {% endif %}
+    <p class="muted">A migráció a meglévő mérési értékeket nem módosítja.</p>
+</section>
+{% endblock %}

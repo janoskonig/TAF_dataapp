@@ -1,0 +1,53 @@
+{% extends "baseline_base.html" %}
+{% block title %}Kezdővizitek · PREDICT{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Védett klinikai munkafelület</p>
+        <h1>Kiindulási vizitek</h1>
+        <p class="lead">Új beteg felvétele, hiányellenőrzés és biztonságos lezárás egy helyen.</p>
+    </div>
+    <a class="button button-primary" href="{{ url_for('baseline.register_patient') }}">+ Új beteg</a>
+</div>
+
+<section class="stats-grid stats-grid-4" aria-label="Összesítés">
+    <div class="stat"><strong>{{ stats.total }}</strong><span>megnyitott kezdővizit</span></div>
+    <div class="stat"><strong>{{ stats.in_progress }}</strong><span>folyamatban</span></div>
+    <div class="stat"><strong>{{ stats.ready }}</strong><span>lezárható</span></div>
+    <div class="stat stat-emphasis"><strong>{{ stats.completed }}</strong><span>lezárt</span></div>
+</section>
+
+<section class="card">
+    <form class="toolbar" method="get">
+        <div class="search">
+            <label class="field-label" for="q">Keresés név, telefonszám, kutatási azonosító vagy TAJ alapján</label>
+            <input id="q" name="q" type="text" value="{{ query }}" placeholder="Név, telefonszám, PRED-0012 vagy TAJ">
+        </div>
+        <button class="button button-secondary" type="submit">Keresés</button>
+    </form>
+    {% if visits %}
+    <div class="patient-table-wrap">
+        <table class="patient-table">
+            <thead><tr><th>Beteg</th><th>Telefon</th><th>Kérdőív</th><th>Anatómia</th><th>Modell</th><th>MAI</th><th>Állapot</th><th></th></tr></thead>
+            <tbody>
+            {% for visit in visits %}
+            <tr>
+                <td class="patient-id"><strong>{{ visit.patient_name }}</strong><small>{{ visit.taj }} · {{ visit.study_code }}</small></td>
+                <td>{{ visit.patient_phone or '—' }}</td>
+                {% for complete in [visit.questionnaire_complete, visit.anatomy_complete, visit.model_complete, visit.mai_complete] %}
+                <td><span class="badge {{ 'badge-success' if complete else 'badge-warning' }}">{{ 'kész' if complete else 'hiányzik' }}</span></td>
+                {% endfor %}
+                <td>
+                    {% if visit.status == 'completed' %}<span class="badge badge-success">lezárt</span>
+                    {% elif visit.ready %}<span class="badge badge-success">lezárható</span>
+                    {% else %}<span class="badge badge-muted">folyamatban</span>{% endif %}
+                </td>
+                <td><a class="button button-secondary" href="{{ url_for('baseline.patient', patient_id=visit.patient_id) }}">Megnyitás</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}<div class="empty-state">Még nincs kezdővizit, vagy a keresésnek nincs találata.</div>{% endif %}
+</section>
+{% endblock %}
