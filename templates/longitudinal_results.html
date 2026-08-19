@@ -33,7 +33,12 @@
         .simulation-banner strong { display:block; font-size:18px; letter-spacing:.04em; margin-bottom:4px; }
         .simulation-mark { display:inline-flex; align-items:center; border-radius:999px; padding:5px 10px; background:#fff3dc; color:#80500f; font-size:12px; font-weight:850; letter-spacing:.05em; vertical-align:middle; margin-left:8px; }
         .assumption-list { margin:12px 0 0; line-height:1.55; }
-        @media (max-width:700px) { .results-shell { padding-left:14px; padding-right:14px; } .anchor-grid { grid-template-columns:1fr; } .results-nav { align-items:flex-start; flex-direction:column; } }
+        .viz-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:22px; }
+        .chart-card { overflow:hidden; }
+        .chart-card h2 { margin-bottom:4px; }
+        .plot-wrap { width:100%; min-width:0; overflow:hidden; }
+        .primary-analysis { border:2px solid #9bd4cf; box-shadow:0 16px 38px rgba(8,111,112,.12); }
+        @media (max-width:700px) { .results-shell { padding-left:14px; padding-right:14px; } .anchor-grid, .viz-grid { grid-template-columns:1fr; } .results-nav { align-items:flex-start; flex-direction:column; } }
     </style>
 </head>
 <body>
@@ -42,13 +47,13 @@
     <header class="hero">
         <p class="eyebrow">Előre rögzített pilot elemzés · csak denture_type = both</p>
         <h1>Anatómiai hátrányterhelés és utánkövetési kimenetek</h1>
-        <p class="lead">A folytonos OHIP-, GOHAI- és MAI-kimeneteket nem dichotomizáljuk. Az ötfokú elhorgonyzó kérdéseket proporcionális odds modellel értékeljük.</p>
+        <p class="lead">Az elsődleges eredmény a nem dichotomizált OHIP-, GOHAI- és MAI-kimenetek kiindulási értékre korrigált β-együtthatója. Az ordinális OR kizárólag másodlagos anchor-validáció.</p>
     </header>
 
     {% if report.model_source == 'simulated' %}
     <aside class="simulation-banner" role="note">
         <strong>SZIMULÁLT DEMONSTRÁCIÓ — NEM KUTATÁSI EREDMÉNY</strong>
-        Az OR- és regressziós táblák {{ report.simulation.n }} mesterséges beteg in-memory szimulációján alapulnak. A valódi betegszámok és a párosított leíró eredmények ettől elkülönítve, változatlanul a valódi adatbázisból származnak. A szimuláció egyetlen betegrekordot sem ír az adatbázisba.
+        Az elsődleges β-regressziós és a másodlagos anchor-OR táblák {{ report.simulation.n }} mesterséges beteg in-memory szimulációján alapulnak. A valódi betegszámok és a párosított leíró eredmények ettől elkülönítve, változatlanul a valódi adatbázisból származnak. A szimuláció egyetlen betegrekordot sem ír az adatbázisba.
     </aside>
     {% endif %}
 
@@ -61,9 +66,20 @@
 
     {% if report.model_source == 'simulated' %}
     <div class="flash flash-info">
-        Jelenleg {{ report.cohort.any_followup }} betegnek van valamilyen valódi utánkövetési adata. A felület akkor vált automatikusan valódi modellekre, amikor mind az öt elsődleges modellhez legalább {{ report.real_model_switch_n }} teljes eset rendelkezésre áll.
+        Jelenleg {{ report.cohort.any_followup }} betegnek van valamilyen valódi utánkövetési adata. A felület akkor vált automatikusan valódi modellekre, amikor mindhárom elsődleges folytonos modellhez legalább {{ report.real_model_switch_n }} teljes eset rendelkezésre áll.
     </div>
     {% endif %}
+
+    <section class="viz-grid" aria-label="Valódi adatlefedettségi ábrák">
+        <article class="card chart-card"><h2>Valódi adatlefedettség</h2><p class="muted small">Az értékelhető utánkövetések száma a teljes kétállcsontos kohorszhoz viszonyítva.</p><div class="plot-wrap">{{ report.charts.coverage | safe }}</div></article>
+        <article class="card chart-card"><h2>Valódi anatómiai tehereloszlás</h2><p class="muted small">A 0–5 előre definiált összpontszám gyakorisága a rendelkezésre álló kiindulási adatokban.</p><div class="plot-wrap">{{ report.charts.anatomy | safe }}</div></article>
+    </section>
+
+    <section class="card chart-card result-section" aria-label="Valódi párosított kimeneti ábra">
+        <h2>Valódi párosított változások</h2>
+        <div class="plot-wrap">{{ report.charts.paired | safe }}</div>
+        <p class="muted small">A vékony vonalak egy-egy anonim beteg párosított értékeit, a vastag narancssárga vonal a párosított átlagot mutatja. A részletes számok az alábbi táblázatban olvashatók.</p>
+    </section>
 
     <section class="card result-section">
         <h2>1. Párosított valódi eredmények</h2>
@@ -83,18 +99,12 @@
         </table></div>
     </section>
 
-    <section class="result-section">
-        <h2>2. Valódi elhorgonyzó kérdések</h2>
-        <p class="section-intro">Az öt válaszkategória változatlanul marad; a „sokat romlott” a legalacsonyabb, a „sokat javult” a legmagasabb kategória.</p>
-        <div class="anchor-grid">{% for anchor in report.anchor_distributions %}
-            <article class="card"><p class="eyebrow">{{ anchor.role }}</p><h3>{{ anchor.label }}</h3><p class="muted">Értékelhető: n = {{ anchor.n }}</p><div class="anchor-counts">{% for item in anchor.counts %}<div class="anchor-count"><span>{{ item.label }}</span><strong>{{ item.count }}</strong></div>{% endfor %}</div></article>
-        {% endfor %}</div>
-    </section>
-
-    <section class="card result-section">
-        <h2>3. Folytonos regressziós modellek {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
+    <section class="card result-section primary-analysis">
+        <p class="eyebrow">Elsődleges elemzés</p>
+        <h2>2. Folytonos regressziós β-együtthatók {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
         <p class="section-intro">Modell: utánkövetési kimenet ~ kiindulási kimenet + anatómiai prediktor. A β az anatómiai prediktorhoz tartozó, HC3-robusztus 95%-os intervallummal közölt korrigált különbség.</p>
         <div class="interpretation"><strong>Irány:</strong> pozitív β rosszabb OHIP- és MAI-, de jobb GOHAI-kimenetet jelent. Negatív β ennek ellenkezője.</div>
+        <div class="plot-wrap">{{ report.charts.beta_forest | safe }}</div>
         {% for outcome_key, outcome_label in [('ohip_followup','OHIP-5'),('gohai_followup','GOHAI'),('mai_followup','MAI hue-degree')] %}
         <h3 class="question-section-title">{{ outcome_label }}</h3>
         <div class="table-wrap"><table class="results-table">
@@ -111,16 +121,26 @@
         {% endfor %}
     </section>
 
+    <section class="result-section">
+        <h2>3. Valódi anchor-válaszok leírása</h2>
+        <p class="section-intro">Az öt válaszkategória változatlanul marad; a „sokat romlott” a legalacsonyabb, a „sokat javult” a legmagasabb kategória.</p>
+        <div class="anchor-grid">{% for anchor in report.anchor_distributions %}
+            <article class="card"><p class="eyebrow">{{ anchor.role }}</p><h3>{{ anchor.label }}</h3><p class="muted">Értékelhető: n = {{ anchor.n }}</p><div class="anchor-counts">{% for item in anchor.counts %}<div class="anchor-count"><span>{{ item.label }}</span><strong>{{ item.count }}</strong></div>{% endfor %}</div></article>
+        {% endfor %}</div>
+    </section>
+
     <section class="card result-section">
-        <h2>4. Ordinális odds ratio-k {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
+        <p class="eyebrow">Másodlagos anchor-validáció</p>
+        <h2>4. Ordinális anchor-OR-ok {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
         <p class="section-intro">Az OR azt mutatja, hogyan változik a kedvezőbb anchor-kategóriába kerülés esélye. OR &lt; 1: kisebb esély kedvezőbb változásra; OR &gt; 1: nagyobb esély; OR = 1: nincs észlelhető kapcsolat.</p>
         <div class="interpretation">Az OR nem az OHIP-, GOHAI- vagy MAI-pontszám önkényesen dichotomizált változására vonatkozik, hanem a beteg eredeti, ötfokú változásértékelésére.</div>
+        <div class="plot-wrap">{{ report.charts.or_forest | safe }}</div>
         {% for anchor_key, anchor_label in [('oral_anchor','Szájüregi egészség változása'),('chewing_anchor','Rágóképesség változása')] %}
         <h3 class="question-section-title">{{ anchor_label }}</h3>
         <div class="table-wrap"><table class="results-table">
             <thead><tr><th>Anatómiai prediktor</th><th>Kódolás</th><th class="number">n</th><th class="number">Kategóriák</th><th class="number">OR (95% CI)</th><th class="number">p</th><th class="number">FDR q</th><th>Státusz / PO-ellenőrzés</th></tr></thead>
             <tbody>{% for row in report.ordinal_models if row.anchor == anchor_key %}<tr class="{{ 'primary-row' if row.predictor == 'anatomical_burden_0_5' else '' }}">
-                <td><strong>{{ row.predictor_label }}</strong>{% if row.predictor == 'anatomical_burden_0_5' %}<br><span class="badge badge-success">elsődleges</span>{% endif %}</td>
+                <td><strong>{{ row.predictor_label }}</strong>{% if row.predictor == 'anatomical_burden_0_5' %}<br><span class="badge badge-success">elsődleges prediktor</span>{% endif %}</td>
                 <td>{{ row.predictor_scale }}</td><td class="number">{{ row.n }}</td><td class="number">{{ row.categories }}</td>
                 <td class="number">{% if row.status == 'ok' %}{{ '%.2f'|format(row.odds_ratio) }} ({{ '%.2f'|format(row.ci_low) }}; {{ '%.2f'|format(row.ci_high) }}){% else %}—{% endif %}</td>
                 <td class="number">{{ '%.3f'|format(row.p_value) if row.status == 'ok' else '—' }}</td>

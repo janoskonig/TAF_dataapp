@@ -8,6 +8,8 @@ import warnings
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from statsmodels.miscmodels.ordinal_model import OrderedModel
 
 
@@ -187,10 +189,10 @@ def build_longitudinal_report(connection):
     report["real_ordinal_models"] = report["ordinal_models"]
     primary_rows = [
         row
-        for row in report["continuous_models"] + report["ordinal_models"]
+        for row in report["continuous_models"]
         if row["predictor"] == "anatomical_burden_0_5"
     ]
-    real_models_ready = len(primary_rows) == len(OUTCOMES) + len(ANCHORS) and all(
+    real_models_ready = len(primary_rows) == len(OUTCOMES) and all(
         row.get("status") == "ok" and row.get("n", 0) >= REAL_MODEL_SWITCH_N
         for row in primary_rows
     )
@@ -249,6 +251,7 @@ def build_longitudinal_report(connection):
                 ],
             },
         )
+    report["charts"] = build_visualizations(df, report)
     return report
 
 
@@ -282,6 +285,237 @@ def simulate_followup_frame(real_df, n=SIMULATION_N, seed=SIMULATION_SEED):
     sampled["oral_anchor"] = np.digitize(oral_latent, [1.5, 2.5, 3.5, 4.5]) + 1
     sampled["chewing_anchor"] = np.digitize(chewing_latent, [1.5, 2.5, 3.5, 4.5]) + 1
     return sampled
+
+
+def build_visualizations(real_df, report):
+    """Build aggregate, identifier-free interactive charts for the results page."""
+    charts = {
+        "coverage": _coverage_chart(report["cohort"]),
+        "anatomy": _anatomy_distribution_chart(real_df),
+        "paired": _paired_outcomes_chart(real_df),
+        "beta_forest": _beta_forest_chart(report["continuous_models"], report["model_source"]),
+        "or_forest": _or_forest_chart(report["ordinal_models"], report["model_source"]),
+    }
+    return charts
+
+
+def _coverage_chart(cohort):
+    labels = [
+        "Kétállcsontos kohorsz",
+        "Bármilyen utánkövetés",
+        "Teljes OHIP–GOHAI + anchor",
+        "Teljes MAI + anchor",
+    ]
+    values = [
+        cohort["eligible"],
+        cohort["any_followup"],
+        cohort["questionnaire_pairs"],
+        cohort["mai_pairs"],
+    ]
+    denominator = max(cohort["eligible"], 1)
+    text_values = [f"{value} ({100 * value / denominator:.0f}%)" for value in values]
+    fig = go.Figure(
+        go.Bar(
+            x=values[::-1],
+            y=labels[::-1],
+            orientation="h",
+            text=text_values[::-1],
+            textposition="outside",
+            cliponaxis=False,
+            marker=dict(color=["#d77a36", "#5d8fa3", "#37a29d", "#0d5f62"]),
+            hovertemplate="%{y}: %{x} beteg<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        title="A valódi utánkövetési adatok lefedettsége",
+        xaxis_title="Betegek száma",
+        yaxis_title=None,
+        xaxis=dict(range=[0, max(values) * 1.25 if max(values) else 1], rangemode="tozero"),
+        height=330,
+        margin=dict(l=20, r=55, t=55, b=45),
+        showlegend=False,
+    )
+    return _chart_html(fig, include_plotlyjs="cdn")
+
+
+def _anatomy_distribution_chart(real_df):
+    counts = (
+        real_df["anatomical_burden_0_5"]
+        .dropna()
+        .astype(int)
+        .value_counts()
+        .reindex(range(6), fill_value=0)
+    )
+    fig = go.Figure(
+        go.Bar(
+            x=[str(value) for value in counts.index],
+            y=counts.values,
+            text=counts.values,
+            textposition="outside",
+            marker_color="#086f70",
+            hovertemplate="Teherpont: %{x}<br>Beteg: %{y}<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        title="Valódi 0–5 anatómiai hátrányterhelés",
+        xaxis_title="Anatómiai hátránypont",
+        yaxis_title="Betegek száma",
+        yaxis=dict(rangemode="tozero", dtick=1),
+        height=330,
+        margin=dict(l=55, r=20, t=55, b=50),
+        showlegend=False,
+    )
+    return _chart_html(fig)
+
+
+def _paired_outcomes_chart(real_df):
+    panels = [
+        ("ohip_baseline", "ohip_followup", "OHIP-5", "0–20; ↑ rosszabb"),
+        ("gohai_baseline", "gohai_followup", "GOHAI", "12–60; ↑ jobb"),
+        ("mai_baseline", "mai_followup", "MAI hue-degree", "↑ rosszabb"),
+    ]
+    fig = make_subplots(rows=1, cols=3, subplot_titles=[f"{label}<br><sup>{note}</sup>" for _, _, label, note in panels])
+    for column, (baseline, followup, _, _) in enumerate(panels, 1):
+        paired = real_df[[baseline, followup]].dropna()
+        for _, row in paired.iterrows():
+            fig.add_trace(
+                go.Scatter(
+                    x=["Kiindulás", "Utánkövetés"],
+                    y=[row[baseline], row[followup]],
+                    mode="lines+markers",
+                    line=dict(color="rgba(96,117,130,.35)", width=1.5),
+                    marker=dict(color="#607582", size=6),
+                    showlegend=False,
+                    hovertemplate="%{x}: %{y:.2f}<extra></extra>",
+                ),
+                row=1,
+                col=column,
+            )
+        if not paired.empty:
+            fig.add_trace(
+                go.Scatter(
+                    x=["Kiindulás", "Utánkövetés"],
+                    y=[paired[baseline].mean(), paired[followup].mean()],
+                    mode="lines+markers",
+                    line=dict(color="#d77a36", width=4),
+                    marker=dict(color="#d77a36", size=10, symbol="diamond"),
+                    name="Átlag",
+                    showlegend=column == 1,
+                    hovertemplate="Átlag · %{x}: %{y:.2f}<extra></extra>",
+                ),
+                row=1,
+                col=column,
+            )
+    fig.update_layout(
+        title="Valódi párosított kiindulási és utánkövetési pontszámok",
+        height=410,
+        margin=dict(l=45, r=20, t=80, b=45),
+        legend=dict(orientation="h", y=1.08, x=1, xanchor="right"),
+    )
+    return _chart_html(fig)
+
+
+def _beta_forest_chart(rows, source):
+    outcome_order = [("ohip_followup", "OHIP-5"), ("gohai_followup", "GOHAI"), ("mai_followup", "MAI hue-degree")]
+    fig = make_subplots(rows=3, cols=1, subplot_titles=[label for _, label in outcome_order], vertical_spacing=0.09)
+    for panel, (outcome, _) in enumerate(outcome_order, 1):
+        selected = [row for row in rows if row["outcome"] == outcome and row.get("status") == "ok"]
+        selected = list(reversed(selected))
+        if not selected:
+            continue
+        estimates = [row["beta"] for row in selected]
+        fig.add_trace(
+            go.Scatter(
+                x=estimates,
+                y=[row["predictor_label"] for row in selected],
+                mode="markers",
+                marker=dict(
+                    size=[12 if row["predictor"] == "anatomical_burden_0_5" else 9 for row in selected],
+                    color=["#d77a36" if row["predictor"] == "anatomical_burden_0_5" else "#086f70" for row in selected],
+                    symbol=["diamond" if row["predictor"] == "anatomical_burden_0_5" else "circle" for row in selected],
+                ),
+                error_x=dict(
+                    type="data",
+                    symmetric=False,
+                    array=[row["ci_high"] - row["beta"] for row in selected],
+                    arrayminus=[row["beta"] - row["ci_low"] for row in selected],
+                    color="#607582",
+                    thickness=1.5,
+                ),
+                text=[row["predictor_scale"] for row in selected],
+                hovertemplate="%{y}<br>β=%{x:.2f}<br>%{text}<extra></extra>",
+                showlegend=False,
+            ),
+            row=panel,
+            col=1,
+        )
+        fig.add_vline(x=0, line_dash="dash", line_color="#8396a0", row=panel, col=1)
+        fig.update_xaxes(title_text="β és 95%-os CI", row=panel, col=1)
+    source_label = "SZIMULÁLT DEMONSTRÁCIÓ" if source == "simulated" else "VALÓDI ADAT"
+    fig.update_layout(
+        title=f"{source_label} · Korrigált folytonos regressziós hatások",
+        height=920,
+        margin=dict(l=220, r=35, t=75, b=45),
+    )
+    return _chart_html(fig)
+
+
+def _or_forest_chart(rows, source):
+    anchor_order = [("oral_anchor", "Szájüregi egészség anchor"), ("chewing_anchor", "Rágóképesség anchor")]
+    fig = make_subplots(rows=2, cols=1, subplot_titles=[label for _, label in anchor_order], vertical_spacing=0.13)
+    for panel, (anchor, _) in enumerate(anchor_order, 1):
+        selected = [row for row in rows if row["anchor"] == anchor and row.get("status") == "ok"]
+        selected = list(reversed(selected))
+        if not selected:
+            continue
+        estimates = [row["odds_ratio"] for row in selected]
+        fig.add_trace(
+            go.Scatter(
+                x=estimates,
+                y=[row["predictor_label"] for row in selected],
+                mode="markers",
+                marker=dict(
+                    size=[12 if row["predictor"] == "anatomical_burden_0_5" else 9 for row in selected],
+                    color=["#d77a36" if row["predictor"] == "anatomical_burden_0_5" else "#5d8fa3" for row in selected],
+                    symbol=["diamond" if row["predictor"] == "anatomical_burden_0_5" else "circle" for row in selected],
+                ),
+                error_x=dict(
+                    type="data",
+                    symmetric=False,
+                    array=[row["ci_high"] - row["odds_ratio"] for row in selected],
+                    arrayminus=[row["odds_ratio"] - row["ci_low"] for row in selected],
+                    color="#607582",
+                    thickness=1.5,
+                ),
+                text=[row["predictor_scale"] for row in selected],
+                hovertemplate="%{y}<br>OR=%{x:.2f}<br>%{text}<extra></extra>",
+                showlegend=False,
+            ),
+            row=panel,
+            col=1,
+        )
+        fig.add_vline(x=1, line_dash="dash", line_color="#8396a0", row=panel, col=1)
+        fig.update_xaxes(title_text="OR és 95%-os CI (log skála)", type="log", row=panel, col=1)
+    source_label = "SZIMULÁLT DEMONSTRÁCIÓ" if source == "simulated" else "VALÓDI ADAT"
+    fig.update_layout(
+        title=f"{source_label} · Másodlagos ordinális anchor-OR-ok",
+        height=680,
+        margin=dict(l=220, r=35, t=75, b=45),
+    )
+    return _chart_html(fig)
+
+
+def _chart_html(fig, include_plotlyjs=False):
+    fig.update_layout(
+        template="plotly_white",
+        font=dict(family="Inter, ui-sans-serif, system-ui, sans-serif", color="#132c3b", size=12),
+        hoverlabel=dict(font_size=12),
+    )
+    return fig.to_html(
+        full_html=False,
+        include_plotlyjs=include_plotlyjs,
+        config={"displayModeBar": False, "responsive": True},
+    )
 
 
 def cohort_summary(df):
