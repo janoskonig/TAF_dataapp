@@ -31,6 +31,70 @@
     <div class="section-head">
         <div><h2>Megkeresés és időpont</h2><p class="muted">A visszautasítás vagy távolmaradás okát csak akkor rögzítsd, ha önként megadja.</p></div>
     </div>
+    <details class="call-guide" open>
+        <summary>
+            <span><strong>Telefonos hívási súgó</strong><small>Határozott, de korrekt időpont-egyeztető sablonok</small></span>
+            <span class="call-guide-toggle" aria-hidden="true">Megnyitás</span>
+        </summary>
+        <div class="call-guide-body">
+            <div class="call-guidelines">
+                <strong>Javasolt ritmus:</strong> adj két konkrét lehetőséget, majd várd meg a választ. Egy kifogás után egyszer pontosíts; egyértelmű visszautasításnál zárd le udvariasan. Ne ígérj nem garantálható vizitidőt vagy várakozásmentességet.
+            </div>
+            <div class="call-script-grid">
+                <article class="call-script">
+                    <div class="call-script-head">
+                        <span class="script-kicker">1 · Első hívás</span>
+                        <span class="badge badge-success">két időpont</span>
+                    </div>
+                    <h3>Határozott időpontkérés</h3>
+                    <p id="call-script-opening" class="script-text">Jó napot kívánok, {{ patient.patient_name or '[PÁCIENS NEVE]' }}? [SAJÁT NÉV] vagyok a [INTÉZMÉNY] PREDICT vizsgálatától. A korábbi teljes fogpótlása után aktuális kutatási utánkövetés miatt hívom. Most csak időpontot egyeztetünk; a részvétel természetesen önkéntes. Két lehetőséget tudok ajánlani: [A IDŐPONT] vagy [B IDŐPONT]. Melyik lenne megfelelőbb Önnek?</p>
+                    <button class="button button-secondary copy-script" type="button" data-copy-target="call-script-opening">Szöveg másolása</button>
+                </article>
+
+                <article class="call-script">
+                    <div class="call-script-head">
+                        <span class="script-kicker">2 · „Nincs időm”</span>
+                        <span class="badge badge-warning">kifogáskezelés</span>
+                    </div>
+                    <h3>Tereld választásra</h3>
+                    <p id="call-script-busy" class="script-text">Teljesen értem. Az Ön visszajelzése akkor is értékes, ha nincs panasza. A vizit várhatóan [VALÓS IDŐTARTAM] perc; olyan időpontot keresünk, ami előre tervezhető. Inkább délelőtt vagy délután lenne könnyebb? Ahhoz mondok rögtön két lehetőséget.</p>
+                    <button class="button button-secondary copy-script" type="button" data-copy-target="call-script-busy">Szöveg másolása</button>
+                </article>
+
+                <article class="call-script">
+                    <div class="call-script-head">
+                        <span class="script-kicker">3 · Most nem alkalmas</span>
+                        <span class="badge badge-warning">konkrét visszahívás</span>
+                    </div>
+                    <h3>Ne hagyd nyitva a visszahívást</h3>
+                    <p id="call-script-callback" class="script-text">Rendben, nem tartom fel. Rögzítsünk egy konkrét visszahívást, hogy ne kelljen egymást keresnünk: ma [IDŐPONT]-kor vagy holnap [IDŐPONT]-kor hívhatom? Csak a megbeszélt időben keresem, és akkor két szabad vizitidőpontból tud választani.</p>
+                    <button class="button button-secondary copy-script" type="button" data-copy-target="call-script-callback">Szöveg másolása</button>
+                </article>
+
+                <article class="call-script">
+                    <div class="call-script-head">
+                        <span class="script-kicker">4 · Bizonytalan visszautasítás</span>
+                        <span class="badge badge-danger">utolsó pontosítás</span>
+                    </div>
+                    <h3>Derítsd ki, időpont- vagy részvételi gond</h3>
+                    <p id="call-script-decline" class="script-text">Természetesen tiszteletben tartjuk a döntését. Mielőtt lezárom, egy dolgot hadd pontosítsak: maga a részvétel nem fér bele, vagy a felajánlott időpontok nem megfelelőek? Ha az időpont a gond, keresek másikat; ha nem szeretne részt venni, rögzítem, és nem győzködöm tovább.</p>
+                    <button class="button button-secondary copy-script" type="button" data-copy-target="call-script-decline">Szöveg másolása</button>
+                </article>
+
+                <article class="call-script call-script-wide">
+                    <div class="call-script-head">
+                        <span class="script-kicker">5 · SMS / hangposta</span>
+                        <span class="badge badge-muted">diszkrét</span>
+                    </div>
+                    <h3>Visszahívást kérő rövid üzenet</h3>
+                    <p id="call-script-message" class="script-text">Tisztelt {{ patient.patient_name or '[PÁCIENS NEVE]' }}! [SAJÁT NÉV] vagyok a [INTÉZMÉNY]-től. Egy korábbi ellátásához kapcsolódó rövid egyeztetés miatt kerestem. Kérem, hívjon vissza a [TELEFONSZÁM] számon [ELÉRHETŐSÉGI IDŐSÁV]-ban. Köszönöm.</p>
+                    <button class="button button-secondary copy-script" type="button" data-copy-target="call-script-message">Szöveg másolása</button>
+                </article>
+            </div>
+            <p class="muted small call-privacy-note">SMS-ben és hangpostán szándékosan ne szerepeljen kutatási részlet vagy egészségügyi információ. A szögletes zárójeles részeket küldés előtt mindig töltsd ki.</p>
+            <span id="copy-status" class="visually-hidden" aria-live="polite"></span>
+        </div>
+    </details>
     <form action="{{ url_for('followup.save_logistics', patient_id=patient.patient_id) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">
         <div class="grid grid-2">
@@ -141,4 +205,27 @@
         <div class="form-actions"><button class="button button-primary" type="submit">Hiányellenőrzés és lezárás</button></div>
     </form>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.copy-script').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const target = document.getElementById(button.dataset.copyTarget);
+            if (!target) return;
+
+            try {
+                await navigator.clipboard.writeText(target.textContent.trim());
+                const originalLabel = button.textContent;
+                button.textContent = 'Másolva ✓';
+                document.getElementById('copy-status').textContent = 'A hívási sablon a vágólapra került.';
+                window.setTimeout(function () {
+                    button.textContent = originalLabel;
+                }, 1800);
+            } catch (error) {
+                window.prompt('Másold ki a sablont:', target.textContent.trim());
+            }
+        });
+    });
+</script>
 {% endblock %}

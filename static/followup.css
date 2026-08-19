@@ -109,6 +109,28 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(55, 162, 157
 .section-card { margin-bottom: 18px; }
 .section-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; margin-bottom: 16px; }
 .section-head p { margin: 4px 0 0; }
+.call-guide { border: 1px solid #b8d7d5; border-radius: 14px; background: #f7fbfb; margin: 0 0 22px; overflow: hidden; }
+.call-guide summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 18px; background: var(--brand-soft); cursor: pointer; list-style: none; }
+.call-guide summary::-webkit-details-marker { display: none; }
+.call-guide summary strong, .call-guide summary small { display: block; }
+.call-guide summary small { color: var(--muted); font-size: 12px; margin-top: 3px; }
+.call-guide-toggle { color: var(--brand-dark); font-size: 12px; font-weight: 800; }
+.call-guide-toggle::after { content: " ↓"; }
+.call-guide[open] .call-guide-toggle { font-size: 0; }
+.call-guide[open] .call-guide-toggle::before { content: "Bezárás"; font-size: 12px; }
+.call-guide[open] .call-guide-toggle::after { content: " ↑"; font-size: 12px; }
+.call-guide-body { padding: 18px; }
+.call-guidelines { background: #fff; border-left: 4px solid var(--accent); border-radius: 8px; color: #4d5f67; font-size: 13px; line-height: 1.55; margin-bottom: 14px; padding: 11px 13px; }
+.call-script-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.call-script { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 16px; }
+.call-script-wide { grid-column: 1 / -1; }
+.call-script-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin-bottom: 10px; }
+.script-kicker { color: var(--brand); font-size: 11px; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+.call-script h3 { margin: 0 0 8px; }
+.script-text { color: #324b57; font-size: 14px; line-height: 1.58; margin: 0 0 14px; }
+.copy-script { min-height: 38px; margin-top: auto; padding: 7px 11px; font-size: 12px; }
+.call-privacy-note { margin: 13px 2px 0; line-height: 1.45; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .checkbox-line { display: flex; align-items: flex-start; gap: 10px; padding: 13px; border-radius: 10px; background: var(--brand-soft); }
 .checkbox-line input { width: 20px; height: 20px; margin-top: 1px; }
 .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
@@ -149,6 +171,8 @@ code { background: #eef3f4; border-radius: 5px; padding: 2px 5px; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .progress-grid { grid-template-columns: 1fr 1fr; }
     .answer-grid { grid-template-columns: 1fr; }
+    .call-script-grid { grid-template-columns: 1fr; }
+    .call-script-wide { grid-column: auto; }
     .answer-option label { min-height: 45px; justify-items: start; text-align: left; }
     .card { padding: 18px; }
 }
