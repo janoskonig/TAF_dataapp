@@ -36,6 +36,11 @@ import plotly.graph_objects as go
 load_dotenv(dotenv_path=".env")
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Strict",
+    SESSION_COOKIE_SECURE=os.getenv("RENDER", "").lower() == "true",
+)
 UPLOAD_FOLDER = 'uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 nas_host = os.getenv("NAS_HOST")

@@ -284,7 +284,8 @@ Az utánkövetéshez külön, hozzáférési kóddal védett munkafelület kész
 
 Fő funkciói:
 
-- maszkolt TAJ és kutatási azonosító szerinti beteglista;
+- kizárólag belépés után látható teljes név és TAJ, valamint kutatási
+  azonosító szerinti beteglista;
 - megkeresési státusz, időpont, visszautasítás és távolmaradás naplózása;
 - beleegyezés, eltelt idő, köztes korrekciók és események rögzítése;
 - előre bejelölt válaszok nélküli, hiánytalan kitöltést megkövetelő
@@ -292,6 +293,10 @@ Fő funkciói:
 - F9 és – kiindulási MAI esetén – utánkövetési MAI rögzítése;
 - automatikus hiányellenőrzés a vizit lezárása előtt;
 - közvetlen azonosító nélküli, elemzésre előkészített CSV-export.
+
+A közvetlen betegazonosítók csak a védett klinikai munkafelületen jelennek
+meg. A rendszer ezeknek az oldalaknak a böngésző-cache-elését tiltja; a
+kutatási CSV-export továbbra sem tartalmaz nevet, TAJ-t vagy születési dátumot.
 
 Az új adatok a `followup_visits` és `followup_contact_attempts` táblákba
 kerülnek. A felület nem frissíti és nem írja felül a `patients` tábla meglévő

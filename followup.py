@@ -81,6 +81,16 @@ def create_followup_blueprint(
     def inject_helpers():
         return {"followup_csrf_token": csrf_token}
 
+    @bp.after_request
+    def protect_health_data(response):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        return response
+
     def require_access(view):
         @wraps(view)
         def wrapped(*args, **kwargs):
@@ -193,6 +203,10 @@ def create_followup_blueprint(
         SELECT
             c."id" AS patient_id,
             c."TAJ" AS taj,
+            COALESCE(
+                NULLIF(TRIM(f.patient_display_name), ''),
+                NULLIF(TRIM(c."paciens_neve"), '')
+            ) AS patient_name,
             c."gender" AS gender,
             c."birthdate" AS birthdate,
             c."init_mai_huedegree" AS init_mai_huedegree,
@@ -238,6 +252,7 @@ def create_followup_blueprint(
             "visit_status",
             "contact_attempted_at",
             "appointment_at",
+            "patient_display_name",
             "contact_note",
             "nonattendance_reason",
             "consent_confirmed",
@@ -302,6 +317,7 @@ def create_followup_blueprint(
                 patient
                 for patient in patients
                 if query in patient["study_code"].lower()
+                or query in str(patient.get("patient_name") or "").lower()
                 or (query_digits and query_digits in "".join(c for c in str(patient["taj"]) if c.isdigit()))
             ]
         if status_filter == "scheduled":
@@ -357,6 +373,7 @@ def create_followup_blueprint(
         values = {
             "visit_status": status,
             "appointment_at": appointment,
+            "patient_display_name": request.form.get("patient_display_name", "").strip() or None,
             "contact_note": request.form.get("contact_note", "").strip() or None,
             "nonattendance_reason": request.form.get("nonattendance_reason", "").strip() or None,
         }

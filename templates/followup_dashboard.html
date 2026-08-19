@@ -5,7 +5,7 @@
     <div>
         <p class="eyebrow">Kétállcsontos kohorsz</p>
         <h1>Utánkövetési beteglista</h1>
-        <p class="lead">Gyors áttekintés arról, kinél mi hiányzik. A lista csak maszkolt TAJ-t jelenít meg.</p>
+        <p class="lead">Gyors áttekintés arról, kinél mi hiányzik. A név és a teljes TAJ csak belépés után jelenik meg.</p>
     </div>
     <a class="button button-secondary" href="{{ url_for('followup.export_csv') }}">Pszedonimizált CSV</a>
 </div>
@@ -22,8 +22,8 @@
 <section class="card">
     <form class="toolbar" method="get">
         <div class="search">
-            <label class="field-label" for="q">Keresés kutatási azonosító vagy TAJ alapján</label>
-            <input id="q" name="q" type="text" value="{{ query }}" placeholder="PRED-0012 vagy TAJ">
+            <label class="field-label" for="q">Keresés név, kutatási azonosító vagy TAJ alapján</label>
+            <input id="q" name="q" type="text" value="{{ query }}" placeholder="Név, PRED-0012 vagy TAJ">
         </div>
         <div>
             <label class="field-label" for="status">Szűrés</label>
@@ -56,7 +56,10 @@
             <tbody>
             {% for patient in patients %}
                 <tr>
-                    <td class="patient-id"><strong>{{ patient.study_code }}</strong><small>{{ patient.masked_taj }}</small></td>
+                    <td class="patient-id">
+                        <strong>{{ patient.patient_name or 'Név nincs rögzítve' }}</strong>
+                        <small>{{ patient.taj }} · {{ patient.study_code }}</small>
+                    </td>
                     <td>
                         {% if patient.appointment_at %}
                             {{ patient.appointment_at.strftime('%m. %d. %H:%M') }}

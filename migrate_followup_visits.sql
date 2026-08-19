@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS followup_visits (
     ),
     contact_attempted_at TIMESTAMP NULL,
     appointment_at TIMESTAMP NULL,
+    patient_display_name TEXT NULL,
     contact_note TEXT NULL,
     nonattendance_reason TEXT NULL,
 
@@ -68,6 +69,10 @@ CREATE INDEX IF NOT EXISTS followup_visits_appointment_idx
 
 CREATE INDEX IF NOT EXISTS followup_visits_status_idx
     ON followup_visits (visit_status);
+
+-- A már létező utánkövetési táblák biztonságos bővítése.
+ALTER TABLE followup_visits
+    ADD COLUMN IF NOT EXISTS patient_display_name TEXT NULL;
 
 CREATE TABLE IF NOT EXISTS followup_contact_attempts (
     id BIGSERIAL PRIMARY KEY,
