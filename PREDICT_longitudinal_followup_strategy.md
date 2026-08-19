@@ -1,8 +1,11 @@
 # PREDICT longitudinális utánkövetési stratégia
 
-**Státusz:** előre rögzített pilot elemzési és adatgyűjtési stratégia
+**Státusz:** felülvizsgált pilot elemzési és adatgyűjtési stratégia, a valódi
+végső eredményfuttatás előtt
 **Rögzítés dátuma:** 2026-08-19
-**Cél:** a mandibularis anatómiai hátrányterhelés és az utánkövetési orális
+**Felülvizsgálat dátuma:** 2026-08-19 — a kis minta miatt 4+4 állcsonti
+kategóriára egyszerűsítve
+**Cél:** az alsó és felső állcsont nyolc előre összevont klinikai kategóriája és az utánkövetési orális
 életminőség, rágóképesség, illetve színkeverési teljesítmény kapcsolatának
 vizsgálata kizárólag kétállcsontos (`denture_type == "both"`) betegekben,
 információvesztő dichotomizálás nélkül.
@@ -28,7 +31,7 @@ információvesztő dichotomizálás nélkül.
 
 Teljes esetnek kimenetenként az számít, akinél rendelkezésre áll:
 
-1. a szükséges anatómiai konstrukció;
+1. a szükséges állcsonti kategória;
 2. a kimenet kiindulási értéke;
 3. ugyanazon kimenet utánkövetési értéke;
 4. a megfelelő elhorgonyzó kérdés;
@@ -72,44 +75,43 @@ Az adatfelvételi mód minden betegnél azonos legyen. Telefonon és személyese
 felvett kimeneteket elsődleges elemzésben nem szabad automatikusan
 összevonni.
 
-## 5. Előre definiált anatómiai konstrukciók
+## 5. Előre definiált állcsonti kategóriák
 
-Minden konstrukció legfeljebb egy ponttal járul hozzá az összesített
-hátrányterheléshez.
+A sok, részben összetartozó tétel helyett nyolc kategória szerepel. Mindegyik
+0–1 kedvezőtlenségi skálát kap, és külön modellbe kerül; összesített
+teherpontszámot nem képzünk.
 
-### 5.1. Gerincatrophia
+### 5.1. Alsó állcsont
 
-- Kedvezőtlen, ha `A1_Kaan >= 3` vagy `A12 >= 2`.
-- Az A1/A12 blokk együtt is legfeljebb egy pontot ad.
+1. **Gerincprofil (A1):** `1 -> 0`, `2 -> 1/3`, `3 -> 2/3`, `4/5 -> 1`.
+   Az A2 folytonos modellanalízis ugyanennek alternatív mérése, ezért később
+   csak külön érzékenységi elemzésben használható, nem második független
+   prediktorként.
+2. **Szájfenék (A11):** `2 -> 0` (puhán elődomborodó), `1 -> 0,5`,
+   `3 -> 1` (tömött, elődomborodó).
+3. **Torus mandibularis (A4):** `0`, ha egyik oldalon sincs; `1`, ha legalább
+   az egyik oldalon 2-es vagy 3-as kód szerepel.
+4. **Tuberculum (A6–A9):** A6, A7 és A9 kódolása `1 -> 0`, `2 -> 0,5`,
+   `3 -> 1`; A8 kódolása `1 -> 0`, `2/3 -> 1`. A két oldal és a négy tétel
+   közös átlaga adja a kategóriaértéket.
 
-### 5.2. Torus mandibularis
+### 5.2. Felső állcsont
 
-- Kedvezőtlen, ha `A4` értéke 2 vagy 3 legalább az egyik oldalon.
+1. **Gerincprofil (F1):** a nagyobb magasság kedvezőbb; a mért
+   mintatartományban fordított 0–1 skálára képezzük, ahol 1 a legalacsonyabb
+   mért profil.
+2. **Lötyögő gerinc (F5):** `0`, ha nincs; `1`, ha tuber- vagy frontális
+   lokalizációban jelen van.
+3. **Torus palatinus (F7):** `0`, ha nincs; `1`, ha plató- vagy orsó alakban
+   jelen van.
+4. **Garatreflex (F9):** `0`, ha nem befolyásolta érdemben a kezelést
+   (1-es/2-es kód); `1`, ha jelentősen befolyásolta (3-as kód). Az F9
+   beteg-/kezelési tényező és részben folyamatváltozó, nem tiszta baseline
+   anatómiai prediktor, ezért külön óvatossággal értelmezendő.
 
-### 5.3. Lingualis tasak
-
-- Kedvezőtlen, ha `A5 = 3` legalább az egyik oldalon.
-
-### 5.4. Tuberculum-konstruktum
-
-- A6, A7 és A9 kódolása: `1 -> 0`, `2 -> 0,5`, `3 -> 1`.
-- A8 kódolása: `1 -> 0`, `2/3 -> 1`.
-- Elsődleges oldal-összevonás: a jobb és bal oldal átlaga.
-- A konstrukció értéke az A6–A9 blokkok átlaga.
-- Bináris érzékenységi definícióban kedvezőtlen, ha a blokkátlag `>= 0,5`.
-- A8 nélküli változat csak előre megnevezett érzékenységi elemzés.
-
-### 5.5. Szájfenék
-
-- Kedvezőtlen, ha `A11 = 3`.
-
-### 5.6. Összesített anatómiai hátrányterhelés
-
-- Elsődleges anatómiai prediktor: a fenti öt konstrukció `0–5` közötti
-  összege.
-- Elsődleges elemzésben folytonos/ordinális pontszámként szerepel; nem osztjuk
-  utólag alacsony és magas csoportokra.
-- Az egyes konstrukciók külön elemzése másodlagos és exploratív.
+A3, A5, A12 és A13 nem kap külön elsődleges modellt ebben a kis mintás
+stratégiában. F8 és A14 protetikai státusz, ezért nem állcsonti anatómiai
+kategória.
 
 ## 6. Anchor-leképezés
 
@@ -125,7 +127,7 @@ Az anchor sorrendje:
 4. Kicsit javult
 5. Sokat javult
 
-Az elsődleges elemzésben az anchort nem dichotomizáljuk. A beteg szubjektív
+Az elemzésben az anchort nem dichotomizáljuk. A beteg szubjektív
 változását ötkategóriás ordinális kimenetként tartjuk meg.
 
 ## 7. Elsődleges statisztikai elemzés
@@ -135,18 +137,16 @@ változását ötkategóriás ordinális kimenetként tartjuk meg.
 A nyers változás dichotomizálása helyett kiindulási értékre korrigált
 utánkövetési modellt használunk.
 
-Elsődleges OHIP-modell:
+Minden `category` prediktorra külön, egyváltozós anatómiai modellt illesztünk:
 
 ```text
-OHIP_followup ~ OHIP_baseline + anatomical_burden_0_5
+OHIP_followup  ~ OHIP_baseline  + category
+GOHAI_followup ~ GOHAI_baseline + category
+MAI_followup   ~ MAI_baseline   + category
 ```
 
-Másodlagos modellek:
-
-```text
-GOHAI_followup ~ GOHAI_baseline + anatomical_burden_0_5
-MAI_followup   ~ MAI_baseline   + anatomical_burden_0_5
-```
+A nyolc kategória nem kerül egyszerre ugyanabba a modellbe; a kohorsz ehhez
+túl kicsi lenne.
 
 A fő hatásmutató a regressziós együttható (`beta`) és annak 95%-os
 konfidenciaintervalluma:
@@ -165,10 +165,10 @@ Az ötkategóriás anchorhoz proporcionális odds ordinális logisztikus modellt
 illesztünk:
 
 ```text
-anchor_ordinal ~ anatomical_burden_0_5
+anchor_ordinal ~ category
 ```
 
-A fő hatásmutató az OR egy további anatómiai hátránypontonként:
+A fő hatásmutató az OR a kategória teljes 0→1 kedvezőtlenségi változására:
 
 - `OR < 1`: kisebb esély kedvezőbb anchor-kategóriára;
 - `OR > 1`: nagyobb esély kedvezőbb anchor-kategóriára;
@@ -180,12 +180,12 @@ elemzés szükséges.
 
 ## 8. Korrekciós változók és modellkomplexitás
 
-- Elsődleges kis mintás modell: kiindulási kimenet + anatómiai score.
+- Kis mintás modell: kiindulási kimenet + egy állcsonti kategória.
 - Életkorra korrigált modell: előre kijelölt érzékenységi elemzés.
 - Nem csak akkor kerülhet a modellbe, ha a teljes esetszám és az
   eseményeloszlás ezt stabilan lehetővé teszi. Fogsortípus nem kerül a
   modellbe, mert az elemzési populációban minden beteg `both`.
-- Kis mintában nem illesztünk egyszerre sok anatómiai komponenst és
+- Kis mintában nem illesztjük egyszerre a nyolc kategóriát és
   interakciót.
 - Automatikus változószelekció és p-érték alapján történő modellépítés nem
   használható.
@@ -205,21 +205,22 @@ elemzés szükséges.
 
 ## 10. Multiplicitás és elemzési hierarchia
 
-1. Elsődleges prediktor: `anatomical_burden_0_5`.
+1. Elsődleges elemzési keret: a nyolc előre rögzített kategória külön modellje.
 2. Elsődleges kimenet: kiindulási értékre korrigált utánkövetési OHIP-5.
 3. Másodlagos kimenetek: GOHAI és MAI.
 4. Anchor-elemzések: külső, beteg által jelzett változásvizsgálat.
-5. Az öt külön konstrukció eredménye exploratív.
 
-Az elsődleges elemzés egyetlen előre kijelölt hipotézist tesztel. A
-másodlagos és exploratív elemzéseket egyértelműen meg kell jelölni; szükség
-esetén Benjamini–Hochberg FDR-korrekció alkalmazandó.
+A nyolc kategória p-értékei kimenetenként Benjamini–Hochberg
+FDR-korrekciót kapnak. A hangsúly a hatásbecslésen és a 95%-os intervallumon,
+nem a szignifikancia szerinti rangsoroláson van.
 
 ## 11. Hiányzó adatok
 
 - Kimenetenként közölni kell a teljes esetszámot és a hiányzás okait.
 - Nem imputálunk mesterséges utánkövetési eredményeket.
-- Nagyon kis mintában az elsődleges elemzés teljes eseteken történik.
+- Nagyon kis mintában kategóriánként teljes eseteken történik az elemzés.
+- A felület ellenőrzését segítő szimuláció nem imputál valódi kutatási
+  kimenetet, nem ír adatbázist, és nem közölhető kutatási eredményként.
 - Ha később a minta és a hiányzási mintázat lehetővé teszi, többszörös
   imputáció csak előre rögzített változókkal és külön érzékenységi elemzésként
   alkalmazható.
@@ -234,7 +235,7 @@ A visszatérő és nem visszatérő betegek között aggregáltan összehasonlí
 - kiindulási OHIP-5;
 - kiindulási GOHAI;
 - kiindulási MAI;
-- anatómiai hátrányterhelési score.
+- a nyolc állcsonti kategória kiindulási értékei és hiányzási arányai.
 
 A különbségeket elsősorban standardizált különbségekkel és intervallumokkal,
 nem pusztán p-értékekkel kell bemutatni.
@@ -268,8 +269,8 @@ Minden fő eredmény mellett szerepeljen:
 - [ ] A megkeresési és megjelenési státusz dokumentált.
 - [ ] Az OHIP/GOHAI/MAI skálairányok ellenőrzöttek.
 - [ ] Az anchor-leképezés változatlan: OHIP/GOHAI → orális egészség, MAI → rágás.
-- [ ] Az öt konstrukció definíciója nem változott a kimenetek megtekintése után.
-- [ ] Az elsődleges prediktor a `0–5` anatómiai score.
+- [ ] A nyolc kategória 4+4-es definíciója a végső valódi eredményfuttatás előtt rögzített.
+- [ ] Nem készült összesített anatómiai score, és a nyolc kategória nem került egyszerre egy modellbe.
 - [ ] Az elsődleges kimenet a kiindulási értékre korrigált utánkövetési OHIP-5.
 - [ ] Az elemzés nem használ adatvezérelt dichotomizálást.
 - [ ] A modellkomplexitás megfelel a teljes esetszámnak.

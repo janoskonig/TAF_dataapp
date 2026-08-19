@@ -3,10 +3,48 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from longitudinal_analysis import PREDICTORS, fit_continuous_model, fit_ordinal_model, simulate_followup_frame
+from longitudinal_analysis import (
+    PREDICTORS,
+    PREDICTOR_GROUPS,
+    fit_continuous_model,
+    fit_ordinal_model,
+    prepare_analysis_frame,
+    simulate_followup_frame,
+)
 
 
 class LongitudinalModelTests(unittest.TestCase):
+    def test_predictors_are_the_four_lower_and_four_upper_categories(self):
+        self.assertEqual(len(PREDICTORS), 8)
+        self.assertEqual([len(group) for _, _, group in PREDICTOR_GROUPS], [4, 4])
+
+        values = {
+            "f1": [20, 10],
+            "f5": [1, 2],
+            "f7": [1, 3],
+            "f9": [1, 3],
+            "a1_kaan": [1, 5],
+            "a4_jobb": [1, 2],
+            "a4_bal": [1, 1],
+            "a11": [2, 3],
+            "mai_baseline": [30, 40],
+            "mai_followup": [25, 45],
+            "oral_anchor_text": ["Kicsit javult", "Változatlan maradt"],
+            "chewing_anchor_text": ["Kicsit javult", "Változatlan maradt"],
+        }
+        for number in range(6, 10):
+            for side in ("jobb", "bal"):
+                values[f"a{number}_{side}"] = [1, 2 if number == 8 else 3]
+        for prefix, count in (("ohip", 5), ("gohai", 12)):
+            for number in range(1, count + 1):
+                values[f"{prefix}_{number}"] = [1, 2]
+                values[f"{prefix}_{number}_recall"] = [1, 2]
+
+        prepared = prepare_analysis_frame(pd.DataFrame(values))
+        predictor_keys = [key for key, _, _ in PREDICTORS]
+        self.assertTrue((prepared.loc[0, predictor_keys] == 0).all())
+        self.assertTrue((prepared.loc[1, predictor_keys] == 1).all())
+
     def test_models_recover_expected_direction(self):
         rng = np.random.default_rng(20260819)
         n = 60

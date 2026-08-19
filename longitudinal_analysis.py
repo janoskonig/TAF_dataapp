@@ -1,4 +1,4 @@
-"""Preregistered longitudinal analyses for the PREDICT two-jaw cohort."""
+"""Small-sample longitudinal analyses for the PREDICT two-jaw cohort."""
 
 from __future__ import annotations
 
@@ -25,21 +25,40 @@ ANCHOR_ORDER = {
     "Sokat javult": 5,
 }
 
-PREDICTORS = [
-    ("f5_risk", "F5 · Lötyögő gerinc", "0 = nincs; 1 = jelen"),
-    ("f7_risk", "F7 · Torus palatinus", "0 = nincs; 1 = jelen"),
-    ("a1_risk", "A1 · Kaán-gerincforma", "0–1 súlyosság; 1 = legkedvezőtlenebb"),
-    ("a3_risk", "A3 · Buccinator tasak", "0 = kétoldalt kedvező; 1 = legalább egy kedvezőtlen oldal"),
-    ("a4_risk", "A4 · Torus mandibularis", "0 = nincs; 1 = legalább egy oldalon jelen"),
-    ("a5_risk", "A5 · Lingualis tasak", "két oldal 0–1 súlyossági átlaga"),
-    ("a6_risk", "A6 · Tuberculum feszes ínyborítása", "két oldal 0–1 súlyossági átlaga"),
-    ("a7_risk", "A7 · Tuberculum alakja", "két oldal 0–1 súlyossági átlaga"),
-    ("a8_risk", "A8 · Tuberculum–gerinc szög", "két oldal 0–1 kedvezőtlenségi átlaga"),
-    ("a9_risk", "A9 · Tuberculum mozgékonysága", "két oldal 0–1 súlyossági átlaga"),
-    ("a11_risk", "A11 · Szublingualis tájék", "0–1 súlyosság; 1 = tömött, elődomborodó"),
-    ("a12_risk", "A12 · Spinae mentales", "0–1 súlyosság; 1 = nyomásérzékeny"),
-    ("a13_risk", "A13 · TMI-funkció", "0–1 súlyosság; 1 = fájdalom/mozgáskorlátozottság"),
+PREDICTOR_GROUPS = [
+    (
+        "lower",
+        "Alsó állcsont",
+        [
+            ("lower_ridge_profile_risk", "Alsó · Gerincprofil (A1)", "0–1 súlyosság; 1 = legkedvezőtlenebb profil"),
+            ("mouth_floor_risk", "Alsó · Szájfenék (A11)", "0 = puhán elődomborodó; 0,5 = nem elődomborodó; 1 = tömött, elődomborodó"),
+            ("mandibular_torus_risk", "Alsó · Torus mandibularis (A4)", "0 = nincs; 1 = legalább egy oldalon jelen"),
+            ("tuberculum_risk", "Alsó · Tuberculum (A6–A9)", "az A6–A9 kétoldali tételeinek 0–1 közös átlaga"),
+        ],
+    ),
+    (
+        "upper",
+        "Felső állcsont",
+        [
+            ("upper_ridge_profile_risk", "Felső · Gerincprofil (F1)", "0–1 mintatartomány; 1 = legalacsonyabb mért gerincprofil"),
+            ("flabby_ridge_risk", "Felső · Lötyögő gerinc (F5)", "0 = nincs; 1 = jelen"),
+            ("palatal_torus_risk", "Felső · Torus palatinus (F7)", "0 = nincs; 1 = jelen"),
+            ("gag_reflex_risk", "Felső · Garatreflex (F9)", "0 = nem befolyásolta a kezelést; 1 = jelentősen befolyásolta"),
+        ],
+    ),
 ]
+PREDICTORS = [predictor for _, _, group in PREDICTOR_GROUPS for predictor in group]
+PREDICTOR_GROUP_BY_KEY = {
+    predictor[0]: group_key
+    for group_key, _, group in PREDICTOR_GROUPS
+    for predictor in group
+}
+BINARY_PREDICTORS = {
+    "mandibular_torus_risk",
+    "flabby_ridge_risk",
+    "palatal_torus_risk",
+    "gag_reflex_risk",
+}
 
 OUTCOMES = [
     ("ohip_followup", "ohip_baseline", "OHIP-5", "0–20; magasabb = rosszabb"),
@@ -69,19 +88,15 @@ def load_longitudinal_dataframe(connection):
             'p."id" AS patient_id',
             'p."birthdate" AS birthdate',
             'p."gender" AS gender',
+            'p."F1" AS f1',
             'p."F5" AS f5',
             'p."F7" AS f7',
+            'p."F9" AS f9',
             'p."A1_Kaan" AS a1_kaan',
-            'p."A3_jobb" AS a3_jobb',
-            'p."A3_bal" AS a3_bal',
             'p."A4_jobb" AS a4_jobb',
             'p."A4_bal" AS a4_bal',
-            'p."A5_jobb" AS a5_jobb',
-            'p."A5_bal" AS a5_bal',
             *[f'p."A{i}_{side}" AS a{i}_{side}' for i in range(6, 10) for side in ("jobb", "bal")],
             'p."A11" AS a11',
-            'p."A12" AS a12',
-            'p."A13" AS a13',
             *ohip_baseline,
             *gohai_baseline,
             'p."init_mai_huedegree" AS mai_baseline',
@@ -121,7 +136,7 @@ def prepare_analysis_frame(frame):
     numeric_columns = [
         column
         for column in df.columns
-        if column.startswith(("a", "f5", "f7", "ohip_", "gohai_", "mai_"))
+        if column.startswith(("a", "f1", "f5", "f7", "f9", "ohip_", "gohai_", "mai_"))
         and column not in {"oral_anchor_text", "chewing_anchor_text"}
     ]
     for column in numeric_columns:
@@ -134,50 +149,20 @@ def prepare_analysis_frame(frame):
     df["oral_anchor"] = df["oral_anchor_text"].map(ANCHOR_ORDER)
     df["chewing_anchor"] = df["chewing_anchor_text"].map(ANCHOR_ORDER)
 
-    df["f5_risk"] = df["f5"].map({1: 0.0, 2: 1.0, 3: 1.0})
-    df["f7_risk"] = df["f7"].map({1: 0.0, 2: 1.0, 3: 1.0})
-    df["a1_risk"] = df["a1_kaan"].map({1: 0.0, 2: 1 / 3, 3: 2 / 3, 4: 1.0, 5: 1.0})
-    df["a3_risk"] = df.apply(
-        lambda row: _any_adverse(row, ["a3_jobb", "a3_bal"], lambda value: value in {1, 3}), axis=1
+    df["lower_ridge_profile_risk"] = df["a1_kaan"].map(
+        {1: 0.0, 2: 1 / 3, 3: 2 / 3, 4: 1.0, 5: 1.0}
     )
-    df["a4_risk"] = df.apply(
+    # A11: 2 (puhán elődomborodó) a kedvező referencia, nem az 1-es kód.
+    df["mouth_floor_risk"] = df["a11"].map({2: 0.0, 1: 0.5, 3: 1.0})
+    df["mandibular_torus_risk"] = df.apply(
         lambda row: _any_adverse(row, ["a4_jobb", "a4_bal"], lambda value: value in {2, 3}), axis=1
     )
-    df["a5_risk"] = df.apply(
-        lambda row: _bilateral_mean_score(row, "a5", {1: 0.0, 2: 0.5, 3: 1.0}), axis=1
-    )
-    df["a6_risk"] = df.apply(
-        lambda row: _bilateral_mean_score(row, "a6", {1: 0.0, 2: 0.5, 3: 1.0}), axis=1
-    )
-    df["a7_risk"] = df.apply(
-        lambda row: _bilateral_mean_score(row, "a7", {1: 0.0, 2: 0.5, 3: 1.0}), axis=1
-    )
-    df["a8_risk"] = df.apply(
-        lambda row: _bilateral_mean_score(row, "a8", {1: 0.0, 2: 1.0, 3: 1.0}), axis=1
-    )
-    df["a9_risk"] = df.apply(
-        lambda row: _bilateral_mean_score(row, "a9", {1: 0.0, 2: 0.5, 3: 1.0}), axis=1
-    )
-    df["a11_risk"] = df["a11"].map({1: 0.0, 2: 0.5, 3: 1.0})
-    df["a12_risk"] = df["a12"].map({1: 0.0, 2: 0.5, 3: 1.0})
-    df["a13_risk"] = df["a13"].map({1: 0.0, 2: 0.5, 3: 1.0})
+    df["tuberculum_risk"] = df.apply(_tuberculum_score, axis=1)
 
-    df["ridge_atrophy"] = df.apply(_ridge_atrophy, axis=1)
-    df["torus_mandibularis"] = df.apply(
-        lambda row: _any_adverse(row, ["a4_jobb", "a4_bal"], lambda value: value in {2, 3}), axis=1
-    )
-    df["lingual_pouch"] = df.apply(
-        lambda row: _any_adverse(row, ["a5_jobb", "a5_bal"], lambda value: value == 3), axis=1
-    )
-    df["tuberculum_score"] = df.apply(_tuberculum_score, axis=1)
-    df["tuberculum_adverse"] = np.where(
-        df["tuberculum_score"].notna(),
-        (df["tuberculum_score"] >= 0.5).astype(float),
-        np.nan,
-    )
-    df["mouth_floor"] = np.where(df["a11"].notna(), (df["a11"] == 3).astype(float), np.nan)
-    components = ["ridge_atrophy", "torus_mandibularis", "lingual_pouch", "tuberculum_adverse", "mouth_floor"]
-    df["anatomical_burden_0_5"] = df[components].sum(axis=1, min_count=len(components))
+    df["upper_ridge_profile_risk"] = _reverse_minmax_score(df["f1"])
+    df["flabby_ridge_risk"] = df["f5"].map({1: 0.0, 2: 1.0, 3: 1.0})
+    df["palatal_torus_risk"] = df["f7"].map({1: 0.0, 2: 1.0, 3: 1.0})
+    df["gag_reflex_risk"] = df["f9"].map({1: 0.0, 2: 0.0, 3: 1.0})
     return df
 
 
@@ -189,6 +174,10 @@ def build_longitudinal_report(connection):
         "anchor_distributions": anchor_distributions(df),
         "continuous_models": [],
         "ordinal_models": [],
+        "predictor_groups": [
+            {"key": key, "label": label, "predictors": [item[0] for item in group]}
+            for key, label, group in PREDICTOR_GROUPS
+        ],
         "minimum_model_n": MIN_MODEL_N,
         "real_model_switch_n": REAL_MODEL_SWITCH_N,
     }
@@ -281,11 +270,12 @@ def build_longitudinal_report(connection):
             simulation={
                 "n": SIMULATION_N,
                 "seed": SIMULATION_SEED,
-                "source_pool_n": int(len(df[[key for key, _, _ in PREDICTORS] + ["ohip_baseline", "gohai_baseline", "mai_baseline"]].dropna())),
+                "source_pool_n": int(len(df[["ohip_baseline", "gohai_baseline", "mai_baseline"]].dropna())),
                 "assumptions": [
-                    "A kiindulási pontszámok és a 13 külön anatómiai képlet kódolt értékei a teljes meglévő kétállcsontos esetek visszatevéses mintavételéből származnak.",
-                    "A generáló egyenletben egy képlet teljes 0→1 kedvezőtlenségi változásának feltételezett hatása: OHIP +0,45; GOHAI −0,75; MAI hue-degree +2,6 pont, véletlen zaj mellett.",
-                    "Az anchor-generálás feltételezett log-odds hatása képletenkénti teljes 0→1 kedvezőtlenségre: szájüregi egészség −0,18; rágóképesség −0,15.",
+                    "A kiindulási pontszámok és a rendelkezésre álló állcsonti kategóriaértékek a meglévő kétállcsontos esetek soronkénti, visszatevéses mintavételéből származnak.",
+                    "A mintázott sorok hiányzó kategóriaértékeit az adott kategória megfigyelt eloszlásából pótoljuk. Ha egy bináris kategóriából csak egyféle érték látható, Laplace-simítást használunk, hogy a demonstráció mindkét lehetséges csoportot meg tudja jeleníteni.",
+                    "A generáló egyenletben egy kategória teljes 0→1 kedvezőtlenségi változásának feltételezett hatása: OHIP +0,45; GOHAI −0,75; MAI hue-degree +2,6 pont, véletlen zaj mellett.",
+                    "Az anchor-generálás feltételezett log-odds hatása kategóriánkénti teljes 0→1 kedvezőtlenségre: szájüregi egészség −0,18; rágóképesség −0,15.",
                     "A szimuláció rögzített maggal reprodukálható, kizárólag memóriában fut, és nem kerül egyik adatbázistáblába sem.",
                 ],
             },
@@ -297,12 +287,27 @@ def build_longitudinal_report(connection):
 def simulate_followup_frame(real_df, n=SIMULATION_N, seed=SIMULATION_SEED):
     """Create a deterministic in-memory demonstration cohort without DB writes."""
     rng = np.random.default_rng(seed)
-    columns = [key for key, _, _ in PREDICTORS] + ["ohip_baseline", "gohai_baseline", "mai_baseline"]
-    pool = real_df[columns].dropna().reset_index(drop=True)
+    risk_columns = [key for key, _, _ in PREDICTORS]
+    baseline_columns = ["ohip_baseline", "gohai_baseline", "mai_baseline"]
+    columns = risk_columns + baseline_columns
+    pool = real_df.dropna(subset=baseline_columns)
     if len(pool) < 5:
         raise ValueError("Legalább öt teljes kiindulási eset szükséges a demonstrációs szimulációhoz.")
-    sampled = pool.iloc[rng.integers(0, len(pool), size=n)].reset_index(drop=True).copy()
-    risk_columns = [key for key, _, _ in PREDICTORS]
+    sampled = pool.iloc[rng.integers(0, len(pool), size=n)][columns].reset_index(drop=True).copy()
+    for predictor in risk_columns:
+        observed = pd.to_numeric(real_df[predictor], errors="coerce").dropna().astype(float)
+        if observed.empty:
+            raise ValueError(f"A(z) {predictor} kategóriához nincs szimulációs forrásadat.")
+        if predictor in BINARY_PREDICTORS and observed.nunique() < 2:
+            probability = float((observed.sum() + 1) / (len(observed) + 2))
+            donor_values = rng.binomial(1, probability, size=n).astype(float)
+        else:
+            donor_values = rng.choice(observed.to_numpy(), size=n, replace=True)
+        missing = sampled[predictor].isna().to_numpy()
+        sampled.loc[missing, predictor] = donor_values[missing]
+        if predictor in BINARY_PREDICTORS and sampled[predictor].nunique(dropna=True) < 2:
+            probability = float((observed.sum() + 1) / (len(observed) + 2))
+            sampled[predictor] = rng.binomial(1, probability, size=n).astype(float)
     risk_sum = sampled[risk_columns].sum(axis=1).astype(float)
 
     sampled["ohip_followup"] = np.clip(
@@ -394,12 +399,12 @@ def _anatomy_distribution_chart(real_df):
         )
     )
     fig.update_layout(
-        title="Valódi anatómiai képletek 0–1 kedvezőtlenségi szintje",
+        title="Valódi állcsonti kategóriák 0–1 kedvezőtlenségi szintje",
         xaxis_title="Átlagos kedvezőtlenségi score (%)",
         yaxis_title=None,
         xaxis=dict(range=[0, 115], ticksuffix="%"),
-        height=560,
-        margin=dict(l=205, r=70, t=55, b=50),
+        height=470,
+        margin=dict(l=230, r=70, t=55, b=50),
         showlegend=False,
     )
     return _chart_html(fig)
@@ -467,9 +472,9 @@ def _beta_forest_chart(rows, source):
                 y=[row["predictor_label"] for row in selected],
                 mode="markers",
                 marker=dict(
-                    size=[12 if row["predictor"] == "anatomical_burden_0_5" else 9 for row in selected],
-                    color=["#d77a36" if row["predictor"] == "anatomical_burden_0_5" else "#086f70" for row in selected],
-                    symbol=["diamond" if row["predictor"] == "anatomical_burden_0_5" else "circle" for row in selected],
+                    size=9,
+                    color=["#086f70" if row.get("predictor_group") == "lower" else "#5d8fa3" for row in selected],
+                    symbol="circle",
                 ),
                 error_x=dict(
                     type="data",
@@ -491,7 +496,7 @@ def _beta_forest_chart(rows, source):
     source_label = "SZIMULÁLT DEMONSTRÁCIÓ" if source == "simulated" else "VALÓDI ADAT"
     fig.update_layout(
         title=f"{source_label} · Korrigált folytonos regressziós hatások",
-        height=1320,
+        height=980,
         margin=dict(l=285, r=35, t=75, b=45),
     )
     return _chart_html(fig)
@@ -512,9 +517,9 @@ def _or_forest_chart(rows, source):
                 y=[row["predictor_label"] for row in selected],
                 mode="markers",
                 marker=dict(
-                    size=[12 if row["predictor"] == "anatomical_burden_0_5" else 9 for row in selected],
-                    color=["#d77a36" if row["predictor"] == "anatomical_burden_0_5" else "#5d8fa3" for row in selected],
-                    symbol=["diamond" if row["predictor"] == "anatomical_burden_0_5" else "circle" for row in selected],
+                    size=9,
+                    color=["#086f70" if row.get("predictor_group") == "lower" else "#5d8fa3" for row in selected],
+                    symbol="circle",
                 ),
                 error_x=dict(
                     type="data",
@@ -536,7 +541,7 @@ def _or_forest_chart(rows, source):
     source_label = "SZIMULÁLT DEMONSTRÁCIÓ" if source == "simulated" else "VALÓDI ADAT"
     fig.update_layout(
         title=f"{source_label} · Másodlagos ordinális anchor-OR-ok",
-        height=940,
+        height=720,
         margin=dict(l=285, r=35, t=75, b=45),
     )
     return _chart_html(fig)
@@ -564,7 +569,7 @@ def cohort_summary(df):
         "any_followup": int(any_followup.sum()),
         "questionnaire_pairs": int(has_questionnaire.sum()),
         "mai_pairs": int(has_mai.sum()),
-        "complete_burden": int(df["anatomical_burden_0_5"].notna().sum()),
+        "complete_predictor_block": int(df[[key for key, _, _ in PREDICTORS]].notna().all(axis=1).sum()),
     }
 
 
@@ -741,7 +746,7 @@ def _threshold_slope_diagnostic(model_df, outcome, predictor):
 def _add_fdr(rows, group_key):
     groups = {}
     for row in rows:
-        if row.get("status") == "ok" and row["predictor"] != "anatomical_burden_0_5":
+        if row.get("status") == "ok":
             groups.setdefault(row[group_key], []).append(row)
     for group in groups.values():
         p_values = np.array([row["p_value"] for row in group], dtype=float)
@@ -758,7 +763,12 @@ def _add_fdr(rows, group_key):
 
 
 def _model_row(**values):
-    return {**values, "status": "pending"}
+    predictor = values.get("predictor")
+    return {
+        **values,
+        "predictor_group": PREDICTOR_GROUP_BY_KEY.get(predictor),
+        "status": "pending",
+    }
 
 
 def _sample_caution(n):
@@ -811,13 +821,17 @@ def _bilateral_mean_score(row, base, mapping):
     return float(np.mean(values)) if values else np.nan
 
 
-def _ridge_atrophy(row):
-    values = [row["a1_kaan"], row["a12"]]
-    if (pd.notna(values[0]) and values[0] >= 3) or (pd.notna(values[1]) and values[1] >= 2):
-        return 1.0
-    if all(pd.notna(value) for value in values):
-        return 0.0
-    return np.nan
+def _reverse_minmax_score(series):
+    """Map a higher-is-better measurement to an observed-range 0–1 risk score."""
+    values = pd.to_numeric(series, errors="coerce")
+    observed = values.dropna()
+    if observed.empty:
+        return pd.Series(np.nan, index=series.index, dtype=float)
+    minimum = float(observed.min())
+    maximum = float(observed.max())
+    if math.isclose(minimum, maximum):
+        return pd.Series(np.where(values.notna(), 0.0, np.nan), index=series.index, dtype=float)
+    return (maximum - values) / (maximum - minimum)
 
 
 def _tuberculum_score(row):

@@ -22,7 +22,7 @@
         .results-table th { background:#edf4f5; color:#49626e; text-align:left; font-size:11px; letter-spacing:.04em; text-transform:uppercase; padding:12px; white-space:nowrap; }
         .results-table td { padding:12px; border-top:1px solid var(--line); vertical-align:top; }
         .results-table .number { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
-        .primary-row td { background:#f0faf8; }
+        .jaw-start td { border-top:3px solid #b9ced3; }
         .status-note { max-width:330px; color:var(--muted); line-height:1.4; }
         .interpretation { background:var(--brand-soft); border-left:4px solid var(--brand); padding:15px 17px; border-radius:10px; margin-top:16px; line-height:1.55; }
         .anchor-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px; }
@@ -45,9 +45,9 @@
 <main class="results-shell">
     <nav class="results-nav"><a href="{{ url_for('welcome') }}">← PREDICT főoldal</a></nav>
     <header class="hero">
-        <p class="eyebrow">Előre rögzített pilot elemzés · csak denture_type = both</p>
-        <h1>Anatómiai képletek és utánkövetési kimenetek</h1>
-        <p class="lead">Az elsődleges eredmény a nem dichotomizált OHIP-, GOHAI- és MAI-kimenetek kiindulási értékre korrigált β-együtthatója. Az ordinális OR kizárólag másodlagos anchor-validáció.</p>
+        <p class="eyebrow">Kis mintára egyszerűsített pilot elemzés · csak denture_type = both</p>
+        <h1>Állcsonti anatómiai kategóriák és utánkövetési kimenetek</h1>
+        <p class="lead">A sok, részben összetartozó anatómiai tétel helyett négy alsó és négy felső állcsonti kategóriát vizsgálunk. A fő eredmény a nem dichotomizált OHIP-, GOHAI- és MAI-kimenetek kiindulási értékre korrigált β-együtthatója.</p>
     </header>
 
     {% if report.model_source == 'simulated' %}
@@ -66,13 +66,13 @@
 
     {% if report.model_source == 'simulated' %}
     <div class="flash flash-info">
-        Jelenleg {{ report.cohort.any_followup }} betegnek van valamilyen valódi utánkövetési adata. A felület akkor vált automatikusan valódi modellekre, amikor mindhárom elsődleges folytonos modellhez legalább {{ report.real_model_switch_n }} teljes eset rendelkezésre áll.
+        Jelenleg {{ report.cohort.any_followup }} betegnek van valamilyen valódi utánkövetési adata. A felület akkor vált automatikusan valódi modellekre, amikor mindhárom kimenet mind a nyolc kategóriamodelljéhez legalább {{ report.real_model_switch_n }} teljes eset rendelkezésre áll.
     </div>
     {% endif %}
 
     <section class="viz-grid" aria-label="Valódi adatlefedettségi ábrák">
         <article class="card chart-card"><h2>Valódi adatlefedettség</h2><p class="muted small">Az értékelhető utánkövetések száma a teljes kétállcsontos kohorszhoz viszonyítva.</p><div class="plot-wrap">{{ report.charts.coverage | safe }}</div></article>
-        <article class="card chart-card"><h2>Valódi anatómiai képletek</h2><p class="muted small">Minden képlet külön 0–1 kedvezőtlenségi skálán; 0 = kedvező, 1 = legkedvezőtlenebb. Ez nem összesített teherpontszám.</p><div class="plot-wrap">{{ report.charts.anatomy | safe }}</div></article>
+        <article class="card chart-card"><h2>Valódi anatómiai kategóriák</h2><p class="muted small">Négy alsó és négy felső állcsonti kategória 0–1 kedvezőtlenségi skálán; 0 = kedvező, 1 = legkedvezőtlenebb. Ez nem összesített teherpontszám.</p><div class="plot-wrap">{{ report.charts.anatomy | safe }}</div></article>
     </section>
 
     <section class="card chart-card result-section" aria-label="Valódi párosított kimeneti ábra">
@@ -100,7 +100,7 @@
     </section>
 
     <section class="card result-section primary-analysis">
-        <p class="eyebrow">Elsődleges elemzés</p>
+        <p class="eyebrow">Fő elemzési keret</p>
         <h2>2. Folytonos regressziós β-együtthatók {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
         <p class="section-intro">Modell: utánkövetési kimenet ~ kiindulási kimenet + anatómiai prediktor. A β az anatómiai prediktorhoz tartozó, HC3-robusztus 95%-os intervallummal közölt korrigált különbség.</p>
         <div class="interpretation"><strong>Irány:</strong> pozitív β rosszabb OHIP- és MAI-, de jobb GOHAI-kimenetet jelent. Negatív β ennek ellenkezője.</div>
@@ -109,8 +109,8 @@
         <h3 class="question-section-title">{{ outcome_label }}</h3>
         <div class="table-wrap"><table class="results-table">
             <thead><tr><th>Anatómiai prediktor</th><th>Kódolás</th><th class="number">n</th><th class="number">β (95% CI)</th><th class="number">p</th><th class="number">FDR q</th><th>Státusz</th></tr></thead>
-            <tbody>{% for row in report.continuous_models if row.outcome == outcome_key %}<tr class="{{ 'primary-row' if row.predictor == 'anatomical_burden_0_5' else '' }}">
-                <td><strong>{{ row.predictor_label }}</strong>{% if row.predictor == 'anatomical_burden_0_5' %}<br><span class="badge badge-success">elsődleges</span>{% endif %}</td>
+            <tbody>{% for row in report.continuous_models if row.outcome == outcome_key %}<tr class="{{ 'jaw-start' if row.predictor in ['lower_ridge_profile_risk', 'upper_ridge_profile_risk'] else '' }}">
+                <td><strong>{{ row.predictor_label }}</strong></td>
                 <td>{{ row.predictor_scale }}</td><td class="number">{{ row.n }}</td>
                 <td class="number">{% if row.status == 'ok' %}{{ '%+.2f'|format(row.beta) }} ({{ '%+.2f'|format(row.ci_low) }}; {{ '%+.2f'|format(row.ci_high) }}){% else %}—{% endif %}</td>
                 <td class="number">{{ '%.3f'|format(row.p_value) if row.status == 'ok' else '—' }}</td>
@@ -139,8 +139,8 @@
         <h3 class="question-section-title">{{ anchor_label }}</h3>
         <div class="table-wrap"><table class="results-table">
             <thead><tr><th>Anatómiai prediktor</th><th>Kódolás</th><th class="number">n</th><th class="number">Kategóriák</th><th class="number">OR (95% CI)</th><th class="number">p</th><th class="number">FDR q</th><th>Státusz / PO-ellenőrzés</th></tr></thead>
-            <tbody>{% for row in report.ordinal_models if row.anchor == anchor_key %}<tr class="{{ 'primary-row' if row.predictor == 'anatomical_burden_0_5' else '' }}">
-                <td><strong>{{ row.predictor_label }}</strong>{% if row.predictor == 'anatomical_burden_0_5' %}<br><span class="badge badge-success">elsődleges prediktor</span>{% endif %}</td>
+            <tbody>{% for row in report.ordinal_models if row.anchor == anchor_key %}<tr class="{{ 'jaw-start' if row.predictor in ['lower_ridge_profile_risk', 'upper_ridge_profile_risk'] else '' }}">
+                <td><strong>{{ row.predictor_label }}</strong></td>
                 <td>{{ row.predictor_scale }}</td><td class="number">{{ row.n }}</td><td class="number">{{ row.categories }}</td>
                 <td class="number">{% if row.status == 'ok' %}{{ '%.2f'|format(row.odds_ratio) }} ({{ '%.2f'|format(row.ci_low) }}; {{ '%.2f'|format(row.ci_high) }}){% else %}—{% endif %}</td>
                 <td class="number">{{ '%.3f'|format(row.p_value) if row.status == 'ok' else '—' }}</td>
@@ -159,11 +159,14 @@
         {% endif %}
         <ul class="method-list">
             <li>Kizárólag a kétállcsontos kohorsz szerepel; a legfrissebb betegrekordot használjuk.</li>
-            <li>Nincs összesített anatómiai teherpontszám: az F5, F7, A1, A3–A9 és A11–A13 képletek külön prediktorként szerepelnek.</li>
-            <li>A kétoldali képletek két oldalát előre rögzített szabállyal egyetlen 0–1 képletszintű értékké vonjuk össze; a pontos kódolás minden táblázatsor mellett látható.</li>
-            <li>Az A3 kedvező/kedvezőtlen iránya klinikai feltevés, ezért érzékenységi jellegű. F8 és A14 az antagonista fogazat/protetikai státusz leírása, ezért nem anatómiai képletként szerepel.</li>
-            <li>A képletenkénti többszörös vizsgálatok p-értékei kimenetenként Benjamini–Hochberg FDR-korrekciót kapnak.</li>
-            <li>Legalább {{ report.minimum_model_n }} teljes eset alatt valódi regressziós vagy OR-pontbecslés technikailag sem készül; a demonstráció helyét legalább {{ report.real_model_switch_n }} teljes esettel rendelkező valódi elsődleges modellek veszik át.</li>
+            <li>Nincs összesített teherpontszám és nincs 13 külön tételes tesztsor: négy alsó és négy felső állcsonti kategória szerepel prediktorként.</li>
+            <li>Alsó állcsont: gerincprofil (A1), szájfenék (A11), torus mandibularis (A4), tuberculum-komplex (A6–A9).</li>
+            <li>Felső állcsont: gerincprofil (F1), lötyögő gerinc (F5), torus palatinus (F7), garatreflex (F9).</li>
+            <li>Az F9 beteg-/kezelési tényező, nem tisztán anatómiai baseline prediktor; ezért az értelmezésben külön óvatosságot igényel.</li>
+            <li>A kétoldali A4 és A6–A9 tételeket előre rögzített szabállyal egyetlen 0–1 kategóriaértékké vonjuk össze; a pontos kódolás minden táblázatsor mellett látható.</li>
+            <li>F8 és A14 az antagonista fogazat/protetikai státusz leírása, ezért nem anatómiai kategória.</li>
+            <li>A nyolc kategórián végzett többszörös vizsgálatok p-értékei kimenetenként Benjamini–Hochberg FDR-korrekciót kapnak.</li>
+            <li>Legalább {{ report.minimum_model_n }} teljes eset alatt valódi regressziós vagy OR-pontbecslés technikailag sem készül; a demonstráció helyét legalább {{ report.real_model_switch_n }} teljes esettel rendelkező valódi kategóriamodellek veszik át.</li>
             <li>A becslések asszociációk, nem bizonyítanak oksági hatást. A visszatérési szelekció és a széles intervallumok különösen fontos korlátok.</li>
         </ul>
     </section>
