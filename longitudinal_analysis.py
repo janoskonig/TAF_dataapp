@@ -12,6 +12,9 @@ from statsmodels.miscmodels.ordinal_model import OrderedModel
 
 
 MIN_MODEL_N = 10
+REAL_MODEL_SWITCH_N = 20
+SIMULATION_N = 1000
+SIMULATION_SEED = 20260819
 ANCHOR_ORDER = {
     "Sokat romlott": 1,
     "Kicsit romlott": 2,
@@ -145,6 +148,7 @@ def build_longitudinal_report(connection):
         "continuous_models": [],
         "ordinal_models": [],
         "minimum_model_n": MIN_MODEL_N,
+        "real_model_switch_n": REAL_MODEL_SWITCH_N,
     }
 
     for outcome, baseline, outcome_label, scale_note in OUTCOMES:
@@ -178,7 +182,106 @@ def build_longitudinal_report(connection):
 
     _add_fdr(report["continuous_models"], group_key="outcome")
     _add_fdr(report["ordinal_models"], group_key="anchor")
+
+    report["real_continuous_models"] = report["continuous_models"]
+    report["real_ordinal_models"] = report["ordinal_models"]
+    primary_rows = [
+        row
+        for row in report["continuous_models"] + report["ordinal_models"]
+        if row["predictor"] == "anatomical_burden_0_5"
+    ]
+    real_models_ready = len(primary_rows) == len(OUTCOMES) + len(ANCHORS) and all(
+        row.get("status") == "ok" and row.get("n", 0) >= REAL_MODEL_SWITCH_N
+        for row in primary_rows
+    )
+    if real_models_ready:
+        report.update(model_source="real", model_n=None, simulation=None)
+    else:
+        simulated = simulate_followup_frame(df, n=SIMULATION_N, seed=SIMULATION_SEED)
+        simulated_continuous = []
+        simulated_ordinal = []
+        for outcome, baseline, outcome_label, scale_note in OUTCOMES:
+            for predictor, predictor_label, predictor_scale in PREDICTORS:
+                simulated_continuous.append(
+                    fit_continuous_model(
+                        simulated,
+                        outcome=outcome,
+                        baseline=baseline,
+                        outcome_label=outcome_label,
+                        scale_note=scale_note,
+                        predictor=predictor,
+                        predictor_label=predictor_label,
+                        predictor_scale=predictor_scale,
+                    )
+                )
+        for anchor, anchor_label, anchor_role in ANCHORS:
+            for predictor, predictor_label, predictor_scale in PREDICTORS:
+                simulated_ordinal.append(
+                    fit_ordinal_model(
+                        simulated,
+                        anchor=anchor,
+                        anchor_label=anchor_label,
+                        anchor_role=anchor_role,
+                        predictor=predictor,
+                        predictor_label=predictor_label,
+                        predictor_scale=predictor_scale,
+                    )
+                )
+        _add_fdr(simulated_continuous, group_key="outcome")
+        _add_fdr(simulated_ordinal, group_key="anchor")
+        for row in simulated_continuous + simulated_ordinal:
+            if row.get("status") == "ok":
+                row["caution"] = "Szimulált demonstráció; nem valódi betegadatból származó kutatási eredmény."
+        report.update(
+            model_source="simulated",
+            model_n=SIMULATION_N,
+            continuous_models=simulated_continuous,
+            ordinal_models=simulated_ordinal,
+            simulation={
+                "n": SIMULATION_N,
+                "seed": SIMULATION_SEED,
+                "source_pool_n": int(len(df[[key for key, _, _ in PREDICTORS] + ["ohip_baseline", "gohai_baseline", "mai_baseline"]].dropna())),
+                "assumptions": [
+                    "A kiindulási pontszámok és anatómiai konstrukciók a teljes meglévő kétállcsontos esetek visszatevéses mintavételéből származnak.",
+                    "Feltételezett hatás egy további 0–5 hátránypontonként: OHIP +0,8; GOHAI −1,3; MAI hue-degree +4,5 pont, véletlen zaj mellett.",
+                    "Az anchor-generálás feltételezett log-odds hatása hátránypontonként: szájüregi egészség −0,38; rágóképesség −0,32.",
+                    "A szimuláció rögzített maggal reprodukálható, kizárólag memóriában fut, és nem kerül egyik adatbázistáblába sem.",
+                ],
+            },
+        )
     return report
+
+
+def simulate_followup_frame(real_df, n=SIMULATION_N, seed=SIMULATION_SEED):
+    """Create a deterministic in-memory demonstration cohort without DB writes."""
+    rng = np.random.default_rng(seed)
+    columns = [key for key, _, _ in PREDICTORS] + ["ohip_baseline", "gohai_baseline", "mai_baseline"]
+    pool = real_df[columns].dropna().reset_index(drop=True)
+    if len(pool) < 5:
+        raise ValueError("Legalább öt teljes kiindulási eset szükséges a demonstrációs szimulációhoz.")
+    sampled = pool.iloc[rng.integers(0, len(pool), size=n)].reset_index(drop=True).copy()
+    burden = sampled["anatomical_burden_0_5"].astype(float)
+
+    sampled["ohip_followup"] = np.clip(
+        sampled["ohip_baseline"] - 4.0 + 0.8 * burden + rng.normal(0, 2.7, n),
+        0,
+        20,
+    )
+    sampled["gohai_followup"] = np.clip(
+        sampled["gohai_baseline"] + 6.0 - 1.3 * burden + rng.normal(0, 4.2, n),
+        12,
+        60,
+    )
+    sampled["mai_followup"] = np.clip(
+        sampled["mai_baseline"] - 18.0 + 4.5 * burden + rng.normal(0, 9.0, n),
+        0,
+        None,
+    )
+    oral_latent = 4.2 - 0.38 * burden + rng.logistic(0, 1, n)
+    chewing_latent = 4.0 - 0.32 * burden + rng.logistic(0, 1, n)
+    sampled["oral_anchor"] = np.digitize(oral_latent, [1.5, 2.5, 3.5, 4.5]) + 1
+    sampled["chewing_anchor"] = np.digitize(chewing_latent, [1.5, 2.5, 3.5, 4.5]) + 1
+    return sampled
 
 
 def cohort_summary(df):

@@ -29,6 +29,10 @@
         .anchor-counts { display:grid; gap:8px; margin-top:14px; }
         .anchor-count { display:flex; justify-content:space-between; gap:16px; padding:8px 10px; border-radius:8px; background:#f3f7f8; }
         .method-list { line-height:1.65; margin-bottom:0; }
+        .simulation-banner { background:#fff3dc; color:#69420d; border:2px solid #d99b3b; border-radius:16px; padding:18px 20px; margin:0 0 22px; line-height:1.55; }
+        .simulation-banner strong { display:block; font-size:18px; letter-spacing:.04em; margin-bottom:4px; }
+        .simulation-mark { display:inline-flex; align-items:center; border-radius:999px; padding:5px 10px; background:#fff3dc; color:#80500f; font-size:12px; font-weight:850; letter-spacing:.05em; vertical-align:middle; margin-left:8px; }
+        .assumption-list { margin:12px 0 0; line-height:1.55; }
         @media (max-width:700px) { .results-shell { padding-left:14px; padding-right:14px; } .anchor-grid { grid-template-columns:1fr; } .results-nav { align-items:flex-start; flex-direction:column; } }
     </style>
 </head>
@@ -41,6 +45,13 @@
         <p class="lead">A folytonos OHIP-, GOHAI- és MAI-kimeneteket nem dichotomizáljuk. Az ötfokú elhorgonyzó kérdéseket proporcionális odds modellel értékeljük.</p>
     </header>
 
+    {% if report.model_source == 'simulated' %}
+    <aside class="simulation-banner" role="note">
+        <strong>SZIMULÁLT DEMONSTRÁCIÓ — NEM KUTATÁSI EREDMÉNY</strong>
+        Az OR- és regressziós táblák {{ report.simulation.n }} mesterséges beteg in-memory szimulációján alapulnak. A valódi betegszámok és a párosított leíró eredmények ettől elkülönítve, változatlanul a valódi adatbázisból származnak. A szimuláció egyetlen betegrekordot sem ír az adatbázisba.
+    </aside>
+    {% endif %}
+
     <section class="stats-grid stats-grid-4" aria-label="Kohorszállapot">
         <div class="stat"><strong>{{ report.cohort.eligible }}</strong><span>alkalmas kétállcsontos beteg</span></div>
         <div class="stat"><strong>{{ report.cohort.any_followup }}</strong><span>bármilyen utánkövetési adat</span></div>
@@ -48,14 +59,14 @@
         <div class="stat stat-emphasis"><strong>{{ report.cohort.mai_pairs }}</strong><span>teljes MAI-pár</span></div>
     </section>
 
-    {% if report.cohort.any_followup < report.minimum_model_n %}
+    {% if report.model_source == 'simulated' %}
     <div class="flash flash-info">
-        Jelenleg csak {{ report.cohort.any_followup }} betegnek van utánkövetési adata. Ez leírásra alkalmas, de a regressziós és OR-modellek stabil becsléséhez még nem elég; a felület ezért nem közöl félrevezető pontbecslést.
+        Jelenleg {{ report.cohort.any_followup }} betegnek van valamilyen valódi utánkövetési adata. A felület akkor vált automatikusan valódi modellekre, amikor mind az öt elsődleges modellhez legalább {{ report.real_model_switch_n }} teljes eset rendelkezésre áll.
     </div>
     {% endif %}
 
     <section class="card result-section">
-        <h2>1. Párosított leíró eredmények</h2>
+        <h2>1. Párosított valódi eredmények</h2>
         <p class="section-intro">Az alap- és utánkövetési értékek ugyanazon, mindkét időpontban mért betegekre vonatkoznak. A változás az utánkövetés mínusz a kiindulás.</p>
         <div class="table-wrap"><table class="results-table">
             <thead><tr><th>Kimenet</th><th class="number">Páros n</th><th class="number">Kiindulás: átlag</th><th class="number">Kiindulás: medián [IQR]</th><th class="number">Utánkövetés: átlag</th><th class="number">Utánkövetés: medián [IQR]</th><th class="number">Változás: átlag</th><th class="number">Változás: medián [IQR]</th></tr></thead>
@@ -73,7 +84,7 @@
     </section>
 
     <section class="result-section">
-        <h2>2. Elhorgonyzó kérdések</h2>
+        <h2>2. Valódi elhorgonyzó kérdések</h2>
         <p class="section-intro">Az öt válaszkategória változatlanul marad; a „sokat romlott” a legalacsonyabb, a „sokat javult” a legmagasabb kategória.</p>
         <div class="anchor-grid">{% for anchor in report.anchor_distributions %}
             <article class="card"><p class="eyebrow">{{ anchor.role }}</p><h3>{{ anchor.label }}</h3><p class="muted">Értékelhető: n = {{ anchor.n }}</p><div class="anchor-counts">{% for item in anchor.counts %}<div class="anchor-count"><span>{{ item.label }}</span><strong>{{ item.count }}</strong></div>{% endfor %}</div></article>
@@ -81,7 +92,7 @@
     </section>
 
     <section class="card result-section">
-        <h2>3. Folytonos regressziós modellek</h2>
+        <h2>3. Folytonos regressziós modellek {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
         <p class="section-intro">Modell: utánkövetési kimenet ~ kiindulási kimenet + anatómiai prediktor. A β az anatómiai prediktorhoz tartozó, HC3-robusztus 95%-os intervallummal közölt korrigált különbség.</p>
         <div class="interpretation"><strong>Irány:</strong> pozitív β rosszabb OHIP- és MAI-, de jobb GOHAI-kimenetet jelent. Negatív β ennek ellenkezője.</div>
         {% for outcome_key, outcome_label in [('ohip_followup','OHIP-5'),('gohai_followup','GOHAI'),('mai_followup','MAI hue-degree')] %}
@@ -101,7 +112,7 @@
     </section>
 
     <section class="card result-section">
-        <h2>4. Ordinális odds ratio-k</h2>
+        <h2>4. Ordinális odds ratio-k {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
         <p class="section-intro">Az OR azt mutatja, hogyan változik a kedvezőbb anchor-kategóriába kerülés esélye. OR &lt; 1: kisebb esély kedvezőbb változásra; OR &gt; 1: nagyobb esély; OR = 1: nincs észlelhető kapcsolat.</p>
         <div class="interpretation">Az OR nem az OHIP-, GOHAI- vagy MAI-pontszám önkényesen dichotomizált változására vonatkozik, hanem a beteg eredeti, ötfokú változásértékelésére.</div>
         {% for anchor_key, anchor_label in [('oral_anchor','Szájüregi egészség változása'),('chewing_anchor','Rágóképesség változása')] %}
@@ -122,11 +133,15 @@
 
     <section class="card result-section">
         <h2>5. Elemzési szabályok és korlátok</h2>
+        {% if report.model_source == 'simulated' %}
+        <p><strong>A demonstráció feltételezései:</strong></p>
+        <ul class="assumption-list">{% for assumption in report.simulation.assumptions %}<li>{{ assumption }}</li>{% endfor %}</ul>
+        {% endif %}
         <ul class="method-list">
             <li>Kizárólag a kétállcsontos kohorsz szerepel; a legfrissebb betegrekordot használjuk.</li>
             <li>Az elsődleges prediktor a gerincatrophia, torus, lingualis tasak, tuberculum és szájfenék előre rögzített 0–5 összpontszáma.</li>
             <li>A külön konstrukciók exploratívak; p-értékeik kimenetenként Benjamini–Hochberg FDR-korrekciót kapnak.</li>
-            <li>Legalább {{ report.minimum_model_n }} teljes eset alatt nem közlünk regressziós vagy OR-pontbecslést; 20 alatt minden modell nagyon kis mintás hipotézisgeneráló eredmény.</li>
+            <li>Legalább {{ report.minimum_model_n }} teljes eset alatt valódi regressziós vagy OR-pontbecslés technikailag sem készül; a demonstráció helyét legalább {{ report.real_model_switch_n }} teljes esettel rendelkező valódi elsődleges modellek veszik át.</li>
             <li>A becslések asszociációk, nem bizonyítanak oksági hatást. A visszatérési szelekció és a széles intervallumok különösen fontos korlátok.</li>
         </ul>
     </section>

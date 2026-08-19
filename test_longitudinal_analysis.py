@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from longitudinal_analysis import fit_continuous_model, fit_ordinal_model
+from longitudinal_analysis import fit_continuous_model, fit_ordinal_model, simulate_followup_frame
 
 
 class LongitudinalModelTests(unittest.TestCase):
@@ -69,6 +69,27 @@ class LongitudinalModelTests(unittest.TestCase):
         )
         self.assertEqual(result["status"], "insufficient")
         self.assertNotIn("beta", result)
+
+    def test_simulation_is_deterministic_and_kept_in_memory(self):
+        source = pd.DataFrame(
+            {
+                "anatomical_burden_0_5": [0, 1, 2, 3, 4],
+                "ridge_atrophy": [0, 0, 1, 1, 1],
+                "torus_mandibularis": [0, 1, 0, 1, 1],
+                "lingual_pouch": [0, 0, 1, 0, 1],
+                "tuberculum_score": [0.0, 0.25, 0.5, 0.75, 1.0],
+                "mouth_floor": [0, 0, 0, 1, 1],
+                "ohip_baseline": [4, 6, 8, 10, 12],
+                "gohai_baseline": [56, 52, 48, 44, 40],
+                "mai_baseline": [30, 35, 40, 45, 50],
+            }
+        )
+        first = simulate_followup_frame(source, n=100, seed=123)
+        second = simulate_followup_frame(source, n=100, seed=123)
+        pd.testing.assert_frame_equal(first, second)
+        self.assertEqual(len(first), 100)
+        self.assertTrue(first["ohip_followup"].between(0, 20).all())
+        self.assertTrue(first["gohai_followup"].between(12, 60).all())
 
 
 if __name__ == "__main__":
