@@ -237,6 +237,20 @@ app.register_blueprint(
     )
 )
 
+LEGACY_FOLLOWUP_PATHS = {
+    "/questionnaire3",
+    "/submit_questionnaire3",
+    "/upload_final_mai",
+    "/submit_final_mai",
+}
+
+
+@app.before_request
+def close_legacy_followup_routes():
+    """Prevent every legacy follow-up route from writing to patients."""
+    if request.path in LEGACY_FOLLOWUP_PATHS:
+        return render_template("legacy_followup_closed.html"), 410
+
 @app.route('/')
 def welcome():
     return render_template('welcome.html')

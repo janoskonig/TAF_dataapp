@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Régi utánkövetés lezárva · PREDICT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-inner">
+            <a class="brand" href="{{ url_for('welcome') }}">
+                <span class="brand-mark">P</span>
+                <span><strong>PREDICT</strong><small>utánkövetési vizit</small></span>
+            </a>
+        </div>
+    </header>
+    <main class="page-shell">
+        <section class="narrow-card card">
+            <p class="eyebrow">Lezárt adatfelviteli útvonal</p>
+            <h1>Ez a régi utánkövetési felület már nem használható</h1>
+            <p class="lead">Új recall-, anchor- és végső MAI-adatot itt már nem mentünk a <code>patients</code> táblába.</p>
+            <p>A további utánkövetést a védett munkafelületen rögzítsd. A korábban felvett adatok változatlanul megmaradnak.</p>
+            <div class="form-actions">
+                <a class="button button-secondary" href="{{ url_for('welcome') }}">Vissza a főoldalra</a>
+                <a class="button button-primary" href="{{ url_for('followup.dashboard') }}">Új utánkövetési felület</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -305,3 +305,8 @@ kerülnek. A felület nem frissíti és nem írja felül a `patients` tábla meg
 sorait. Más környezetben a `migrate_followup_visits.sql` migrációt alkalmazni,
 valamint a `SECRET_KEY` és `FOLLOWUP_ACCESS_CODE` környezeti változókat
 biztonságosan beállítani kell.
+
+A régi `/questionnaire3`, `/submit_questionnaire3`, `/upload_final_mai` és
+`/submit_final_mai` útvonalak lezártak: minden GET- és POST-kérés tájékoztató
+üzenetet és HTTP 410 választ kap, ezért ezeken keresztül új utánkövetési adat
+már nem írható a `patients` táblába.
