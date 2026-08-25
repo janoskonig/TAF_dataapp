@@ -27,7 +27,7 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 from statsmodels.tools.sm_exceptions import PerfectSeparationWarning
 from scipy.stats import ttest_ind, kruskal, mannwhitneyu, spearmanr, f_oneway, shapiro, normaltest
-from ftplib import FTP
+from ftplib import FTP, all_errors, error_perm
 from urllib.parse import urlparse
 from skimage.color import rgb2hsv
 import plotly.graph_objects as go
@@ -47,6 +47,91 @@ nas_host = os.getenv("NAS_HOST")
 nas_user = os.getenv("NAS_USER")
 nas_password = os.getenv("NAS_PASS")
 nas_folder = os.getenv("NAS_DIR")
+nas_patients_folder = os.getenv("NAS_PATIENTS_DIR", "patients")
+model_analysis_folder = "model-analysis"
+model_manifest_filename = ".model-analysis-manifest.json"
+
+
+def ensure_ftp_subdirectory(ftp, parts):
+    for part in parts:
+        try:
+            ftp.cwd(part)
+        except error_perm:
+            ftp.mkd(part)
+            ftp.cwd(part)
+
+
+def read_model_manifest(ftp):
+    payload = BytesIO()
+    try:
+        ftp.retrbinary(f"RETR {model_manifest_filename}", payload.write)
+    except error_perm:
+        return None
+    try:
+        manifest = json.loads(payload.getvalue().decode("utf-8"))
+        files = manifest.get("files", [])
+        if not isinstance(files, list):
+            return None
+        return [
+            {"name": str(item["name"]), "size": int(item.get("size") or 0)}
+            for item in files
+            if isinstance(item, dict) and item.get("name")
+        ]
+    except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+        return None
+
+
+def fallback_model_file_listing(ftp):
+    try:
+        rows = ftp.mlsd()
+        return [
+            {"name": name, "size": int(facts.get("size") or 0)}
+            for name, facts in rows
+            if facts.get("type") == "file"
+            and name != model_manifest_filename
+            and not name.endswith(".uploading")
+        ]
+    except all_errors:
+        return [
+            {"name": os.path.basename(name.rstrip('/')), "size": 0}
+            for name in ftp.nlst()
+            if os.path.basename(name.rstrip('/'))
+            not in {'', '.', '..', model_manifest_filename}
+        ]
+
+
+def model_file_listing(ftp):
+    manifest = read_model_manifest(ftp)
+    files = manifest if manifest is not None else fallback_model_file_listing(ftp)
+    return sorted(files, key=lambda item: item["name"].casefold())
+
+
+def write_model_manifest(ftp, files):
+    content = json.dumps(
+        {"files": sorted(files, key=lambda item: item["name"].casefold())},
+        ensure_ascii=False,
+        indent=2,
+    ).encode("utf-8")
+    temporary_name = f"{model_manifest_filename}.uploading"
+    ftp.storbinary(f"STOR {temporary_name}", BytesIO(content))
+    try:
+        ftp.delete(model_manifest_filename)
+    except error_perm:
+        pass
+    ftp.rename(temporary_name, model_manifest_filename)
+
+
+def update_model_manifest(ftp, filename, size):
+    files = model_file_listing(ftp)
+    files = [item for item in files if item["name"] != filename]
+    files.append({"name": filename, "size": int(size)})
+    write_model_manifest(ftp, files)
+
+
+def safe_patient_folder(value):
+    return ''.join(
+        character for character in str(value) if character.isalnum() or character in '-_'
+    )
 
 def upload_to_nas(file_path, TAJ, measurement_type):
     if measurement_type not in ['mai_initial', 'mai_final', 'mai_followup', 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
@@ -59,13 +144,21 @@ def upload_to_nas(file_path, TAJ, measurement_type):
     else:
         filename = f"modellanalizis_{TAJ}_{measurement_type}.stl"
     
+    remote_parts = []
     with FTP(nas_host) as ftp:
         ftp.login(nas_user, nas_password)
         ftp.cwd(nas_folder)
+        if measurement_type.startswith('A2_'):
+            patient_folder = safe_patient_folder(TAJ)
+            remote_parts = [nas_patients_folder, patient_folder, model_analysis_folder]
+            ensure_ftp_subdirectory(ftp, remote_parts)
         with open(file_path, 'rb') as file:
             ftp.storbinary(f'STOR {filename}', file)
+        if measurement_type.startswith('A2_'):
+            update_model_manifest(ftp, filename, os.path.getsize(file_path))
         ftp.quit()
-    nas_file_path = f'ftp://{nas_host}/{nas_folder}/{filename}'
+    remote_path = "/".join([nas_folder.strip('/'), *remote_parts, filename])
+    nas_file_path = f'ftp://{nas_host}/{remote_path}'
     return nas_file_path
 
 def download_from_nas(ftp_url, local_path):
@@ -225,15 +318,129 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-from followup import create_followup_blueprint
+from followup import create_followup_blueprint, normalise_taj
 from baseline import create_baseline_blueprint
 from longitudinal_analysis import build_longitudinal_report
+
+
+def list_model_files_on_nas():
+    """Count files in each patient's model-analysis FTP folder."""
+    if not all((nas_host, nas_user, nas_password, nas_folder)):
+        return {}, False
+    try:
+        with FTP(nas_host) as ftp:
+            ftp.login(nas_user, nas_password)
+            ftp.cwd(nas_folder)
+            try:
+                ftp.cwd(nas_patients_folder)
+            except error_perm:
+                return {}, True
+            patients_root = ftp.pwd()
+            patient_folders = ftp.nlst()
+            inventory = {}
+            for remote_patient in patient_folders:
+                patient_folder = os.path.basename(remote_patient.rstrip('/'))
+                try:
+                    ftp.cwd(f"{patients_root}/{patient_folder}/{model_analysis_folder}")
+                    entries = model_file_listing(ftp)
+                except all_errors:
+                    continue
+                finally:
+                    ftp.cwd(patients_root)
+                if not entries:
+                    continue
+                patient_digits = "".join(
+                    character for character in patient_folder if character.isdigit()
+                )
+                key = (
+                    normalise_taj(patient_folder)
+                    if len(patient_digits) >= 9
+                    else patient_folder.upper()
+                )
+                inventory[key] = len(entries)
+    except all_errors:
+        return {}, False
+    return inventory, True
+
+
+def list_patient_model_files(patient_keys):
+    if not all((nas_host, nas_user, nas_password, nas_folder)):
+        return [], False
+    try:
+        with FTP(nas_host) as ftp:
+            ftp.login(nas_user, nas_password)
+            ftp.cwd(nas_folder)
+            nas_root_path = ftp.pwd()
+            for patient_key in patient_keys:
+                patient_folder = safe_patient_folder(patient_key)
+                try:
+                    ftp.cwd(
+                        f"{nas_root_path}/{nas_patients_folder}/{patient_folder}/{model_analysis_folder}"
+                    )
+                except error_perm:
+                    continue
+                files = model_file_listing(ftp)
+                if files:
+                    return files, True
+    except all_errors:
+        return [], False
+    return [], True
+
+
+def upload_patient_model_file(patient_key, local_path, original_filename):
+    filename = secure_filename(original_filename)
+    if not filename:
+        raise ValueError("Érvénytelen fájlnév.")
+    patient_folder = safe_patient_folder(patient_key)
+    with FTP(nas_host) as ftp:
+        ftp.login(nas_user, nas_password)
+        ftp.cwd(nas_folder)
+        ensure_ftp_subdirectory(
+            ftp, (nas_patients_folder, patient_folder, model_analysis_folder)
+        )
+        temporary_name = f".{filename}.uploading"
+        with open(local_path, "rb") as source:
+            ftp.storbinary(f"STOR {temporary_name}", source, blocksize=1024 * 1024)
+        try:
+            ftp.delete(filename)
+        except error_perm:
+            pass
+        ftp.rename(temporary_name, filename)
+        update_model_manifest(ftp, filename, os.path.getsize(local_path))
+    return filename
+
+
+def download_patient_model_file(patient_keys, filename, local_path):
+    with FTP(nas_host) as ftp:
+        ftp.login(nas_user, nas_password)
+        ftp.cwd(nas_folder)
+        nas_root_path = ftp.pwd()
+        for patient_key in patient_keys:
+            patient_folder = safe_patient_folder(patient_key)
+            try:
+                ftp.cwd(
+                    f"{nas_root_path}/{nas_patients_folder}/{patient_folder}/{model_analysis_folder}"
+                )
+            except error_perm:
+                continue
+            available = {item["name"] for item in model_file_listing(ftp)}
+            if filename not in available:
+                continue
+            with open(local_path, "wb") as destination:
+                ftp.retrbinary(f"RETR {filename}", destination.write)
+            return
+    raise FileNotFoundError(filename)
+
 
 app.register_blueprint(
     create_followup_blueprint(
         connection_factory=create_db_connection,
         hue_calculator=calculate_hue_circular_sd,
         nas_uploader=upload_to_nas,
+        model_stl_inventory_loader=list_model_files_on_nas,
+        model_file_lister=list_patient_model_files,
+        model_file_uploader=upload_patient_model_file,
+        model_file_downloader=download_patient_model_file,
         upload_folder=UPLOAD_FOLDER,
         allowed_file=allowed_file,
     )

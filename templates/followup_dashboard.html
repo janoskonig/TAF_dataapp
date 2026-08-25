@@ -15,9 +15,14 @@
     <div class="stat"><strong>{{ stats.scheduled }}</strong><span>időpontra beírva</span></div>
     <div class="stat"><strong>{{ stats.questionnaire }}</strong><span>teljes kérdőív</span></div>
     <div class="stat"><strong>{{ stats.mai }}</strong><span>teljes MAI-pár</span></div>
+    <div class="stat"><strong>{{ stats.model_stl if stats.model_stl_source_available else '–' }}</strong><span>modellanalízis elvégezhető</span></div>
     <div class="stat"><strong>{{ stats.primary_ready }}</strong><span>elsődleges elemzésre kész</span></div>
-    <div class="stat stat-emphasis"><strong>{{ stats.fully_ready }}</strong><span>minden szükséges elem kész</span></div>
+    <div class="stat stat-emphasis"><strong>{{ stats.fully_ready }}</strong><span>a vizit minden eleme kész</span></div>
 </section>
+
+{% if not stats.model_stl_source_available %}
+<div class="flash flash-info">A NAS FTP-tárhely jelenleg nem érhető el, ezért a modellfájlok megléte most nem ellenőrizhető.</div>
+{% endif %}
 
 <section class="card">
     <form class="toolbar" method="get">
@@ -32,6 +37,7 @@
                 <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Időpontra beírva</option>
                 <option value="missing_questionnaire" {% if status_filter == 'missing_questionnaire' %}selected{% endif %}>Kérdőív hiányzik</option>
                 <option value="missing_mai" {% if status_filter == 'missing_mai' %}selected{% endif %}>MAI hiányzik</option>
+                <option value="missing_stl" {% if status_filter == 'missing_stl' %}selected{% endif %}>Modellanalízis nem végezhető</option>
                 <option value="ready" {% if status_filter == 'ready' %}selected{% endif %}>Teljesen kész</option>
             </select>
         </div>
@@ -50,6 +56,7 @@
                     <th>Kérdőív</th>
                     <th>F9</th>
                     <th>MAI</th>
+                    <th>Modellanalízis</th>
                     <th>Összesen</th>
                     <th></th>
                 </tr>
@@ -91,6 +98,11 @@
                         {% if not patient.mai_eligible %}<span class="badge badge-muted">nem képezhető pár</span>
                         {% elif patient.mai_complete %}<span class="badge badge-success">kész</span>
                         {% else %}<span class="badge badge-warning">hiányzik</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if patient.model_stl_status == 'available' %}<span class="badge badge-success">elvégezhető · {{ patient.model_stl_count }} fájl</span>
+                        {% elif patient.model_stl_status == 'missing' %}<span class="badge badge-warning">nem végezhető</span>
+                        {% else %}<span class="badge badge-muted">nem ellenőrizhető</span>{% endif %}
                     </td>
                     <td>
                         {% if patient.fully_ready %}<span class="badge badge-success">lezárható</span>

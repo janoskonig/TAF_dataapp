@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import math
 import os
@@ -15,12 +16,15 @@ from functools import wraps
 from flask import (
     Blueprint,
     Response,
+    after_this_request,
     abort,
+    current_app,
     flash,
     redirect,
     render_template,
     request,
     session,
+    send_file,
     url_for,
 )
 from werkzeug.utils import secure_filename
@@ -57,10 +61,20 @@ VISIT_STATUSES = {
 }
 
 
+def normalise_taj(value):
+    """Return the last nine TAJ digits, preserving leading zeroes."""
+    digits = "".join(character for character in str(value or "") if character.isdigit())
+    return digits[-9:].zfill(9) if digits else ""
+
+
 def create_followup_blueprint(
     connection_factory,
     hue_calculator,
     nas_uploader,
+    model_stl_inventory_loader,
+    model_file_lister,
+    model_file_uploader,
+    model_file_downloader,
     upload_folder,
     allowed_file,
 ):
@@ -183,6 +197,46 @@ def create_followup_blueprint(
         )
         return record
 
+    def add_model_stl_status(records):
+        inventory, source_available = model_stl_inventory_loader()
+        decorated = []
+        for record in records:
+            record = dict(record)
+            count = max(
+                inventory.get(normalise_taj(record.get("taj")), 0),
+                inventory.get(record["study_code"].upper(), 0),
+            )
+            record["model_stl_count"] = count if source_available else None
+            record["model_stl_status"] = (
+                "available" if count else "missing" if source_available else "unknown"
+            )
+            record["model_stl_source_available"] = source_available
+            decorated.append(record)
+        return decorated
+
+    def model_file_keys(patient_record):
+        return [normalise_taj(patient_record.get("taj")), patient_record["study_code"]]
+
+    def format_file_size(size):
+        size = int(size or 0)
+        units = ("B", "KB", "MB", "GB")
+        value = float(size)
+        for unit in units:
+            if value < 1024 or unit == units[-1]:
+                decimals = 0 if unit == "B" else 1
+                return f"{value:.{decimals}f} {unit}"
+            value /= 1024
+
+    def decorated_model_files(patient_record):
+        files, source_available = model_file_lister(model_file_keys(patient_record))
+        decorated = []
+        for item in files:
+            item = dict(item)
+            item["file_id"] = hashlib.sha256(item["name"].encode("utf-8")).hexdigest()[:20]
+            item["size_label"] = format_file_size(item.get("size"))
+            decorated.append(item)
+        return decorated, source_available
+
     legacy_select = ",\n".join(
         [
             'c."responsiveness_today_situation_recall" AS legacy_responsiveness_today_situation_recall',
@@ -246,16 +300,17 @@ def create_followup_blueprint(
     """
 
     def get_cohort():
-        return [
+        cohort = [
             decorate_patient(record)
             for record in rows(cohort_query + ' ORDER BY f.appointment_at NULLS LAST, c."id"')
         ]
+        return add_model_stl_status(cohort)
 
     def get_patient(patient_id):
         found = rows(cohort_query + ' WHERE c."id" = %s', (patient_id,))
         if not found:
             abort(404)
-        return decorate_patient(found[0])
+        return add_model_stl_status([decorate_patient(found[0])])[0]
 
     def upsert_fields(patient_id, values):
         allowed = {
@@ -346,6 +401,8 @@ def create_followup_blueprint(
             patients = [patient for patient in patients if not patient["questionnaire_complete"]]
         elif status_filter == "missing_mai":
             patients = [patient for patient in patients if patient["mai_eligible"] and not patient["mai_complete"]]
+        elif status_filter == "missing_stl":
+            patients = [patient for patient in patients if patient["model_stl_status"] == "missing"]
         elif status_filter == "ready":
             patients = [patient for patient in patients if patient["fully_ready"]]
 
@@ -354,6 +411,12 @@ def create_followup_blueprint(
             "scheduled": sum(patient.get("visit_status") == "scheduled" for patient in all_patients),
             "questionnaire": sum(patient["questionnaire_complete"] for patient in all_patients),
             "mai": sum(patient["mai_complete"] for patient in all_patients),
+            "model_stl": sum(
+                patient["model_stl_status"] == "available" for patient in all_patients
+            ),
+            "model_stl_source_available": bool(
+                all_patients and all_patients[0]["model_stl_source_available"]
+            ),
             "primary_ready": sum(patient["primary_ready"] for patient in all_patients),
             "fully_ready": sum(patient["fully_ready"] for patient in all_patients),
         }
@@ -371,7 +434,82 @@ def create_followup_blueprint(
         setup_response = require_schema()
         if setup_response:
             return setup_response
-        return render_template("followup_visit.html", patient=get_patient(patient_id))
+        patient_record = get_patient(patient_id)
+        model_files, model_files_source_available = decorated_model_files(patient_record)
+        return render_template(
+            "followup_visit.html",
+            patient=patient_record,
+            model_files=model_files,
+            model_files_source_available=model_files_source_available,
+        )
+
+    @bp.post("/patient/<int:patient_id>/model-files")
+    @require_access
+    def upload_model_files(patient_id):
+        validate_csrf()
+        patient_record = get_patient(patient_id)
+        uploads = [item for item in request.files.getlist("model_files") if item.filename]
+        if not uploads:
+            abort(400, description="Legalább egy fájl kiválasztása szükséges.")
+        uploaded_names = []
+        for upload in uploads:
+            temporary_path = os.path.join(upload_folder, f"model_{uuid.uuid4().hex}.upload")
+            try:
+                upload.save(temporary_path)
+                uploaded_names.append(
+                    model_file_uploader(
+                        normalise_taj(patient_record.get("taj")),
+                        temporary_path,
+                        upload.filename,
+                    )
+                )
+            except Exception:
+                current_app.logger.exception("Model-analysis file upload failed")
+                abort(502, description="A fájl NAS-ra feltöltése nem sikerült.")
+            finally:
+                if os.path.exists(temporary_path):
+                    os.remove(temporary_path)
+        flash(f"{len(uploaded_names)} modellanalízis-fájl feltöltve.", "success")
+        return redirect(url_for("followup.patient", patient_id=patient_id))
+
+    @bp.get("/patient/<int:patient_id>/model-files/<file_id>")
+    @require_access
+    def download_model_file(patient_id, file_id):
+        patient_record = get_patient(patient_id)
+        files, source_available = decorated_model_files(patient_record)
+        if not source_available:
+            abort(503, description="A NAS FTP-tárhely jelenleg nem érhető el.")
+        selected = next((item for item in files if item["file_id"] == file_id), None)
+        if not selected:
+            abort(404)
+        temporary_path = os.path.join(upload_folder, f"download_{uuid.uuid4().hex}")
+        try:
+            model_file_downloader(
+                model_file_keys(patient_record), selected["name"], temporary_path
+            )
+        except FileNotFoundError:
+            if os.path.exists(temporary_path):
+                os.remove(temporary_path)
+            abort(404)
+        except Exception:
+            if os.path.exists(temporary_path):
+                os.remove(temporary_path)
+            current_app.logger.exception("Model-analysis file download failed")
+            abort(502, description="A fájl NAS-ról letöltése nem sikerült.")
+
+        @after_this_request
+        def remove_temporary_file(response):
+            try:
+                os.remove(temporary_path)
+            except OSError:
+                pass
+            return response
+
+        return send_file(
+            temporary_path,
+            as_attachment=True,
+            download_name=selected["name"],
+        )
 
     @bp.post("/patient/<int:patient_id>/logistics")
     @require_access
