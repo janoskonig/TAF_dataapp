@@ -36,6 +36,7 @@ button, input, select, textarea { font: inherit; }
 
 .page-shell { max-width: 1180px; margin: 0 auto; padding: 30px 22px 60px; }
 .page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 24px; }
+.heading-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
 .page-heading h1, .card h1, .card h2, .card h3 { margin-top: 0; }
 h1 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -.035em; margin-bottom: 8px; }
 h2 { font-size: 21px; letter-spacing: -.015em; }
@@ -166,6 +167,12 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(55, 162, 157
 .model-upload-form > div { flex: 1; }
 .model-upload-form p { margin: 7px 0 0; }
 .model-edit-note { margin: 18px 0 0; }
+.addon-guide-grid { align-items: start; margin-bottom: 18px; }
+.instruction-list { margin: 0; padding-left: 22px; color: #324b57; line-height: 1.6; }
+.instruction-list li + li { margin-top: 9px; }
+.addon-security-note { margin: 20px 0 0; font-size: 13px; line-height: 1.5; }
+.addon-status-card { margin-top: 18px; }
+.addon-status-card p { line-height: 1.5; margin-bottom: 0; }
 .empty-state { text-align: center; color: var(--muted); padding: 36px 12px; }
 code { background: #eef3f4; border-radius: 5px; padding: 2px 5px; }
 
@@ -178,6 +185,8 @@ code { background: #eef3f4; border-radius: 5px; padding: 2px 5px; }
     .header-inner, .page-shell { padding-left: 14px; padding-right: 14px; }
     .header-actions a { display: none; }
     .page-heading, .visit-header, .toolbar { align-items: stretch; flex-direction: column; }
+    .heading-actions { justify-content: stretch; }
+    .heading-actions .button { flex: 1; }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .progress-grid { grid-template-columns: 1fr 1fr; }

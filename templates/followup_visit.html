@@ -8,7 +8,8 @@
         <h1>{{ patient.patient_name or 'Név nincs rögzítve' }}</h1>
         <p class="lead">
             TAJ: {{ patient.taj }} · kizárólag kétállcsontos kohorsz · Modellanalízis:
-            {% if patient.model_stl_status == 'available' %}<strong>elvégezhető ({{ patient.model_stl_count }} fájl)</strong>
+            {% if patient.model_analysis_completed %}<strong>megtörtént</strong>
+            {% elif patient.model_stl_status == 'available' %}<strong>elvégezhető, még nincs kész ({{ patient.model_stl_count }} fájl)</strong>
             {% elif patient.model_stl_status == 'missing' %}<strong>nem végezhető</strong>
             {% else %}<strong>nem ellenőrizhető</strong>{% endif %}
         </p>
@@ -38,7 +39,8 @@
             <h2>Modellanalízis fájljai</h2>
             <p class="muted">A páciens NAS-mappájának tartalma. Azonos nevű fájl feltöltése frissíti a meglévő példányt.</p>
         </div>
-        {% if model_files %}<span class="badge badge-success">Elvégezhető · {{ model_files|length }} fájl</span>
+        {% if patient.model_analysis_completed %}<span class="badge badge-success">Modellanalízis megtörtént</span>
+        {% elif model_files %}<span class="badge badge-warning">Elvégezhető · még nincs kész</span>
         {% elif model_files_source_available %}<span class="badge badge-warning">Nincs fájl</span>
         {% else %}<span class="badge badge-muted">NAS nem érhető el</span>{% endif %}
     </div>
@@ -75,7 +77,10 @@
     </form>
 
     <div class="call-guidelines model-edit-note">
-        <strong>.blend szerkesztése:</strong> böngészőből töltsd le, nyisd meg Blenderben, majd mentés után töltsd vissza azonos néven. Automatikus visszaszinkronizáláshoz a NAS-mappát helyi szinkronklienssel vagy hálózati meghajtóként kell elérhetővé tenni.
+        <strong>.blend szerkesztése:</strong> töltsd le és nyisd meg Blenderben. A
+        <strong>Mentés + adatok és .blend feltöltése</strong> gomb a módosított munkafájlt
+        új, időbélyeges verzióként visszateszi ebbe a mappába.
+        <a href="{{ url_for('followup.blender_addon') }}">Addon és telepítési útmutató</a>
     </div>
 </section>
 

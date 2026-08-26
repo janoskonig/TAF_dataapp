@@ -18,6 +18,7 @@
             <nav class="header-actions" aria-label="Fő navigáció">
                 <a href="{{ url_for('baseline.dashboard') }}">Kezdővizitek</a>
                 <a href="{{ url_for('followup.dashboard') }}">Beteglista</a>
+                <a href="{{ url_for('followup.blender_addon') }}">Blender addon</a>
                 <a href="{{ url_for('followup.export_csv') }}">CSV-export</a>
                 <form action="{{ url_for('followup.logout') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ followup_csrf_token() }}">

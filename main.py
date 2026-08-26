@@ -41,6 +41,14 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Strict",
     SESSION_COOKIE_SECURE=os.getenv("RENDER", "").lower() == "true",
 )
+try:
+    BLEND_UPLOAD_MAX_MB = max(1, int(os.getenv("BLEND_UPLOAD_MAX_MB", "1024")))
+except ValueError:
+    BLEND_UPLOAD_MAX_MB = 1024
+BLEND_UPLOAD_MAX_BYTES = BLEND_UPLOAD_MAX_MB * 1024 * 1024
+# Small multipart overhead is allowed above the actual .blend file limit.
+app.config["BLEND_UPLOAD_MAX_MB"] = BLEND_UPLOAD_MAX_MB
+app.config["MAX_CONTENT_LENGTH"] = BLEND_UPLOAD_MAX_BYTES + 2 * 1024 * 1024
 UPLOAD_FOLDER = 'uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 nas_host = os.getenv("NAS_HOST")
@@ -388,6 +396,16 @@ def list_patient_model_files(patient_keys):
 
 
 def upload_patient_model_file(patient_key, local_path, original_filename):
+    with open(local_path, "rb") as source:
+        return upload_patient_model_stream(
+            patient_key,
+            source,
+            original_filename,
+            os.path.getsize(local_path),
+        )
+
+
+def upload_patient_model_stream(patient_key, source, original_filename, size):
     filename = secure_filename(original_filename)
     if not filename:
         raise ValueError("Érvénytelen fájlnév.")
@@ -399,14 +417,13 @@ def upload_patient_model_file(patient_key, local_path, original_filename):
             ftp, (nas_patients_folder, patient_folder, model_analysis_folder)
         )
         temporary_name = f".{filename}.uploading"
-        with open(local_path, "rb") as source:
-            ftp.storbinary(f"STOR {temporary_name}", source, blocksize=1024 * 1024)
+        ftp.storbinary(f"STOR {temporary_name}", source, blocksize=1024 * 1024)
         try:
             ftp.delete(filename)
         except error_perm:
             pass
         ftp.rename(temporary_name, filename)
-        update_model_manifest(ftp, filename, os.path.getsize(local_path))
+        update_model_manifest(ftp, filename, size)
     return filename
 
 
@@ -3682,6 +3699,11 @@ def legacy_results():
 BLENDER_API_KEY = os.getenv("BLENDER_API_KEY")
 
 
+def _valid_blender_api_key():
+    api_key = request.headers.get('X-API-Key', '')
+    return bool(BLENDER_API_KEY) and secrets.compare_digest(api_key, BLENDER_API_KEY)
+
+
 def _float_or_none(val):
     """Cast to float, return None if missing or non-numeric."""
     if val is None:
@@ -3695,8 +3717,7 @@ def _float_or_none(val):
 @app.route('/api/morphometria', methods=['POST'])
 def api_morphometria():
     """Blender addon végpont: morphometriai adatok feltöltése TAJ szerint."""
-    api_key = request.headers.get('X-API-Key', '')
-    if not BLENDER_API_KEY or not secrets.compare_digest(api_key, BLENDER_API_KEY):
+    if not _valid_blender_api_key():
         return jsonify({'error': 'Unauthorized'}), 401
 
     data = request.get_json(silent=True)
@@ -3773,6 +3794,68 @@ def api_morphometria():
         return jsonify({'error': 'Adatbázis hiba. Kérlek próbáld újra.'}), 500
     finally:
         cursor.close()
+
+
+@app.route('/api/morphometria/blend', methods=['POST'])
+def api_morphometria_blend():
+    """Archive the addon's current .blend in the patient's NAS folder."""
+    if not _valid_blender_api_key():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    TAJ = request.form.get('TAJ', '').strip()
+    upload = request.files.get('blend_file')
+    if not TAJ:
+        return jsonify({'error': 'Hiányzó TAJ'}), 400
+    if not upload or not upload.filename:
+        return jsonify({'error': 'Hiányzó .blend fájl'}), 400
+    if not upload.filename.lower().endswith('.blend'):
+        return jsonify({'error': 'Csak .blend fájl tölthető fel ezen a végponton'}), 400
+
+    cursor = get_db_cursor()
+    try:
+        cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
+        if cursor.fetchone()[0] == 0:
+            return jsonify({'error': f'TAJ ({TAJ}) nem található a rendszerben'}), 404
+    except Exception:
+        app.logger.exception("Blend upload patient lookup failed (TAJ=%s)", TAJ)
+        return jsonify({'error': 'Adatbázis hiba. Kérlek próbáld újra.'}), 500
+    finally:
+        cursor.close()
+
+    try:
+        upload.stream.seek(0, os.SEEK_END)
+        file_size = upload.stream.tell()
+        upload.stream.seek(0)
+    except (AttributeError, OSError):
+        return jsonify({'error': 'A feltöltött fájl mérete nem ellenőrizhető'}), 400
+    if file_size > BLEND_UPLOAD_MAX_BYTES:
+        return jsonify({
+            'error': f'A .blend fájl legfeljebb {BLEND_UPLOAD_MAX_MB} MB lehet'
+        }), 413
+    if file_size < 7 or upload.stream.read(7) != b'BLENDER':
+        return jsonify({'error': 'A feltöltött fájl nem érvényes Blender-fájl'}), 400
+    upload.stream.seek(0)
+
+    patient_key = normalise_taj(TAJ)
+    timestamp = datetime.now(BUDAPEST_TZ).strftime('%Y%m%d_%H%M%S_%f')[:19]
+    archive_name = f"{patient_key}_modellanalizis_{timestamp}.blend"
+    try:
+        stored_name = upload_patient_model_stream(
+            patient_key,
+            upload.stream,
+            archive_name,
+            file_size,
+        )
+    except Exception:
+        app.logger.exception("Blend NAS upload failed (TAJ=%s)", TAJ)
+        return jsonify({'error': 'A .blend NAS-ra feltöltése nem sikerült'}), 502
+
+    return jsonify({
+        'success': True,
+        'TAJ': TAJ,
+        'filename': stored_name,
+        'size': file_size,
+    })
 
 
 if __name__ == '__main__':

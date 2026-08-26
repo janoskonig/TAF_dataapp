@@ -1,0 +1,64 @@
+{% extends "followup_base.html" %}
+{% block title %}Blender addon · PREDICT utánkövetés{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Modellanalízis</p>
+        <h1>TAF Blender addon</h1>
+        <p class="lead">Mérési adatok mentése az adatbázisba és a teljes Blender-munkafájl archiválása a páciens NAS-mappájába.</p>
+    </div>
+    <a class="button button-primary" href="{{ url_for('followup.download_blender_addon') }}">Addon letöltése · v{{ addon_version }}</a>
+</div>
+
+<div class="grid grid-2 addon-guide-grid">
+    <section class="card">
+        <p class="eyebrow">Telepítés</p>
+        <h2>Első telepítés vagy frissítés</h2>
+        <ol class="instruction-list">
+            <li>Töltsd le a fenti <code>taf_addon.py</code> fájlt.</li>
+            <li>Blenderben nyisd meg az <strong>Edit → Preferences → Add-ons</strong> oldalt.</li>
+            <li>A jobb felső menüben válaszd az <strong>Install from Disk…</strong> lehetőséget, majd a letöltött fájlt.</li>
+            <li>Kapcsold be a <strong>TAF Addon</strong> jelölőnégyzetét. Frissítéskor indítsd újra a Blendert.</li>
+            <li>Az addon beállításaiban hagyd meg a szervercímet, és add meg a rendszergazdától kapott API-kulcsot.</li>
+        </ol>
+        <div class="flash flash-info addon-security-note">
+            Az API-kulcs a Blender gépszintű addon-beállításaiban tárolódik, ezért nem kerül bele a páciens <code>.blend</code> fájljába.
+        </div>
+    </section>
+
+    <section class="card">
+        <p class="eyebrow">Használat</p>
+        <h2>Mentés és archiválás</h2>
+        <ol class="instruction-list">
+            <li>Mentsd el egyszer a munkafájlt helyben <code>.blend</code> formátumban.</li>
+            <li>A 3D nézet jobb oldali <strong>TAF</strong> paneljén ellenőrizd a páciens TAJ-számát.</li>
+            <li>Végezd el a szükséges méréseket.</li>
+            <li>Kattints a <strong>Mentés + adatok és .blend feltöltése</strong> gombra.</li>
+            <li>Várd meg a Blender sikerüzenetét; nagy fájlnál a feltöltés több percet is igénybe vehet.</li>
+        </ol>
+        <p class="muted">
+            A gomb először elmenti az aktuális helyi fájlt, majd rögzíti a mérési adatokat, végül időbélyeges néven feltölti a
+            <code>patients/&lt;TAJ&gt;/model-analysis/</code> mappába.
+            {% if blend_upload_max_mb %}A szerveroldali fájlméretkorlát jelenleg {{ blend_upload_max_mb }} MB.{% endif %}
+        </p>
+    </section>
+</div>
+
+<section class="card addon-status-card">
+    <h2>Mit jelentenek a visszahívós oldal státuszai?</h2>
+    <div class="grid grid-3">
+        <div>
+            <span class="badge badge-warning">elvégezhető · még nincs kész</span>
+            <p class="small muted">Van modellfájl a páciens mappájában, de mérési eredmény még nincs elmentve.</p>
+        </div>
+        <div>
+            <span class="badge badge-success">modellanalízis megtörtént</span>
+            <p class="small muted">A mérési adatok sikeresen bekerültek az adatbázisba.</p>
+        </div>
+        <div>
+            <span class="badge badge-success">.blend a fájllistában</span>
+            <p class="small muted">A szerkeszthető Blender-munkafájl a NAS-on is archiválva van és letölthető.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

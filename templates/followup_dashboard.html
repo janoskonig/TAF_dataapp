@@ -7,7 +7,10 @@
         <h1>Utánkövetési beteglista</h1>
         <p class="lead">Gyors áttekintés arról, kinél mi hiányzik. A név és a teljes TAJ csak belépés után jelenik meg.</p>
     </div>
-    <a class="button button-secondary" href="{{ url_for('followup.export_csv') }}">Pszedonimizált CSV</a>
+    <div class="heading-actions">
+        <a class="button button-secondary" href="{{ url_for('followup.blender_addon') }}">Blender addon</a>
+        <a class="button button-secondary" href="{{ url_for('followup.export_csv') }}">Pszedonimizált CSV</a>
+    </div>
 </div>
 
 <section class="stats-grid" aria-label="Összesítés">
@@ -16,6 +19,7 @@
     <div class="stat"><strong>{{ stats.questionnaire }}</strong><span>teljes kérdőív</span></div>
     <div class="stat"><strong>{{ stats.mai }}</strong><span>teljes MAI-pár</span></div>
     <div class="stat"><strong>{{ stats.model_stl if stats.model_stl_source_available else '–' }}</strong><span>modellanalízis elvégezhető</span></div>
+    <div class="stat"><strong>{{ stats.model_completed }}</strong><span>modellanalízis megtörtént</span></div>
     <div class="stat"><strong>{{ stats.primary_ready }}</strong><span>elsődleges elemzésre kész</span></div>
     <div class="stat stat-emphasis"><strong>{{ stats.fully_ready }}</strong><span>a vizit minden eleme kész</span></div>
 </section>
@@ -38,6 +42,8 @@
                 <option value="missing_questionnaire" {% if status_filter == 'missing_questionnaire' %}selected{% endif %}>Kérdőív hiányzik</option>
                 <option value="missing_mai" {% if status_filter == 'missing_mai' %}selected{% endif %}>MAI hiányzik</option>
                 <option value="missing_stl" {% if status_filter == 'missing_stl' %}selected{% endif %}>Modellanalízis nem végezhető</option>
+                <option value="model_pending" {% if status_filter == 'model_pending' %}selected{% endif %}>Elvégezhető, még nincs kész</option>
+                <option value="model_completed" {% if status_filter == 'model_completed' %}selected{% endif %}>Modellanalízis megtörtént</option>
                 <option value="ready" {% if status_filter == 'ready' %}selected{% endif %}>Teljesen kész</option>
             </select>
         </div>
@@ -100,7 +106,8 @@
                         {% else %}<span class="badge badge-warning">hiányzik</span>{% endif %}
                     </td>
                     <td>
-                        {% if patient.model_stl_status == 'available' %}<span class="badge badge-success">elvégezhető · {{ patient.model_stl_count }} fájl</span>
+                        {% if patient.model_analysis_completed %}<span class="badge badge-success">megtörtént</span>
+                        {% elif patient.model_stl_status == 'available' %}<span class="badge badge-warning">elvégezhető · még nincs kész</span>
                         {% elif patient.model_stl_status == 'missing' %}<span class="badge badge-warning">nem végezhető</span>
                         {% else %}<span class="badge badge-muted">nem ellenőrizhető</span>{% endif %}
                     </td>

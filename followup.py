@@ -186,6 +186,9 @@ def create_followup_blueprint(
         record["mai_complete"] = present(record.get("new_final_mai_huedegree")) or present(
             record.get("legacy_final_mai_huedegree")
         )
+        record["model_analysis_completed"] = bool(
+            record.get("model_analysis_completed")
+        )
         record["consent_confirmed"] = bool(record.get("consent_confirmed"))
         record["primary_ready"] = (
             record["questionnaire_complete"]
@@ -276,6 +279,7 @@ def create_followup_blueprint(
             c."init_mai_huedegree" AS init_mai_huedegree,
             c."final_mai_huedegree" AS legacy_final_mai_huedegree,
             c."F9" AS legacy_f9,
+            c."modellanalizis_megtortent" AS model_analysis_completed,
             {legacy_select},
             {new_select},
             f.visit_status,
@@ -403,6 +407,15 @@ def create_followup_blueprint(
             patients = [patient for patient in patients if patient["mai_eligible"] and not patient["mai_complete"]]
         elif status_filter == "missing_stl":
             patients = [patient for patient in patients if patient["model_stl_status"] == "missing"]
+        elif status_filter == "model_completed":
+            patients = [patient for patient in patients if patient["model_analysis_completed"]]
+        elif status_filter == "model_pending":
+            patients = [
+                patient
+                for patient in patients
+                if patient["model_stl_status"] == "available"
+                and not patient["model_analysis_completed"]
+            ]
         elif status_filter == "ready":
             patients = [patient for patient in patients if patient["fully_ready"]]
 
@@ -417,6 +430,9 @@ def create_followup_blueprint(
             "model_stl_source_available": bool(
                 all_patients and all_patients[0]["model_stl_source_available"]
             ),
+            "model_completed": sum(
+                patient["model_analysis_completed"] for patient in all_patients
+            ),
             "primary_ready": sum(patient["primary_ready"] for patient in all_patients),
             "fully_ready": sum(patient["fully_ready"] for patient in all_patients),
         }
@@ -426,6 +442,31 @@ def create_followup_blueprint(
             stats=stats,
             query=query,
             status_filter=status_filter,
+        )
+
+    @bp.get("/blender-addon")
+    @require_access
+    def blender_addon():
+        addon_path = os.path.join(current_app.root_path, "addon", "taf_addon.py")
+        if not os.path.isfile(addon_path):
+            abort(404)
+        return render_template(
+            "followup_blender_addon.html",
+            addon_version="2.2.0",
+            blend_upload_max_mb=current_app.config.get("BLEND_UPLOAD_MAX_MB"),
+        )
+
+    @bp.get("/blender-addon/download")
+    @require_access
+    def download_blender_addon():
+        addon_path = os.path.join(current_app.root_path, "addon", "taf_addon.py")
+        if not os.path.isfile(addon_path):
+            abort(404)
+        return send_file(
+            addon_path,
+            as_attachment=True,
+            download_name="taf_addon.py",
+            mimetype="text/x-python",
         )
 
     @bp.get("/patient/<int:patient_id>")
