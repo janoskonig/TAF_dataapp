@@ -74,6 +74,11 @@ class ModelStlInventoryTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("attachment; filename=taf_addon.py", response.headers["Content-Disposition"])
         self.assertIn(b"taf.save_and_upload_blend", response.data)
+        self.assertIn(b'"version": (2, 3, 0)', response.data)
+        self.assertNotIn(b"TAF_PT_CurveDetector", response.data)
+        self.assertNotIn(b"TAF_ML_PT_Panel", response.data)
+        self.assertNotIn(b"taf_cd_props", response.data)
+        self.assertNotIn(b"taf_ml_props", response.data)
         response.close()
 
         with patch.dict(os.environ, {"FOLLOWUP_ACCESS_CODE": "test-code"}):
@@ -84,6 +89,7 @@ class ModelStlInventoryTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Install from Disk", response.get_data(as_text=True))
+        self.assertIn("2.3.0", response.get_data(as_text=True))
         response.close()
 
 if __name__ == "__main__":
