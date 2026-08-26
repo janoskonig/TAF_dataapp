@@ -11,7 +11,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import pytest
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from ftplib import all_errors, error_perm
 from io import BytesIO
 from werkzeug.utils import secure_filename
@@ -96,6 +96,106 @@ def authenticate(client):
     with client.session_transaction() as session:
         session["followup_authenticated"] = True
         session["followup_csrf"] = "csrf-test"
+
+
+def test_dashboard_shows_decline_reason_next_to_contact_status():
+    app = build_followup_app([])
+    patient = {
+        "patient_id": 1,
+        "patient_name": "Teszt Elek",
+        "patient_phone": "+36 30 123 4567",
+        "phone_href": "+36301234567",
+        "taj": "123456789",
+        "study_code": "PRED-0001",
+        "appointment_at": None,
+        "visit_status": "declined",
+        "nonattendance_reason": "Most külföldön dolgozik, ősszel újrahívható.",
+        "questionnaire_complete": False,
+        "f9_complete": False,
+        "mai_eligible": True,
+        "mai_complete": False,
+        "model_analysis_completed": False,
+        "model_stl_status": "missing",
+        "fully_ready": False,
+    }
+    stats = {
+        "total": 1,
+        "scheduled": 0,
+        "questionnaire": 0,
+        "mai": 0,
+        "model_stl": 0,
+        "model_stl_source_available": True,
+        "model_completed": 0,
+        "primary_ready": 0,
+        "fully_ready": 0,
+    }
+
+    with app.test_request_context("/followup"):
+        html = render_template(
+            "followup_dashboard.html",
+            patients=[patient],
+            stats=stats,
+            query="",
+            status_filter="all",
+            visit_status_labels={"declined": "Visszautasította"},
+        )
+
+    assert "Elutasítás oka:" in html
+    assert "Most külföldön dolgozik, ősszel újrahívható." in html
+
+
+def test_dashboard_distinguishes_model_material_from_completed_analysis():
+    app = build_followup_app([])
+    common = {
+        "patient_name": "Teszt Elek",
+        "patient_phone": None,
+        "phone_href": None,
+        "taj": "123456789",
+        "appointment_at": None,
+        "visit_status": None,
+        "nonattendance_reason": None,
+        "questionnaire_complete": False,
+        "f9_complete": False,
+        "mai_eligible": False,
+        "mai_complete": False,
+        "model_stl_status": "available",
+        "model_stl_count": 6,
+        "fully_ready": False,
+    }
+    patients = [
+        {**common, "patient_id": 1, "study_code": "PRED-0001", "model_analysis_completed": False},
+        {**common, "patient_id": 2, "study_code": "PRED-0002", "model_analysis_completed": True},
+    ]
+    stats = {
+        "total": 2,
+        "scheduled": 0,
+        "questionnaire": 0,
+        "mai": 0,
+        "model_stl": 2,
+        "model_stl_source_available": True,
+        "model_completed": 1,
+        "primary_ready": 0,
+        "fully_ready": 0,
+    }
+
+    with app.test_request_context("/followup"):
+        html = render_template(
+            "followup_dashboard.html",
+            patients=patients,
+            stats=stats,
+            query="",
+            status_filter="all",
+            visit_status_labels={"not_contacted": "Még nem kerestük"},
+        )
+
+    assert "<th>Modellanyag</th>" in html
+    assert "<th>Modellanalízis</th>" in html
+    assert 'class="patient-table followup-patient-table"' in html
+    assert 'data-label="Modellanyag"' in html
+    assert 'data-label="Modellanalízis"' in html
+    assert html.count("megvan · 6 fájl") == 2
+    assert "nincs elvégezve" in html
+    assert "elvégezve" in html
 
 
 def test_blank_intake_fields_cannot_erase_saved_values():

@@ -7,11 +7,13 @@
         <p class="eyebrow">Utánkövetési vizit · {{ patient.study_code }}</p>
         <h1>{{ patient.patient_name or 'Név nincs rögzítve' }}</h1>
         <p class="lead">
-            TAJ: {{ patient.taj }} · kizárólag kétállcsontos kohorsz · Modellanalízis:
-            {% if patient.model_analysis_completed %}<strong>megtörtént</strong>
-            {% elif patient.model_stl_status == 'available' %}<strong>elvégezhető, még nincs kész ({{ patient.model_stl_count }} fájl)</strong>
-            {% elif patient.model_stl_status == 'missing' %}<strong>nem végezhető</strong>
+            TAJ: {{ patient.taj }} · kizárólag kétállcsontos kohorsz · Modellanyag:
+            {% if patient.model_stl_status == 'available' %}<strong>megvan ({{ patient.model_stl_count }} fájl)</strong>
+            {% elif patient.model_stl_status == 'missing' %}<strong>hiányzik</strong>
             {% else %}<strong>nem ellenőrizhető</strong>{% endif %}
+            · Modellanalízis:
+            {% if patient.model_analysis_completed %}<strong>elvégezve</strong>
+            {% else %}<strong>nincs elvégezve</strong>{% endif %}
         </p>
     </div>
     {% if patient.completed_at %}<span class="badge badge-success">Vizit lezárva</span>{% endif %}
@@ -39,10 +41,13 @@
             <h2>Modellanalízis fájljai</h2>
             <p class="muted">A páciens NAS-mappájának tartalma. Azonos nevű fájl feltöltése új, időbélyeges verziót hoz létre; a korábbi példány megmarad.</p>
         </div>
-        {% if patient.model_analysis_completed %}<span class="badge badge-success">Modellanalízis megtörtént</span>
-        {% elif model_files %}<span class="badge badge-warning">Elvégezhető · még nincs kész</span>
-        {% elif model_files_source_available %}<span class="badge badge-warning">Nincs fájl</span>
-        {% else %}<span class="badge badge-muted">NAS nem érhető el</span>{% endif %}
+        <div class="model-status-badges">
+            {% if model_files %}<span class="badge badge-success">Modellanyag megvan</span>
+            {% elif model_files_source_available %}<span class="badge badge-warning">Modellanyag hiányzik</span>
+            {% else %}<span class="badge badge-muted">Modellanyag nem ellenőrizhető</span>{% endif %}
+            {% if patient.model_analysis_completed %}<span class="badge badge-success">Modellanalízis elvégezve</span>
+            {% else %}<span class="badge badge-warning">Modellanalízis nincs elvégezve</span>{% endif %}
+        </div>
     </div>
 
     {% if model_files %}
