@@ -37,7 +37,7 @@
     <div class="section-head">
         <div>
             <h2>Modellanalízis fájljai</h2>
-            <p class="muted">A páciens NAS-mappájának tartalma. Azonos nevű fájl feltöltése frissíti a meglévő példányt.</p>
+            <p class="muted">A páciens NAS-mappájának tartalma. Azonos nevű fájl feltöltése új, időbélyeges verziót hoz létre; a korábbi példány megmarad.</p>
         </div>
         {% if patient.model_analysis_completed %}<span class="badge badge-success">Modellanalízis megtörtént</span>
         {% elif model_files %}<span class="badge badge-warning">Elvégezhető · még nincs kész</span>
@@ -71,7 +71,7 @@
         <div>
             <label class="field-label" for="model_files">Új vagy módosított fájlok feltöltése</label>
             <input id="model_files" name="model_files" type="file" multiple required>
-            <p class="muted small">Több fájl egyszerre kijelölhető. Azonos fájlnév esetén a NAS-on lévő változat frissül.</p>
+            <p class="muted small">Több fájl egyszerre kijelölhető. Azonos fájlnév esetén a rendszer új verziót ment, és a korábbit is megőrzi.</p>
         </div>
         <button class="button button-primary" type="submit">Fájlok feltöltése</button>
     </form>

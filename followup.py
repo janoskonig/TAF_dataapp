@@ -20,6 +20,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -142,11 +143,12 @@ def create_followup_blueprint(
         finally:
             conn.close()
 
-    def execute(sql, params=()):
+    def execute_transaction(statements):
         conn = connection_factory()
         try:
             with conn.cursor() as cursor:
-                cursor.execute(sql, params)
+                for sql, params in statements:
+                    cursor.execute(sql, params)
             conn.commit()
         except Exception:
             conn.rollback()
@@ -189,7 +191,9 @@ def create_followup_blueprint(
         phone = str(record.get("patient_phone") or "").strip()
         phone_digits = "".join(character for character in phone if character.isdigit())
         record["phone_href"] = ("+" if phone.startswith("+") else "") + phone_digits if phone_digits else None
-        new_complete = questionnaire_complete(record, "new_")
+        new_complete = bool(record.get("questionnaire_completed_at")) and questionnaire_complete(
+            record, "new_"
+        )
         legacy_complete = questionnaire_complete(record, "legacy_")
         record["questionnaire_complete"] = new_complete or legacy_complete
         record["questionnaire_source"] = "new" if new_complete else "legacy" if legacy_complete else None
@@ -329,7 +333,7 @@ def create_followup_blueprint(
             abort(404)
         return add_model_stl_status([decorate_patient(found[0])])[0]
 
-    def upsert_fields(patient_id, values):
+    def upsert_statement(patient_id, values):
         allowed = {
             "visit_status",
             "contact_attempted_at",
@@ -357,14 +361,29 @@ def create_followup_blueprint(
             raise ValueError("Nem engedélyezett utánkövetési mező.")
         columns = ["patient_id", "visit_round", *values.keys()]
         placeholders = ", ".join(["%s"] * len(columns))
-        updates = ", ".join([f"{column} = EXCLUDED.{column}" for column in values])
+        updates = ", ".join(
+            [
+                (
+                    f"{column} = followup_visits.{column} OR EXCLUDED.{column}"
+                    if column == "consent_confirmed"
+                    else (
+                        f"{column} = COALESCE(EXCLUDED.{column}, "
+                        f"followup_visits.{column})"
+                    )
+                )
+                for column in values
+            ]
+        )
         sql = f"""
             INSERT INTO followup_visits ({', '.join(columns)})
             VALUES ({placeholders})
             ON CONFLICT (patient_id, visit_round) DO UPDATE SET
                 {updates}, updated_at = CURRENT_TIMESTAMP
         """
-        execute(sql, [patient_id, 1, *values.values()])
+        return sql, [patient_id, 1, *values.values()]
+
+    def upsert_fields(patient_id, values):
+        execute_transaction([upsert_statement(patient_id, values)])
 
     @bp.route("/login", methods=["GET", "POST"])
     def login():
@@ -570,7 +589,7 @@ def create_followup_blueprint(
     def save_logistics(patient_id):
         validate_csrf()
         patient_record = get_patient(patient_id)
-        status = request.form.get("visit_status", "not_contacted")
+        status = request.form.get("visit_status")
         if status not in VISIT_STATUSES:
             abort(400, description="Érvénytelen vizitstátusz.")
         if status == "completed" and patient_record.get("visit_status") != "completed":
@@ -595,15 +614,18 @@ def create_followup_blueprint(
         }
         if status != "not_contacted":
             values["contact_attempted_at"] = datetime.now()
-        upsert_fields(patient_id, values)
+        statements = [upsert_statement(patient_id, values)]
         if status not in {"not_contacted", "completed"}:
-            execute(
-                """
-                INSERT INTO followup_contact_attempts (patient_id, outcome, note)
-                VALUES (%s, %s, %s)
-                """,
-                (patient_id, status, values["contact_note"]),
+            statements.append(
+                (
+                    """
+                    INSERT INTO followup_contact_attempts (patient_id, outcome, note)
+                    VALUES (%s, %s, %s)
+                    """,
+                    (patient_id, status, values["contact_note"]),
+                )
             )
+        execute_transaction(statements)
         flash("A megkeresési és időpontadatok elmentve.", "success")
         return redirect(url_for("followup.patient", patient_id=patient_id))
 
@@ -679,6 +701,34 @@ def create_followup_blueprint(
             patient=patient_record,
             form_values=form_values,
         )
+
+    @bp.post("/patient/<int:patient_id>/questionnaire/draft")
+    @require_access
+    def save_questionnaire_draft(patient_id):
+        validate_csrf()
+        get_patient(patient_id)
+        values = {}
+        for field in QUESTIONNAIRE_FIELDS:
+            if field not in request.form:
+                continue
+            value = request.form.get(field, "")
+            if field in ANCHOR_FIELDS:
+                allowed_values = SITUATION_VALUES if "today_situation" in field else CHANGE_VALUES
+                if value not in allowed_values:
+                    abort(400, description="Érvénytelen kérdőívválasz.")
+                values[field] = value
+            elif field in OHIP_FIELDS:
+                if value not in {"0", "1", "2", "3", "4"}:
+                    abort(400, description="Érvénytelen OHIP-válasz.")
+                values[field] = int(value)
+            else:
+                if value not in {"1", "2", "3", "4", "5"}:
+                    abort(400, description="Érvénytelen GOHAI-válasz.")
+                values[field] = int(value)
+        if not values:
+            abort(400, description="Nincs menthető kérdőívválasz.")
+        upsert_fields(patient_id, values)
+        return jsonify({"saved": True})
 
     @bp.post("/patient/<int:patient_id>/mai")
     @require_access

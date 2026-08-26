@@ -27,6 +27,7 @@
     <div class="question-progress" aria-live="polite">
         <strong><span id="answeredCount">0</span> / 21 kérdés megválaszolva</strong>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <small class="muted" id="draftSaveStatus">A válaszok automatikusan mentődnek.</small>
     </div>
 
     <form method="post" id="questionnaireForm">
@@ -77,6 +78,12 @@
     const count = document.getElementById('answeredCount');
     const fill = document.getElementById('progressFill');
     const submit = document.getElementById('submitButton');
+    const saveStatus = document.getElementById('draftSaveStatus');
+    const csrf = form.querySelector('input[name="csrf_token"]').value;
+    const draftUrl = {{ url_for('followup.save_questionnaire_draft', patient_id=patient.patient_id)|tojson }};
+    let pendingSaves = 0;
+    let saveFailed = false;
+    let saveQueue = Promise.resolve();
 
     function updateProgress() {
         const answered = groups.filter(group => group.querySelector('input:checked')).length;
@@ -85,8 +92,74 @@
         submit.disabled = answered !== groups.length;
     }
 
-    form.addEventListener('change', updateProgress);
+    async function saveDraft(input) {
+        const data = new FormData();
+        data.set('csrf_token', csrf);
+        data.set(input.name, input.value);
+        let lastError = null;
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+            try {
+                const response = await fetch(draftUrl, {
+                    method: 'POST',
+                    body: data,
+                    credentials: 'same-origin',
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                saveFailed = false;
+                return;
+            } catch (error) {
+                lastError = error;
+                if (attempt < 3) await new Promise(resolve => setTimeout(resolve, attempt * 500));
+            }
+        }
+        saveFailed = true;
+        throw lastError;
+    }
+
+    function updateSaveStatus() {
+        if (pendingSaves) {
+            saveStatus.textContent = 'Mentés folyamatban…';
+        } else if (saveFailed) {
+            saveStatus.textContent = 'A piszkozat mentése nem sikerült. A végső Mentés gomb újra elküldi az összes választ.';
+        } else {
+            saveStatus.textContent = 'Minden megjelölt válasz elmentve.';
+        }
+    }
+
+    form.addEventListener('change', event => {
+        updateProgress();
+        if (!event.target.matches('input[type="radio"]')) return;
+        pendingSaves += 1;
+        updateSaveStatus();
+        saveQueue = saveQueue
+            .then(() => saveDraft(event.target))
+            .catch(() => {})
+            .finally(() => {
+                pendingSaves -= 1;
+                updateSaveStatus();
+            });
+    });
+
+    form.addEventListener('submit', event => {
+        if (!pendingSaves) return;
+        event.preventDefault();
+        submit.disabled = true;
+        saveQueue.finally(() => form.submit());
+    });
+
+    window.addEventListener('beforeunload', event => {
+        if (!pendingSaves && !saveFailed) return;
+        event.preventDefault();
+        event.returnValue = '';
+    });
+
+    window.addEventListener('pagehide', () => {
+        if (navigator.sendBeacon) navigator.sendBeacon(draftUrl, new FormData(form));
+    });
+
     updateProgress();
+    updateSaveStatus();
 })();
 </script>
 {% endblock %}

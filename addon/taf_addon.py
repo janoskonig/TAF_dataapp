@@ -1826,6 +1826,7 @@ class TAF_OT_UploadToServer(Operator):
         import json as _json
         import time
         import datetime
+        import uuid
 
         props = context.scene.taf_props
         preferences = _addon_preferences(context)
@@ -1866,41 +1867,57 @@ class TAF_OT_UploadToServer(Operator):
                 f"Nincs profil ehhez: {', '.join(missing_profiles)} — "
                 f"futtasd újra a számítást a profil rögzítéséhez!")
 
-        payload_dict = {
-            "TAJ":        props.patient_id.strip(),
-            "F1":         round(props.f1_upper_ridge_height, 2),
-            "F1_ivhossz_mm": round(props.f1_arc_length_mm, 2) if props.f1_arc_length_mm else None,
-            "F2":         round(props.f2_undercut_volume,    2),
-            "F3":         round(props.f3_palatal_vault,      2),
-            "F4":         round(f4_avg,                      1),
-            "F6":         round(f6_avg,                      1),
-            "A10":        round(props.a10_angle,             1),
-            "A2_mag_mm":  round(props.a2_lower_ridge_height, 2),
-            "A2_modszer": props.a2_method,
-            # Per-method values (None → szerver megőrzi a meglévőt COALESCE-szal)
-            "A2_methodB": round(props.a2_method_b, 2) if props.a2_method_b else None,
-            "A2_methodC": round(props.a2_method_c, 2) if props.a2_method_c else None,
-            # Raw profile point arrays → DB columns F1_profil / A2_profil
-            "F1_profil": _parse_profile(props.f1_profile_json),
-            "A2_profil": _parse_profile(props.a2_profile_json),
-        }
+        # Only send values that were actually measured in this Blender file.
+        # Property defaults must never erase an earlier server-side measurement.
+        payload_dict = {"TAJ": props.patient_id.strip()}
+        if props.f1_n_pairs > 0 or props.f1_profile_json:
+            payload_dict.update({
+                "F1": round(props.f1_upper_ridge_height, 2),
+                "F1_ivhossz_mm": (
+                    round(props.f1_arc_length_mm, 2) if props.f1_arc_length_mm else None
+                ),
+                "F1_profil": _parse_profile(props.f1_profile_json),
+            })
+        if props.f2_original_volume or props.f2_passive_volume or props.f2_undercut_volume:
+            payload_dict["F2"] = round(props.f2_undercut_volume, 2)
+        if props.f3_palatal_vault:
+            payload_dict["F3"] = round(props.f3_palatal_vault, 2)
+        if props.f4_angle_left or props.f4_angle_right:
+            payload_dict["F4"] = round(f4_avg, 1)
+        if props.f6_angle_left or props.f6_angle_right:
+            payload_dict["F6"] = round(f6_avg, 1)
+        if _A10_FELSO_NAME in bpy.data.objects and _A10_ALSO_NAME in bpy.data.objects:
+            payload_dict["A10"] = round(props.a10_angle, 1)
+        if props.a2_profile_json or props.a2_lower_ridge_height:
+            payload_dict.update({
+                "A2_mag_mm": round(props.a2_lower_ridge_height, 2),
+                "A2_modszer": props.a2_method,
+                "A2_profil": _parse_profile(props.a2_profile_json),
+            })
+        if props.a2_method_b:
+            payload_dict["A2_methodB"] = round(props.a2_method_b, 2)
+        if props.a2_method_c:
+            payload_dict["A2_methodC"] = round(props.a2_method_c, 2)
         payload = _json.dumps(payload_dict).encode('utf-8')
 
         # Local backup before uploading
-        backup_path = None
         csv_dir = (os.path.dirname(bpy.path.abspath(props.csv_path))
                    if props.csv_path else "")
-        if csv_dir:
-            ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_path = os.path.join(
-                csv_dir,
-                f"{props.patient_id.strip()}_{ts}_upload.json"
-            )
-            try:
-                with open(backup_path, 'w', encoding='utf-8') as f:
-                    _json.dump(payload_dict, f, ensure_ascii=False, indent=2)
-            except Exception:
-                backup_path = None  # non-fatal; proceed without backup
+        backup_dir = csv_dir or os.path.dirname(bpy.data.filepath or "")
+        if not backup_dir or not os.path.isdir(backup_dir):
+            self.report({'ERROR'}, "Nincs biztonságos helyi mentési mappa. Mentsd el előbb a .blend fájlt!")
+            return {'CANCELLED'}
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        backup_path = os.path.join(
+            backup_dir,
+            f"TAF_measurement_{ts}_{uuid.uuid4().hex[:8]}.json"
+        )
+        try:
+            with open(backup_path, 'x', encoding='utf-8') as f:
+                _json.dump(payload_dict, f, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            self.report({'ERROR'}, f"A helyi biztonsági mentés nem sikerült: {exc}")
+            return {'CANCELLED'}
 
         url = preferences.server_url.rstrip('/') + '/api/morphometria'
         req = urllib.request.Request(
@@ -1921,14 +1938,10 @@ class TAF_OT_UploadToServer(Operator):
                 if result.get('error'):
                     self.report({'ERROR'}, f"Szerver elutasítás: {result['error']}")
                     return {'CANCELLED'}
-                # Sikeres feltöltés — töröljük a biztonsági mentést
-                if backup_path and os.path.exists(backup_path):
-                    try:
-                        os.remove(backup_path)
-                    except Exception:
-                        pass
                 suffix = f" ({attempt}. kísérlet)" if attempt > 1 else ""
-                self.report({'INFO'}, f"Feltöltve: {props.patient_id}{suffix}")
+                self.report({
+                    'INFO'
+                }, f"Feltöltve: {props.patient_id}{suffix}; helyi mentés: {os.path.basename(backup_path)}")
                 return {'FINISHED'}
             except urllib.error.HTTPError as e:
                 body = e.read().decode('utf-8')

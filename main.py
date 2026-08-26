@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
 import secrets
 import json
+import uuid
 from werkzeug.utils import secure_filename
 import psycopg2
 import os
@@ -96,8 +97,8 @@ def fallback_model_file_listing(ftp):
             {"name": name, "size": int(facts.get("size") or 0)}
             for name, facts in rows
             if facts.get("type") == "file"
-            and name != model_manifest_filename
-            and not name.endswith(".uploading")
+            and not name.startswith(model_manifest_filename)
+            and ".uploading" not in name
         ]
     except all_errors:
         return [
@@ -105,13 +106,17 @@ def fallback_model_file_listing(ftp):
             for name in ftp.nlst()
             if os.path.basename(name.rstrip('/'))
             not in {'', '.', '..', model_manifest_filename}
+            and not os.path.basename(name.rstrip('/')).startswith(model_manifest_filename)
+            and ".uploading" not in os.path.basename(name.rstrip('/'))
         ]
 
 
 def model_file_listing(ftp):
     manifest = read_model_manifest(ftp)
-    files = manifest if manifest is not None else fallback_model_file_listing(ftp)
-    return sorted(files, key=lambda item: item["name"].casefold())
+    actual = fallback_model_file_listing(ftp)
+    merged = {item["name"]: item for item in (manifest or [])}
+    merged.update({item["name"]: item for item in actual})
+    return sorted(merged.values(), key=lambda item: item["name"].casefold())
 
 
 def write_model_manifest(ftp, files):
@@ -120,13 +125,34 @@ def write_model_manifest(ftp, files):
         ensure_ascii=False,
         indent=2,
     ).encode("utf-8")
-    temporary_name = f"{model_manifest_filename}.uploading"
+    operation_id = uuid.uuid4().hex
+    temporary_name = f"{model_manifest_filename}.{operation_id}.uploading"
+    backup_name = f"{model_manifest_filename}.{operation_id}.backup"
     ftp.storbinary(f"STOR {temporary_name}", BytesIO(content))
+    existing_names = {
+        os.path.basename(name.rstrip('/')) for name in ftp.nlst()
+    }
+    had_manifest = model_manifest_filename in existing_names
     try:
-        ftp.delete(model_manifest_filename)
-    except error_perm:
-        pass
-    ftp.rename(temporary_name, model_manifest_filename)
+        if had_manifest:
+            ftp.rename(model_manifest_filename, backup_name)
+        ftp.rename(temporary_name, model_manifest_filename)
+    except Exception:
+        if had_manifest:
+            try:
+                ftp.rename(backup_name, model_manifest_filename)
+            except all_errors:
+                pass
+        try:
+            ftp.delete(temporary_name)
+        except all_errors:
+            pass
+        raise
+    if had_manifest:
+        try:
+            ftp.delete(backup_name)
+        except all_errors:
+            pass
 
 
 def update_model_manifest(ftp, filename, size):
@@ -145,7 +171,7 @@ def upload_to_nas(file_path, TAJ, measurement_type):
     if measurement_type not in ['mai_initial', 'mai_final', 'mai_followup', 'A2_gerinc', 'A2_bukkalis', 'A2_lingualis']:
         raise ValueError("Unsupported measurement_type")
     if measurement_type == 'mai_followup':
-        timestamp = datetime.now(BUDAPEST_TZ).strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now(BUDAPEST_TZ).strftime('%Y%m%d_%H%M%S_%f')
         filename = f"{measurement_type}_{TAJ}_{timestamp}.tiff"
     elif measurement_type == 'mai_initial' or measurement_type == 'mai_final':
         filename = f"{measurement_type}_{TAJ}.tiff"
@@ -160,8 +186,17 @@ def upload_to_nas(file_path, TAJ, measurement_type):
             patient_folder = safe_patient_folder(TAJ)
             remote_parts = [nas_patients_folder, patient_folder, model_analysis_folder]
             ensure_ftp_subdirectory(ftp, remote_parts)
-        with open(file_path, 'rb') as file:
-            ftp.storbinary(f'STOR {filename}', file)
+        temporary_name = f".{filename}.{uuid.uuid4().hex}.uploading"
+        try:
+            with open(file_path, 'rb') as file:
+                ftp.storbinary(f'STOR {temporary_name}', file)
+            ftp.rename(temporary_name, filename)
+        except Exception:
+            try:
+                ftp.delete(temporary_name)
+            except all_errors:
+                pass
+            raise
         if measurement_type.startswith('A2_'):
             update_model_manifest(ftp, filename, os.path.getsize(file_path))
         ftp.quit()
@@ -416,15 +451,24 @@ def upload_patient_model_stream(patient_key, source, original_filename, size):
         ensure_ftp_subdirectory(
             ftp, (nas_patients_folder, patient_folder, model_analysis_folder)
         )
-        temporary_name = f".{filename}.uploading"
-        ftp.storbinary(f"STOR {temporary_name}", source, blocksize=1024 * 1024)
+        existing_names = {item["name"] for item in model_file_listing(ftp)}
+        stored_filename = filename
+        if stored_filename in existing_names:
+            stem, extension = os.path.splitext(filename)
+            version = datetime.now(BUDAPEST_TZ).strftime('%Y%m%d_%H%M%S_%f')
+            stored_filename = f"{stem}_{version}_{uuid.uuid4().hex[:8]}{extension}"
+        temporary_name = f".{uuid.uuid4().hex}.uploading"
         try:
-            ftp.delete(filename)
-        except error_perm:
-            pass
-        ftp.rename(temporary_name, filename)
-        update_model_manifest(ftp, filename, size)
-    return filename
+            ftp.storbinary(f"STOR {temporary_name}", source, blocksize=1024 * 1024)
+            ftp.rename(temporary_name, stored_filename)
+        except Exception:
+            try:
+                ftp.delete(temporary_name)
+            except all_errors:
+                pass
+            raise
+        update_model_manifest(ftp, stored_filename, size)
+    return stored_filename
 
 
 def download_patient_model_file(patient_keys, filename, local_path):
@@ -3753,29 +3797,36 @@ def api_morphometria():
         else:
             return jsonify({'error': f'{field} nem lista'}), 400
 
-    cursor = get_db_cursor()
+    connection = create_db_connection()
+    cursor = connection.cursor()
     try:
-        cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
-        if cursor.fetchone()[0] == 0:
+        cursor.execute(
+            'SELECT "id" FROM patients WHERE "TAJ" = %s '
+            'ORDER BY "id" DESC LIMIT 1 FOR UPDATE',
+            (TAJ,),
+        )
+        patient_row = cursor.fetchone()
+        if patient_row is None:
             return jsonify({'error': f'TAJ ({TAJ}) nem található a rendszerben'}), 404
+        patient_id = patient_row[0]
 
         cursor.execute(
             """UPDATE patients SET
-               "F1"                        = %s,
-               "F2"                        = %s,
-               "F3"                        = %s,
-               "F4"                        = %s,
-               "F6"                        = %s,
-               "A10"                       = %s,
-               "A2_mag_mm"                 = %s,
-               "A2_modszer"                = %s,
+               "F1"                        = COALESCE(%s, "F1"),
+               "F2"                        = COALESCE(%s, "F2"),
+               "F3"                        = COALESCE(%s, "F3"),
+               "F4"                        = COALESCE(%s, "F4"),
+               "F6"                        = COALESCE(%s, "F6"),
+               "A10"                       = COALESCE(%s, "A10"),
+               "A2_mag_mm"                 = COALESCE(%s, "A2_mag_mm"),
+               "A2_modszer"                = COALESCE(%s, "A2_modszer"),
                "A2_methodB"                = COALESCE(%s, "A2_methodB"),
                "A2_methodC"                = COALESCE(%s, "A2_methodC"),
                "F1_ivhossz_mm"             = COALESCE(%s, "F1_ivhossz_mm"),
                "F1_profil"                 = COALESCE(%s, "F1_profil"),
                "A2_profil"                 = COALESCE(%s, "A2_profil"),
                "modellanalizis_megtortent" = TRUE
-               WHERE "TAJ" = %s""",
+               WHERE "id" = %s""",
             (
                 converted['F1'], converted['F2'], converted['F3'],
                 converted['F4'], converted['F6'], converted['A10'],
@@ -3783,17 +3834,18 @@ def api_morphometria():
                 converted['A2_methodB'], converted['A2_methodC'],
                 converted['F1_ivhossz_mm'],
                 profiles['F1_profil'], profiles['A2_profil'],
-                TAJ,
+                patient_id,
             )
         )
-        db.commit()
+        connection.commit()
         return jsonify({'success': True, 'TAJ': TAJ})
     except Exception as e:
-        db.rollback()
+        connection.rollback()
         app.logger.error("api_morphometria hiba (TAJ=%s): %s", TAJ, e)
         return jsonify({'error': 'Adatbázis hiba. Kérlek próbáld újra.'}), 500
     finally:
         cursor.close()
+        connection.close()
 
 
 @app.route('/api/morphometria/blend', methods=['POST'])
@@ -3811,7 +3863,8 @@ def api_morphometria_blend():
     if not upload.filename.lower().endswith('.blend'):
         return jsonify({'error': 'Csak .blend fájl tölthető fel ezen a végponton'}), 400
 
-    cursor = get_db_cursor()
+    connection = create_db_connection()
+    cursor = connection.cursor()
     try:
         cursor.execute('SELECT COUNT(*) FROM patients WHERE "TAJ" = %s', (TAJ,))
         if cursor.fetchone()[0] == 0:
@@ -3821,6 +3874,7 @@ def api_morphometria_blend():
         return jsonify({'error': 'Adatbázis hiba. Kérlek próbáld újra.'}), 500
     finally:
         cursor.close()
+        connection.close()
 
     try:
         upload.stream.seek(0, os.SEEK_END)
