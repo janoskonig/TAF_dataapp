@@ -20,7 +20,7 @@ Szerzői jog: János König, 2024–2025
 bl_info = {
     "name": "TAF Addon",
     "author": "János König",
-    "version": (2, 3, 0),
+    "version": (2, 3, 1),
     "blender": (3, 0, 0),
     "location": "View3D › Sidebar › TAF",
     "description": "Morfometriai mérések, profil-export és biztonságos szerveres mentés",
@@ -54,7 +54,14 @@ def _addon_preferences(context):
 @persistent
 def _purge_legacy_scene_credentials(_unused=None):
     """Remove credentials saved by addon versions older than 2.2."""
-    for scene in bpy.data.scenes:
+    # Blender temporarily replaces bpy.data with _RestrictData while an addon is
+    # being enabled. A timer may occasionally be called before that guard has
+    # been lifted, so retry on the next tick instead of failing installation.
+    scenes = getattr(bpy.data, "scenes", None)
+    if scenes is None:
+        return 0.1
+
+    for scene in scenes:
         stored = scene.get("taf_props")
         if stored is None:
             continue
@@ -1538,10 +1545,15 @@ def register():
     bpy.types.Scene.taf_props = bpy.props.PointerProperty(type=TAF_Props)
     if _purge_legacy_scene_credentials not in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.append(_purge_legacy_scene_credentials)
-    _purge_legacy_scene_credentials()
+    # Access to bpy.data is restricted during register(). Defer migration until
+    # Blender has completed the addon-enable operation.
+    if not bpy.app.timers.is_registered(_purge_legacy_scene_credentials):
+        bpy.app.timers.register(_purge_legacy_scene_credentials, first_interval=0.0)
 
 
 def unregister():
+    if bpy.app.timers.is_registered(_purge_legacy_scene_credentials):
+        bpy.app.timers.unregister(_purge_legacy_scene_credentials)
     if _purge_legacy_scene_credentials in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.remove(_purge_legacy_scene_credentials)
     for cls in reversed(CLASSES):

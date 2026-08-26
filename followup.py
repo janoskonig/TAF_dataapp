@@ -484,7 +484,7 @@ def create_followup_blueprint(
             abort(404)
         return render_template(
             "followup_blender_addon.html",
-            addon_version="2.3.0",
+            addon_version="2.3.1",
             blend_upload_max_mb=current_app.config.get("BLEND_UPLOAD_MAX_MB"),
         )
 

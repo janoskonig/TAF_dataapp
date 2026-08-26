@@ -465,3 +465,10 @@ def test_addon_never_sends_unmeasured_defaults_and_keeps_local_backup():
     assert '_A10_FELSO_NAME in bpy.data.objects' in source
     assert "with open(backup_path, 'x'" in source
     assert "os.remove(backup_path)" not in source
+
+
+def test_addon_defers_scene_data_migration_until_after_registration():
+    source = Path("addon/taf_addon.py").read_text()
+    register_body = source.split("def register():", 1)[1].split("def unregister():", 1)[0]
+    assert "bpy.app.timers.register(_purge_legacy_scene_credentials" in register_body
+    assert "\n    _purge_legacy_scene_credentials()" not in register_body
