@@ -119,7 +119,7 @@
                 <input id="patient_phone" name="patient_phone" type="tel" inputmode="tel" autocomplete="off" maxlength="30" value="{{ patient.patient_phone or '' }}" placeholder="pl. +36 30 123 4567">
             </div>
             <div>
-                <label class="field-label" for="visit_status">Státusz</label>
+                <label class="field-label" for="visit_status">Megkeresés állapota</label>
                 {% set current_status = patient.visit_status or 'not_contacted' %}
                 <select id="visit_status" name="visit_status">
                     <option value="not_contacted" {% if current_status == 'not_contacted' %}selected{% endif %}>Még nem kerestük</option>

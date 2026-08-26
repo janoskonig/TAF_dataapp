@@ -59,6 +59,16 @@ VISIT_STATUSES = {
     "no_show",
     "unreachable",
 }
+VISIT_STATUS_LABELS = {
+    "not_contacted": "Még nem kerestük",
+    "contacted": "Elértük",
+    "scheduled": "Időpont egyeztetve",
+    "arrived": "Megjelent",
+    "completed": "Vizit lezárva",
+    "declined": "Visszautasította",
+    "no_show": "Nem jelent meg",
+    "unreachable": "Nem elérhető",
+}
 
 
 def normalise_taj(value):
@@ -95,7 +105,10 @@ def create_followup_blueprint(
 
     @bp.context_processor
     def inject_helpers():
-        return {"followup_csrf_token": csrf_token}
+        return {
+            "followup_csrf_token": csrf_token,
+            "visit_status_labels": VISIT_STATUS_LABELS,
+        }
 
     @bp.after_request
     def protect_health_data(response):

@@ -6,7 +6,12 @@ from unittest.mock import patch
 
 from flask import Blueprint, Flask
 
-from followup import create_followup_blueprint, normalise_taj
+from followup import (
+    VISIT_STATUSES,
+    VISIT_STATUS_LABELS,
+    create_followup_blueprint,
+    normalise_taj,
+)
 from upload_model_analysis_to_nas import flattened_name, uploadable_files
 
 
@@ -14,6 +19,12 @@ class ModelStlInventoryTests(unittest.TestCase):
     def test_normalise_taj_keeps_leading_zeroes(self):
         self.assertEqual(normalise_taj("009-907-384"), "009907384")
         self.assertEqual(normalise_taj(9907384), "009907384")
+
+    def test_every_visit_status_has_a_hungarian_label(self):
+        self.assertEqual(set(VISIT_STATUS_LABELS), VISIT_STATUSES)
+        self.assertEqual(VISIT_STATUS_LABELS["not_contacted"], "Még nem kerestük")
+        self.assertEqual(VISIT_STATUS_LABELS["no_show"], "Nem jelent meg")
+        self.assertEqual(VISIT_STATUS_LABELS["unreachable"], "Nem elérhető")
 
     def test_upload_file_selection_ignores_macos_metadata_and_flattens_paths(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
