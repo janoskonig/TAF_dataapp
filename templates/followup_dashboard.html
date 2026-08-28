@@ -120,7 +120,8 @@
                         {% else %}<span class="badge badge-muted">nem ellenőrizhető</span>{% endif %}
                     </td>
                     <td data-label="Modellanalízis">
-                        {% if patient.model_analysis_completed %}<span class="badge badge-success">elvégezve</span>
+                        {% if patient.model_reanalysis_required %}<span class="badge badge-danger">újra kell futtatni</span>
+                        {% elif patient.model_analysis_completed %}<span class="badge badge-success">elvégezve</span>
                         {% else %}<span class="badge badge-warning">nincs elvégezve</span>{% endif %}
                     </td>
                     <td data-label="Összesen">

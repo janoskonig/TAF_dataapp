@@ -163,8 +163,20 @@ def test_dashboard_distinguishes_model_material_from_completed_analysis():
         "fully_ready": False,
     }
     patients = [
-        {**common, "patient_id": 1, "study_code": "PRED-0001", "model_analysis_completed": False},
-        {**common, "patient_id": 2, "study_code": "PRED-0002", "model_analysis_completed": True},
+        {
+            **common,
+            "patient_id": 1,
+            "study_code": "PRED-0001",
+            "model_analysis_completed": False,
+            "model_reanalysis_required": False,
+        },
+        {
+            **common,
+            "patient_id": 2,
+            "study_code": "PRED-0002",
+            "model_analysis_completed": True,
+            "model_reanalysis_required": True,
+        },
     ]
     stats = {
         "total": 2,
@@ -195,7 +207,7 @@ def test_dashboard_distinguishes_model_material_from_completed_analysis():
     assert 'data-label="Modellanalízis"' in html
     assert html.count("megvan · 6 fájl") == 2
     assert "nincs elvégezve" in html
-    assert "elvégezve" in html
+    assert "újra kell futtatni" in html
 
 
 def test_blank_intake_fields_cannot_erase_saved_values():

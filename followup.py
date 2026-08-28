@@ -71,6 +71,11 @@ VISIT_STATUS_LABELS = {
     "unreachable": "Nem elérhető",
 }
 
+# These analyses predate storage of the F1 ridge arc length needed for the
+# size-standardized F2 metric.  The warning clears automatically after the
+# current Blender addon saves that missing measurement.
+MODEL_REANALYSIS_PATIENT_IDS = {2, 8}
+
 
 def normalise_taj(value):
     """Return the last nine TAJ digits, preserving leading zeroes."""
@@ -206,6 +211,10 @@ def create_followup_blueprint(
         record["model_analysis_completed"] = bool(
             record.get("model_analysis_completed")
         )
+        record["model_reanalysis_required"] = (
+            int(record["patient_id"]) in MODEL_REANALYSIS_PATIENT_IDS
+            and not present(record.get("model_f1_arc_length_mm"))
+        )
         record["consent_confirmed"] = bool(record.get("consent_confirmed"))
         record["primary_ready"] = (
             record["questionnaire_complete"]
@@ -297,6 +306,7 @@ def create_followup_blueprint(
             c."final_mai_huedegree" AS legacy_final_mai_huedegree,
             c."F9" AS legacy_f9,
             c."modellanalizis_megtortent" AS model_analysis_completed,
+            c."F1_ivhossz_mm" AS model_f1_arc_length_mm,
             {legacy_select},
             {new_select},
             f.visit_status,

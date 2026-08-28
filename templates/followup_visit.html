@@ -12,12 +12,20 @@
             {% elif patient.model_stl_status == 'missing' %}<strong>hiányzik</strong>
             {% else %}<strong>nem ellenőrizhető</strong>{% endif %}
             · Modellanalízis:
-            {% if patient.model_analysis_completed %}<strong>elvégezve</strong>
+            {% if patient.model_reanalysis_required %}<strong>újra kell futtatni</strong>
+            {% elif patient.model_analysis_completed %}<strong>elvégezve</strong>
             {% else %}<strong>nincs elvégezve</strong>{% endif %}
         </p>
     </div>
     {% if patient.completed_at %}<span class="badge badge-success">Vizit lezárva</span>{% endif %}
 </header>
+
+{% if patient.model_reanalysis_required %}
+<div class="flash flash-error">
+    <strong>A modellanalízist újra kell futtatni.</strong>
+    Az F1 gerincívhossz hiányzik; használd a jelenlegi Blender addont, hogy az F1–F2 méretstandardizáláshoz szükséges adat is elmentésre kerüljön.
+</div>
+{% endif %}
 
 <section class="progress-grid" aria-label="Vizit előrehaladása">
     <div class="progress-item {% if patient.consent_confirmed %}complete{% else %}pending{% endif %}">
@@ -45,7 +53,8 @@
             {% if model_files %}<span class="badge badge-success">Modellanyag megvan</span>
             {% elif model_files_source_available %}<span class="badge badge-warning">Modellanyag hiányzik</span>
             {% else %}<span class="badge badge-muted">Modellanyag nem ellenőrizhető</span>{% endif %}
-            {% if patient.model_analysis_completed %}<span class="badge badge-success">Modellanalízis elvégezve</span>
+            {% if patient.model_reanalysis_required %}<span class="badge badge-danger">Modellanalízis újrafuttatandó</span>
+            {% elif patient.model_analysis_completed %}<span class="badge badge-success">Modellanalízis elvégezve</span>
             {% else %}<span class="badge badge-warning">Modellanalízis nincs elvégezve</span>{% endif %}
         </div>
     </div>
