@@ -28,13 +28,13 @@
     {% if visits %}
     <div class="patient-table-wrap">
         <table class="patient-table">
-            <thead><tr><th>Beteg</th><th>Telefon</th><th>Kérdőív</th><th>Anatómia</th><th>Modell</th><th>MAI</th><th>Állapot</th><th></th></tr></thead>
+            <thead><tr><th>Beteg</th><th>Telefon</th><th>Kérdőív</th><th>Anatómia</th><th>MAI</th><th>Állapot</th><th></th></tr></thead>
             <tbody>
             {% for visit in visits %}
             <tr>
                 <td class="patient-id"><strong>{{ visit.patient_name }}</strong><small>{{ visit.taj }} · {{ visit.study_code }}</small></td>
                 <td>{{ visit.patient_phone or '—' }}</td>
-                {% for complete in [visit.questionnaire_complete, visit.anatomy_complete, visit.model_complete, visit.mai_complete] %}
+                {% for complete in [visit.questionnaire_complete, visit.anatomy_complete, visit.mai_complete] %}
                 <td><span class="badge {{ 'badge-success' if complete else 'badge-warning' }}">{{ 'kész' if complete else 'hiányzik' }}</span></td>
                 {% endfor %}
                 <td>

@@ -40,10 +40,6 @@ LOWER_ANATOMY_FIELDS = [
     "A13",
     "A14",
 ]
-UPPER_MODEL_FIELDS = ["F1", "F2", "F3", "F4", "F6"]
-LOWER_MODEL_FIELDS = ["A10", "A2_gerincelvonal", "A2_bukkalisathajlas", "A2_lingualisathajlas"]
-
-
 def create_baseline_blueprint(
     connection_factory,
     hue_calculator,
@@ -155,14 +151,6 @@ def create_baseline_blueprint(
             fields.extend(LOWER_ANATOMY_FIELDS)
         return fields
 
-    def required_model(denture_type):
-        fields = []
-        if denture_type in {"upper", "both"}:
-            fields.extend(UPPER_MODEL_FIELDS)
-        if denture_type in {"lower", "both"}:
-            fields.extend(LOWER_MODEL_FIELDS)
-        return fields
-
     def present(value):
         return value is not None and str(value).strip() != ""
 
@@ -171,16 +159,13 @@ def create_baseline_blueprint(
         record["study_code"] = study_code(record["patient_id"])
         questionnaire = record.get("questionnaire_data") or {}
         anatomy = record.get("anatomy_data") or {}
-        model = record.get("model_data") or {}
         record["questionnaire_complete"] = all(present(questionnaire.get(field)) for field in QUESTIONNAIRE_FIELDS)
         record["anatomy_complete"] = all(present(anatomy.get(field)) for field in required_anatomy(record["denture_type"]))
-        record["model_complete"] = all(present(model.get(field)) for field in required_model(record["denture_type"]))
         record["mai_complete"] = present(record.get("init_mai_huedegree")) and present(record.get("init_image_path"))
         record["ready"] = (
             bool(record.get("consent_confirmed"))
             and record["questionnaire_complete"]
             and record["anatomy_complete"]
-            and record["model_complete"]
             and record["mai_complete"]
         )
         return record
@@ -209,12 +194,11 @@ def create_baseline_blueprint(
             abort(409, description="A lezárt kezdővizit nem módosítható.")
 
     def save_draft(patient_id, column, values, completed_column):
-        if column not in {"questionnaire_data", "anatomy_data", "model_data"}:
+        if column not in {"questionnaire_data", "anatomy_data"}:
             raise ValueError("Nem engedélyezett piszkozatmező.")
         if completed_column not in {
             "questionnaire_completed_at",
             "anatomy_completed_at",
-            "model_completed_at",
         }:
             raise ValueError("Nem engedélyezett időbélyegmező.")
         execute(
@@ -402,62 +386,6 @@ def create_baseline_blueprint(
             form_values=visit.get("anatomy_data") or {},
         )
 
-    @bp.route("/patient/<int:patient_id>/model", methods=["GET", "POST"])
-    @require_access
-    def model(patient_id):
-        visit = get_visit(patient_id)
-        ensure_editable(visit)
-        current = dict(visit.get("model_data") or {})
-        if request.method == "POST":
-            validate_csrf()
-            values = dict(current)
-            numeric_fields = []
-            if visit["denture_type"] in {"upper", "both"}:
-                numeric_fields.extend(UPPER_MODEL_FIELDS)
-            if visit["denture_type"] in {"lower", "both"}:
-                numeric_fields.append("A10")
-            for field in numeric_fields:
-                raw = request.form.get(field, "").strip().replace(",", ".")
-                try:
-                    number = float(raw)
-                    if not math.isfinite(number):
-                        raise ValueError
-                    if field in {"F1", "F2", "F3"} and number < 0:
-                        raise ValueError
-                    if field in {"F4", "F6", "A10"} and not -180 <= number <= 180:
-                        raise ValueError
-                except ValueError:
-                    abort(400, description=f"A(z) {field} mérési értéke nem érvényes.")
-                values[field] = number
-
-            if visit["denture_type"] in {"lower", "both"}:
-                upload_fields = {
-                    "A2_gerincelvonal": ("stl_gerincelvonal", "A2_gerinc"),
-                    "A2_bukkalisathajlas": ("stl_bukkalis", "A2_bukkalis"),
-                    "A2_lingualisathajlas": ("stl_lingualis", "A2_lingualis"),
-                }
-                for target, (form_name, measurement_type) in upload_fields.items():
-                    uploaded = request.files.get(form_name)
-                    if uploaded and uploaded.filename:
-                        safe_name = secure_filename(uploaded.filename)
-                        if "." not in safe_name or safe_name.rsplit(".", 1)[1].lower() != "stl":
-                            abort(400, description="Az A2 modellfájlok formátuma STL legyen.")
-                        temp_name = f"baseline_model_{patient_id}_{uuid.uuid4().hex}_{safe_name}"
-                        temp_path = os.path.join(upload_folder, temp_name)
-                        uploaded.save(temp_path)
-                        try:
-                            values[target] = nas_uploader(temp_path, visit["study_code"], measurement_type)
-                        finally:
-                            if os.path.exists(temp_path):
-                                os.remove(temp_path)
-                    if not present(values.get(target)):
-                        abort(400, description="Mindhárom A2 STL-fájl feltöltése kötelező.")
-
-            save_draft(patient_id, "model_data", values, "model_completed_at")
-            flash("A modellanalízis adatai elmentve.", "success")
-            return redirect(url_for("baseline.patient", patient_id=patient_id))
-        return render_template("baseline_model.html", visit=visit, form_values=current)
-
     @bp.post("/patient/<int:patient_id>/mai")
     @require_access
     def save_mai(patient_id):
@@ -508,8 +436,6 @@ def create_baseline_blueprint(
             missing.append("kiindulási kérdőív")
         if not visit["anatomy_complete"]:
             missing.append("klinikai anatómia")
-        if not visit["model_complete"]:
-            missing.append("modellanalízis")
         if not visit["mai_complete"]:
             missing.append("kiindulási MAI")
         if missing:
@@ -518,20 +444,13 @@ def create_baseline_blueprint(
 
         questionnaire = visit["questionnaire_data"]
         anatomy_data = visit["anatomy_data"]
-        model_data = visit["model_data"]
         patient_values = {
             **questionnaire,
             **anatomy_data,
-            **{field: model_data.get(field) for field in UPPER_MODEL_FIELDS if field in model_data},
-            "A10": model_data.get("A10"),
-            "A2_gerincelvonal": model_data.get("A2_gerincelvonal"),
-            "A2_bukkalisathajlas": model_data.get("A2_bukkalisathajlas"),
-            "A2_lingualisathajlas": model_data.get("A2_lingualisathajlas"),
-            "modellanalizis_megtortent": True,
             "init_mai_huedegree": visit["init_mai_huedegree"],
             "init_image_path": visit["init_image_path"],
         }
-        allowed_columns = set(QUESTIONNAIRE_FIELDS + UPPER_ANATOMY_FIELDS + LOWER_ANATOMY_FIELDS + UPPER_MODEL_FIELDS + LOWER_MODEL_FIELDS + ["modellanalizis_megtortent", "init_mai_huedegree", "init_image_path"])
+        allowed_columns = set(QUESTIONNAIRE_FIELDS + UPPER_ANATOMY_FIELDS + LOWER_ANATOMY_FIELDS + ["init_mai_huedegree", "init_image_path"])
         patient_values = {key: value for key, value in patient_values.items() if key in allowed_columns and value is not None}
         assignments = ", ".join(f'"{column}" = %s' for column in patient_values)
 
