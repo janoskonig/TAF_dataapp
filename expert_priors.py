@@ -39,7 +39,12 @@ from flask import (
 )
 from psycopg2.extras import Json
 
-FORM_VERSION = "v1.0"
+from expert_texts import IRANY_LABELS as IRANY_LABELS_BY_LANG, ITEM_TEXT_EN, JAW_LABELS, LANGS, UI
+
+FORM_VERSION = "v1.2"
+# A simulate_expert_responses.py ezzel a verziójelöléssel szúr be próbasorokat;
+# a listában jelölve jelennek meg, az összesítésből és az exportból alapból kimaradnak.
+SIM_VERSION = "v1.0-SZIMULACIO"
 LOCAL_TZ = ZoneInfo("Europe/Budapest")
 
 
@@ -65,158 +70,194 @@ def format_stamp(value, fmt="%Y-%m-%d %H:%M"):
 # ---------------------------------------------------------------------------
 ITEMS = [
     {
-        "kod": "F1", "nev": "Felső állcsontgerinc magassága (profilja)", "jaw": "Felső állcsont",
-        "rogzit": "Modellanalízis: a gerincél relatív magassága a bukkális áthajláshoz képest (mm, betegátlag); klinikailag: magas / közepes / alacsony (sorvadt) gerinc.",
+        "kod": "F1", "nev": "A felső gerinc magassága", "jaw": "Felső állcsont",
+        "rogzit": "A gipszmintán mérjük, milyen magas a felső állcsontgerinc.",
         "A": "magas, jól megtartott gerinc", "B": "alacsony, sorvadt gerinc", "alak": "monoton", "optimum": False,
-        "kuszob": "Milyen gerincmagasság alatt tekinti a felső gerincet klinikailag „alacsonynak”? (mm)", "subs": [],
+        "kuszob": "Milyen magasság alatt mondaná, hogy a felső gerinc alacsony? (mm)", "subs": [],
     },
     {
-        "kod": "F2", "nev": "Felső alámenős területek nagysága", "jaw": "Felső állcsont",
-        "rogzit": "Modellanalízis: az alámenős területek összesített térfogata (mm³), ívhosszra standardizálva is (F2/L³). Klinikailag: nincs / kis / nagy alámenősség.",
+        "kod": "F2", "nev": "Alámenős területek a felső állcsonton", "jaw": "Felső állcsont",
+        "rogzit": "A gipszmintán mérjük, mennyi alámenős terület van a felső állcsonton.",
         "A": "kevés vagy kis alámenősség", "B": "nagy alámenősség", "alak": "optimum", "optimum": True,
-        "kuszob": "Ha optimum van: körülbelül hol? (szavakkal, pl. „enyhe, egyenletes alámenősség”)", "subs": [],
+        "kuszob": "Ha a közepes a legjobb: nagyjából milyen alámenősség az ideális? (pár szóval)", "subs": [],
     },
     {
-        "kod": "F3", "nev": "Szájpadboltozat magassága", "jaw": "Felső állcsont",
-        "rogzit": "Modellanalízis: a szájpadboltozat magassága (mm). Klinikailag: magas, boltozatos / közepes / lapos szájpad.",
+        "kod": "F3", "nev": "A szájpad magassága", "jaw": "Felső állcsont",
+        "rogzit": "A gipszmintán mérjük a szájpadboltozat magasságát.",
         "A": "magas, boltozatos szájpad", "B": "lapos szájpad", "alak": "monoton", "optimum": False,
-        "kuszob": "Milyen boltozatmagasság alatt tekinti a szájpadot „laposnak”? (mm)", "subs": [],
+        "kuszob": "Milyen magasság alatt mondaná, hogy a szájpad lapos? (mm)", "subs": [],
     },
     {
-        "kod": "F4", "nev": "Felső állcsontgerinc alakja (ívszög)", "jaw": "Felső állcsont",
-        "rogzit": "Modellanalízis: a felső gerincív szöge (°); nagyobb szög = négyzetesebb ív, kisebb szög = elkeskenyedő (V-alakú) ív.",
-        "A": "négyzetes ív (nagy szög)", "B": "elkeskenyedő, V-alakú ív (kis szög)", "alak": "kuszobos", "optimum": False,
-        "kuszob": "Van-e olyan szög, amely felett már nincs további előny (platózás)? (°)", "subs": [],
+        "kod": "F4", "nev": "A felső gerincív alakja", "jaw": "Felső állcsont",
+        "rogzit": "A gipszmintán mérjük a gerincív szögét: a nagyobb szög szögletesebb, a kisebb hegyesebb, V-alakú ívet jelent.",
+        "A": "szögletes, széles ív", "B": "hegyes, V-alakú ív", "alak": "kuszobos", "optimum": False,
+        "kuszob": "Van-e olyan szög, amely felett már nincs további előny? (°)", "subs": [],
     },
     {
-        "kod": "F5", "nev": "Lötyögő, csontmag nélküli gerinc", "jaw": "Felső állcsont",
-        "rogzit": "Klinikai vizsgálat: nincs / van, „lötyögő” tuberek / van, frontális gerincen.",
-        "A": "nincs lötyögő gerinc", "B": "van lötyögő gerinc (bárhol)", "alak": "monoton", "optimum": False,
+        "kod": "F5", "nev": "Lötyögő gerinc a felső állcsonton", "jaw": "Felső állcsont",
+        "rogzit": "Vizsgálatkor nézzük: nincs; lötyögő tuberek; lötyögő frontális gerinc.",
+        "A": "nincs lötyögő gerinc", "B": "van lötyögő gerinc", "alak": "monoton", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "lokalizacio", "kerdes": "Ha van: melyik lokalizáció rosszabb?",
-                  "opciok": [("frontalis", "frontális"), ("tuberalis", "tuberális"), ("egyforma", "egyforma"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "lokalizacio", "kerdes": "Ha van: melyik a rosszabb?",
+                  "opciok": [("frontalis", "a frontális gerincen"), ("tuberalis", "a tubereken"), ("egyforma", "egyforma"), ("nem_tudom", "nem tudom")]}],
     },
     {
-        "kod": "F6", "nev": "Interalveoláris vonal és rágósík szöge", "jaw": "Felső állcsont",
-        "rogzit": "Modellanalízis: a felső és alsó gerincélvonalat összekötő egyenes és a rágósík szöge (°); 90° = a gerincélvonalak vertikálisan egybeesnek.",
-        "A": "≈ 90° (egybeeső gerincélvonalak)", "B": "90°-tól jelentősen eltérő szög", "alak": "optimum", "optimum": True,
-        "kuszob": "Mekkora eltérést tekint 90°-tól klinikailag jelentősnek? (°)",
-        "subs": [{"kod": "irany_szamit", "kerdes": "Számít-e az eltérés iránya (alsó szélesebb vs. felső szélesebb)?",
+        "kod": "F6", "nev": "A felső és az alsó gerincél egymáshoz viszonyított helyzete", "jaw": "Felső állcsont",
+        "rogzit": "A gipszmintán mérjük, hogy a felső és az alsó gerincél vonala függőlegesen egymás felett van-e (90°), vagy eltér egymástól.",
+        "A": "a két gerincél egymás felett van", "B": "a két gerincél jelentősen eltér egymástól", "alak": "optimum", "optimum": True,
+        "kuszob": "Mekkora eltérést tart már jelentősnek? (°)",
+        "subs": [{"kod": "irany_szamit", "kerdes": "Számít-e, hogy melyik irányban tér el (az alsó szélesebb, vagy a felső)?",
                   "opciok": [("igen", "igen"), ("nem", "nem"), ("nem_tudom", "nem tudom")]}],
     },
     {
         "kod": "F7", "nev": "Torus palatinus", "jaw": "Felső állcsont",
-        "rogzit": "Klinikai vizsgálat: nincs / plató alakú / orsó alakú.",
-        "A": "nincs torus", "B": "van torus (plató vagy orsó)", "alak": "monoton", "optimum": False,
+        "rogzit": "Vizsgálatkor nézzük: nincs; plató alakú; orsó alakú.",
+        "A": "nincs torus", "B": "van torus (plató vagy orsó alakú)", "alak": "monoton", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "alak_rosszabb", "kerdes": "Ha van: melyik alak rosszabb?",
-                  "opciok": [("orso", "orsó"), ("plato", "plató"), ("egyforma", "egyforma"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "alak_rosszabb", "kerdes": "Ha van: melyik alak a rosszabb?",
+                  "opciok": [("orso", "az orsó alakú"), ("plato", "a plató alakú"), ("egyforma", "egyforma"), ("nem_tudom", "nem tudom")]}],
     },
     {
-        "kod": "F8", "nev": "Antagonista fogazat (a felső fogpótláshoz)", "jaw": "Felső állcsont",
-        "rogzit": "Klinikai vizsgálat: (1) nincs, most készül; (2) teljes lemezes fogpótlás / overdenture / részleges fémlemezes; (3) teljesen megtartott vagy rögzített fogpótlással helyreállított fogazat.",
-        "A": "teljes lemezes vagy kivehető antagonista", "B": "megtartott vagy rögzített antagonista fogazat", "alak": "interakcio", "optimum": False,
+        "kod": "F8", "nev": "Mi van a felső fogsorral szemben (antagonista)", "jaw": "Felső állcsont",
+        "rogzit": "Vizsgálatkor nézzük: nincs, most készül; kivehető fogpótlás (teljes fogsor, overdenture, fémlemezes); megtartott saját fogak vagy rögzített pótlás.",
+        "A": "kivehető fogpótlás a szemközti állcsonton", "B": "megtartott saját fogak vagy rögzített pótlás", "alak": "interakcio", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "kategoria_vagy_interakcio", "kerdes": "A kategória önmagában számít, vagy csak az erők iránya (pl. sorvadt maxilla + erőltetett ollóharapás)?",
-                  "opciok": [("kategoria", "a kategória önmagában"), ("interakcio", "csak interakcióban"), ("mindketto", "mindkettő"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "kategoria_vagy_interakcio", "kerdes": "Ön szerint maga az antagonista fajtája számít, vagy inkább az, hogy milyen irányból jönnek az erők (például sorvadt felső állcsontnál erőltetett ollóharapás)?",
+                  "opciok": [("kategoria", "az antagonista fajtája"), ("interakcio", "az erők iránya"), ("mindketto", "mindkettő"), ("nem_tudom", "nem tudom")]}],
     },
     {
-        "kod": "A1", "nev": "Alsó állcsontgerinc alakja Kaán szerint", "jaw": "Alsó állcsont",
-        "rogzit": "Klinikai vizsgálat, 5 fokozat: (1) egészében megtartott; (2) elöl megtartott, oldalt lapos; (3) egészében lapos; (4) negatív; (5) mélyült negatív.",
+        "kod": "A1", "nev": "Az alsó gerinc alakja és magassága (Kaán szerint)", "jaw": "Alsó állcsont",
+        "rogzit": "Vizsgálatkor öt fokozatot különböztetünk meg: (1) egészében megtartott; (2) elöl megtartott, oldalt lapos; (3) egészében lapos; (4) negatív; (5) mélyült negatív. A gipszmintán a gerinc magasságát is mérjük.",
         "A": "egészében megtartott gerinc (1)", "B": "mélyült negatív gerinc (5)", "alak": "telitodo", "optimum": False,
-        "kuszob": None,
+        "kuszob": "Milyen magasság alatt mondaná, hogy az alsó gerinc sorvadt? (mm)",
         "subs": [
-            {"kod": "legnagyobb_ugras", "kerdes": "Hol a legnagyobb ugrás a sikerben?",
-             "opciok": [("1_2", "1→2"), ("2_3", "2→3"), ("3_4", "3→4"), ("4_5", "4→5"), ("egyenletes", "egyenletes")]},
-            {"kod": "negy_ot_kulonbseg", "kerdes": "Van-e érdemi különbség a 4-es és 5-ös fokozat között?",
+            {"kod": "legnagyobb_ugras", "kerdes": "Melyik két fokozat között romlik a legtöbbet a kilátás?",
+             "opciok": [("1_2", "1 és 2 között"), ("2_3", "2 és 3 között"), ("3_4", "3 és 4 között"), ("4_5", "4 és 5 között"), ("egyenletes", "nagyjából egyenletesen romlik")]},
+            {"kod": "negy_ot_kulonbseg", "kerdes": "Van-e érdemi különbség a negatív és a mélyült negatív gerinc között?",
              "opciok": [("igen", "igen"), ("nem", "nem"), ("nem_tudom", "nem tudom")]},
         ],
     },
     {
-        "kod": "A2", "nev": "Alsó állcsontgerinc magassága (modellanalízis)", "jaw": "Alsó állcsont",
-        "rogzit": "Modellanalízis: a gerincél előjeles magassága a bukkális–lingvális referenciaszinthez képest (mm, betegátlag); ugyanazt a gerincállapotot méri, mint A1, folytonosan.",
-        "A": "magas alsó gerinc", "B": "alacsony (referenciaszint alatti) alsó gerinc", "alak": "monoton", "optimum": False,
-        "kuszob": "Milyen gerincmagasság alatt tekinti az alsó gerincet klinikailag „sorvadtnak”? (mm)", "subs": [],
-    },
-    {
-        "kod": "A3", "nev": "Buccinator tasak", "jaw": "Alsó állcsont",
-        "rogzit": "Klinikai vizsgálat oldalanként: szájnyitáskor beszűkülő / szájnyitáskor kiszélesedő / lebenyezett felszínű.",
-        "A": "szájnyitáskor beszűkülő", "B": "szájnyitáskor kiszélesedő", "alak": "nincs_irany", "optimum": False,
+        "kod": "A3", "nev": "A buccinator-tasak", "jaw": "Alsó állcsont",
+        "rogzit": "Vizsgálatkor nézzük, mit csinál a tasak szájnyitáskor: beszűkül; kiszélesedik; vagy lebenyezett a felszíne.",
+        "A": "szájnyitáskor beszűkülő tasak", "B": "szájnyitáskor kiszélesedő tasak", "alak": "nincs_irany", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "lebenyezett", "kerdes": "Hova sorolja a lebenyezett felszínű formát?",
-                  "opciok": [("legkedvezobb", "a legkedvezőbb"), ("koztes", "köztes"), ("legkedvezotlenebb", "a legkedvezőtlenebb"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "lebenyezett", "kerdes": "És a lebenyezett felszínű tasak?",
+                  "opciok": [("legkedvezobb", "az a legjobb"), ("koztes", "köztes"), ("legkedvezotlenebb", "az a legrosszabb"), ("nem_tudom", "nem tudom")]}],
     },
     {
         "kod": "A4", "nev": "Torus mandibularis", "jaw": "Alsó állcsont",
-        "rogzit": "Klinikai vizsgálat oldalanként: nincs / kis méretű / nagy méretű.",
+        "rogzit": "Vizsgálatkor nézzük mindkét oldalon: nincs; kis méretű; nagy méretű.",
         "A": "nincs torus", "B": "van torus (kicsi vagy nagy)", "alak": "monoton", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "nagy_vs_kicsi", "kerdes": "Ha van: mennyivel rosszabb a nagy a kicsinél?",
+        "subs": [{"kod": "nagy_vs_kicsi", "kerdes": "Ha van: mennyivel rosszabb a nagy torus a kicsinél?",
                   "opciok": [("alig", "alig"), ("kozepesen", "közepesen"), ("sokkal", "sokkal"), ("nem_tudom", "nem tudom")]}],
     },
     {
-        "kod": "A5", "nev": "Lingualis tasak (a környező izmok ereje nyeléskor)", "jaw": "Alsó állcsont",
-        "rogzit": "Klinikai vizsgálat oldalanként: nyeléskor a környező izmok (1) nem szűkítik a tasakot / (2) ujjunkat a mandibulához préselik / (3) ujjunkat kifelé préselik.",
-        "A": "az izmok ujjunkat a mandibulához préselik", "B": "az izmok ujjunkat kifelé préselik", "alak": "monoton", "optimum": False,
+        "kod": "A5", "nev": "A lingualis tasak nyelés közben", "jaw": "Alsó állcsont",
+        "rogzit": "Vizsgálatkor az ujjunkat a tasakba tesszük, és a beteg nyel: az izmok az ujjat az állcsonthoz préselik; nem szűkítik a tasakot; vagy kifelé nyomják az ujjat.",
+        "A": "az izmok az ujjat az állcsonthoz préselik", "B": "az izmok kifelé nyomják az ujjat", "alak": "monoton", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "nem_szukit_helye", "kerdes": "Hova sorolja a „nem szűkíti” változatot?",
-                  "opciok": [("A_kozel", "közel az A-hoz"), ("kozepen", "középen"), ("B_kozel", "közel a B-hez"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "nem_szukit_helye", "kerdes": "És ha az izmok nem szűkítik a tasakot?",
+                  "opciok": [("A_kozel", "az inkább az A-hoz áll közel"), ("kozepen", "a kettő között van"), ("B_kozel", "az inkább a B-hez áll közel"), ("nem_tudom", "nem tudom")]}],
     },
     {
-        "kod": "TUB", "nev": "Tuberculum alveolare mandibulae (A6–A9 együtt)", "jaw": "Alsó állcsont",
-        "rogzit": "Négy klinikai tétel oldalanként: A6 feszes ínyborítás (az egészet / elülső harmadát / egyáltalán nem); A7 alak (fordított körte / kicsi, elkülönülő / plicaszerű); A8 tuberculum–gerinc inklináció (nincs eltérés / jelentős eltérés); A9 alakváltozás nyitás–záráskor (nem változik / kissé / abszolút mozgékony).",
-        "A": "feszes ínnyel fedett, jól formált, stabil tuberculum", "B": "fedetlen, plicaszerű, mozgékony tuberculum", "alak": "monoton", "optimum": False,
+        "kod": "TUB", "nev": "A tuberculum alveolare mandibulae", "jaw": "Alsó állcsont",
+        "rogzit": "Négy dolgot nézünk: borítja-e feszes íny; milyen az alakja (fordított körte, kicsi, plicaszerű); milyen a dőlése a gerinchez képest; mozog-e szájnyitáskor.",
+        "A": "feszes ínnyel fedett, jó alakú, mozdulatlan tuberculum", "B": "fedetlen, plicaszerű, mozgékony tuberculum", "alak": "monoton", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "legfontosabb", "kerdes": "Melyik a legfontosabb a négy jellemző közül a siker szempontjából?",
-                  "opciok": [("A6", "A6 feszes íny"), ("A7", "A7 alak"), ("A8", "A8 inklináció"), ("A9", "A9 mozgékonyság"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "legfontosabb", "kerdes": "A négy közül melyik számít a legtöbbet?",
+                  "opciok": [("A6", "a feszes ínyborítás"), ("A7", "az alakja"), ("A8", "a dőlése"), ("A9", "hogy mozog-e"), ("nem_tudom", "nem tudom")]}],
     },
     {
-        "kod": "A10", "nev": "Állcsontreláció szöge (Angle-osztály)", "jaw": "Alsó állcsont",
-        "rogzit": "Modellanalízis: a felső és alsó gerincélvonal legelülső pontjait összekötő egyenes és a rágósík szöge (°); a mandibula sagittalis helyzetét, gyakorlatilag az Angle-osztályt jellemzi.",
-        "A": "Angle I (normális reláció)", "B": "Angle II vagy III (eltérő reláció)", "alak": "nincs_irany", "optimum": True,
+        "kod": "A10", "nev": "Az állcsontok sagittális relációja", "jaw": "Alsó állcsont",
+        "rogzit": "A gipszmintán mérjük, előrébb vagy hátrébb áll-e az alsó állcsont a felsőhöz képest; lényegében az Angle-osztályt.",
+        "A": "Angle I., szabályos helyzet", "B": "Angle II. vagy III., eltérő helyzet", "alak": "nincs_irany", "optimum": True,
         "kuszob": None,
-        "subs": [{"kod": "melyik_rosszabb", "kerdes": "Ha az eltérés kedvezőtlen: melyik rosszabb?",
-                  "opciok": [("angle_II", "Angle II"), ("angle_III", "Angle III"), ("egyforma", "egyforma"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "melyik_rosszabb", "kerdes": "Ha az eltérés rossz: melyik a rosszabb?",
+                  "opciok": [("angle_II", "az Angle II."), ("angle_III", "az Angle III."), ("egyforma", "egyforma"), ("nem_tudom", "nem tudom")]}],
     },
     {
-        "kod": "A11", "nev": "Szublingvális tájék / szájfenék", "jaw": "Alsó állcsont",
-        "rogzit": "Klinikai vizsgálat: (1) nem elődomborodó / (2) puhán elődomborodó / (3) tömött, elődomborodó szájfenék.",
+        "kod": "A11", "nev": "A szájfenék", "jaw": "Alsó állcsont",
+        "rogzit": "Vizsgálatkor nézzük: nem elődomborodó; puhán elődomborodó; tömött, elődomborodó.",
         "A": "puhán elődomborodó szájfenék", "B": "tömött, elődomborodó szájfenék", "alak": "monoton", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "nem_elodomborodo_helye", "kerdes": "Hova sorolja a „nem elődomborodó” szájfeneket?",
-                  "opciok": [("A_kozel", "közel az A-hoz"), ("kozepen", "középen"), ("B_kozel", "közel a B-hez"), ("nem_tudom", "nem tudom")]}],
+        "subs": [{"kod": "nem_elodomborodo_helye", "kerdes": "És a nem elődomborodó szájfenék?",
+                  "opciok": [("A_kozel", "az inkább az A-hoz áll közel"), ("kozepen", "a kettő között van"), ("B_kozel", "az inkább a B-hez áll közel"), ("nem_tudom", "nem tudom")]}],
     },
     {
         "kod": "A12", "nev": "Spinae mentales", "jaw": "Alsó állcsont",
-        "rogzit": "Klinikai vizsgálat: nem tapintható / tapintható / nyomásra érzékeny.",
+        "rogzit": "Vizsgálatkor nézzük: nem tapintható; tapintható; nyomásra érzékeny.",
         "A": "nem tapintható", "B": "tapintható vagy nyomásra érzékeny", "alak": "monoton", "optimum": False,
         "kuszob": None,
-        "subs": [{"kod": "erzekeny_vs_tapinthato", "kerdes": "Ha tapintható: mennyivel rosszabb a nyomásérzékeny a csak tapinthatónál?",
+        "subs": [{"kod": "erzekeny_vs_tapinthato", "kerdes": "Ha tapintható: mennyivel rosszabb, ha nyomásra érzékeny is?",
                   "opciok": [("alig", "alig"), ("kozepesen", "közepesen"), ("sokkal", "sokkal"), ("nem_tudom", "nem tudom")]}],
     },
 ]
+
+
+def localized_items(lang="hu"):
+    """A tételregiszter a kért nyelven (a kódok és válaszkódok változatlanok)."""
+    if lang != "en":
+        return ITEMS
+    out = []
+    for item in ITEMS:
+        text = ITEM_TEXT_EN.get(item["kod"], {})
+        copy = dict(item)
+        for key in ("nev", "rogzit", "A", "B", "kuszob"):
+            if key in text:
+                copy[key] = text[key]
+        copy["jaw"] = JAW_LABELS["en"].get(item["jaw"], item["jaw"])
+        subs = []
+        for sub in item["subs"]:
+            sub_text = text.get("subs", {}).get(sub["kod"], {})
+            labels = sub_text.get("opciok", {})
+            subs.append({
+                "kod": sub["kod"],
+                "kerdes": sub_text.get("kerdes", sub["kerdes"]),
+                "opciok": [(code, labels.get(code, label)) for code, label in sub["opciok"]],
+            })
+        copy["subs"] = subs
+        out.append(copy)
+    return out
+
+
 ITEM_CODES = [item["kod"] for item in ITEMS]
 ITEMS_BY_CODE = {item["kod"]: item for item in ITEMS}
 
 IRANY_VALUES = {"A_kedvezotlenebb", "B_kedvezotlenebb", "nem_monoton", "nincs_kulonbseg", "nem_tudom"}
-IRANY_LABELS = {
-    "A_kedvezotlenebb": "az A pólus a kedvezőtlenebb",
-    "B_kedvezotlenebb": "a B pólus a kedvezőtlenebb",
-    "nem_monoton": "nem monoton: a közepes érték a legjobb (optimum)",
-    "nincs_kulonbseg": "nincs érdemi különbség",
-    "nem_tudom": "nem tudom megítélni",
-}
+IRANY_LABELS = IRANY_LABELS_BY_LANG["hu"]
 DIRECTIONAL = {"A_kedvezotlenebb", "B_kedvezotlenebb"}
 P_IRANY_VALUES = [50, 60, 70, 80, 90, 95, 99]
-MECHANISMS = [
-    ("retencio", "retenció (szívóhatás)"),
-    ("stabilitas", "stabilitás (elmozdulás)"),
-    ("alatamasztas", "alátámasztás / teherviselés"),
-    ("fajdalom", "fájdalom, nyomásérzékenység"),
-    ("technikai", "technikai kivitelezés (lenyomat, kiterjesztés)"),
-    ("egyeb", "egyéb"),
+# A teljes lemezes fogpótlás helybentartó tényezőinek hagyományos felosztása,
+# a klinikai-anatómiai és a fizikai tényezők átfedését feloldva: az anatómiai
+# adottság a helybentartás fizikai útján (szívóhatás, nyálfilm-tapadás,
+# mechanikai megkapaszkodás, felületnagyság), az állékonyságon vagy az
+# alátámasztáson és a tűrésen keresztül hat. Járulékos tényezők (paszták)
+# itt nem értelmezettek.
+MECHANISM_GROUPS = [
+    ("Helybentartás (retenció)", [
+        ("szivohatas", "szívóhatás, szélzárás"),
+        ("nyalfilm_tapadas", "tapadás a nyálfilmen át (adhézió, kapillárishatás)"),
+        ("alamenos_megkapaszkodas", "megkapaszkodás alámenős képleten"),
+        ("illeszkedo_felulet", "az illeszkedő felület nagysága"),
+    ]),
+    ("Állékonyság (stabilitás)", [
+        ("izomegyensuly", "az izmok és a nyelv erőhatásai"),
+        ("gerinc_vezetes", "a gerinc alakja, magassága (oldalirányú megvezetés)"),
+        ("ragoero_irany", "az antagonista fogazat, a rágóerők iránya"),
+    ]),
+    ("Alátámasztás és tűrés", [
+        ("nyomaseloszlas", "teherviselés, nyomáseloszlás"),
+        ("fajdalom", "fájdalom, nyomásérzékenység, felfekvés"),
+        ("tureskepesseg", "a beteg tűrőképessége (idegentest-érzés, öklendezés)"),
+    ]),
 ]
-MECHANISM_CODES = {code for code, _ in MECHANISMS}
+MECHANISMS = [(code, label) for _, group in MECHANISM_GROUPS for code, label in group] + [("egyeb", "egyéb (írja a megjegyzésbe)")]
+MECHANISM_LABELS = dict(MECHANISMS)
+# Korábbi (2026-09-06 előtti) kódok, hogy a régi sorok is olvashatók maradjanak.
+LEGACY_MECHANISM_CODES = {"retencio", "stabilitas", "alatamasztas", "technikai"}
+MECHANISM_CODES = {code for code, _ in MECHANISMS} | LEGACY_MECHANISM_CODES
 ITEM_TEXT_FIELDS = {"kuszob", "megjegyzes", "mechanizmus_egyeb"}
 ITEM_INT_FIELDS = {"siker_A": (0, 100), "siker_B": (0, 100), "kulonbseg_min": (0, 100), "kulonbseg_max": (0, 100)}
 
@@ -228,6 +269,7 @@ BACKGROUND_FIELDS = {
     "tevekenyseg": ("choice", {"egyetemi", "maganpraxis", "mindketto", "egyeb"}),
     "szakvizsga": ("text", 200),
     "evi_fogsorok": ("int", 0, 2000),
+    "nyelv": ("choice", set(LANGS)),
 }
 CALIBRATION_FIELDS = {
     "alap_siker_100": ("int", 0, 100),
@@ -389,33 +431,34 @@ def collect_form(form):
     return result, errors
 
 
-def completeness_errors(data):
-    """A beküldés feltételei (hiánylista, emberi olvasásra)."""
+def completeness_errors(data, lang="hu"):
+    """A beküldés feltételei (hiánylista, emberi olvasásra, a kért nyelven)."""
+    t = UI["en" if lang == "en" else "hu"]
     problems = []
     background = data.get("background") or {}
     calibration = data.get("calibration") or {}
     closing = data.get("closing") or {}
     items = data.get("items") or {}
     if background.get("evek_gyakorlat") is None:
-        problems.append("A. Protetikai gyakorlat évei")
+        problems.append(t["err_evek"])
     if not background.get("fogsorok_szama_kat"):
-        problems.append("A. Elkészített teljes fogsorok száma")
+        problems.append(t["err_fogsorok"])
     if calibration.get("alap_siker_100") is None:
-        problems.append("B1. Alap-sikerarány")
+        problems.append(t["err_b1"])
     if calibration.get("anatomia_sulya_pct") is None:
-        problems.append("B2. Az anatómia súlya")
-    for item in ITEMS:
+        problems.append(t["err_b2"])
+    for item in localized_items(lang):
         answers = items.get(item["kod"]) or {}
         label = f"{item['kod']} · {item['nev']}"
         if not answers.get("irany"):
-            problems.append(f"{label}: irány")
+            problems.append(f"{label}: {t['err_direction']}")
         elif answers.get("irany") in DIRECTIONAL and answers.get("p_irany") is None:
-            problems.append(f"{label}: bizonyosság")
+            problems.append(f"{label}: {t['err_certainty']}")
         lo, hi = answers.get("kulonbseg_min"), answers.get("kulonbseg_max")
         if lo is not None and hi is not None and lo > hi:
-            problems.append(f"{label}: a tartomány alsó határa nagyobb a felsőnél")
+            problems.append(f"{label}: {t['err_range']}")
     if not closing.get("onertekeles"):
-        problems.append("D5. Önértékelés")
+        problems.append(t["err_d5"])
     return problems
 
 
@@ -569,16 +612,27 @@ def create_expert_blueprint(connection_factory):
         if not expected or not secrets.compare_digest(expected, supplied):
             abort(400, description="Érvénytelen vagy lejárt űrlap. Töltsd újra az oldalt.")
 
+    def current_lang():
+        requested = request.args.get("lang")
+        if requested in LANGS:
+            session["expert_lang"] = requested
+        return session.get("expert_lang", "hu")
+
     @bp.context_processor
     def inject_helpers():
+        lang = current_lang()
+        items = localized_items(lang)
         return {
             "expert_csrf_token": csrf_token,
             "expert_code_required": access_code_required,
-            "expert_items": ITEMS,
-            "irany_labels": IRANY_LABELS,
+            "lang": lang,
+            "t": UI[lang],
+            "expert_items": items,
+            "irany_labels": IRANY_LABELS_BY_LANG[lang],
             "p_irany_values": P_IRANY_VALUES,
-            "mechanisms": MECHANISMS,
+            "mechanism_labels": MECHANISM_LABELS,
             "item_codes": ITEM_CODES,
+            "item_names": {item["kod"]: item["nev"] for item in items},
         }
 
     @bp.after_request
@@ -647,7 +701,7 @@ def create_expert_blueprint(connection_factory):
                     SELECT 1 FROM information_schema.columns
                     WHERE table_schema = 'public'
                       AND table_name = 'expert_prior_responses'
-                      AND column_name = 'expert_name'
+                      AND column_name = 'invited_at'
                 ) AS name_column
             """
         )
@@ -660,7 +714,8 @@ def create_expert_blueprint(connection_factory):
 
     RESPONSE_COLUMNS = (
         "id, expert_code, expert_name, expert_affiliation, token, status, consent_confirmed, "
-        "background, calibration, items, closing, form_version, submitted_at, created_at, updated_at"
+        "background, calibration, items, closing, form_version, submitted_at, created_at, updated_at, "
+        "invited_at, opened_at, invite_note"
     )
 
     def get_response_by_token(token):
@@ -692,11 +747,67 @@ def create_expert_blueprint(connection_factory):
             response[key] = value or {}
         response["items_answered"] = item_progress(response["items"])
         response["items_total"] = len(ITEMS)
+        response["simulated"] = response.get("form_version") == SIM_VERSION
+        response["invited"] = bool(response.get("invited_at"))
+        if response.get("status") == "submitted":
+            response["state"] = "submitted"
+        elif response["invited"] and not response.get("consent_confirmed"):
+            response["state"] = "invited"
+        else:
+            response["state"] = "draft"
         for key in ("created_at", "updated_at", "submitted_at"):
             response[f"{key}_label"] = format_stamp(response.get(key)) if response.get(key) else ""
         return response
 
+    def create_response(cursor, expert_name, expert_affiliation, lang, consent, invited, invite_note=None):
+        """Új kitöltés sora folytonos SZnn kóddal; a token a kitöltés kulcsa."""
+        token = secrets.token_urlsafe(24)
+        cursor.execute(
+            """
+            INSERT INTO expert_prior_responses
+                (expert_code, expert_name, expert_affiliation, token, consent_confirmed, form_version, background,
+                 invited_at, invite_note)
+            VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, CASE WHEN %s THEN CURRENT_TIMESTAMP ELSE NULL END, %s)
+            RETURNING id
+            """,
+            ["SZ-új", expert_name, expert_affiliation, token, consent, FORM_VERSION, Json({"nyelv": lang}), invited, invite_note],
+        )
+        new_id = cursor.fetchone()[0]
+        cursor.execute(
+            """
+            SELECT COALESCE(MAX(CAST(SUBSTRING(expert_code FROM '^SZ([0-9]+)$') AS INTEGER)), 0) + 1
+            FROM expert_prior_responses
+            WHERE expert_code ~ '^SZ[0-9]+$'
+            """
+        )
+        next_number = cursor.fetchone()[0]
+        code = f"SZ{int(next_number):02d}"
+        cursor.execute("UPDATE expert_prior_responses SET expert_code = %s WHERE id = %s", [code, new_id])
+        return new_id, code, token
+
     # -- szakértői oldalak ---------------------------------------------------------
+    @bp.get("/meghivo/<token>")
+    def invite(token):
+        """Személyes meghívó-link: kód nélkül, csak az adott kitöltésbe enged be."""
+        setup_response = require_schema()
+        if setup_response:
+            return setup_response
+        response = get_response_by_token(token)
+        if response is None:
+            lang = current_lang()
+            return render_template("expert_invalid.html", message=UI[lang]["invite_invalid"]), 404
+        response = decorate(response)
+        session["expert_authenticated"] = True
+        session["expert_token"] = token
+        lang = (response["background"] or {}).get("nyelv")
+        if lang in LANGS:
+            session["expert_lang"] = lang
+        if response["state"] == "submitted":
+            return redirect(url_for("expert.form", token=token))
+        if response["state"] == "draft":
+            return redirect(url_for("expert.form", token=token))
+        return redirect(url_for("expert.start"))
+
     @bp.route("/login", methods=["GET", "POST"])
     def login():
         if not access_code_required():
@@ -712,7 +823,7 @@ def create_expert_blueprint(connection_factory):
             if configured and secrets.compare_digest(configured, supplied):
                 session["expert_authenticated"] = True
                 return redirect(next_url or url_for("expert.start"))
-            flash("Hibás hozzáférési kód.", "error")
+            flash(UI[current_lang()]["login_wrong"], "error")
         return render_template("expert_login.html", next_url=next_url)
 
     @bp.post("/logout")
@@ -745,30 +856,31 @@ def create_expert_blueprint(connection_factory):
             return setup_response
         expert_name = _clean_text(request.form.get("expert_name"), 200)
         expert_affiliation = _clean_text(request.form.get("expert_affiliation"), 200) or None
+        lang = current_lang()
         if request.form.get("consent") != "on":
-            flash("A kitöltés megkezdéséhez a hozzájárulást meg kell jelölni.", "error")
+            flash(UI[lang]["consent_missing"], "error")
             return redirect(url_for("expert.start"))
         if not expert_name:
-            flash("A kitöltés megkezdéséhez a szakértő nevét meg kell adni.", "error")
+            flash(UI[lang]["name_missing"], "error")
             return redirect(url_for("expert.start"))
-        token = secrets.token_urlsafe(24)
+        invite_token = request.form.get("invite_token", "")
+        if invite_token and invite_token == session.get("expert_token"):
+            # Meghívott kitöltés elfogadása: a sor már létezik, a hozzájárulást
+            # és a (javítható) nevet rögzítjük, a kitöltés innentől piszkozat.
+            execute_transaction([(
+                """
+                UPDATE expert_prior_responses
+                SET consent_confirmed = TRUE, expert_name = %s, expert_affiliation = %s,
+                    opened_at = COALESCE(opened_at, CURRENT_TIMESTAMP), updated_at = CURRENT_TIMESTAMP
+                WHERE token = %s AND status = 'draft'
+                """,
+                [expert_name, expert_affiliation, invite_token],
+            )])
+            return redirect(url_for("expert.form", token=invite_token))
         conn = connection_factory()
         try:
             with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO expert_prior_responses
-                        (expert_code, expert_name, expert_affiliation, token, consent_confirmed, form_version)
-                    VALUES (%s, %s, %s, %s, TRUE, %s)
-                    RETURNING id
-                    """,
-                    ["SZ-új", expert_name, expert_affiliation, token, FORM_VERSION],
-                )
-                new_id = cursor.fetchone()[0]
-                cursor.execute(
-                    "UPDATE expert_prior_responses SET expert_code = %s WHERE id = %s",
-                    [f"SZ{int(new_id):02d}", new_id],
-                )
+                _, _, token = create_response(cursor, expert_name, expert_affiliation, lang, True, False)
             conn.commit()
         except Exception:
             conn.rollback()
@@ -791,6 +903,8 @@ def create_expert_blueprint(connection_factory):
         session["expert_token"] = token
         if response["status"] == "submitted":
             return render_template("expert_view.html", response=response, admin=False)
+        if response["state"] == "invited":
+            return redirect(url_for("expert.start"))
         return render_template("expert_form.html", response=response, errors=[])
 
     @bp.post("/urlap/<token>/mentes")
@@ -846,10 +960,13 @@ def create_expert_blueprint(connection_factory):
         if response["status"] != "draft":
             return redirect(url_for("expert.form", token=token))
         data, errors = collect_form(request.form)
-        problems = completeness_errors(data)
+        lang = current_lang()
+        if "nyelv" not in data["background"]:
+            data["background"]["nyelv"] = lang
+        problems = completeness_errors(data, lang)
         if errors or problems:
             merged = decorate({**response, **{k: data[k] for k in ("background", "calibration", "closing", "items")}})
-            flash("A kitöltés még nem küldhető be: nézd át a hiányzó vagy hibás mezőket.", "error")
+            flash(UI[lang]["submit_incomplete"], "error")
             return render_template("expert_form.html", response=merged, errors=errors + problems), 400
         execute_transaction([
             (
@@ -880,14 +997,53 @@ def create_expert_blueprint(connection_factory):
         setup_response = require_schema()
         if setup_response:
             return setup_response
+        include_simulated = request.args.get("szimulacio") == "1"
         responses = [decorate(row) for row in list_responses()]
-        submitted = [row for row in responses if row["status"] == "submitted"]
+        for row in responses:
+            row["invite_link"] = url_for("expert.invite", token=row["token"], _external=True)
+        simulated_count = sum(1 for row in responses if row["simulated"])
+        submitted = [row for row in responses if row["status"] == "submitted" and (include_simulated or not row["simulated"])]
         return render_template(
             "expert_admin.html",
             responses=responses,
             submitted_count=len(submitted),
+            invited_count=sum(1 for row in responses if row["state"] == "invited"),
+            draft_count=sum(1 for row in responses if row["state"] == "draft"),
+            new_code=request.args.get("uj"),
+            simulated_count=simulated_count,
+            include_simulated=include_simulated,
             tally=item_tally(submitted),
         )
+
+    @bp.post("/admin/meghivo")
+    @require_admin
+    def admin_invite():
+        validate_csrf()
+        setup_response = require_schema()
+        if setup_response:
+            return setup_response
+        expert_name = _clean_text(request.form.get("expert_name"), 200)
+        expert_affiliation = _clean_text(request.form.get("expert_affiliation"), 200) or None
+        lang = request.form.get("lang", "hu")
+        if lang not in LANGS:
+            lang = "hu"
+        note = _clean_text(request.form.get("invite_note"), 500) or None
+        if not expert_name:
+            flash("A meghívóhoz add meg a szakértő nevét.", "error")
+            return redirect(url_for("expert.admin"))
+        conn = connection_factory()
+        try:
+            with conn.cursor() as cursor:
+                _, code, token = create_response(cursor, expert_name, expert_affiliation, lang, False, True, note)
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        link = url_for("expert.invite", token=token, _external=True)
+        flash(f"Meghívó elkészült: {code} · {expert_name}. Link: {link}", "success")
+        return redirect(url_for("expert.admin", uj=code))
 
     @bp.get("/admin/<int:response_id>")
     @require_admin
@@ -918,18 +1074,22 @@ def create_expert_blueprint(connection_factory):
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )
 
+    def export_selection():
+        """Alapból csak a beküldött, nem szimulált válaszok; ?status=all a
+        piszkozatokat, ?szimulacio=1 a szimulált sorokat is beveszi."""
+        include_drafts = request.args.get("status") == "all"
+        include_simulated = request.args.get("szimulacio") == "1"
+        responses = [decorate(row) for row in list_responses(None if include_drafts else "submitted")]
+        return [row for row in responses if include_simulated or not row["simulated"]]
+
     @bp.get("/admin/export/priorok.csv")
     @require_admin
     def export_priors():
-        include_drafts = request.args.get("status") == "all"
-        responses = [decorate(row) for row in list_responses(None if include_drafts else "submitted")]
-        return csv_response(prior_rows(responses), PRIOR_CSV_COLUMNS, "predict_expert_priorok.csv")
+        return csv_response(prior_rows(export_selection()), PRIOR_CSV_COLUMNS, "predict_expert_priorok.csv")
 
     @bp.get("/admin/export/hatter.csv")
     @require_admin
     def export_background():
-        include_drafts = request.args.get("status") == "all"
-        responses = [decorate(row) for row in list_responses(None if include_drafts else "submitted")]
-        return csv_response(background_rows(responses), BACKGROUND_CSV_COLUMNS, "predict_expert_hatter.csv")
+        return csv_response(background_rows(export_selection()), BACKGROUND_CSV_COLUMNS, "predict_expert_hatter.csv")
 
     return bp

@@ -1,0 +1,1106 @@
+﻿"pred","pred_rovid","csoport","out","out_rovid","r_ns","n","P_expert_prior","P_semleges_prior","n_atbillenes_expert","n_95pct_semleges"
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,6,0.9476,0.5643,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,8,0.9534,0.584,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,10,0.9581,0.6013,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,12,0.9619,0.6166,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,15,0.9664,0.6369,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,20,0.9718,0.6654,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,25,0.9756,0.6892,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,30,0.9784,0.7098,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,40,0.9822,0.7441,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,50,0.9849,0.7721,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,60,0.9868,0.7956,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,80,0.9897,0.8332,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,100,0.9917,0.8621,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,150,0.9949,0.9114,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,200,0.9967,0.9414,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,300,0.9986,0.9732,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_GOHAI","GOHAI",0.1127,500,0.9997,0.9938,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,6,0.9559,0.5986,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,8,0.9631,0.6283,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,10,0.9686,0.654,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,12,0.9729,0.6764,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,15,0.9778,0.7055,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,20,0.9832,0.745,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,25,0.9867,0.7767,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,30,0.9891,0.803,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,40,0.9923,0.8441,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,50,0.9942,0.8748,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,60,0.9955,0.8985,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,80,0.9972,0.9319,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,100,0.9982,0.9535,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,150,0.9993,0.9812,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,200,0.9997,0.9921,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,300,0.9999,0.9985,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_INDEX","Siker-index",0.1727,500,1,0.9999,,100
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,6,0.6592,0.1828,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,8,0.494,0.1175,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,10,0.3375,0.0754,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,12,0.215,0.0484,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,15,0.1018,0.0251,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,20,0.0281,0.0086,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,25,0.0081,0.003,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,30,0.0024,0.0011,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,40,3e-4,1e-4,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,50,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,60,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,80,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,100,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,150,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,200,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,300,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_MAI","MAI",-0.5647,500,0,0,8,12
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,6,0.9471,0.5624,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,8,0.9528,0.5816,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,10,0.9574,0.5984,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,12,0.9612,0.6134,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,15,0.9657,0.6331,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,20,0.971,0.6609,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,25,0.9748,0.6841,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,30,0.9776,0.7043,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,40,0.9814,0.738,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,50,0.9841,0.7655,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,60,0.9861,0.7887,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,80,0.989,0.8261,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,100,0.9911,0.8551,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,150,0.9944,0.905,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,200,0.9963,0.9359,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,300,0.9983,0.9695,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1095,500,0.9996,0.9924,,300
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,6,0.9002,0.431,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,8,0.8894,0.4101,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,10,0.8782,0.3918,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,12,0.867,0.3755,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,15,0.8499,0.3541,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,20,0.8213,0.3242,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,25,0.7928,0.2992,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,30,0.7648,0.2777,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,40,0.7106,0.2421,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,50,0.6592,0.2133,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,60,0.6108,0.1893,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,80,0.5224,0.1514,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,100,0.4449,0.1227,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,150,0.2935,0.0752,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,200,0.1915,0.0475,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,300,0.081,0.0199,100,200
+"A1","A1 Kaán-gerincforma ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.119,500,0.0151,0.0038,100,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,6,0.8786,0.5557,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,8,0.8859,0.5728,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,10,0.8921,0.5879,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,12,0.8973,0.6013,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,15,0.904,0.6191,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,20,0.9128,0.6442,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,25,0.9197,0.6654,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,30,0.9256,0.6839,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,40,0.9352,0.715,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,50,0.943,0.7407,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,60,0.9495,0.7627,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,80,0.9598,0.7987,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,100,0.9674,0.8273,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,150,0.9795,0.8787,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,200,0.9863,0.9126,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,300,0.9933,0.9526,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_GOHAI","GOHAI",0.0978,500,0.9981,0.9849,,300
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,6,0.9086,0.6192,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,8,0.9222,0.6546,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,10,0.9329,0.6848,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,12,0.9415,0.7109,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,15,0.9513,0.7442,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,20,0.9628,0.7882,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,25,0.9706,0.8224,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,30,0.9763,0.8497,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,40,0.984,0.8903,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,50,0.9888,0.9186,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,60,0.992,0.9389,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,80,0.9958,0.9648,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,100,0.9977,0.9793,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,150,0.9994,0.9942,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,200,0.9998,0.9983,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,300,1,0.9998,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_INDEX","Siker-index",0.2088,500,1,1,,80
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,6,0.6029,0.2504,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,8,0.4876,0.1887,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,10,0.3816,0.1429,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,12,0.2917,0.1087,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,15,0.1902,0.0729,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,20,0.0912,0.0382,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,25,0.044,0.0204,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,30,0.0216,0.011,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,40,0.0055,0.0033,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,50,0.0015,0.001,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,60,4e-4,3e-4,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,80,0,0,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,100,0,0,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,150,0,0,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,200,0,0,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,300,0,0,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_MAI","MAI",-0.4393,500,0,0,8,20
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,6,0.8977,0.5947,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,8,0.9095,0.6233,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,10,0.919,0.648,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,12,0.9268,0.6697,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,15,0.9361,0.6979,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,20,0.9476,0.7364,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,25,0.9559,0.7674,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,30,0.9622,0.7933,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,40,0.9716,0.8341,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,50,0.9781,0.865,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,60,0.9828,0.8891,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,80,0.9891,0.9236,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,100,0.9929,0.9465,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,150,0.9973,0.977,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,200,0.9989,0.9897,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,300,0.9998,0.9978,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_OHIP","OHIP-5",0.1658,500,1,0.9999,,150
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,6,0.7972,0.4294,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,8,0.7749,0.408,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,10,0.7531,0.3893,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,12,0.7321,0.3727,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,15,0.7022,0.3508,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,20,0.6571,0.3203,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,25,0.6168,0.2948,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,30,0.5803,0.273,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,40,0.5153,0.2369,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,50,0.4578,0.2078,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,60,0.4063,0.1837,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,80,0.3192,0.1457,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,100,0.2505,0.1172,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,150,0.1386,0.0705,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,200,0.0793,0.0437,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,300,0.0282,0.0177,50,200
+"A11","A11 szájfenék ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",-0.1219,500,0.0044,0.0032,50,200
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,6,0.733,0.5444,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,8,0.7461,0.5582,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,10,0.7576,0.5703,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,12,0.7679,0.5812,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,15,0.7814,0.5956,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,20,0.8002,0.6161,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,25,0.8156,0.6335,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,30,0.8287,0.6488,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,40,0.8496,0.67490000000000006,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,50,0.8658,0.6969,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,60,0.8789,0.7159,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,80,0.899,0.748,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,100,0.9139,0.7744,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,150,0.9387,0.8245,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,200,0.9542,0.8606,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,300,0.9725,0.9089,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_GOHAI","GOHAI",0.0782,500,0.9886,0.9581,,500
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,6,0.793,0.6431,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,8,0.8217,0.6847,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,10,0.8454,0.7196,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,12,0.8653,0.7492,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,15,0.8895,0.7862,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,20,0.919,0.8333,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,25,0.9394,0.868,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,30,0.954,0.8945,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,40,0.9724,0.9311,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,50,0.9828,0.9541,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,60,0.989,0.9691,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,80,0.9953,0.9856,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,100,0.9979,0.9931,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,150,0.9997,0.9989,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,200,0.9999,0.9998,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,300,1,1,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_INDEX","Siker-index",0.2507,500,1,1,,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,6,0.5902,0.3558,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,8,0.5518,0.3142,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,10,0.5145,0.2793,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,12,0.4786,0.2496,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,15,0.4276,0.2127,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,20,0.3513,0.1656,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,25,0.2863,0.1309,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,30,0.2321,0.1045,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,40,0.1514,0.0681,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,50,0.0986,0.0452,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,60,0.0645,0.0304,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,80,0.0282,0.0141,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,100,0.0126,0.0067,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,150,0.0019,0.0011,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,200,3e-4,2e-4,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,300,0,0,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_MAI","MAI",-0.2507,500,0,0,12,50
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,6,0.7649,0.5952,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,8,0.787,0.6239,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,10,0.8059,0.6488,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,12,0.8224,0.6706,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,15,0.8434,0.6989,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,20,0.8711,0.7375,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,25,0.8922,0.7686,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,30,0.9088,0.7945,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,40,0.9328,0.8354,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,50,0.9491,0.8663,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,60,0.9606,0.8903,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,80,0.9753,0.9247,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,100,0.9839,0.9474,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,150,0.9939,0.9776,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,200,0.9975,0.9901,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,300,0.9995,0.9979,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_OHIP","OHIP-5",0.1667,500,1,0.9999,,150
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,6,0.7909,0.6393,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,8,0.8191,0.6799,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,10,0.8425,0.7141,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,12,0.8622,0.7433,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,15,0.8863,0.7797,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,20,0.9158,0.8265,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,25,0.9364,0.8613,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,30,0.9512,0.888,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,40,0.9702,0.9255,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,50,0.9811,0.9495,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,60,0.9877,0.9653,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,80,0.9945,0.9832,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,100,0.9974,0.9917,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,150,0.9996,0.9985,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,200,0.9999,0.9997,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,300,1,1,,60
+"A12","A12 spinae mentales","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2441,500,1,1,,60
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,6,0.9718,0.6826,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,8,0.9799,0.7332,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,10,0.9853,0.7743,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,12,0.989,0.808,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,15,0.9926,0.8478,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,20,0.9958,0.8947,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,25,0.9974,0.9259,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,30,0.9984,0.9472,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,40,0.9993,0.9726,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,50,0.9996,0.9854,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,60,0.9998,0.9921,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,80,1,0.9976,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,100,1,0.9993,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,150,1,1,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,200,1,1,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,300,1,1,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_GOHAI","GOHAI",0.3206,500,1,1,,40
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,6,0.9814,0.7525,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,8,0.9886,0.8146,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,10,0.9928,0.8606,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,12,0.9953,0.8947,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,15,0.9974,0.9301,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,20,0.9989,0.964,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,25,0.9995,0.9811,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,30,0.9998,0.9899,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,40,0.9999,0.9971,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,50,1,0.9991,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,60,1,0.9997,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,80,1,1,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,100,1,1,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,150,1,1,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,200,1,1,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,300,1,1,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_INDEX","Siker-index",0.4462,500,1,1,,20
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,6,0.802,0.289,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,8,0.7307,0.233,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,10,0.651,0.189,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,12,0.5676,0.1542,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,15,0.4459,0.1148,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,20,0.2789,0.0716,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,25,0.1673,0.0455,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,30,0.0995,0.0293,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,40,0.0361,0.0124,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,50,0.0138,0.0054,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,60,0.0055,0.0024,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,80,0.001,5e-4,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,100,2e-4,1e-4,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,150,0,0,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,200,0,0,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,300,0,0,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_MAI","MAI",-0.3696,500,0,0,15,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,6,0.9754,0.7062,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,8,0.9833,0.7615,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,10,0.9883,0.8052,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,12,0.9916,0.8399,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,15,0.9947,0.8796,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,20,0.9973,0.9236,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,25,0.9985,0.9506,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,30,0.9991,0.9677,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,40,0.9997,0.9858,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,50,0.9999,0.9936,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,60,0.9999,0.9971,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,80,1,0.9994,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,100,1,0.9999,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,150,1,1,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,200,1,1,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,300,1,1,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_OHIP","OHIP-5",0.3626,500,1,1,,25
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,6,0.9649,0.6426,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,8,0.973,0.684,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,10,0.9787,0.7188,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,12,0.9829,0.7484,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,15,0.9873,0.7853,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,20,0.9917,0.8323,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,25,0.9942,0.8671,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,30,0.9958,0.8936,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,40,0.9976,0.9303,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,50,0.9985,0.9535,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,60,0.9991,0.9686,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,80,0.9996,0.9853,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,100,0.9998,0.9929,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,150,1,0.9988,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,200,1,0.9998,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,300,1,1,,50
+"A2","A2 gerincmagasság ↓","Alsó állcsont","s_RAGAS","Önbev. rágás",0.2498,500,1,1,,50
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,6,0.6912,0.4994,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,8,0.6929,0.4994,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,10,0.6943,0.4993,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,12,0.6956,0.4993,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,15,0.6972,0.4992,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,20,0.6995,0.4991,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,25,0.7015,0.499,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,30,0.7033,0.4989,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,40,0.7065,0.4987,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,50,0.7093,0.4986,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,60,0.7118,0.4984,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,80,0.7158,0.4982,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,100,0.719,0.498,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,150,0.7244,0.4975,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,200,0.7275,0.4972,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,300,0.7307,0.4965,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_GOHAI","GOHAI",-0,500,0.7326,0.4955,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,6,0.6912,0.4994,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,8,0.6929,0.4994,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,10,0.6943,0.4993,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,12,0.6956,0.4993,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,15,0.6972,0.4992,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,20,0.6995,0.4991,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,25,0.7015,0.499,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,30,0.7033,0.4989,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,40,0.7065,0.4987,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,50,0.7093,0.4986,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,60,0.7118,0.4984,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,80,0.7158,0.4982,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,100,0.719,0.498,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,150,0.7244,0.4975,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,200,0.7275,0.4972,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,300,0.7307,0.4965,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_INDEX","Siker-index",-0,500,0.7326,0.4955,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,6,0.9388,0.9384,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,8,0.9732,0.9789,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,10,0.9891,0.993,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,12,0.9958,0.9977,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,15,0.9991,0.9996,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,20,0.9999,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,25,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,30,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,40,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,50,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,60,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,80,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,100,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,150,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,200,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,300,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_MAI","MAI",0.8113,500,1,1,,8
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,6,0.6899,0.4976,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,8,0.6912,0.497,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,10,0.6923,0.4965,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,12,0.6931,0.496,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,15,0.6942,0.4953,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,20,0.6957,0.4943,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,25,0.697,0.4935,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,30,0.6981,0.4928,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,40,0.7002,0.4914,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,50,0.702,0.4903,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,60,0.7035,0.4893,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,80,0.7061,0.4875,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,100,0.7079,0.4859,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,150,0.7106,0.4826,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,200,0.7115,0.4798,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,300,0.7111,0.4752,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_OHIP","OHIP-5",-0.0031,500,0.7075,0.4679,,
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,6,0.7548,0.5972,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,8,0.7762,0.6265,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,10,0.795,0.6519,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,12,0.8115,0.6741,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,15,0.8331,0.7028,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,20,0.8621,0.742,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,25,0.8848,0.7735,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,30,0.9028,0.7996,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,40,0.929,0.8406,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,50,0.9468,0.8714,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,60,0.9593,0.8952,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,80,0.9751,0.9291,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,100,0.9841,0.9511,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,150,0.9942,0.9798,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,200,0.9977,0.9913,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,300,0.9996,0.9983,,100
+"A4","A4 torus mandibularis","Alsó állcsont","s_RAGAS","Önbev. rágás",0.1703,500,1,0.9999,,100
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,6,0.7875,0.615,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,8,0.8133,0.6493,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,10,0.8346,0.6786,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,12,0.8525,0.704,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,15,0.8745,0.7365,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,20,0.9019,0.7798,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,25,0.9216,0.8136,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,30,0.9363,0.8408,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,40,0.9563,0.8818,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,50,0.969,0.9108,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,60,0.9774,0.9319,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,80,0.98740000000000006,0.9594,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,100,0.9927,0.9753,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,150,0.998,0.9925,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,200,0.9994,0.9976,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,300,0.9999,0.9997,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_GOHAI","GOHAI",0.2015,500,1,1,,80
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,6,0.7507,0.5602,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,8,0.7673,0.5787,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,10,0.7817,0.5949,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,12,0.7942,0.6094,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,15,0.8104,0.6285,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,20,0.8322,0.6554,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,25,0.8494,0.678,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,30,0.8635,0.6976,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,40,0.8853,0.7305,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,50,0.9015,0.7575,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,60,0.9141,0.7803,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,80,0.9326,0.8173,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,100,0.9456,0.8463,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,150,0.966,0.8968,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,200,0.9775,0.9288,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,300,0.9894,0.9646,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_INDEX","Siker-index",0.1056,500,0.9973,0.9904,,300
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,6,0.4437,0.2345,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,8,0.3542,0.1712,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,10,0.2772,0.1254,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,12,0.2138,0.0923,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,15,0.142,0.0588,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,20,0.07,0.0283,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,25,0.0341,0.0139,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,30,0.0167,0.0069,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,40,0.0041,0.0018,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,50,0.001,5e-4,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,60,3e-4,1e-4,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,80,0,0,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,100,0,0,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,150,0,0,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,200,0,0,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,300,0,0,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_MAI","MAI",-0.4684,500,0,0,6,20
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,6,0.6827,0.4702,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,8,0.6781,0.4611,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,10,0.6736,0.4531,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,12,0.669,0.4459,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,15,0.6623,0.4363,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,20,0.6513,0.4225,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,25,0.6408,0.4107,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,30,0.6307,0.4003,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,40,0.6117,0.3822,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,50,0.5942,0.3667,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,60,0.578,0.3531,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,80,0.5487,0.3295,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,100,0.5225,0.3095,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,150,0.4668,0.269,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,200,0.4203,0.2374,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,300,0.3453,0.1894,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_OHIP","OHIP-5",-0.0508,500,0.2392,0.1269,150,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,6,0.7065,0.5002,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,8,0.7099,0.5004,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,10,0.7127,0.5005,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,12,0.715,0.5007,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,15,0.7178,0.5008,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,20,0.7212,0.5011,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,25,0.7237,0.5013,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,30,0.7255,0.5015,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,40,0.7278,0.5018,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,50,0.7292,0.5021,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,60,0.73,0.5023,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,80,0.7307,0.5028,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,100,0.7306,0.5031,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,150,0.7294,0.5039,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,200,0.7277,0.5046,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,300,0.7247,0.5057,,
+"A5","A5 lingualis tasak ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.0013,500,0.7209,0.5074,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,6,0.807,0.4501,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,8,0.7967,0.4349,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,10,0.7864,0.4216,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,12,0.776,0.4096,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,15,0.7606,0.3938,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,20,0.7354,0.3713,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,25,0.7111,0.3523,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,30,0.6877,0.3356,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,40,0.644,0.3073,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,50,0.6044,0.2835,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,60,0.5687,0.2631,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,80,0.5068,0.2291,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,100,0.455,0.2015,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,150,0.3546,0.1503,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,200,0.2804,0.1147,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,300,0.1781,0.0695,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_GOHAI","GOHAI",-0.0857,500,0.0735,0.0275,100,500
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,6,0.853,0.5224,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,8,0.8595,0.5294,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,10,0.8651,0.5356,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,12,0.8701,0.5412,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,15,0.8766,0.5487,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,20,0.8854,0.5593,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,25,0.8923,0.5685,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,30,0.8978,0.5766,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,40,0.906,0.5907,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,50,0.9117,0.6029,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,60,0.9159,0.6137,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,80,0.9218,0.6325,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,100,0.9258,0.6486,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,150,0.9329,0.6817,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,200,0.9382,0.7083,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,300,0.9469,0.7503,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_INDEX","Siker-index",0.0399,500,0.9599,0.8095,,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,6,0.5817,0.2317,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,8,0.464,0.1681,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,10,0.3543,0.1223,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,12,0.2612,0.0894,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,15,0.1584,0.0564,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,20,0.0657,0.0267,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,25,0.0274,0.0129,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,30,0.0117,0.0063,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,40,0.0024,0.0016,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,50,5e-4,4e-4,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,60,1e-4,1e-4,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,80,0,0,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,100,0,0,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,150,0,0,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,200,0,0,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,300,0,0,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_MAI","MAI",-0.4737,500,0,0,8,20
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,6,0.8215,0.4711,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,8,0.817,0.4624,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,10,0.8124,0.4546,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,12,0.8078,0.4476,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,15,0.8009,0.4383,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,20,0.7896,0.425,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,25,0.7786,0.4136,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,30,0.7679,0.4035,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,40,0.7477,0.386,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,50,0.7289,0.371,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,60,0.7115,0.3577,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,80,0.6802,0.3348,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,100,0.6526,0.3152,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,150,0.595,0.2758,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,200,0.5474,0.2447,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,300,0.4687,0.1973,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_OHIP","OHIP-5",-0.0491,500,0.3494,0.1349,300,
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,6,0.7867,0.4228,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,8,0.7676,0.3995,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,10,0.7483,0.3792,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,12,0.7289,0.3612,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,15,0.6996,0.3375,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,20,0.6516,0.3047,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,25,0.6055,0.2776,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,30,0.5619,0.2544,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,40,0.4835,0.2166,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,50,0.417,0.1866,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,60,0.3611,0.162,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,80,0.2744,0.1242,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,100,0.2119,0.0966,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,150,0.116,0.0536,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,200,0.0658,0.0307,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,300,0.0224,0.0106,40,200
+"F1","F1 gerincmagasság ↓","Felső állcsont","s_RAGAS","Önbev. rágás",-0.1333,500,0.0029,0.0014,40,200
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,6,0.973,0.9589,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,8,0.9902,0.9891,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,10,0.9968,0.9972,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,12,0.999,0.9993,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,15,0.9999,0.9999,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,20,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,25,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,30,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,40,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,50,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,60,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,80,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,100,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,150,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,200,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,300,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_GOHAI","GOHAI",0.8592,500,1,1,,6
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,6,0.9367,0.8369,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,8,0.9617,0.9015,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,10,0.9767,0.9408,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,12,0.9858,0.9644,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,15,0.9932,0.9833,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,20,0.9979,0.9952,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,25,0.9994,0.9986,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,30,0.9998,0.9996,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,40,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,50,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,60,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,80,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,100,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,150,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,200,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,300,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_INDEX","Siker-index",0.6036,500,1,1,,12
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,6,0.9143,0.7676,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,8,0.9406,0.8313,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,10,0.9585,0.8771,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,12,0.9708,0.9101,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,15,0.9825,0.9432,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,20,0.9923,0.9731,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,25,0.9965,0.987,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,30,0.9983,0.9936,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,40,0.9996,0.9984,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,50,0.9999,0.9996,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,60,1,0.9999,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,80,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,100,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,150,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,200,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,300,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_MAI","MAI",0.4738,500,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,6,0.9061,0.7445,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,8,0.9324,0.8057,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,10,0.9509,0.8516,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,12,0.9641,0.886,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,15,0.9772,0.9226,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,20,0.989,0.9585,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,25,0.9944,0.9773,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,30,0.9971,0.98740000000000006,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,40,0.9992,0.996,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,50,0.9997,0.9987,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,60,0.9999,0.9996,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,80,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,100,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,150,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,200,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,300,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_OHIP","OHIP-5",0.4317,500,1,1,,20
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,6,0.9189,0.7812,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,8,0.9451,0.8458,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,10,0.9626,0.8912,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,12,0.9743,0.9229,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,15,0.9852,0.9536,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,20,0.9939,0.9797,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,25,0.9974,0.9909,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,30,0.9988,0.9959,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,40,0.9998,0.9991,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,50,0.9999,0.9998,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,60,1,1,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,80,1,1,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,100,1,1,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,150,1,1,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,200,1,1,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,300,1,1,,15
+"F3","F3 boltozat ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,500,1,1,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,6,0.807,0.7251,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,8,0.8496,0.7836,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,10,0.8824,0.8287,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,12,0.9078,0.8636,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,15,0.9355,0.9022,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,20,0.9638,0.9426,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,25,0.9792,0.9657,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,30,0.9878,0.9792,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,40,0.9956,0.9922,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,50,0.9984,0.997,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,60,0.9994,0.9988,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,80,0.9999,0.9998,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,100,1,1,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,150,1,1,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,200,1,1,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,300,1,1,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_GOHAI","GOHAI",0.3966,500,1,1,,25
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,6,0.8783,0.8458,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,8,0.9242,0.9097,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,10,0.9533,0.9475,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,12,0.9714,0.9694,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,15,0.9863,0.9864,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,20,0.996,0.9964,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,25,0.9988,0.999,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,30,0.9997,0.9997,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,40,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,50,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,60,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,80,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,100,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,150,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,200,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,300,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_INDEX","Siker-index",0.6208,500,1,1,,12
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,6,0.7345,0.6135,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,8,0.7625,0.6473,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,10,0.7868,0.6763,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,12,0.8079,0.7014,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,15,0.8347,0.7336,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,20,0.8694,0.7765,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,25,0.8953,0.8102,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,30,0.9149,0.8374,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,40,0.942,0.8785,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,50,0.9591,0.9077,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,60,0.9705,0.9291,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,80,0.9838,0.9573,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,100,0.9907,0.9737,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,150,0.9974,0.9918,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,200,0.9992,0.9973,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,300,0.9999,0.9997,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_MAI","MAI",0.1987,500,1,1,,80
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,6,0.9273,0.9289,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,8,0.9669,0.9735,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,10,0.9858,0.9904,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,12,0.9942,0.9966,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,15,0.9986,0.9993,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,20,0.9999,0.9999,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,25,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,30,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,40,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,50,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,60,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,80,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,100,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,150,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,200,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,300,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_OHIP","OHIP-5",0.7903,500,1,1,,8
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,6,0.8408,0.7812,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,8,0.8865,0.8458,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,10,0.9192,0.8912,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,12,0.9424,0.9229,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,15,0.9651,0.9536,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,20,0.9846,0.9797,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,25,0.9931,0.9909,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,30,0.9969,0.9959,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,40,0.9993,0.9991,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,50,0.9999,0.9998,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,60,1,1,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,80,1,1,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,100,1,1,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,150,1,1,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,200,1,1,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,300,1,1,,15
+"F4","F4 gerincalak-szög ↓","Felső állcsont","s_RAGAS","Önbev. rágás",0.4989,500,1,1,,15
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,6,0.941,0.6593,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,8,0.9534,0.7048,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,10,0.9625,0.7425,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,12,0.9693,0.7741,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,15,0.9767,0.8128,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,20,0.9845,0.8605,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,25,0.9892,0.8945,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,30,0.9922,0.9192,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,40,0.9957,0.9516,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,50,0.9975,0.9704,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,60,0.9985,0.9817,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,80,0.9995,0.9928,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,100,0.9998,0.9971,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,150,1,0.9997,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,200,1,1,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,300,1,1,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_GOHAI","GOHAI",0.2794,500,1,1,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,6,0.9817,0.8497,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,8,0.9909,0.9132,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,10,0.9953,0.9502,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,12,0.9975,0.9715,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,15,0.999,0.9876,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,20,0.9998,0.9968,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,25,0.9999,0.9992,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,30,1,0.9998,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,40,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,50,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,60,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,80,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,100,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,150,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,200,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,300,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_INDEX","Siker-index",0.6283,500,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,6,0.941,0.6593,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,8,0.9534,0.7048,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,10,0.9625,0.7425,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,12,0.9693,0.7741,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,15,0.9767,0.8128,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,20,0.9845,0.8605,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,25,0.9892,0.8945,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,30,0.9922,0.9192,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,40,0.9957,0.9516,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,50,0.9975,0.9704,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,60,0.9985,0.9817,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,80,0.9995,0.9928,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,100,0.9998,0.9971,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,150,1,0.9997,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,200,1,1,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,300,1,1,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_MAI","MAI",0.2794,500,1,1,,40
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,6,0.9937,0.9419,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,8,0.9981,0.9808,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,10,0.9994,0.9939,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,12,0.9998,0.9981,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,15,1,0.9997,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,20,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,25,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,30,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,40,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,50,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,60,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,80,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,100,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,150,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,200,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,300,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_OHIP","OHIP-5",0.8192,500,1,1,,8
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,6,0.9859,0.8788,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,8,0.9938,0.938,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,10,0.9971,0.9687,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,12,0.9987,0.9843,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,15,0.9996,0.9944,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,20,0.9999,0.999,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,25,1,0.9998,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,30,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,40,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,50,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,60,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,80,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,100,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,150,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,200,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,300,1,1,,10
+"F5","F5 lötyögő gerinc","Felső állcsont","s_RAGAS","Önbev. rágás",0.6857,500,1,1,,10
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,6,0.6827,0.4656,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,8,0.6779,0.4551,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,10,0.6729,0.4458,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,12,0.6678,0.4375,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,15,0.66,0.4264,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,20,0.6469,0.4106,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,25,0.634,0.3971,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,30,0.6215,0.3851,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,40,0.598,0.3645,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,50,0.5762,0.3469,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,60,0.5562,0.3314,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,80,0.5202,0.3049,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,100,0.4886,0.2826,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,150,0.4229,0.2382,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,200,0.37,0.2042,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,300,0.2879,0.1544,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_GOHAI","GOHAI",-0.0588,500,0.1799,0.0935,100,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,6,0.7673,0.598,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,8,0.7884,0.6275,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,10,0.8063,0.6531,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,12,0.8218,0.6754,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,15,0.8416,0.7043,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,20,0.8679,0.7437,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,25,0.8882,0.7753,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,30,0.9045,0.8015,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,40,0.9287,0.8426,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,50,0.9456,0.8734,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,60,0.9578,0.8971,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,80,0.9736,0.9307,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,100,0.983,0.9525,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,150,0.9937,0.9806,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,200,0.9975,0.9918,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,300,0.9996,0.9984,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_INDEX","Siker-index",0.1717,500,1,0.9999,,100
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,6,0.8621,0.7768,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,8,0.8993,0.8412,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,10,0.9261,0.8868,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,12,0.9456,0.9189,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,15,0.9655,0.9504,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,20,0.9836,0.9777,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,25,0.9922,0.9898,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,30,0.9962,0.9952,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,40,0.9991,0.9989,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,50,0.9998,0.9998,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,60,1,0.9999,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,80,1,1,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,100,1,1,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,150,1,1,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,200,1,1,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,300,1,1,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_MAI","MAI",0.4908,500,1,1,,15
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,6,0.7135,0.5109,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,8,0.719,0.5145,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,10,0.7236,0.5176,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,12,0.7275,0.5203,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,15,0.7323,0.524,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,20,0.7386,0.5294,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,25,0.7435,0.534,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,30,0.7476,0.5381,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,40,0.7542,0.5452,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,50,0.7596,0.5514,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,60,0.7643,0.5569,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,80,0.7723,0.5665,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,100,0.7792,0.5749,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,150,0.7937,0.5925,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,200,0.8055,0.607,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,300,0.8242,0.631,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_OHIP","OHIP-5",0.02,500,0.8504,0.6678,,
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,6,0.755,0.5772,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,8,0.7728,0.6007,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,10,0.7881,0.6212,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,12,0.8015,0.6394,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,15,0.8188,0.6632,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,20,0.8423,0.6963,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,25,0.861,0.7236,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,30,0.8765,0.7468,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,40,0.9006,0.7849,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,50,0.9185,0.815,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,60,0.9322,0.8396,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,80,0.9517,0.8774,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,100,0.9646,0.9049,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,150,0.9824,0.9476,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,200,0.9906,0.9702,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,300,0.9971,0.9898,,200
+"F6","F6 |szög−90°| ↑","Felső állcsont","s_RAGAS","Önbev. rágás",0.1352,500,0.9997,0.9987,,200
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,6,0.5257,0.4994,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,8,0.5264,0.4994,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,10,0.527,0.4993,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,12,0.5276,0.4993,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,15,0.5284,0.4992,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,20,0.5296,0.4991,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,25,0.5306,0.499,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,30,0.5316,0.4989,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,40,0.5334,0.4987,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,50,0.535,0.4986,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,60,0.5364,0.4984,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,80,0.5387,0.4982,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,100,0.5405,0.498,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,150,0.5434,0.4975,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,200,0.545,0.4972,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,300,0.5464,0.4965,,
+"F7","F7 torus palatinus","Felső állcsont","s_GOHAI","GOHAI",0,500,0.5469,0.4955,,
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,6,0.3589,0.3005,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,8,0.3066,0.2467,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,10,0.2612,0.2037,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,12,0.2222,0.1693,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,15,0.174,0.1294,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,20,0.1157,0.0844,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,25,0.0771,0.0561,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,30,0.0516,0.0377,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,40,0.0234,0.0175,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,50,0.0109,0.0083,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,60,0.0051,0.004,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,80,0.0012,0.001,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,100,3e-4,2e-4,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,150,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,200,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,300,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_INDEX","Siker-index",-0.3489,500,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,6,0.2208,0.1497,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,8,0.1445,0.0864,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,10,0.0919,0.0495,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,12,0.0573,0.0283,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,15,0.0275,0.0123,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,20,0.0078,0.0031,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,25,0.0022,8e-4,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,30,6e-4,2e-4,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,40,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,50,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,60,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,80,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,100,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,150,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,200,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,300,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_MAI","MAI",-0.6283,500,0,0,6,10
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,6,0.3597,0.3014,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,8,0.3075,0.2477,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,10,0.2623,0.2048,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,12,0.2234,0.1704,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,15,0.1752,0.1306,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,20,0.1168,0.0854,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,25,0.0781,0.0569,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,30,0.0524,0.0384,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,40,0.024,0.0179,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,50,0.0112,0.0086,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,60,0.0053,0.0042,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,80,0.0012,0.001,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,100,3e-4,3e-4,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,150,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,200,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,300,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_OHIP","OHIP-5",-0.3474,500,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,6,0.3619,0.3039,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,8,0.3103,0.2507,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,10,0.2655,0.2081,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,12,0.2268,0.1738,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,15,0.1788,0.1339,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,20,0.1203,0.0885,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,25,0.0811,0.0595,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,30,0.0549,0.0405,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,40,0.0255,0.0193,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,50,0.0121,0.0094,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,60,0.0058,0.0046,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,80,0.0014,0.0012,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,100,4e-4,3e-4,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,150,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,200,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,300,0,0,6,30
+"F7","F7 torus palatinus","Felső állcsont","s_RAGAS","Önbev. rágás",-0.3429,500,0,0,6,30
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,6,0.9499,0.8402,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,8,0.9711,0.9046,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,10,0.9832,0.9433,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,12,0.9902,0.9663,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,15,0.9956,0.9845,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,20,0.9988,0.9957,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,25,0.9997,0.9988,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,30,0.9999,0.9996,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,40,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,50,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,60,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,80,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,100,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,150,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,200,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,300,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_GOHAI","GOHAI",0.61,500,1,1,,12
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,6,0.9685,0.9029,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,8,0.9857,0.9563,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,10,0.9936,0.9808,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,12,0.9971,0.9916,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,15,0.9992,0.9976,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,20,0.9999,0.9997,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,25,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,30,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,40,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,50,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,60,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,80,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,100,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,150,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,200,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,300,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_INDEX","Siker-index",0.7349,500,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,6,0.8294,0.5455,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,8,0.8374,0.5596,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,10,0.8445,0.572,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,12,0.851,0.5831,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,15,0.8596,0.5979,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,20,0.8718,0.6188,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,25,0.882,0.6366,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,30,0.8906,0.6522,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,40,0.9044,0.6789,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,50,0.9151,0.7013,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,60,0.9237,0.7207,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,80,0.9368,0.7532,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,100,0.9463,0.7799,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,150,0.9621,0.8304,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,200,0.972,0.8664,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,300,0.9834,0.9141,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_MAI","MAI",0.0801,500,0.9933,0.9618,,500
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,6,0.9868,0.9663,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,8,0.9965,0.9921,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,10,0.9992,0.9982,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,12,0.9998,0.9996,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,15,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,20,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,25,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,30,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,40,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,50,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,60,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,80,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,100,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,150,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,200,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,300,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_OHIP","OHIP-5",0.8776,500,1,1,,6
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,6,0.9713,0.9125,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,8,0.9876,0.9629,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,10,0.9947,0.9847,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,12,0.9978,0.9937,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,15,0.9994,0.9984,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,20,0.9999,0.9998,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,25,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,30,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,40,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,50,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,60,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,80,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,100,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,150,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,200,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,300,1,1,,8
+"TUB","A6–A9 tuberculum ↑","Alsó állcsont","s_RAGAS","Önbev. rágás",0.7548,500,1,1,,8

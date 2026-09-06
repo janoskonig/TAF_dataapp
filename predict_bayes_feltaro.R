@@ -63,7 +63,13 @@ get_script_dir <- function() {
   normalizePath(dirname(sub("^--file=", "", file_arg[[1]])), mustWork = TRUE)
 }
 ROOT <- get_script_dir()
-OUT_DIR <- file.path(ROOT, "stat_output", "bayes_feltaro_R")
+# Környezeti kapcsolók (szimulációhoz / érzékenységi futtatáshoz):
+#   PREDICT_OUT_SUBDIR   kimeneti almappa a stat_output alatt (alap: bayes_feltaro_R)
+#   PREDICT_EXPERT_CSV   szakértői prior-CSV útvonala (alap: predict_expert_priorok.csv)
+#   PREDICT_EXPERT_DB    "0" → az adatbázis szakértői tábláját nem olvassa
+#   PREDICT_INCLUDE_PI   "0" → a vizsgálatvezetői (VV-…) sorok kimaradnak a poolból
+#   PREDICT_INCLUDE_SIM  "1" → a szimulált próbasorok (form_version v1.0-SZIMULACIO) is beszámítanak
+OUT_DIR <- file.path(ROOT, "stat_output", Sys.getenv("PREDICT_OUT_SUBDIR", unset = "bayes_feltaro_R"))
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 invisible(file.remove(list.files(OUT_DIR, full.names = TRUE)))
 
@@ -521,26 +527,32 @@ posterior_summary <- function(post) {
 # beküldött válaszok (expert_prior_responses tábla, status = 'submitted').
 # INCLUDE_PI_PRIOR = FALSE esetén a vizsgálatvezetői sorok kimaradnak, és a
 # prior kizárólag a külső szakértők véleménykeveréke.
-INCLUDE_PI_PRIOR <- TRUE
+INCLUDE_PI_PRIOR <- Sys.getenv("PREDICT_INCLUDE_PI", unset = "1") != "0"
+USE_DB_EXPERTS <- Sys.getenv("PREDICT_EXPERT_DB", unset = "1") != "0"
+INCLUDE_SIMULATED <- Sys.getenv("PREDICT_INCLUDE_SIM", unset = "0") == "1"
 PI_EXPERT_IDS <- c("VV-2026-08-19")
 EXPERT_COLS <- c("szakerto_id", "datum", "tetel", "irany", "p_irany", "siker_A", "siker_B",
                  "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes")
-expert_path <- file.path(ROOT, "predict_expert_priorok.csv")
+expert_path <- Sys.getenv("PREDICT_EXPERT_CSV", unset = file.path(ROOT, "predict_expert_priorok.csv"))
+if (!grepl("^/", expert_path)) expert_path <- file.path(ROOT, expert_path)
 expert_csv <- if (file.exists(expert_path)) read.csv(expert_path, check.names = FALSE, encoding = "UTF-8", na.strings = c("", "NA")) else NULL
 if (!is.null(expert_csv)) {
   names(expert_csv) <- sub("^﻿", "", names(expert_csv))
   expert_csv$forras <- "CSV-sablon"
 }
 expert_db <- NULL
-if (!is.null(DB_CON)) {
+if (!is.null(DB_CON) && USE_DB_EXPERTS) {
   expert_db <- tryCatch({
     exists_row <- DBI::dbGetQuery(DB_CON, "SELECT to_regclass('public.expert_prior_responses') AS t")
     if (is.na(exists_row$t[1])) NULL else {
-      resp <- DBI::dbGetQuery(DB_CON, "SELECT expert_code, submitted_at::text AS submitted_at, items::text AS items FROM expert_prior_responses WHERE status = 'submitted' ORDER BY id")
+      resp <- DBI::dbGetQuery(DB_CON, paste0(
+        "SELECT expert_code, submitted_at::text AS submitted_at, items::text AS items FROM expert_prior_responses WHERE status = 'submitted'",
+        if (INCLUDE_SIMULATED) "" else " AND form_version <> 'v1.0-SZIMULACIO'", " ORDER BY id"))
       if (nrow(resp) == 0L) NULL else bind_rows(lapply(seq_len(nrow(resp)), function(i) {
         items <- jsonlite::fromJSON(resp$items[i], simplifyVector = FALSE)
         bind_rows(lapply(predictors$kod, function(k) {
-          a <- items[[k]]; if (is.null(a)) a <- list()
+          a <- items[[k]]
+          if (is.null(a)) return(NULL)   # az űrlapon nem szereplő tétel (pl. F2/L³): nincs sor
           g <- function(key) { v <- a[[key]]; if (is.null(v) || length(v) == 0L) NA else v }
           irany <- g("irany")
           tibble(
@@ -584,8 +596,13 @@ expert_row_to_prior <- function(row) {
   }
 }
 
+# Az A2 (mért alsó gerincmagasság) ugyanazt a konstruktumot méri, mint az A1
+# (Kaán-féle gerincforma): a kérdőív egyetlen tételként kérdezi (A1), ezért az
+# A2 prediktor az A1 szakértői sorait örökli.
+EXPERT_ITEM_ALIAS <- c(A2 = "A1")
 expert_pool <- lapply(predictors$kod, function(k) {
-  rows <- if (!is.null(expert_raw)) expert_raw[expert_raw$tetel == k, , drop = FALSE] else expert_raw[0, ]
+  source_code <- if (k %in% names(EXPERT_ITEM_ALIAS)) EXPERT_ITEM_ALIAS[[k]] else k
+  rows <- if (!is.null(expert_raw)) expert_raw[expert_raw$tetel == source_code, , drop = FALSE] else expert_raw[0, ]
   if (is.null(rows) || nrow(rows) == 0L) {
     p <- predictors$p_tankonyv[predictors$kod == k]
     return(list(prior = prior_mixture(p), n_expert = 0L, p_pos = p, forras = "regiszter (tankönyvi p) + HN(0; 0,5)", parts = NULL))
@@ -602,7 +619,44 @@ prior_registry <- bind_rows(lapply(predictors$kod, function(k) {
          prior_P_varhato_irany = s$p_pozitiv, prior_median = s$median, prior_q05 = s$q05, prior_q95 = s$q95, hatasnagysag_forras = ep$forras)
 }))
 write_csv_utf8(prior_registry, "05_prior_regiszter_pool.csv")
+prior_caption <- if (is.null(expert_raw)) {
+  "Prior: regiszter-alapú tankönyvi iránybizonyosság (gyenge 80% / mérsékelt 90% / erős 98%), hatásnagyság-helyőrzővel HN(0; 0,5)."
+} else {
+  paste0("Prior: ", length(unique(expert_raw$szakerto_id)), " szakértő egyenlő súlyú véleménykeveréke (forrás: ",
+         paste(unique(expert_raw$forras), collapse = " + "), "); irány a bizonyosságból, hatásnagyság a „100 beteg” válaszból, ahol elicitált, egyébként HN(0; 0,5).")
+}
 if (!is.null(expert_raw)) write_csv_utf8(expert_raw, "05b_szakertoi_prior_bemenet.csv")
+
+# --- Szakértői konszenzus: tételenkénti megoszlás, egyet nem értés, pool ------
+consensus <- NULL
+if (!is.null(expert_raw)) {
+  consensus <- bind_rows(lapply(predictors$kod, function(k) {
+    source_code <- if (k %in% names(EXPERT_ITEM_ALIAS)) EXPERT_ITEM_ALIAS[[k]] else k
+    rk <- expert_raw[expert_raw$tetel == source_code, , drop = FALSE]
+    ep <- expert_pool[[k]]
+    irany <- as.character(rk$irany)
+    share <- function(v) if (length(irany)) mean(irany %in% v) else NA_real_
+    dir_rows <- irany %in% c("A_kedvezotlenebb", "B_kedvezotlenebb")
+    p_each <- if (is.null(ep$parts)) numeric(0) else vapply(ep$parts, function(pp) pp$p_pos, numeric(1))
+    med_each <- if (is.null(ep$parts)) numeric(0) else vapply(ep$parts, function(pp) posterior_summary(prior_mixture(pp$p_pos, pp$mag_mean, pp$mag_sd))$median, numeric(1))
+    s <- posterior_summary(ep$prior)
+    tibble(
+      tetel = k, cimke = predictors$rovid[predictors$kod == k], csoport = as.character(predictors$csoport[predictors$kod == k]),
+      p_tankonyv = predictors$p_tankonyv[predictors$kod == k],
+      n_szakerto = nrow(rk),
+      B_arany = share("B_kedvezotlenebb"), A_arany = share("A_kedvezotlenebb"),
+      optimum_arany = share("nem_monoton"), nincs_arany = share("nincs_kulonbseg"),
+      nem_tudom_arany = share("nem_tudom"),
+      p_irany_atlag = if (any(dir_rows)) mean(suppressWarnings(as.numeric(rk$p_irany[dir_rows])), na.rm = TRUE) else NA_real_,
+      kulonbseg_atlag = mean(abs(suppressWarnings(as.numeric(rk$siker_A)) - suppressWarnings(as.numeric(rk$siker_B))), na.rm = TRUE),
+      pool_P_varhato_irany = s$p_pozitiv, pool_median = s$median, pool_q05 = s$q05, pool_q95 = s$q95,
+      egyet_nem_ertes_sd_P = if (length(p_each) > 1) sd(p_each) else NA_real_,
+      egyeni_median_sd = if (length(med_each) > 1) sd(med_each) else NA_real_
+    )
+  }))
+  consensus$kulonbseg_atlag[!is.finite(consensus$kulonbseg_atlag)] <- NA_real_
+  write_csv_utf8(consensus, "05c_szakertoi_konszenzus.csv")
+}
 
 # --- Posteriorok minden tétel × kimenet cellára -----------------------------
 bayes <- bind_rows(lapply(seq_len(nrow(assoc)), function(i) {
@@ -830,7 +884,7 @@ prior_data_post_plot <- function(bdf, title, subtitle, facet = FALSE) {
     select(pred_rovid, csoport, out_rovid, prior_P_pos, adat_P_pos, post_P_pos) |>
     pivot_longer(c(prior_P_pos, adat_P_pos, post_P_pos), names_to = "tipus", values_to = "P") |>
     mutate(tipus = factor(tipus, levels = c("prior_P_pos", "adat_P_pos", "post_P_pos"),
-                          labels = c("Elődök priorja (elicitált iránybizonyosság)", "Csak az adat (semleges priorral)", "Posterior = elődök priorja × hat beteg adata")),
+                          labels = c("Prior (elődök / szakértői pool)", "Csak az adat (semleges priorral)", "Posterior = prior × hat beteg adata")),
            pred_rovid = factor(pred_rovid, levels = rev(dir_preds$rovid)),
            csoport = factor(csoport, levels = c("Felső állcsont", "Alsó állcsont")))
   seg <- bdf |> mutate(pred_rovid = factor(pred_rovid, levels = rev(dir_preds$rovid)), csoport = factor(csoport, levels = c("Felső állcsont", "Alsó állcsont")))
@@ -844,7 +898,7 @@ prior_data_post_plot <- function(bdf, title, subtitle, facet = FALSE) {
     scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25), labels = c("0", "25%", "50%", "75%", "100%")) +
     labs(title = title, subtitle = subtitle,
          x = "P(a kedvezőtlen változat rosszabb eredménnyel jár)  —  jobbra: az elődök iránya", y = NULL,
-         caption = "Prior: a vizsgálatvezető 2026-08-19-i elicitációja (gyenge 80% / mérsékelt 90% / erős 98%), hatásnagyság-helyőrzővel HN(0; 0,5).\nLikelihood: standardizált (normal-score) egyváltozós regresszió, rácson egzaktul. A szürke szakasz a prior → posterior elmozdulás.") +
+         caption = paste0(prior_caption, "\nLikelihood: standardizált (normal-score) egyváltozós regresszió, rácson egzaktul. A szürke szakasz a prior → posterior elmozdulás.")) +
     theme_predict(10.5) + theme(legend.position = "bottom", legend.direction = "vertical", strip.text.y = element_text(angle = 0))
   if (facet) g + facet_grid(csoport ~ out_rovid, scales = "free_y", space = "free_y") else g + facet_grid(csoport ~ ., scales = "free_y", space = "free_y")
 }
@@ -879,7 +933,7 @@ p7 <- ggplot(dens_df, aes(x = beta, y = suruseg, colour = gorbe)) +
   labs(title = "Prior, likelihood és posterior a korrelációs skálán (siker-index)",
        subtitle = "β > 0: a kedvezőtlen anatómia rosszabb eredménnyel jár (az elődök iránya). Hat betegnél a likelihood lapos; a posterior alakját a prior adja.",
        x = "β (standardizált hatás, –1 … +1)", y = "Sűrűség",
-       caption = "A prior hatásnagyság-része helyőrző félnormális (τ = 0,5); a szakértői interjúk után az elicitált nagyságok lépnek a helyébe.") +
+       caption = prior_caption) +
   theme_predict(10.5) + theme(legend.position = "bottom")
 save_png("abra_07_prior_likelihood_posterior_surusegek.png", p7, 13, 8)
 
@@ -936,6 +990,77 @@ p9 <- ggplot(cont_df, aes(x = x, y = y)) +  # (ρ a fejlécben)
        x = "Mérés", y = "Siker-index (↑ jobb)") +
   theme_predict(10.5) + theme(strip.text = element_text(size = 8, lineheight = 0.95))
 save_png("abra_09_folytonos_morfometria_sikerindex.png", p9, 14, 10)
+
+## 6.9 Szakértői priorok tételenként: egyéni, egyesített, posterior ----------
+if (!is.null(consensus) && any(consensus$n_szakerto > 0)) {
+  beta_idx <- seq(1, length(BETA), by = 8)
+  pool_long <- bind_rows(lapply(predictors$kod, function(k) {
+    ep <- expert_pool[[k]]
+    if (ep$n_expert == 0L) return(NULL)
+    lab <- paste0(predictors$rovid[predictors$kod == k], "  (n = ", ep$n_expert, ")")
+    ind <- if (is.null(ep$parts)) NULL else bind_rows(lapply(seq_along(ep$parts), function(i) {
+      pp <- ep$parts[[i]]; d <- prior_mixture(pp$p_pos, pp$mag_mean, pp$mag_sd) / DBETA
+      tibble(tetel = lab, szakerto = i, beta = BETA[beta_idx], suruseg = d[beta_idx], tipus = "egy-egy szakértő priorja")
+    }))
+    pooled <- tibble(tetel = lab, szakerto = 0L, beta = BETA[beta_idx], suruseg = ep$prior[beta_idx] / DBETA, tipus = "egyesített szakértői prior")
+    b <- bayes |> filter(pred == k, out == "s_INDEX")
+    post <- NULL
+    if (nrow(b) == 1L && is.finite(b$r_ns)) {
+      ll <- log_lik_beta(b$r_ns, b$n); lik <- normalize(exp(ll - max(ll))); po <- normalize(ep$prior * lik)
+      post <- tibble(tetel = lab, szakerto = -1L, beta = BETA[beta_idx], suruseg = po[beta_idx] / DBETA, tipus = "posterior (hat beteg, siker-index)")
+    }
+    bind_rows(ind, pooled, post)
+  })) |>
+    mutate(tipus = factor(tipus, levels = c("egy-egy szakértő priorja", "egyesített szakértői prior", "posterior (hat beteg, siker-index)")),
+           tetel = factor(tetel, levels = unique(tetel)))
+  p10 <- ggplot() +
+    geom_vline(xintercept = 0, colour = PAL$axis, linewidth = 0.5) +
+    geom_line(data = pool_long |> filter(szakerto > 0), aes(x = beta, y = suruseg, group = szakerto, colour = tipus), linewidth = 0.4, alpha = 0.35) +
+    geom_line(data = pool_long |> filter(szakerto == 0), aes(x = beta, y = suruseg, colour = tipus), linewidth = 1.2) +
+    geom_line(data = pool_long |> filter(szakerto < 0), aes(x = beta, y = suruseg, colour = tipus), linewidth = 1) +
+    facet_wrap(~tetel, ncol = 4, scales = "free_y") +
+    scale_colour_manual(values = c(PAL$muted, PAL$orange, PAL$blue), name = NULL, drop = FALSE) +
+    labs(title = "Szakértői priorok tételenként: egyéni vélemények, egyesített prior és posterior",
+         subtitle = "β > 0: a kedvezőtlen változat rosszabb eredménnyel jár. Vékony szürke: egy-egy szakértő; narancs: egyenlő súlyú véleménykeverék; kék: az egyesített prior × a hat beteg adata.",
+         x = "β (standardizált hatás, –1 … +1)", y = "Sűrűség",
+         caption = "Egy szakértő priorja = irány-valószínűség (P[B pólus kedvezőtlenebb]) × hatásnagyság a „100 beteg” válaszból (probit-különbség → korrelációs skála), szórás a hihető tartományból.") +
+    theme_predict(10) + theme(legend.position = "bottom", strip.text = element_text(size = 8))
+  save_png("abra_10_szakertoi_priorok_tetelenkent.png", p10, 15, 12)
+
+  share_long <- consensus |>
+    select(cimke, csoport, B_arany, A_arany, optimum_arany, nincs_arany, nem_tudom_arany) |>
+    pivot_longer(-c(cimke, csoport), names_to = "valasz", values_to = "arany") |>
+    mutate(valasz = factor(valasz, levels = c("B_arany", "A_arany", "optimum_arany", "nincs_arany", "nem_tudom_arany"),
+                           labels = c("B: az elődök szerinti kedvezőtlen pólus", "A: az ellenkező pólus", "optimum (nem monoton)", "nincs érdemi különbség", "nem tudom")),
+           cimke = factor(cimke, levels = consensus$cimke[order(consensus$B_arany)]),
+           csoport = factor(csoport, levels = levels(predictors$csoport)))
+  p11a <- ggplot(share_long, aes(x = arany, y = cimke, fill = valasz)) +
+    geom_col(width = 0.7, colour = PAL$surface, linewidth = 0.6) +
+    facet_grid(csoport ~ ., scales = "free_y", space = "free_y") +
+    scale_fill_manual(values = c(PAL$blue, PAL$red, PAL$aqua, PAL$de_emph, PAL$grid), name = NULL) +
+    scale_x_continuous(labels = percent_format(accuracy = 1), expand = expansion(mult = c(0, 0.02))) +
+    labs(title = "Mit mondanak a szakértők az irányról?", x = "Válaszok aránya", y = NULL) +
+    theme_predict(10) + theme(legend.position = "bottom", legend.direction = "vertical", strip.text.y = element_text(angle = 0), panel.grid.major.y = element_blank())
+  cmp <- consensus |>
+    mutate(cimke = factor(cimke, levels = levels(share_long$cimke)), csoport = factor(csoport, levels = levels(predictors$csoport))) |>
+    select(cimke, csoport, p_tankonyv, pool_P_varhato_irany) |>
+    pivot_longer(c(p_tankonyv, pool_P_varhato_irany), names_to = "forras", values_to = "P") |>
+    mutate(forras = factor(forras, levels = c("p_tankonyv", "pool_P_varhato_irany"), labels = c("vizsgálatvezetői elicitáció (2026-08-19)", "szakértői véleménykeverék")))
+  p11b <- ggplot(cmp, aes(x = P, y = cimke)) +
+    geom_vline(xintercept = 0.5, colour = PAL$ink2, linewidth = 0.5) +
+    geom_line(aes(group = cimke), colour = PAL$axis, linewidth = 0.8) +
+    geom_point(aes(shape = forras, fill = forras, colour = forras), size = 3, stroke = 1) +
+    facet_grid(csoport ~ ., scales = "free_y", space = "free_y") +
+    scale_shape_manual(values = c(21, 23), name = NULL) +
+    scale_fill_manual(values = c(PAL$surface, PAL$orange), name = NULL) +
+    scale_colour_manual(values = c(PAL$ink2, PAL$orange), name = NULL) +
+    scale_x_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
+    labs(title = "P(az elődök iránya): Ön vs. a szakértők", x = "P(a kedvezőtlen változat rosszabb eredménnyel jár)", y = NULL) +
+    theme_predict(10) + theme(legend.position = "bottom", legend.direction = "vertical", strip.text.y = element_text(angle = 0), axis.text.y = element_blank())
+  p11 <- (p11a | p11b) + plot_layout(widths = c(1.35, 1)) +
+    plot_annotation(caption = paste0("n = ", max(consensus$n_szakerto), " szakértő. A bal panel a nyers irányválaszok megoszlása; a jobb panel a keverék-priorból számított P(β > 0)."), theme = theme_predict(10))
+  save_png("abra_11_szakertoi_konszenzus.png", p11, 15, 8.5)
+}
 
 # -----------------------------------------------------------------------------
 # 7. QA, összefoglaló, sessionInfo
@@ -1008,6 +1133,7 @@ if (db_ok) { cat("\n--- Tölcsér ---\n"); print(as.data.frame(funnel |> select(
   print(as.data.frame(gender_rows), row.names = FALSE) }
 cat("\n--- Irány-egyezés (Spearman-ρ; + = egyezik az elődökkel) ---\n")
 print(as.data.frame(assoc |> select(pred_rovid, out_rovid, rho) |> mutate(rho = round(rho, 2)) |> pivot_wider(names_from = out_rovid, values_from = rho)), row.names = FALSE)
+if (!is.null(consensus)) { cat("\n--- Szakértői konszenzus (pool) ---\n"); print(as.data.frame(consensus |> transmute(cimke, n = n_szakerto, B = round(B_arany, 2), A = round(A_arany, 2), opt = round(optimum_arany, 2), nincs = round(nincs_arany, 2), nt = round(nem_tudom_arany, 2), p_atlag = round(p_irany_atlag, 0), diff_atlag = round(kulonbseg_atlag, 1), pool_P = round(pool_P_varhato_irany, 3), pool_med = round(pool_median, 2), q05 = round(pool_q05, 2), q95 = round(pool_q95, 2), sdP = round(egyet_nem_ertes_sd_P, 2))), row.names = FALSE) }
 cat("\n--- Bayes: siker-index ---\n")
 print(as.data.frame(bayes |> filter(out == "s_INDEX") |> transmute(pred_rovid, rho = round(rho, 2), prior = round(prior_P_pos, 3), adat = round(adat_P_pos, 3), posterior = round(post_P_pos, 3), post_median = round(post_median, 2), post_q05 = round(post_q05, 2), post_q95 = round(post_q95, 2))), row.names = FALSE)
 cat("\n--- Hány beteg kellene? (siker-index) ---\n")

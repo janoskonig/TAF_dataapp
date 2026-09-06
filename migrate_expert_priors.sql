@@ -30,4 +30,11 @@ ALTER TABLE expert_prior_responses
     ADD COLUMN IF NOT EXISTS expert_name TEXT,
     ADD COLUMN IF NOT EXISTS expert_affiliation TEXT;
 
+-- 2026-09-06: személyes meghívó-linkek (a vizsgálatvezető készíti elő a
+-- kitöltést; a link kód nélkül, csak az adott kitöltésbe enged be).
+ALTER TABLE expert_prior_responses
+    ADD COLUMN IF NOT EXISTS invited_at TIMESTAMP NULL,
+    ADD COLUMN IF NOT EXISTS opened_at TIMESTAMP NULL,
+    ADD COLUMN IF NOT EXISTS invite_note TEXT NULL;
+
 COMMIT;

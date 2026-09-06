@@ -1,5 +1,5 @@
 {% extends "expert_base.html" %}
-{% block title %}{{ response.expert_code }} · PREDICT szakértői felmérés{% endblock %}
+{% block title %}{{ response.expert_code }} · PREDICT szakértői kérdőív{% endblock %}
 {% set bg = response.background %}
 {% set cal = response.calibration %}
 {% set cl = response.closing %}
@@ -11,42 +11,43 @@
     </div>
     <div class="page-heading">
         <div>
-            <p class="eyebrow">{{ response.expert_code }} · {{ 'beküldve' if response.status == 'submitted' else 'piszkozat' }}</p>
-            <h1>{{ response.expert_name or 'Szakértői válaszok' }}</h1>
-            <p class="lead">{{ response.items_answered }} / {{ response.items_total }} tétel megválaszolva
+            <p class="eyebrow">{{ response.expert_code }} · {% if response.state == 'submitted' %}beküldve{% elif response.state == 'invited' %}meghívva, még nem kezdte el{% else %}megkezdve, még nincs beküldve{% endif %}{% if response.simulated %} · szimulált próbasor{% endif %}</p>
+            <h1>{{ response.expert_name or 'Válaszok' }}</h1>
+            <p class="lead">{{ response.items_answered }} / {{ response.items_total }} adottság megválaszolva
                 {% if response.submitted_at %} · beküldve: {{ response.submitted_at_label }}{% endif %}
                 · utolsó mentés: {{ response.updated_at_label }}</p>
         </div>
         {% if admin and response.status == 'draft' %}
-        <a class="button button-secondary" href="{{ url_for('expert.form', token=response.token) }}">Űrlap megnyitása</a>
+        <a class="button button-secondary" href="{{ url_for('expert.form', token=response.token) }}">Kérdőív megnyitása</a>
         {% endif %}
     </div>
 
     <section class="card section-card">
-        <h2>A–B. Háttér és kalibráció</h2>
+        <h2>Önről és általában</h2>
         <dl>
             <dt>Név</dt><dd>{{ response.expert_name or '–' }}</dd>
-            <dt>Munkahely / intézmény</dt><dd>{{ response.expert_affiliation or '–' }}</dd>
+            <dt>Munkahely</dt><dd>{{ response.expert_affiliation or '–' }}</dd>
             <dt>Diploma éve</dt><dd>{{ bg.get('diploma_ev') or '–' }}</dd>
-            <dt>Protetikai gyakorlat (év)</dt><dd>{{ bg.get('evek_gyakorlat') if bg.get('evek_gyakorlat') is not none else '–' }}</dd>
-            <dt>Teljes fogsorok száma</dt><dd>{{ bg.get('fogsorok_szama_kat') or '–' }}</dd>
-            <dt>Oktat</dt><dd>{{ bg.get('oktat') or '–' }}</dd>
-            <dt>Tevékenység</dt><dd>{{ bg.get('tevekenyseg') or '–' }}{% if bg.get('szakvizsga') %} · {{ bg.get('szakvizsga') }}{% endif %}</dd>
-            <dt>Fogsor / év</dt><dd>{{ bg.get('evi_fogsorok') if bg.get('evi_fogsorok') is not none else '–' }}</dd>
-            <dt>B1. Alap-sikerarány (100-ból)</dt><dd>{{ cal.get('alap_siker_100') if cal.get('alap_siker_100') is not none else '–' }}</dd>
-            <dt>B2. Az anatómia súlya (%)</dt><dd>{{ cal.get('anatomia_sulya_pct') if cal.get('anatomia_sulya_pct') is not none else '–' }}</dd>
-            <dt>B3. Felső vagy alsó</dt><dd>{{ cal.get('felso_vagy_also') or '–' }}{% if cal.get('felso_also_arany') %} ({{ cal.get('felso_also_arany') }}){% endif %}</dd>
-            <dt>B4. Kizáró képletek</dt><dd>{{ cal.get('kizaro_kepletek') or '–' }}</dd>
-            <dt>B5. Régi fogsor</dt><dd>{{ cal.get('regi_fogsor') or '–' }}{% if cal.get('regi_fogsor_megjegyzes') %} · {{ cal.get('regi_fogsor_megjegyzes') }}{% endif %}</dd>
+            <dt>Szakvizsga</dt><dd>{{ bg.get('szakvizsga') or '–' }}</dd>
+            <dt>Hány éve készít teljes fogsort</dt><dd>{{ bg.get('evek_gyakorlat') if bg.get('evek_gyakorlat') is not none else '–' }}</dd>
+            <dt>Eddig készített teljes fogsorok</dt><dd>{{ bg.get('fogsorok_szama_kat') or '–' }}</dd>
+            <dt>Évente mostanában</dt><dd>{{ bg.get('evi_fogsorok') if bg.get('evi_fogsorok') is not none else '–' }}</dd>
+            <dt>Tanít</dt><dd>{{ bg.get('oktat') or '–' }}</dd>
+            <dt>Hol dolgozik</dt><dd>{{ bg.get('tevekenyseg') or '–' }}</dd>
+            <dt>Sikeres fogsor 100 betegből</dt><dd>{{ cal.get('alap_siker_100') if cal.get('alap_siker_100') is not none else '–' }}</dd>
+            <dt>Az adottságokon múlik (%)</dt><dd>{{ cal.get('anatomia_sulya_pct') if cal.get('anatomia_sulya_pct') is not none else '–' }}</dd>
+            <dt>Melyik állcsont számít többet</dt><dd>{{ cal.get('felso_vagy_also') or '–' }}{% if cal.get('felso_also_arany') %} ({{ cal.get('felso_also_arany') }}){% endif %}</dd>
+            <dt>Inkább implantátumon elhorgonyzott fedőlemezes fogpótlást javasolna</dt><dd>{{ cal.get('kizaro_kepletek') or '–' }}</dd>
+            <dt>Korábbi fogsor szerepe</dt><dd>{{ cal.get('regi_fogsor') or '–' }}{% if cal.get('regi_fogsor_megjegyzes') %} · {{ cal.get('regi_fogsor_megjegyzes') }}{% endif %}</dd>
         </dl>
     </section>
 
     <section class="card section-card">
-        <h2>C. Tételek</h2>
+        <h2>Az anatómiai adottságok</h2>
         <div class="patient-table-wrap">
             <table class="patient-table">
                 <thead>
-                    <tr><th>Tétel</th><th>Irány</th><th>Bizonyosság</th><th>100 beteg A / B</th><th>Tartomány</th><th>Mechanizmus</th><th>Küszöb · részkontraszt · megjegyzés</th></tr>
+                    <tr><th>Adottság</th><th>Melyik a rosszabb</th><th>Biztos</th><th>Száz beteg A / B</th><th>Különbség</th><th>Min keresztül hat</th><th>Határ · részletek · megjegyzés</th></tr>
                 </thead>
                 <tbody>
                 {% for item in expert_items %}
@@ -57,10 +58,10 @@
                     <td>{{ ans.get('p_irany') ~ ' %' if ans.get('p_irany') is not none else '–' }}</td>
                     <td>{{ ans.get('siker_A') if ans.get('siker_A') is not none else '–' }} / {{ ans.get('siker_B') if ans.get('siker_B') is not none else '–' }}</td>
                     <td>{{ ans.get('kulonbseg_min') if ans.get('kulonbseg_min') is not none else '–' }} – {{ ans.get('kulonbseg_max') if ans.get('kulonbseg_max') is not none else '–' }}</td>
-                    <td>{{ (ans.get('mechanizmus') or [])|join(', ') or '–' }}{% if ans.get('mechanizmus_egyeb') %}; {{ ans.get('mechanizmus_egyeb') }}{% endif %}</td>
+                    <td>{% set mechs = ans.get('mechanizmus') or [] %}{% if mechs %}{% for code in mechs %}{{ mechanism_labels.get(code, code) }}{% if not loop.last %}; {% endif %}{% endfor %}{% else %}–{% endif %}{% if ans.get('mechanizmus_egyeb') %}; {{ ans.get('mechanizmus_egyeb') }}{% endif %}</td>
                     <td>
                         {% if ans.get('kuszob') %}<div>{{ ans.get('kuszob') }}</div>{% endif %}
-                        {% for sub in item.subs %}{% if ans.get('sub_' ~ sub.kod) %}<div class="small muted">{{ sub.kod }}: {{ dict(sub.opciok).get(ans.get('sub_' ~ sub.kod), ans.get('sub_' ~ sub.kod)) }}</div>{% endif %}{% endfor %}
+                        {% for sub in item.subs %}{% if ans.get('sub_' ~ sub.kod) %}<div class="small muted">{{ sub.kerdes }} {{ dict(sub.opciok).get(ans.get('sub_' ~ sub.kod), ans.get('sub_' ~ sub.kod)) }}</div>{% endif %}{% endfor %}
                         {% if ans.get('megjegyzes') %}<div class="small">{{ ans.get('megjegyzes') }}</div>{% endif %}
                     </td>
                 </tr>
@@ -71,21 +72,21 @@
     </section>
 
     <section class="card section-card">
-        <h2>D. Záró kérdések</h2>
+        <h2>Összegzés</h2>
         <dl>
-            <dt>D1. Rangsor</dt><dd>{% for i in range(1, 6) %}{{ cl.get('rang_' ~ i) or '–' }}{% if not loop.last %} › {% endif %}{% endfor %}</dd>
-            <dt>D2. Legrosszabb kombináció</dt><dd>{{ cl.get('legrosszabb_kombinacio') or '–' }}</dd>
-            <dt>D3. Ellensúlyozó képlet</dt><dd>{{ cl.get('ellensulyozo') or '–' }}</dd>
-            <dt>D4. Hiányzó képlet</dt><dd>{{ cl.get('hianyzo_kepletek') or '–' }}</dd>
-            <dt>D5. Önértékelés (1–5)</dt><dd>{{ cl.get('onertekeles') or '–' }}</dd>
-            <dt>Megjegyzés</dt><dd>{{ cl.get('megjegyzes') or '–' }}</dd>
+            <dt>Az öt legfontosabb</dt><dd>{% for i in range(1, 6) %}{% set code = cl.get('rang_' ~ i) %}{% if code %}{{ code }} · {{ item_names.get(code, code) }}{% else %}–{% endif %}{% if not loop.last %} › {% endif %}{% endfor %}</dd>
+            <dt>Legrosszabb páros</dt><dd>{{ cl.get('legrosszabb_kombinacio') or '–' }}</dd>
+            <dt>Kiegyenlítő adottság</dt><dd>{{ cl.get('ellensulyozo') or '–' }}</dd>
+            <dt>Amit kihagytunk</dt><dd>{{ cl.get('hianyzo_kepletek') or '–' }}</dd>
+            <dt>Mennyire bízik a válaszaiban (1–5)</dt><dd>{{ cl.get('onertekeles') or '–' }}</dd>
+            <dt>Egyéb</dt><dd>{{ cl.get('megjegyzes') or '–' }}</dd>
         </dl>
     </section>
 
     {% if admin %}
     <section class="card section-card">
         <h2>Törlés</h2>
-        <p class="muted small">A törlés végleges. Megerősítésül írd be a szakértő kódját ({{ response.expert_code }}).</p>
+        <p class="muted small">A törlés végleges. Megerősítésül írja be a kódot ({{ response.expert_code }}).</p>
         <form method="post" action="{{ url_for('expert.admin_delete', response_id=response.id) }}" class="toolbar">
             <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
             <div class="search"><input type="text" name="confirm" placeholder="{{ response.expert_code }}" autocomplete="off"></div>

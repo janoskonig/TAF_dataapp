@@ -1,16 +1,16 @@
 {% extends "expert_base.html" %}
-{% block title %}Belépés · PREDICT szakértői felmérés{% endblock %}
+{% block title %}{{ t.login_title }}{% endblock %}
 {% block content %}
 <section class="login-card card">
-    <p class="eyebrow">Szakértői felmérés</p>
-    <h1>Előzetes szakmai vélemény</h1>
-    <p class="lead">Az anatómiai képletek és a teljes lemezes fogpótlás sikeressége. Ezen a telepítésen a felmérés hozzáférési kóddal védett; a kódot a vizsgálatvezetőtől kapja.</p>
+    <p class="eyebrow">{{ t.login_eyebrow }}</p>
+    <h1>{{ t.login_h1 }}</h1>
+    <p class="lead">{{ t.login_lead }}</p>
     <form method="post" class="stack-form">
         <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
         <input type="hidden" name="next" value="{{ next_url }}">
-        <label for="access_code">Hozzáférési kód</label>
+        <label for="access_code">{{ t.login_code }}</label>
         <input id="access_code" name="access_code" type="password" autocomplete="off" required autofocus>
-        <button class="button button-primary" type="submit">Belépés</button>
+        <button class="button button-primary" type="submit">{{ t.login_button }}</button>
     </form>
 </section>
 {% endblock %}

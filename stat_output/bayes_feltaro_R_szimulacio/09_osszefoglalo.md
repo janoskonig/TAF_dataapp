@@ -21,19 +21,19 @@ Futás: 2026-09-06 14:00 · fő kohorsz n = 6 · Adatbázis: csak olvasás; TAJ-
 
 ## Siker-index: prior → adat → posterior (|ρ| szerint)
 
-- A6–A9 tuberculum ↑: ρ = 0,64; P(elődök iránya) prior 98% → adat 90% → posterior 100%.
-- F5 lötyögő gerinc: ρ = 0,62; P(elődök iránya) prior 80% → adat 85% → posterior 96%.
-- F3 boltozat ↓: ρ = 0,60; P(elődök iránya) prior 90% → adat 84% → posterior 98%.
-- F4 gerincalak-szög ↓: ρ = 0,60; P(elődök iránya) prior 90% → adat 85% → posterior 98%.
-- A2 gerincmagasság ↓: ρ = 0,43; P(elődök iránya) prior 98% → adat 75% → posterior 99%.
-- F7 torus palatinus: ρ = -0,41; P(elődök iránya) prior 98% → adat 30% → posterior 95%.
-- A12 spinae mentales: ρ = 0,29; P(elődök iránya) prior 98% → adat 64% → posterior 99%.
-- A11 szájfenék ↑: ρ = 0,22; P(elődök iránya) prior 98% → adat 62% → posterior 99%.
-- F6 |szög−90°| ↑: ρ = 0,20; P(elődök iránya) prior 98% → adat 60% → posterior 99%.
-- A1 Kaán-gerincforma ↑: ρ = 0,18; P(elődök iránya) prior 98% → adat 60% → posterior 99%.
-- F1 gerincmagasság ↓: ρ = 0,14; P(elődök iránya) prior 98% → adat 52% → posterior 98%.
-- A5 lingualis tasak ↑: ρ = 0,12; P(elődök iránya) prior 98% → adat 56% → posterior 98%.
-- A4 torus mandibularis: ρ = 0,00; P(elődök iránya) prior 98% → adat 50% → posterior 98%.
+- A6–A9 tuberculum ↑: ρ = 0,64; P(elődök iránya) prior 80% → adat 90% → posterior 97%.
+- F5 lötyögő gerinc: ρ = 0,62; P(elődök iránya) prior 88% → adat 85% → posterior 98%.
+- F3 boltozat ↓: ρ = 0,60; P(elődök iránya) prior 78% → adat 84% → posterior 94%.
+- F4 gerincalak-szög ↓: ρ = 0,60; P(elődök iránya) prior 64% → adat 85% → posterior 88%.
+- A2 gerincmagasság ↓: ρ = 0,43; P(elődök iránya) prior 93% → adat 75% → posterior 98%.
+- F7 torus palatinus: ρ = -0,41; P(elődök iránya) prior 52% → adat 30% → posterior 36%.
+- A12 spinae mentales: ρ = 0,29; P(elődök iránya) prior 69% → adat 64% → posterior 79%.
+- A11 szájfenék ↑: ρ = 0,22; P(elődök iránya) prior 85% → adat 62% → posterior 91%.
+- F6 |szög−90°| ↑: ρ = 0,20; P(elődök iránya) prior 69% → adat 60% → posterior 77%.
+- A1 Kaán-gerincforma ↑: ρ = 0,18; P(elődök iránya) prior 93% → adat 60% → posterior 96%.
+- F1 gerincmagasság ↓: ρ = 0,14; P(elődök iránya) prior 83% → adat 52% → posterior 85%.
+- A5 lingualis tasak ↑: ρ = 0,12; P(elődök iránya) prior 69% → adat 56% → posterior 75%.
+- A4 torus mandibularis: ρ = 0,00; P(elődök iránya) prior 68% → adat 50% → posterior 69%.
 
 ## Értelmezési korlát
 

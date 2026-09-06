@@ -16,9 +16,47 @@
 
 <section class="stats-grid" aria-label="Összesítés">
     <div class="stat"><strong>{{ responses|length }}</strong><span>kitöltés összesen</span></div>
+    <div class="stat"><strong>{{ invited_count }}</strong><span>meghívva, még nem kezdte el</span></div>
+    <div class="stat"><strong>{{ draft_count }}</strong><span>megkezdve</span></div>
     <div class="stat stat-emphasis"><strong>{{ submitted_count }}</strong><span>beküldött</span></div>
-    <div class="stat"><strong>{{ responses|length - submitted_count }}</strong><span>piszkozat</span></div>
     <div class="stat"><strong>{{ expert_items|length }}</strong><span>tétel / kitöltés</span></div>
+    {% if simulated_count %}<div class="stat"><strong>{{ simulated_count }}</strong><span>szimulált próbasor{% if include_simulated %} (beszámítva){% else %} (kihagyva){% endif %}</span></div>{% endif %}
+</section>
+{% if new_code %}
+<div class="flash flash-success">Az új meghívó ({{ new_code }}) linkje a lista „Meghívó-link” oszlopában másolható.</div>
+{% endif %}
+{% if simulated_count %}
+<div class="flash flash-info">
+    A táblában {{ simulated_count }} szimulált próbaválasz van (simulate_expert_responses.py). Az összesítés és az export alapból kihagyja őket;
+    {% if include_simulated %}<a href="{{ url_for('expert.admin') }}">kihagyás</a>{% else %}<a href="{{ url_for('expert.admin', szimulacio=1) }}">beszámítás a próbához</a>{% endif %}.
+    Törlés: <code>python3 simulate_expert_responses.py --db-cleanup</code>.
+</div>
+{% endif %}
+
+<section class="card section-card">
+    <div class="section-head">
+        <div><h2>Meghívó készítése</h2><p class="muted">Add meg a kolléga nevét; a rendszer előkészíti a kitöltést, és egyedi linket ad, amelyet elküldhetsz neki. A link kód nélkül, csak az ő kitöltésébe enged be.</p></div>
+    </div>
+    <form method="post" action="{{ url_for('expert.admin_invite') }}" class="grid grid-3" style="align-items:end">
+        <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+        <div>
+            <label class="field-label" for="invite_name">Név *</label>
+            <input id="invite_name" name="expert_name" type="text" maxlength="200" required>
+        </div>
+        <div>
+            <label class="field-label" for="invite_affiliation">Munkahely</label>
+            <input id="invite_affiliation" name="expert_affiliation" type="text" maxlength="200">
+        </div>
+        <div>
+            <label class="field-label" for="invite_lang">Nyelv</label>
+            <select id="invite_lang" name="lang"><option value="hu">magyar</option><option value="en">English</option></select>
+        </div>
+        <div style="grid-column: 1 / -1">
+            <label class="field-label" for="invite_note">Megjegyzés (pl. e-mail-cím, honnan ismerjük; csak neked látszik)</label>
+            <input id="invite_note" name="invite_note" type="text" maxlength="500">
+        </div>
+        <div><button class="button button-primary" type="submit">Meghívó készítése</button></div>
+    </form>
 </section>
 
 <section class="card section-card">
@@ -28,19 +66,19 @@
     {% if responses %}
     <div class="patient-table-wrap">
         <table class="patient-table">
-            <thead><tr><th>Kód</th><th>Név</th><th>Állapot</th><th>Tételek</th><th>Gyakorlat (év)</th><th>Fogsorok</th><th>Önértékelés</th><th>Létrehozva</th><th>Beküldve</th><th></th></tr></thead>
+            <thead><tr><th>Kód</th><th>Név</th><th>Állapot</th><th>Tételek</th><th>Gyakorlat (év)</th><th>Fogsorok</th><th>Létrehozva</th><th>Beküldve</th><th>Meghívó-link</th><th></th></tr></thead>
             <tbody>
             {% for response in responses %}
             <tr>
                 <td><strong>{{ response.expert_code }}</strong></td>
                 <td>{{ response.expert_name or '–' }}{% if response.expert_affiliation %}<br><small class="muted">{{ response.expert_affiliation }}</small>{% endif %}</td>
-                <td>{% if response.status == 'submitted' %}<span class="badge badge-success">beküldve</span>{% else %}<span class="badge badge-warning">piszkozat</span>{% endif %}</td>
+                <td>{% if response.state == 'submitted' %}<span class="badge badge-success">beküldve</span>{% elif response.state == 'invited' %}<span class="badge badge-muted">meghívva</span>{% else %}<span class="badge badge-warning">megkezdve</span>{% endif %}{% if response.simulated %} <span class="badge badge-muted">szimulált</span>{% endif %}{% if response.background.get('nyelv') == 'en' %} <span class="badge badge-muted">EN</span>{% endif %}{% if response.invite_note %}<br><small class="muted">{{ response.invite_note }}</small>{% endif %}</td>
                 <td>{{ response.items_answered }} / {{ response.items_total }}</td>
                 <td>{{ response.background.get('evek_gyakorlat') if response.background.get('evek_gyakorlat') is not none else '–' }}</td>
                 <td>{{ response.background.get('fogsorok_szama_kat') or '–' }}</td>
-                <td>{{ response.closing.get('onertekeles') or '–' }}</td>
                 <td>{{ response.created_at_label }}</td>
                 <td>{{ response.submitted_at_label or '–' }}</td>
+                <td>{% if response.state != 'submitted' %}<input type="text" class="invite-link" value="{{ response.invite_link }}" readonly onclick="this.select()" title="Kattints a kijelöléshez, majd másold ki">{% else %}–{% endif %}</td>
                 <td class="patient-row-action"><a class="button button-secondary" href="{{ url_for('expert.admin_view', response_id=response.id) }}">Megtekintés</a></td>
             </tr>
             {% endfor %}
@@ -54,7 +92,7 @@
 
 <section class="card section-card">
     <div class="section-head">
-        <div><h2>Tételenkénti gyorsösszesítés</h2><p class="muted">Csak a beküldött válaszokból. „B” = a tankönyvi értelemben kedvezőtlen pólus. Az elemzéshez a lineáris véleménykeveréket az R-szkript számolja.</p></div>
+        <div><h2>Tételenkénti gyorsösszesítés</h2><p class="muted">Csak a beküldött{% if not include_simulated %}, nem szimulált{% endif %} válaszokból. „B” = a tankönyvi értelemben kedvezőtlen pólus. Az elemzéshez a lineáris véleménykeveréket az R-szkript számolja.</p></div>
     </div>
     <div class="patient-table-wrap">
         <table class="patient-table tally-table">

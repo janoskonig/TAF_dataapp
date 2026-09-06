@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="hu">
+<html lang="{{ lang }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,12 +21,13 @@
         .hundred-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .hundred-grid label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.35; }
         .hundred-grid input { max-width: 180px; }
-        .mech-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-        .mech-grid label { display: flex; align-items: center; gap: 8px; border: 1px solid #bfd0d4; border-radius: 10px; padding: 9px 10px; font-size: 13px; font-weight: 650; background: white; cursor: pointer; }
-        .mech-grid input { width: 18px; height: 18px; }
         .sub-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
         .sub-grid .answer-option label { min-height: 44px; font-weight: 650; }
         .is-disabled { opacity: .45; pointer-events: none; }
+        .ratio-slider { display: flex; align-items: center; gap: 12px; max-width: 460px; }
+        .ratio-slider input[type="range"] { flex: 1; min-height: auto; padding: 0; border: 0; background: transparent; accent-color: var(--brand); }
+        .ratio-slider output { min-width: 3.2em; font-weight: 750; }
+        .invite-link { min-height: 34px; padding: 6px 8px; font-size: 12px; width: 220px; }
         .item-status { white-space: nowrap; }
         .item-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
         .item-nav a { font-size: 12px; font-weight: 750; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; background: white; color: var(--ink); }
@@ -40,7 +41,7 @@
         .rank-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
         .rank-grid label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
         @media (max-width: 760px) {
-            .pole-grid, .hundred-grid, .mech-grid { grid-template-columns: 1fr; }
+            .pole-grid, .hundred-grid { grid-template-columns: 1fr; }
             .scale-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
             .sub-grid, .rank-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .expert-view dl { grid-template-columns: 1fr; }
@@ -52,16 +53,17 @@
         <div class="header-inner">
             <a class="brand" href="{{ url_for('expert.start') }}">
                 <span class="brand-mark">P</span>
-                <span><strong>PREDICT</strong><small>szakértői prior-felmérés</small></span>
+                <span><strong>PREDICT</strong><small>{{ t.brand_small }}</small></span>
             </a>
             <nav class="header-actions" aria-label="Fő navigáció">
+                <a href="{{ request.path }}?lang={{ 'hu' if lang == 'en' else 'en' }}" rel="nofollow">{{ t.lang_other }}</a>
                 {% if session.get('followup_authenticated') %}
-                <a href="{{ url_for('expert.admin') }}">Válaszok (vizsgálatvezető)</a>
+                <a href="{{ url_for('expert.admin') }}">{{ t.nav_admin }}</a>
                 {% endif %}
                 {% if expert_code_required() and session.get('expert_authenticated') %}
                 <form action="{{ url_for('expert.logout') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
-                    <button class="link-button" type="submit">Kilépés</button>
+                    <button class="link-button" type="submit">{{ t.logout }}</button>
                 </form>
                 {% endif %}
             </nav>

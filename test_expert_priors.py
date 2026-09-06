@@ -21,9 +21,11 @@ from expert_priors import (
 RESPONSE_COLUMNS = [
     "id", "expert_code", "expert_name", "expert_affiliation", "token", "status", "consent_confirmed",
     "background", "calibration", "items", "closing", "form_version", "submitted_at", "created_at", "updated_at",
+    "invited_at", "opened_at", "invite_note",
 ]
 SCHEMA_OK = ("to_regclass('public.expert_prior_responses')", ["responses_table", "name_column"], [("expert_prior_responses", True)])
-INSERT_OK = ("INSERT INTO expert_prior_responses", ["id"], [(7,)])
+INSERT_OK = ("INSERT INTO expert_prior_responses", ["id"], [(41,)])
+NEXT_CODE_OK = ("SUBSTRING(expert_code FROM", ["next_number"], [(7,)])
 
 
 def response_row(**overrides):
@@ -32,6 +34,7 @@ def response_row(**overrides):
         "token": "tok", "status": "draft", "consent_confirmed": True,
         "background": {}, "calibration": {}, "items": {}, "closing": {}, "form_version": "v1.0",
         "submitted_at": None, "created_at": "2026-09-06 10:00", "updated_at": "2026-09-06 10:05",
+        "invited_at": None, "opened_at": None, "invite_note": None,
     }
     row.update(overrides)
     return row
@@ -168,8 +171,9 @@ def no_access_code(monkeypatch):
 def test_item_codes_match_r_prior_template():
     with open(Path(__file__).parent / "predict_expert_priorok.csv", encoding="utf-8-sig") as handle:
         template_codes = {row["tetel"] for row in csv.DictReader(handle)}
-    assert template_codes == set(ITEM_CODES)
-    assert len(ITEMS) == 17
+    assert set(ITEM_CODES) <= template_codes | {"A2"}
+    assert "A2" not in ITEM_CODES and "A1" in ITEM_CODES
+    assert len(ITEMS) == 16
 
 
 def test_parse_field_name_keeps_sub_question_suffix():
@@ -184,7 +188,7 @@ def test_start_page_is_open_without_access_code():
     client = app.test_client()
     response = client.get("/expert")
     assert response.status_code == 200
-    assert "Kitöltés indítása" in response.get_data(as_text=True)
+    assert "Kezdjük" in response.get_data(as_text=True)
     assert "Kilépés" not in response.get_data(as_text=True)
     login = client.get("/expert/login")
     assert login.status_code == 302 and login.headers["Location"].endswith("/expert")
@@ -212,7 +216,7 @@ def test_login_with_correct_code_opens_session(monkeypatch):
 
 
 def test_start_response_inserts_row_and_assigns_expert_code():
-    app, connections = build_app([SCHEMA_OK, INSERT_OK])
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK])
     client = app.test_client()
     auth_expert(client)
     response = client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "expert_name": " Dr. Teszt Elek ", "expert_affiliation": "SE"})
@@ -242,7 +246,9 @@ def test_form_page_renders_all_items():
     html = client.get("/expert/urlap/tok").get_data(as_text=True)
     for code in ITEM_CODES:
         assert f'id="item-{code}"' in html
-    assert 'id="itemsDone">0</span> / 17 tétel' in html
+    assert 'id="itemsDone">0</span> / 16 adottság' in html
+    assert 'name="bg__diploma_ev"' in html and 'name="bg__szakvizsga"' in html
+    assert 'type="range" id="cal__felso_also_arany"' in html and 'data-needs-jaw' in html
 
 
 def test_autosave_writes_sub_question_into_item_json():
@@ -293,8 +299,8 @@ def test_submit_incomplete_form_is_rejected_with_error_list():
     response = client.post("/expert/urlap/tok/bekuldes", data={"csrf_token": "csrf-test", "item__F1__irany": "B_kedvezotlenebb"})
     assert response.status_code == 400
     html = response.get_data(as_text=True)
-    assert "F1 · Felső állcsontgerinc magassága (profilja): bizonyosság" in html
-    assert "B1. Alap-sikerarány" in html
+    assert "F1 · A felső gerinc magassága: mennyire biztos" in html
+    assert "Sikeres fogsorok aránya 100 betegből" in html
     assert not any("status = 'submitted'" in sql for sql in executed_sql(connections))
 
 
@@ -327,7 +333,7 @@ def test_prior_export_matches_r_script_template():
         status="submitted",
         items={
             "F5": {"irany": "B_kedvezotlenebb", "p_irany": 80, "siker_A": 80, "siker_B": 55,
-                   "kulonbseg_min": 10, "kulonbseg_max": 40, "mechanizmus": ["alatamasztas", "fajdalom"],
+                   "kulonbseg_min": 10, "kulonbseg_max": 40,
                    "sub_lokalizacio": "frontalis", "megjegyzes": "ritka"},
             "F2": {"irany": "nem_monoton"},
         },
@@ -343,10 +349,10 @@ def test_prior_export_matches_r_script_template():
     assert len(rows) == len(ITEM_CODES)
     by_code = {row["tetel"]: row for row in rows}
     assert by_code["F5"]["irany"] == "B_kedvezotlenebb" and by_code["F5"]["p_irany"] == "80"
-    assert by_code["F5"]["mechanizmus"] == "alatamasztas; fajdalom"
-    assert "lokalizacio=frontális" in by_code["F5"]["megjegyzes"]
+    assert by_code["F5"]["mechanizmus"] == ""
+    assert "lokalizacio=a frontális gerincen" in by_code["F5"]["megjegyzes"]
     assert by_code["F2"]["alak"] == "optimum"
-    assert by_code["A1"]["irany"] == ""
+    assert by_code["A3"]["irany"] == ""
 
 
 def test_background_export_columns():
@@ -371,7 +377,7 @@ def test_admin_pages_render():
     assert "SZ07" in html and "SZ08" in html and "Tételenkénti gyorsösszesítés" in html
     assert "Dr. Teszt Elek" in html
     view = client.get("/expert/admin/7").get_data(as_text=True)
-    assert "a B pólus a kedvezőtlenebb" in view and "Válasz törlése" in view
+    assert "a B változat a rosszabb" in view and "Válasz törlése" in view
 
 
 def test_admin_delete_requires_code_confirmation():
@@ -391,6 +397,99 @@ def test_helpers_progress_and_completeness():
     items = {"F1": {"irany": "B_kedvezotlenebb", "p_irany": 90}, "F2": {"irany": "nem_monoton"}, "F3": {"irany": "A_kedvezotlenebb"}}
     assert item_progress(items) == 2
     problems = completeness_errors({"items": items, "background": {}, "calibration": {}, "closing": {}})
-    assert any("F3" in problem and "bizonyosság" in problem for problem in problems)
+    assert any("F3" in problem and "mennyire biztos" in problem for problem in problems)
     rows = prior_rows([response_row(status="submitted", items=items)])
-    assert len(rows) == 17
+    assert len(rows) == 16
+
+
+def test_simulated_rows_are_flagged_and_excluded_by_default():
+    real = response_row(status="submitted", items={"A1": {"irany": "B_kedvezotlenebb", "p_irany": 95}})
+    simulated = response_row(id=9, expert_code="SZIM01", token="tok9", status="submitted", form_version="v1.0-SZIMULACIO",
+                             items={"A1": {"irany": "A_kedvezotlenebb", "p_irany": 99}})
+    app, _ = build_app([SCHEMA_OK, listing([real, simulated])])
+    client = app.test_client()
+    auth_admin(client)
+    html = client.get("/expert/admin").get_data(as_text=True)
+    assert "szimulált" in html and "1</strong><span>beküldött" in html
+    text = client.get("/expert/admin/export/priorok.csv").get_data(as_text=True)
+    assert "SZIM01" not in text and "SZ07" in text
+    text_all = client.get("/expert/admin/export/priorok.csv?szimulacio=1").get_data(as_text=True)
+    assert "SZIM01" in text_all
+
+
+def test_mechanism_codes_remain_readable_but_are_not_asked():
+    from expert_priors import MECHANISM_CODES
+    assert "retencio" in MECHANISM_CODES and "szivohatas" in MECHANISM_CODES
+    app, _ = build_app([SCHEMA_OK, token_lookup(response_row())])
+    client = app.test_client()
+    auth_expert(client)
+    html = client.get("/expert/urlap/tok").get_data(as_text=True)
+    assert "__mechanizmus" not in html
+
+
+def test_english_version_renders_and_is_remembered():
+    app, _ = build_app([SCHEMA_OK, SCHEMA_OK, token_lookup(response_row())])
+    client = app.test_client()
+    auth_expert(client)
+    html = client.get("/expert?lang=en").get_data(as_text=True)
+    assert "What has experience taught you about complete dentures?" in html
+    form = client.get("/expert/urlap/tok").get_data(as_text=True)
+    assert "Sagittal relation of the jaws" in form and "Which variant is worse" in form
+    assert 'name="bg__nyelv" value="en"' in form
+    back = client.get("/expert?lang=hu").get_data(as_text=True)
+    assert "Mit tanított Önnek a tapasztalat" in back
+
+
+def test_a10_is_named_sagittal_relation_in_hungarian():
+    from expert_priors import ITEMS_BY_CODE
+    assert ITEMS_BY_CODE["A10"]["nev"] == "Az állcsontok sagittális relációja"
+    assert "magasság" in ITEMS_BY_CODE["A1"]["nev"]
+
+
+def test_admin_can_create_invitation_with_link():
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK])
+    client = app.test_client()
+    auth_admin(client)
+    response = client.post("/expert/admin/meghivo", data={"csrf_token": "csrf-test", "expert_name": "Dr. Meghívott Mária", "lang": "en", "invite_note": "maria@example.org"})
+    assert response.status_code == 302 and "uj=SZ07" in response.headers["Location"]
+    inserts = [(sql, params) for connection in connections for sql, params in connection.executions if "INSERT INTO expert_prior_responses" in sql]
+    assert len(inserts) == 1
+    params = inserts[0][1]
+    assert params[1] == "Dr. Meghívott Mária" and params[4] is False and params[7] is True and params[8] == "maria@example.org"
+    assert params[6].adapted == {"nyelv": "en"}
+
+
+def test_invite_link_logs_in_without_code_and_asks_for_consent(monkeypatch):
+    monkeypatch.setenv("EXPERT_ACCESS_CODE", "szakerto-kod")
+    invited = response_row(consent_confirmed=False, invited_at="2026-09-06 09:00", background={"nyelv": "en"})
+    app, _ = build_app([SCHEMA_OK, token_lookup(invited)])
+    client = app.test_client()
+    response = client.get("/expert/meghivo/tok")
+    assert response.status_code == 302 and response.headers["Location"].endswith("/expert")
+    with client.session_transaction() as session:
+        assert session.get("expert_authenticated") is True and session.get("expert_token") == "tok" and session.get("expert_lang") == "en"
+    start = client.get("/expert").get_data(as_text=True)
+    assert "Personal invitation" in start and 'value="Dr. Teszt Elek"' in start and 'name="invite_token" value="tok"' in start
+    assert "Start a new questionnaire" not in start
+
+
+def test_accepting_invitation_records_consent_and_opens_form():
+    app, connections = build_app([SCHEMA_OK])
+    client = app.test_client()
+    with client.session_transaction() as session:
+        session["expert_authenticated"] = True
+        session["expert_csrf"] = "csrf-test"
+        session["expert_token"] = "tok"
+    response = client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "expert_name": "Dr. Teszt Elek", "invite_token": "tok"})
+    assert response.status_code == 302 and response.headers["Location"].endswith("/expert/urlap/tok")
+    updates = [sql for sql in executed_sql(connections) if "consent_confirmed = TRUE" in sql and "opened_at" in sql]
+    assert len(updates) == 1
+    assert not any("INSERT" in sql for sql in executed_sql(connections))
+
+
+def test_invalid_invite_link_shows_friendly_page():
+    app, _ = build_app([SCHEMA_OK, ("WHERE token = %s", RESPONSE_COLUMNS, [])])
+    client = app.test_client()
+    response = client.get("/expert/meghivo/nincs-ilyen")
+    assert response.status_code == 404
+    assert "érvénytelen" in response.get_data(as_text=True)

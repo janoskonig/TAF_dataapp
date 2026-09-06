@@ -5,6 +5,6 @@
 "GOHAI tartomány 12–60","OK",""
 "MAI ≥ 0","OK",""
 "Siker-index számítható","OK","tartomány -1,48 … 0,79"
-"Szakértői prior-CSV","OK (1 szakértő, 16 sor; forrás: CSV-sablon)","VV-2026-08-19"
+"Szakértői prior-CSV","OK (30 szakértő, 480 sor; forrás: CSV-sablon)","SZIM01; SZIM02; SZIM03; SZIM04; SZIM05; SZIM06; SZIM07; SZIM08; SZIM09; SZIM10; SZIM11; SZIM12; SZIM13; SZIM14; SZIM15; SZIM16; SZIM17; SZIM18; SZIM19; SZIM20; SZIM21; SZIM22; SZIM23; SZIM24; SZIM25; SZIM26; SZIM27; SZIM28; SZIM29; SZIM30"
 "Adatbázis-blokk","OK","Adatbázis: csak olvasás; TAJ-onként a legutolsó rekord; a 3-as rekord kizárva (elveszett modellanalízis-forrás)."
 "Kor a hat esetnél","OK","70–88 év"
