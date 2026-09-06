@@ -180,6 +180,12 @@ d6$s_INDEX <- rowMeans(cbind(z(d6$s_OHIP), z(d6$s_GOHAI), z(d6$s_MAI), z(d6$s_RA
 d6$v_INDEX <- rowMeans(cbind(z(d6$v_OHIP), z(d6$v_GOHAI), z(d6$v_MAI)))
 HEADLINE_OUT <- "v_INDEX"
 APPLY_PRIOR_ALL <- Sys.getenv("PREDICT_PRIOR_ALL_OUTCOMES", unset = "0") == "1"
+# A szakértői válaszok sikerarányokra (bináris siker) vonatkoznak; a folytonos
+# Δ-siker-index korrelációs együtthatójára vetítésük KÖZELÍTÉS (látens különbség →
+# r). A prior és a likelihood azonos skálájú, bináris elemzése a
+# predict_szakertoi_prior_logit.R-ben van (07 tábla, 6. ábra); itt a közelítő
+# prior PREDICT_APPROX_PRIOR=0 esetén kikapcsolható (minden kimenet semleges).
+USE_APPROX_PRIOR <- Sys.getenv("PREDICT_APPROX_PRIOR", unset = "1") != "0"
 
 # Kockázatirányított anatómia (nagyobb = az elődök szerint kedvezőtlenebb);
 # az irány nélküli tételek nyers kóddal, „irány-semleges” jelöléssel.
@@ -684,7 +690,7 @@ write_csv_utf8(prior_registry, "05_prior_regiszter_pool.csv")
 prior_caption <- if (is.null(pool_raw)) {
   "Prior: regiszter-alapú tankönyvi iránybizonyosság (gyenge 80% / mérsékelt 90% / erős 98%), hatásnagyság-helyőrzővel HN(0; 0,5)."
 } else {
-  paste0("Prior: ", length(unique(pool_raw$szakerto_id)), " szakértő egyenlő súlyú véleménykeveréke (",
+  paste0(if (USE_APPROX_PRIOR) "Prior (KÖZELÍTŐ, sikerarányból r-skálára vetítve): " else "Prior kikapcsolva (semleges); a szakértői keverék leíró: ", length(unique(pool_raw$szakerto_id)), " szakértő egyenlő súlyú véleménykeveréke (",
          if (EXPERT_ROLE == "all") "fogorvosok és fogtechnikusok együtt" else paste0("szerep: ", EXPERT_ROLE),
          "; forrás: ", paste(unique(pool_raw$forras), collapse = " + "),
          "); irány a bizonyosságból, hatásnagyság a „100 beteg” válaszból, ahol elicitált, egyébként HN(0; 0,5).")
@@ -753,13 +759,13 @@ bayes <- bind_rows(lapply(seq_len(nrow(assoc)), function(i) {
   if (!is.finite(a$r_normal_score)) {
     return(tibble(pred = a$pred, out = a$out, n = a$n, r_ns = NA_real_,
                   adat_P_pos = NA_real_, adat_median = NA_real_, adat_q05 = NA_real_, adat_q95 = NA_real_,
-                  prior_P_pos = if (a$out == HEADLINE_OUT || APPLY_PRIOR_ALL) expert_pool[[a$pred]]$p_pos else 0.5,
+                  prior_P_pos = if (USE_APPROX_PRIOR && (a$out == HEADLINE_OUT || APPLY_PRIOR_ALL)) expert_pool[[a$pred]]$p_pos else 0.5,
                   post_P_pos = NA_real_, post_median = NA_real_, post_q05 = NA_real_, post_q95 = NA_real_))
   }
   ll <- log_lik_beta(a$r_normal_score, a$n)
   lik <- normalize(exp(ll - max(ll)))
   post_neutral <- normalize(prior_neutral * lik)
-  pr <- if (a$out == HEADLINE_OUT || APPLY_PRIOR_ALL) expert_pool[[a$pred]]$prior else prior_neutral
+  pr <- if (USE_APPROX_PRIOR && (a$out == HEADLINE_OUT || APPLY_PRIOR_ALL)) expert_pool[[a$pred]]$prior else prior_neutral
   post_expert <- normalize(pr * lik)
   s1 <- posterior_summary(post_neutral); s2 <- posterior_summary(post_expert)
   tibble(pred = a$pred, out = a$out, n = a$n, r_ns = a$r_normal_score,
@@ -777,7 +783,7 @@ N_GRID <- c(6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200, 300, 50
 n_needed <- bind_rows(lapply(seq_len(nrow(bayes)), function(i) {
   b <- bayes[i, ]
   # csak az elsődleges kimenetre (a szakértői prior oda kerül); PREDICT_PRIOR_ALL_OUTCOMES=1 esetén az állapot-kimenetekre is
-  if (!b$irany_van || !is.finite(b$r_ns) || !(b$out == HEADLINE_OUT || (APPLY_PRIOR_ALL && b$blokk == "Állapot az új fogsorral"))) return(NULL)
+  if (!USE_APPROX_PRIOR || !b$irany_van || !is.finite(b$r_ns) || !(b$out == HEADLINE_OUT || (APPLY_PRIOR_ALL && b$blokk == "Állapot az új fogsorral"))) return(NULL)
   pr <- expert_pool[[b$pred]]$prior
   curve <- vapply(N_GRID, function(n) {
     ll <- log_lik_beta(b$r_ns, n); lik <- normalize(exp(ll - max(ll)))
@@ -790,6 +796,9 @@ n_needed <- bind_rows(lapply(seq_len(nrow(bayes)), function(i) {
          r_ns = b$r_ns, n = N_GRID, P_expert_prior = p_exp, P_semleges_prior = p_neu,
          n_atbillenes_expert = cross_expert, n_95pct_semleges = cross_neutral)
 }))
+if (nrow(n_needed) == 0L) n_needed <- tibble(pred = character(), pred_rovid = character(), csoport = character(), out = character(), out_rovid = character(),
+                                             r_ns = numeric(), n = integer(), P_expert_prior = numeric(), P_semleges_prior = numeric(),
+                                             n_atbillenes_expert = integer(), n_95pct_semleges = integer())
 n_needed_summary <- n_needed |>
   group_by(pred, pred_rovid, csoport, out, out_rovid, r_ns, n_atbillenes_expert, n_95pct_semleges) |>
   summarise(P_expert_n6 = P_expert_prior[n == 6], P_expert_n30 = P_expert_prior[n == 30], P_expert_n100 = P_expert_prior[n == 100], .groups = "drop") |>
@@ -1028,6 +1037,7 @@ p7 <- ggplot(dens_df, aes(x = beta, y = suruseg, colour = gorbe)) +
 save_png("abra_07_prior_likelihood_posterior_surusegek.png", p7, 13, 8)
 
 ## 6.7 Hány beteg kellene? ----------------------------------------------------
+if (nrow(n_needed) > 0) {
 nn <- n_needed |> filter(out == HEADLINE_OUT) |>
   pivot_longer(c(P_expert_prior, P_semleges_prior), names_to = "prior", values_to = "P") |>
   mutate(prior = factor(prior, levels = c("P_expert_prior", "P_semleges_prior"), labels = c("Elődök priorjával", "Semleges priorral")),
@@ -1052,6 +1062,7 @@ p8 <- ggplot(nn, aes(x = n, y = P, colour = prior)) +
        caption = "A számok a MEGFIGYELT hat betegre illesztett r-t extrapolálják; nem mintanagyság-becslés, hanem a prior súlyának szemléltetése.") +
   theme_predict(10.5) + theme(legend.position = "bottom")
 save_png("abra_08_hany_beteg_kellene.png", p8, 15, 8.5)
+}
 
 ## 6.8 Folytonos morfometria vs. Δ-siker-index ----------------------------------
 cont <- tribble(

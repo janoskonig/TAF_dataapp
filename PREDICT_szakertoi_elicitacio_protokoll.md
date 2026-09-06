@@ -14,11 +14,14 @@ változatosságot és a tudás bizonytalanságát külön kérdezzük.
   siker-index az OHIP-5-, GOHAI- és MAI-változásból, három hónappal az
   átadás után (kiindulás a régi fogsorral → 3 hónap az újjal). Folytonos
   alak: a három javulás standardizált átlaga (Δ-siker-index). Kétértékű alak
-  a szakértői kérdéshez: sikeres a fogsor, ha a beteg a régi fogsorához képest
-  klinikailag érzékelhetően javult: jobban rág a rágástesztben, és jobb a
-  szájegészséggel kapcsolatos életminősége mindkét kérdőívben; előzetes
-  küszöb: a három változás MCID-egységben kifejezett átlaga ≥ 1 (a MCID-
-  elemzés alapján véglegesítendő). A fogtechnikusi változat ugyanezt a mért
+  a szakértői kérdéshez (a kérdőívben és a kódban azonos szabály): sikeres a
+  fogsor, ha a beteg a régi fogsorához képest együttesen, klinikailag
+  érzékelhetően javult a rágástesztben és a két életminőség-kérdőívben, és
+  egyik mérésben sem romlott érdemben. Számítás: a három változás MCID-
+  egységben kifejezett átlaga ≥ 1 ÉS egyik mérés sem rosszabb −0,5 MCID-nél
+  (MCID: OHIP-5 4,5; GOHAI 16; MAI 8,6 hue-fok; a MCID-elemzés alapján
+  véglegesítendő). Az összesített javulás tehát kompenzálhat, de érdemi
+  romlás egy mérésben kizárja a sikert. A fogtechnikusi változat ugyanezt a mért
   meghatározást használja, kiegészítve azzal, hogy ezt a betegen mérjük, nem a
   laborba visszakerülésből.
 * **Paraméter tételenként:** a sikertelenség esélyhányadosának logaritmusa a
@@ -112,11 +115,19 @@ kalibrációs jelzésként rögzíti (nem gátol, nem számít kétszer).
 
 ## 6. Elemzés (predict_szakertoi_prior_logit.R)
 
-1. Pólusonként béta-eloszlás momentum-illesztéssel (várható érték = legvalószínűbb
-   szám; szórás = (felső − alsó) / 3,92). Monte-Carlo (4000 minta) → β.
+1. Pólusonként béta-eloszlás a kvantilisekre illesztve: a „legvalószínűbb
+   szám” a módusz, az alsó és felső határ a 2,5 % és 97,5 % kvantilis; két
+   paraméter, három célérték, négyzetes eltérés minimalizálása. Diagnosztika
+   szakértőnként: a megadott sávra jutó illesztett valószínűség (jelzés, ha
+   < 0,85) és az illesztett módusz eltérése (jelzés, ha > 10 pont; erősen
+   aszimmetrikus sávnál a három feltétel nem teljesíthető egyszerre, ilyenkor
+   visszakérdezés). Monte-Carlo (4000 minta) → β.
 2. Választípusonként: irányos + számok → β-minta; csak irány → előjel a
-   hitfokból, |β| ~ félnormális(0; 1); nincs különbség → N(0; 0,15); optimum →
-   lineáris és görbület-komponens; nem tudom → kimarad.
+   hitfokból, |β| ~ félnormális(0; 1); nincs érdemi különbség → nulla
+   középpontú normális, amelynek 90 %-os sávja ± 5 sikeres beteg / 100 a
+   szakértő saját sikerszintjén (az űrlap tűrése 10 pont), a pólus-számok
+   itt nem középpont; optimum → lineáris és görbület-komponens; nem tudom →
+   kimarad.
 3. Egyenlő súlyú lineáris pool tételenként; kimenet: β átlag és szórás
    (normális közelítés a modellhez), P(β > 0), OR-kvantilisek; a mérési
    pólusokkal egységnyi meredekség is.
@@ -124,6 +135,12 @@ kalibrációs jelzésként rögzíti (nem gátol, nem számít kétszer).
    vs. a B1 alapráta.
 5. Szerep szerinti bontás (fogorvos vs. fogtechnikus), PREDICT_EXPERT_ROLE
    választja a poolba kerülő csoportot (alap: fogorvos).
+5b. Prior és adat azonos skálán, már a pilot-mintán: tételenként 2×2 tábla
+   (pólus × siker), P(sikertelen | A) = plogis(α), P(sikertelen | B) =
+   plogis(α + β), α széles priorral kiintegrálva, β-ra az egyesített szakértői
+   prior normális közelítése; rácsos posterior, semleges priorral is
+   (07_bayes_binaris_siker.csv, 6. ábra). Ez a szakértői prior elsődleges
+   felhasználása; nagy mintánál ezt váltja a többváltozós modell.
 6. Modell a betegadaton: a kétértékű sikerre Bayes-i logisztikus regresszió, a
    folytonos Δ-siker-indexre lineáris modell, mindkettő az összes tétellel,
    a koefficienseken az egyesített normális priorral (MCMCpack::MCMClogit;
@@ -138,10 +155,12 @@ kalibrációs jelzésként rögzíti (nem gátol, nem számít kétszer).
    az 1. ábrára a prior mellé (PREDICT_PATIENT_CSV; a kimenetben csak P01…
    sorszám, azonosító nem). Ugyanez a mechanizmus fogadja majd a teljes kohorszot.
 7. A kis elemszámú feltáró elemzés (predict_bayes_feltaro.R) ugyanezekből a
-   válaszokból korrelációs skálájú priort készít; a választípusok ott is külön
-   kezeltek, és a szakértői prior csak az elsődleges kimenetre (Δ-siker-index)
-   kerül rá, a többi kimenet semleges priorral fut (PREDICT_PRIOR_ALL_OUTCOMES=1:
-   érzékenységi futás).
+   válaszokból korrelációs skálájú priort készít a folytonos Δ-siker-indexre;
+   ez KÖZELÍTÉS (a sikerarány-különbség nem határozza meg a folytonos index
+   együtthatóját), a kimenetekben így is jelölve, PREDICT_APPROX_PRIOR=0 esetén
+   kikapcsolható (minden kimenet semleges priorral). A választípusok ott is
+   külön kezeltek, a közelítő prior csak az elsődleges kimenetre kerül rá
+   (PREDICT_PRIOR_ALL_OUTCOMES=1: érzékenységi futás).
 
 ## 7. Adatkezelés, riportálás
 
