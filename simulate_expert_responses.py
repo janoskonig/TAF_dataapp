@@ -146,12 +146,37 @@ def simulate_expert(rng, index):
                 answer["siker_A"], answer["siker_B"] = int(round(favourable)), int(round(unfavourable))
             else:
                 answer["siker_A"], answer["siker_B"] = int(round(unfavourable)), int(round(favourable))
-            if rng.random() < 0.85:
-                answer["kulonbseg_min"] = int(clip(diff - rng.uniform(6, 15), 0, 100))
-                answer["kulonbseg_max"] = int(clip(diff + rng.uniform(8, 22), 0, 100))
+            if rng.random() < 0.12:
+                # a nagyságot nem tudja megbecsülni: csak irány
+                answer["nagysag_nem_tudom"] = True
+                for key in ("siker_A", "siker_B"):
+                    answer[key] = None
+            else:
+                # pólusonkénti tartomány (húsz becslésből tizenkilenc), a bizonytalanabb
+                # szakértő szélesebb sávot ad
+                width = rng.uniform(6, 14) * (1.4 if conviction < 0 else 1.0)
+                for pole in ("A", "B"):
+                    point = answer[f"siker_{pole}"]
+                    answer[f"siker_{pole}_min"] = int(clip(point - rng.uniform(0.6, 1.2) * width, 0, point))
+                    answer[f"siker_{pole}_max"] = int(clip(point + rng.uniform(0.6, 1.2) * width, point, 100))
+        elif direction == "nem_monoton":
+            answer["p_irany"] = None
+            best = clip(optimism + rng.uniform(3, 10), 5, 98)
+            low = clip(best - rng.uniform(5, 25), 2, best)
+            high = clip(best - rng.uniform(5, 25), 2, best)
+            answer["siker_A"], answer["siker_M"], answer["siker_B"] = int(round(low)), int(round(best)), int(round(high))
+            width = rng.uniform(6, 14)
+            for pole in ("A", "M", "B"):
+                point = answer[f"siker_{pole}"]
+                answer[f"siker_{pole}_min"] = int(clip(point - width, 0, point))
+                answer[f"siker_{pole}_max"] = int(clip(point + width, point, 100))
+        elif direction == "nincs_kulonbseg":
+            answer["p_irany"] = None
+            base = int(round(clip(optimism, 5, 95)))
+            answer["siker_A"], answer["siker_B"] = base, int(clip(base + rng.choice([-4, -2, 0, 2, 4]), 0, 100))
         else:
             answer["p_irany"] = None
-            for key in ("siker_A", "siker_B", "kulonbseg_min", "kulonbseg_max"):
+            for key in ("siker_A", "siker_B"):
                 answer[key] = None
         if profile["kuszob"] and rng.random() < 0.7:
             template, lo, hi = profile["kuszob"]

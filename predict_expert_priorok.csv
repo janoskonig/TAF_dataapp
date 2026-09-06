@@ -1,17 +1,17 @@
-szakerto_id,datum,tetel,irany,p_irany,siker_A,siker_B,kulonbseg_min,kulonbseg_max,alak,mechanizmus,kuszob,megjegyzes
-VV-2026-08-19,2026-08-19,F1,B_kedvezotlenebb,98,,,,,monoton,retenció,,vizsgálatvezetői kvalitatív elicitáció; hatásnagyság nem elicitált (helyőrző)
-VV-2026-08-19,2026-08-19,F2,nem_monoton,,,,,,optimum,retenció; behelyezési fájdalom,,optimum helye nyitott
-VV-2026-08-19,2026-08-19,F3,B_kedvezotlenebb,90,,,,,monoton,retenció,,
-VV-2026-08-19,2026-08-19,F4,B_kedvezotlenebb,90,,,,,küszöbös/platózó,stabilitás,,
-VV-2026-08-19,2026-08-19,F5,B_kedvezotlenebb,80,,,,,monoton,alátámasztás; nyomási fájdalom,,frontális forma talán rosszabb a tuberálisnál (gyenge)
-VV-2026-08-19,2026-08-19,F6,B_kedvezotlenebb,98,,,,,optimum (90°),stabilitás,,a kockázat = |szög − 90°|
-VV-2026-08-19,2026-08-19,F7,B_kedvezotlenebb,98,,,,,monoton,retenció; nyomási fájdalom,,orsó vs plató: gyenge
-VV-2026-08-19,2026-08-19,F8,nincs_kulonbseg,,,,,,interakció,stabilitás,,az erők iránya számít; effektusmódosító
-VV-2026-08-19,2026-08-19,A1,B_kedvezotlenebb,98,,,,,telítődő,alátámasztás; stabilitás,,4-es és 5-ös fok közel azonos
-VV-2026-08-19,2026-08-19,A3,nincs_kulonbseg,,,,,,nincs irány,,,feltáró
-VV-2026-08-19,2026-08-19,A4,B_kedvezotlenebb,98,,,,,monoton,nyomásérzékenység; retenció,,nagy vs kicsi: gyenge
-VV-2026-08-19,2026-08-19,A5,B_kedvezotlenebb,98,,,,,monoton,stabilitás,,kedvező referencia a 2-es nyers kód
-VV-2026-08-19,2026-08-19,TUB,B_kedvezotlenebb,98,,,,,monoton,alátámasztás,,A6–A9 közös konstruktum
-VV-2026-08-19,2026-08-19,A10,nincs_kulonbseg,,,,,,Angle-eltérés,,,feltáró
-VV-2026-08-19,2026-08-19,A11,B_kedvezotlenebb,98,,,,,monoton,retenció (szívóhatás),,kedvező referencia a 2-es nyers kód
-VV-2026-08-19,2026-08-19,A12,B_kedvezotlenebb,98,,,,,monoton,fájdalom; sorvadás jele,,2 vs 3 feltáró
+﻿szakerto_id,datum,tetel,irany,p_irany,siker_A,siker_B,kulonbseg_min,kulonbseg_max,alak,mechanizmus,kuszob,megjegyzes,szerep,siker_A_min,siker_A_max,siker_B_min,siker_B_max,siker_M,siker_M_min,siker_M_max,nagysag_nem_tudom,polus_A_ertek,polus_M_ertek,polus_B_ertek,polus_egyseg
+VV-2026-08-19,2026-08-19,F1,B_kedvezotlenebb,98,,,,,monoton,retenció,,vizsgálatvezetői kvalitatív elicitáció; hatásnagyság nem elicitált (helyőrző),fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,F2,nem_monoton,,,,,,optimum,retenció; behelyezési fájdalom,,optimum helye nyitott,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,F3,B_kedvezotlenebb,90,,,,,monoton,retenció,,,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,F4,B_kedvezotlenebb,90,,,,,küszöbös/platózó,stabilitás,,,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,F5,B_kedvezotlenebb,80,,,,,monoton,alátámasztás; nyomási fájdalom,,frontális forma talán rosszabb a tuberálisnál (gyenge),fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,F6,B_kedvezotlenebb,98,,,,,optimum (90°),stabilitás,,a kockázat = |szög − 90°|,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,F7,B_kedvezotlenebb,98,,,,,monoton,retenció; nyomási fájdalom,,orsó vs plató: gyenge,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,F8,nincs_kulonbseg,,,,,,interakció,stabilitás,,az erők iránya számít; effektusmódosító,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,A1,B_kedvezotlenebb,98,,,,,telítődő,alátámasztás; stabilitás,,4-es és 5-ös fok közel azonos,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,A3,nincs_kulonbseg,,,,,,nincs irány,,,feltáró,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,A4,B_kedvezotlenebb,98,,,,,monoton,nyomásérzékenység; retenció,,nagy vs kicsi: gyenge,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,A5,B_kedvezotlenebb,98,,,,,monoton,stabilitás,,kedvező referencia a 2-es nyers kód,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,TUB,B_kedvezotlenebb,98,,,,,monoton,alátámasztás,,A6–A9 közös konstruktum,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,A10,nincs_kulonbseg,,,,,,Angle-eltérés,,,feltáró,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,A11,B_kedvezotlenebb,98,,,,,monoton,retenció (szívóhatás),,kedvező referencia a 2-es nyers kód,fogorvos,,,,,,,,,,,,
+VV-2026-08-19,2026-08-19,A12,B_kedvezotlenebb,98,,,,,monoton,fájdalom; sorvadás jele,,2 vs 3 feltáró,fogorvos,,,,,,,,,,,,

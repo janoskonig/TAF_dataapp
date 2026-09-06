@@ -40,6 +40,7 @@
             <dt>Évente mostanában</dt><dd>{{ bg.get('evi_fogsorok') if bg.get('evi_fogsorok') is not none else '–' }}</dd>
             <dt>Tanít</dt><dd>{{ bg.get('oktat') or '–' }}</dd>
             <dt>Hol dolgozik</dt><dd>{{ bg.get('tevekenyseg') or '–' }}</dd>
+            {% if role == 'fogtechnikus' %}<dt>Visszajelzés forrása</dt><dd>{{ bg.get('visszajelzes') or '–' }}</dd>{% endif %}
             <dt>Sikeres fogsor 100 betegből</dt><dd>{{ cal.get('alap_siker_100') if cal.get('alap_siker_100') is not none else '–' }}</dd>
             <dt>Az adottságokon múlik (%)</dt><dd>{{ cal.get('anatomia_sulya_pct') if cal.get('anatomia_sulya_pct') is not none else '–' }}</dd>
             <dt>Melyik állcsont számít többet</dt><dd>{{ cal.get('felso_vagy_also') or '–' }}{% if cal.get('felso_also_arany') %} ({{ cal.get('felso_also_arany') }}){% endif %}</dd>
@@ -53,7 +54,7 @@
         <div class="patient-table-wrap">
             <table class="patient-table">
                 <thead>
-                    <tr><th>Adottság</th><th>Melyik a rosszabb</th><th>Biztos</th><th>Száz beteg A / B</th><th>Különbség</th><th>Min keresztül hat</th><th>Határ · részletek · megjegyzés</th></tr>
+                    <tr><th>Adottság</th><th>Melyik a rosszabb</th><th>Biztos</th><th>Száz beteg: legvalószínűbb (alsó–felső határ)</th><th>Min keresztül hat</th><th>Határ · részletek · megjegyzés</th></tr>
                 </thead>
                 <tbody>
                 {% for item in expert_items %}
@@ -62,8 +63,7 @@
                     <td><strong>{{ item.kod }}</strong><br><small class="muted">{{ item.nev }}</small></td>
                     <td>{% if ans.get('irany') %}{{ irany_labels.get(ans.get('irany'), ans.get('irany')) }}{% else %}<span class="badge badge-muted">nincs válasz</span>{% endif %}</td>
                     <td>{{ ans.get('p_irany') ~ ' %' if ans.get('p_irany') is not none else '–' }}</td>
-                    <td>{{ ans.get('siker_A') if ans.get('siker_A') is not none else '–' }} / {{ ans.get('siker_B') if ans.get('siker_B') is not none else '–' }}</td>
-                    <td>{{ ans.get('kulonbseg_min') if ans.get('kulonbseg_min') is not none else '–' }} – {{ ans.get('kulonbseg_max') if ans.get('kulonbseg_max') is not none else '–' }}</td>
+                    <td>{% if ans.get('nagysag_nem_tudom') %}<span class="muted">nagyságát nem tudja</span>{% else %}{% for pole in (['A', 'M', 'B'] if item.M is defined else ['A', 'B']) %}{% set k = 'siker_' ~ pole %}{{ pole }}: {{ ans.get(k) if ans.get(k) is not none else '–' }}{% if ans.get(k ~ '_min') is not none or ans.get(k ~ '_max') is not none %} ({{ ans.get(k ~ '_min') if ans.get(k ~ '_min') is not none else '–' }}–{{ ans.get(k ~ '_max') if ans.get(k ~ '_max') is not none else '–' }}){% endif %}{% if not loop.last %} · {% endif %}{% endfor %}{% endif %}</td>
                     <td>{% set mechs = ans.get('mechanizmus') or [] %}{% if mechs %}{% for code in mechs %}{{ mechanism_labels.get(code, code) }}{% if not loop.last %}; {% endif %}{% endfor %}{% else %}–{% endif %}{% if ans.get('mechanizmus_egyeb') %}; {{ ans.get('mechanizmus_egyeb') }}{% endif %}</td>
                     <td>
                         {% if ans.get('kuszob') %}<div>{{ ans.get('kuszob') }}</div>{% endif %}

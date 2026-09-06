@@ -174,6 +174,9 @@ d6$s_INDEX <- rowMeans(cbind(z(d6$s_OHIP), z(d6$s_GOHAI), z(d6$s_MAI), z(d6$s_RA
 # Kockázatirányított anatómia (nagyobb = az elődök szerint kedvezőtlenebb);
 # az irány nélküli tételek nyers kóddal, „irány-semleges” jelöléssel.
 a1_sat <- c(`1` = 0, `2` = 0.35, `3` = 0.70, `4` = 0.95, `5` = 1)
+# Az A10 szög kategoriális változata (ideiglenes küszöb, a mért 4–12° tartomány felett): a
+# kérdőív Angle I-et hasonlít az eltérő relációhoz, a nyers szög lineáris hatása más kérdés.
+A10_ANGLE_THRESHOLD <- as.numeric(Sys.getenv("PREDICT_A10_THRESHOLD", unset = "10"))
 d6 <- d6 |>
   mutate(
     r_F1 = -F1,
@@ -192,6 +195,7 @@ d6 <- d6 |>
     r_A5 = as.numeric(A5) / 2,
     r_TUB = tuberculum_score,
     r_A10 = A10,
+    r_A10k = as.numeric(A10 > A10_ANGLE_THRESHOLD),   # a kérdőív kontrasztja: szabályos vs. eltérő reláció
     r_A11 = unname(c(`2` = 0, `1` = 0.5, `3` = 1)[as.character(A11)]),
     r_A12 = as.numeric(as.integer(A12) != 1L)
   )
@@ -220,7 +224,8 @@ predictors <- tribble(
   "F2s", "r_F2s", "F2/L³ · méretstandardizált alámenősség",    "F2/L³ (nyers)",         "Nincs tankönyvi irány", "folytonos", "–",                           "– (optimum feltételezett)",           0.50, "Mint F2, ívhosszra standardizálva.",
   "F8",  "r_F8",  "F8 · antagonista fogazat (1→3)",            "F8 antagonista (nyers)", "Nincs tankönyvi irány", "ordinális", "–",                           "– (interakciófüggő)",                 0.50, "Az erők iránya számít, nem a kategória önmagában.",
   "A3",  "r_A3",  "A3 · buccinator tasak (beszűkülő vs. egyéb)", "A3 buccinator (nyers)", "Nincs tankönyvi irány", "bináris", "–",                            "–",                                   0.50, "Nincs előzetesen kedvező vagy kedvezőtlen forma.",
-  "A10", "r_A10", "A10 · állcsontreláció szöge (°)",           "A10 állcsontreláció (nyers)", "Nincs tankönyvi irány", "folytonos", "–",                      "– (Angle-eltérés)",                   0.50, "Nem Angle I nehezebb eset, de kimeneti prior nincs."
+  "A10", "r_A10", "A10 · állcsontreláció szöge (°)",           "A10 állcsontreláció (nyers)", "Nincs tankönyvi irány", "folytonos", "–",                      "– (Angle-eltérés)",                   0.50, "Nem Angle I nehezebb eset, de kimeneti prior nincs.",
+  "A10k", "r_A10k", "A10 · eltérő állcsontreláció (küszöb felett)", "A10 reláció (kategoriális)", "Nincs tankönyvi irány", "bináris", "–",                      "– (Angle-eltérés)",                   0.50, "Nem Angle I nehezebb eset, de kimeneti prior nincs."
 ) |>
   mutate(
     irany_van = p_tankonyv > 0.5,
@@ -537,7 +542,9 @@ PI_EXPERT_IDS <- c("VV-2026-08-19")
 # konszenzus mindig szerep szerint is elkészül (05d, ábra 12).
 EXPERT_ROLE <- Sys.getenv("PREDICT_EXPERT_ROLE", unset = "fogorvos")
 EXPERT_COLS <- c("szakerto_id", "datum", "tetel", "irany", "p_irany", "siker_A", "siker_B",
-                 "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes", "szerep")
+                 "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes", "szerep",
+                 "siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M", "siker_M_min", "siker_M_max",
+                 "nagysag_nem_tudom")
 expert_path <- Sys.getenv("PREDICT_EXPERT_CSV", unset = file.path(ROOT, "predict_expert_priorok.csv"))
 if (!grepl("^/", expert_path)) expert_path <- file.path(ROOT, expert_path)
 expert_csv <- if (file.exists(expert_path)) read.csv(expert_path, check.names = FALSE, encoding = "UTF-8", na.strings = c("", "NA")) else NULL
@@ -570,7 +577,12 @@ if (!is.null(DB_CON) && USE_DB_EXPERTS) {
             alak = ifelse(identical(irany, "nem_monoton"), "optimum", NA_character_),
             mechanizmus = paste(unlist(a[["mechanizmus"]]), collapse = "; "), kuszob = as.character(g("kuszob")),
             megjegyzes = as.character(g("megjegyzes")), forras = "applikáció (szakértői felmérés)",
-            szerep = as.character(resp$szerep[i])
+            szerep = as.character(resp$szerep[i]),
+            siker_A_min = suppressWarnings(as.numeric(g("siker_A_min"))), siker_A_max = suppressWarnings(as.numeric(g("siker_A_max"))),
+            siker_B_min = suppressWarnings(as.numeric(g("siker_B_min"))), siker_B_max = suppressWarnings(as.numeric(g("siker_B_max"))),
+            siker_M = suppressWarnings(as.numeric(g("siker_M"))), siker_M_min = suppressWarnings(as.numeric(g("siker_M_min"))),
+            siker_M_max = suppressWarnings(as.numeric(g("siker_M_max"))),
+            nagysag_nem_tudom = as.integer(isTRUE(a[["nagysag_nem_tudom"]]))
           )
         }))
       }))
@@ -593,28 +605,48 @@ pool_raw <- if (is.null(expert_raw) || EXPERT_ROLE == "all") expert_raw else exp
 if (!is.null(pool_raw) && nrow(pool_raw) == 0L) pool_raw <- NULL
 
 clamp <- function(x, lo, hi) pmin(pmax(x, lo), hi)
+# Egy szakértői sor → prior a korrelációs (β) skálán, a válasz típusa szerint:
+#   nem_tudom → NULL (kimarad a poolból: nem információ, hanem információhiány);
+#   nincs_kulonbseg → szűk, nulla körüli eloszlás (kis hatásra vonatkozó vélemény);
+#   nem_monoton → NULL a lineáris poolból (görbületre vonatkozó tudás; a
+#     logit-szkript kezeli a három forgatókönyvből), a konszenzusban megmarad;
+#   irányos válasz pólusonkénti pontbecsléssel és tartománnyal → hatásnagyság a
+#     látens különbségből, szórás a két pólus tartományából (húsz becslésből
+#     tizenkilenc ≈ 95 %, ezért 3,92); tartomány nélkül vagy „nagyságát nem tudom”
+#     → csak irány-prior (jelölt helyőrző nagysággal).
 expert_row_to_prior <- function(row) {
   irany <- as.character(row$irany)
+  if (is.na(irany) || irany == "" || irany == "nem_tudom" || irany == "nem_monoton") return(NULL)
   p <- suppressWarnings(as.numeric(row$p_irany)); p <- ifelse(is.finite(p), clamp(p / 100, 0.5, 0.995), 0.5)
   p_pos <- switch(irany, B_kedvezotlenebb = p, A_kedvezotlenebb = 1 - p, 0.5)
-  sA <- suppressWarnings(as.numeric(row$siker_A)); sB <- suppressWarnings(as.numeric(row$siker_B))
-  if (is.finite(sA) && is.finite(sB)) {
+  if (irany == "nincs_kulonbseg") return(list(p_pos = 0.5, mag_mean = 0, mag_sd = 0.1, forras = "nincs érdemi különbség (szűk)"))
+  num <- function(key) { v <- suppressWarnings(as.numeric(row[[key]])); if (length(v) == 0L) NA_real_ else v }
+  unknown <- isTRUE(as.integer(num("nagysag_nem_tudom")) == 1L)
+  sA <- num("siker_A"); sB <- num("siker_B")
+  if (!unknown && is.finite(sA) && is.finite(sB)) {
     pa <- clamp(sA / 100, 0.02, 0.98); pb <- clamp(sB / 100, 0.02, 0.98)
     dlat <- abs(qnorm(pa) - qnorm(pb)); r_mag <- dlat / sqrt(dlat^2 + 4)
     delta <- abs(pa - pb)
     k <- if (delta > 0) r_mag / delta else 1.25
-    kmin <- suppressWarnings(as.numeric(row$kulonbseg_min)); kmax <- suppressWarnings(as.numeric(row$kulonbseg_max))
-    sd_r <- if (is.finite(kmin) && is.finite(kmax) && kmax > kmin) max((k * (kmax - kmin) / 100) / 3.92, 0.05) else max(0.15, r_mag / 2)
-    list(p_pos = p_pos, mag_mean = r_mag, mag_sd = sd_r, forras = "elicitált hatásnagyság")
-  } else {
-    list(p_pos = p_pos, mag_mean = 0, mag_sd = 0.5, forras = "helyőrző HN(0; 0,5)")
+    sdA <- (num("siker_A_max") - num("siker_A_min")) / 100 / 3.92
+    sdB <- (num("siker_B_max") - num("siker_B_min")) / 100 / 3.92
+    if (is.finite(sdA) && is.finite(sdB)) {
+      sd_r <- max(k * sqrt(sdA^2 + sdB^2), 0.05)
+      return(list(p_pos = p_pos, mag_mean = r_mag, mag_sd = sd_r, forras = "elicitált hatásnagyság (pólusonkénti tartomány)"))
+    }
+    kmin <- num("kulonbseg_min"); kmax <- num("kulonbseg_max")   # v1 űrlap öröksége
+    if (is.finite(kmin) && is.finite(kmax) && kmax > kmin) {
+      return(list(p_pos = p_pos, mag_mean = r_mag, mag_sd = max((k * (kmax - kmin) / 100) / 3.92, 0.05), forras = "elicitált hatásnagyság (v1 különbség-tartomány)"))
+    }
+    return(list(p_pos = p_pos, mag_mean = r_mag, mag_sd = max(0.15, r_mag / 2), forras = "pontbecslés tartomány nélkül (szórás-helyőrző)"))
   }
+  list(p_pos = p_pos, mag_mean = 0, mag_sd = 0.5, forras = "csak irány (nagyság nem becsült) + HN(0; 0,5) helyőrző")
 }
 
 # Az A2 (mért alsó gerincmagasság) ugyanazt a konstruktumot méri, mint az A1
 # (Kaán-féle gerincforma): a kérdőív egyetlen tételként kérdezi (A1), ezért az
 # A2 prediktor az A1 szakértői sorait örökli.
-EXPERT_ITEM_ALIAS <- c(A2 = "A1")
+EXPERT_ITEM_ALIAS <- c(A2 = "A1", A10k = "A10")   # a kategoriális A10 az A10 szakértői sorait örökli
 expert_pool <- lapply(predictors$kod, function(k) {
   source_code <- if (k %in% names(EXPERT_ITEM_ALIAS)) EXPERT_ITEM_ALIAS[[k]] else k
   rows <- if (!is.null(pool_raw)) pool_raw[pool_raw$tetel == source_code, , drop = FALSE] else NULL
@@ -622,9 +654,13 @@ expert_pool <- lapply(predictors$kod, function(k) {
     p <- predictors$p_tankonyv[predictors$kod == k]
     return(list(prior = prior_mixture(p), n_expert = 0L, p_pos = p, forras = "regiszter (tankönyvi p) + HN(0; 0,5)", parts = NULL))
   }
-  parts <- lapply(seq_len(nrow(rows)), function(i) expert_row_to_prior(rows[i, , drop = FALSE]))
+  parts <- Filter(Negate(is.null), lapply(seq_len(nrow(rows)), function(i) expert_row_to_prior(rows[i, , drop = FALSE])))
+  if (length(parts) == 0L) {
+    p <- predictors$p_tankonyv[predictors$kod == k]
+    return(list(prior = prior_mixture(p), n_expert = 0L, p_pos = p, forras = "regiszter (a szakértői válaszok mind „nem tudom” / görbület) + HN(0; 0,5)", parts = NULL))
+  }
   dens <- Reduce(`+`, lapply(parts, function(pp) prior_mixture(pp$p_pos, pp$mag_mean, pp$mag_sd))) / length(parts)
-  list(prior = dens, n_expert = nrow(rows), p_pos = sum(dens[BETA > 0]),
+  list(prior = dens, n_expert = length(parts), p_pos = sum(dens[BETA > 0]),
        forras = paste(unique(vapply(parts, function(pp) pp$forras, character(1))), collapse = "; "), parts = parts)
 })
 names(expert_pool) <- predictors$kod

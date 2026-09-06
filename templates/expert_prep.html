@@ -1,0 +1,118 @@
+{% extends "expert_base.html" %}
+{% block title %}{{ t.prep_title }}{% endblock %}
+{% set cal = response.calibration %}
+{% block content %}
+<div class="questionnaire-shell">
+    <div class="breadcrumb"><a href="{{ url_for('expert.start') }}">{{ t.breadcrumb }}</a></div>
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">{{ t.prep_eyebrow }} · {{ response.expert_code }}</p>
+            <h1>{{ t.prep_h1 }}</h1>
+            <p class="lead">{{ t.prep_lead }}</p>
+        </div>
+    </div>
+
+    <section class="card section-card">
+        <h3>{{ t.prep_1_h3 }}</h3>
+        <p>{{ t.prep_1_p }}</p>
+        <h3>{{ t.prep_2_h3 }}</h3>
+        <p>{{ t.prep_2_p }}</p>
+        <h3>{{ t.prep_3_h3 }}</h3>
+        <p>{{ t.prep_3_p }}</p>
+        <h3>{{ t.prep_example_h3 }}</h3>
+        <div class="definition-box">{{ t.prep_example_p }}</div>
+    </section>
+
+    <section class="card section-card" id="practice">
+        <div class="section-head"><div><p class="eyebrow">{{ t.prep_eyebrow }}</p><h2>{{ t.practice_h3 }}</h2><p class="muted">{{ t.practice_intro }}</p></div></div>
+        <form id="prepForm" onsubmit="return false">
+            <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+            {% for kod, kerdes, egyseg, valasz in t.practice_items %}
+            <div class="expert-q practice-item" data-truth="{{ valasz }}" data-unit="{{ egyseg }}" data-kod="{{ kod }}">
+                <p class="q-title">{{ loop.index }}. {{ kerdes }}</p>
+                <div class="pole-fields">
+                    <label for="cal__gyak_{{ kod }}_min"><span>{{ t.range_min }}</span>
+                        <input type="number" id="cal__gyak_{{ kod }}_min" name="cal__gyak_{{ kod }}_min" min="0" max="100000" value="{{ cal.get('gyak_' ~ kod ~ '_min', '') if cal.get('gyak_' ~ kod ~ '_min') is not none else '' }}" data-autosave></label>
+                    <label for="cal__gyak_{{ kod }}_pont" class="pole-point"><span>{{ t.point_label }}</span>
+                        <input type="number" id="cal__gyak_{{ kod }}_pont" name="cal__gyak_{{ kod }}_pont" min="0" max="100000" value="{{ cal.get('gyak_' ~ kod ~ '_pont', '') if cal.get('gyak_' ~ kod ~ '_pont') is not none else '' }}" data-autosave></label>
+                    <label for="cal__gyak_{{ kod }}_max"><span>{{ t.range_max }}</span>
+                        <input type="number" id="cal__gyak_{{ kod }}_max" name="cal__gyak_{{ kod }}_max" min="0" max="100000" value="{{ cal.get('gyak_' ~ kod ~ '_max', '') if cal.get('gyak_' ~ kod ~ '_max') is not none else '' }}" data-autosave></label>
+                    <span class="muted small pole-unit">{{ egyseg }}</span>
+                </div>
+                <p class="consistency-hint practice-feedback" hidden></p>
+            </div>
+            {% endfor %}
+            <div class="expert-q practice-direction">
+                <p class="q-title">{{ t.practice_dir_q }}</p>
+                <div class="answer-grid answer-grid-3" data-group="cal__gyak_irany">
+                    {% for value, label in t.practice_dir_opts %}
+                    <div class="answer-option">
+                        <input type="radio" id="cal__gyak_irany_{{ value }}" name="cal__gyak_irany" value="{{ value }}" data-autosave {% if cal.get('gyak_irany') == value %}checked{% endif %}>
+                        <label for="cal__gyak_irany_{{ value }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <p class="q-help" style="margin-top:10px">{{ t.certainty_help }}</p>
+                <div class="scale-grid" data-group="cal__gyak_irany_p">
+                    {% for value in p_irany_values %}
+                    <div class="answer-option">
+                        <input type="radio" id="cal__gyak_irany_p_{{ value }}" name="cal__gyak_irany_p" value="{{ value }}" data-autosave {% if cal.get('gyak_irany_p')|string == value|string %}checked{% endif %}>
+                        <label for="cal__gyak_irany_p_{{ value }}">{{ value }} %</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <p class="consistency-hint practice-feedback" id="dirFeedback" hidden>{{ t.practice_dir_answer }}</p>
+            </div>
+            <div class="form-actions">
+                <button class="button button-secondary" type="button" id="checkPractice">{{ t.practice_check }}</button>
+            </div>
+            <p class="definition-box" id="practiceSummary" hidden></p>
+        </form>
+    </section>
+
+    <form method="post" action="{{ url_for('expert.prep_done', token=response.token) }}" class="form-actions" style="justify-content:flex-end">
+        <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+        <button class="button button-primary" type="submit">{{ t.prep_continue }}</button>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+    const form = document.getElementById('prepForm');
+    const csrf = form.querySelector('input[name="csrf_token"]').value;
+    const saveUrl = {{ url_for('expert.autosave', token=response.token)|tojson }};
+    const texts = {{ {'hit': t.practice_hit, 'miss': t.practice_miss, 'missing': t.practice_missing, 'summary': t.practice_summary, 'narrow': t.practice_narrow, 'ok': t.practice_ok}|tojson }};
+    async function save(field, value) {
+        const data = new FormData();
+        data.set('csrf_token', csrf); data.set('field', field); data.set('value', value);
+        try { await fetch(saveUrl, {method: 'POST', body: data, credentials: 'same-origin', headers: {'X-Requested-With': 'XMLHttpRequest'}}); } catch (error) { /* a gyakorlat mentése nem kritikus */ }
+    }
+    form.addEventListener('change', event => {
+        const target = event.target;
+        if (target.hasAttribute('data-autosave')) save(target.name, target.value);
+    });
+    document.getElementById('checkPractice').addEventListener('click', () => {
+        let hits = 0, answered = 0;
+        form.querySelectorAll('.practice-item').forEach(item => {
+            const kod = item.dataset.kod, truth = Number(item.dataset.truth), unit = item.dataset.unit;
+            const read = suffix => { const el = form.querySelector(`input[name="cal__gyak_${kod}_${suffix}"]`); return el && el.value !== '' ? Number(el.value) : null; };
+            const lo = read('min'), pt = read('pont'), hi = read('max');
+            const box = item.querySelector('.practice-feedback');
+            if (lo === null || pt === null || hi === null) { box.textContent = texts.missing; box.hidden = false; return; }
+            answered += 1;
+            const inside = lo <= truth && truth <= hi;
+            if (inside) hits += 1;
+            box.textContent = (inside ? texts.hit : texts.miss).replace('{value}', String(truth)).replace('{unit}', unit);
+            box.hidden = false;
+        });
+        document.getElementById('dirFeedback').hidden = false;
+        const summary = document.getElementById('practiceSummary');
+        if (answered > 0) {
+            summary.textContent = texts.summary.replace('{n}', String(hits)) + ' ' + (hits < answered ? texts.narrow : texts.ok);
+            summary.hidden = false;
+        }
+    });
+})();
+</script>
+{% endblock %}

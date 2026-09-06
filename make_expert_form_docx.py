@@ -39,6 +39,7 @@ BLUE = RGBColor(0x1C, 0x5C, 0xAB)
 SHADE_HEAD = "DCE8F7"
 SHADE_Q = "F2F2F0"
 CB = "☐ "
+BIZ_LINE = "50 %   ·   60 %   ·   70 %   ·   80 %   ·   90 %   ·   95 %   ·   99 %      " + ("(karikázza be)" if "--lang" not in sys.argv or sys.argv[sys.argv.index("--lang") + 1] != "en" else "(circle one)")
 
 doc = Document()
 sec = doc.sections[0]
@@ -233,6 +234,24 @@ doc.add_heading(T["data_h3"], level=2)
 para(T["data_p"])
 page_break()
 
+# --- Felkészítő (SHELF-mintájú): magyarázat, kidolgozott példa, gyakorlókérdések ---
+doc.add_heading(T["prep_h1"], level=1)
+para(T["prep_lead"], italic=True, color=INK2)
+for key in ("1", "2", "3"):
+    doc.add_heading(T[f"prep_{key}_h3"], level=2)
+    para(T[f"prep_{key}_p"])
+doc.add_heading(T["prep_example_h3"], level=2)
+para(T["prep_example_p"], after=6)
+doc.add_heading(T["practice_h3"], level=2)
+para(T["practice_intro"])
+two_col([
+    (f"{index}. {kerdes}", f"{T['range_min']} ______   {T['point_label']} ______   {T['range_max']} ______   {egyseg}")
+    for index, (_, kerdes, egyseg, _) in enumerate(T["practice_items"], start=1)
+] + [(T["practice_dir_q"], "   ".join(CB + label for _, label in T["practice_dir_opts"]) + "\n" + BIZ_LINE)])
+para(("A válaszok: " if HU else "The answers: ") + "; ".join(f"{index}. {valasz} {egyseg}" for index, (_, _, egyseg, valasz) in enumerate(T["practice_items"], start=1))
+     + ". " + T["practice_dir_answer"] + " " + T["practice_narrow"], size=9, color=INK2, after=6)
+page_break()
+
 # --- A. Önről ------------------------------------------------------------------
 doc.add_heading(T["a_eyebrow"] + ": " + T["a_h2"].lower() if HU else T["a_eyebrow"] + ": " + T["a_h2"].lower(), level=1)
 opts = lambda key: "     ".join(CB + label for _, label in T[key])
@@ -248,7 +267,7 @@ two_col(([
     (T["a_evi"], "________"),
     (T["a_oktat"], opts("a_oktat_opts")),
     (T["a_tevekenyseg"], opts("a_tevekenyseg_opts") + "  ____________"),
-])
+] + ([(T["a_visszajelzes"], opts("a_visszajelzes_opts"))] if ROLE == "fogtechnikus" else []))
 
 # --- B. Általában ----------------------------------------------------------------
 doc.add_heading(T["b_h2"], level=1)
@@ -275,8 +294,9 @@ for index, item in enumerate(ITEMS, start=1):
         (T["item_how"].rstrip(":"), item["rogzit"]),
         (T["q_direction"], direction),
         (T["q_certainty"], BIZ),
-        (T["q_hundred"], f"{T['variant_A']} ({item['A']}):  ________ {T['hundred_unit']}\n{T['variant_B']} ({item['B']}):  ________ {T['hundred_unit']}"),
-        (T["q_range"], f"{T['range_min']} ________   –   {T['range_max']} ________ {T['range_unit']}"),
+        (T["q_hundred"], T["hundred_help"] + "\n\n" + "\n".join(
+            f"{T['variant_' + pole]} ({item[pole]}):   {T['range_min']} ______   {T['point_label']} ______   {T['range_max']} ______   {T['hundred_unit']}"
+            for pole in (("A", "M", "B") if "M" in item else ("A", "B"))) + "\n\n" + CB + T["magnitude_unknown"]),
     ]
     if item["kuszob"]:
         rows.append(("Hol a határ?" if HU else "Where is the limit?", item["kuszob"] + "   ______________"))

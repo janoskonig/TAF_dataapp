@@ -46,7 +46,7 @@ from psycopg2.extras import Json
 from expert_texts import (IRANY_LABELS as IRANY_LABELS_BY_LANG, ITEM_TEXT_EN, JAW_LABELS, LANGS, ROLE_LABELS, ROLES,
                           STUDY_ACRONYM, UI, ui_texts)
 
-FORM_VERSION = "v1.2"
+FORM_VERSION = "v2.0"   # v2.0 (2026-09-06): pólusonkénti tartomány, konkrét mérési pólusok, konzisztencia-ellenőrzés
 # A simulate_expert_responses.py ezzel a verziójelöléssel szúr be próbasorokat;
 # a listában jelölve jelennek meg, az összesítésből és az exportból alapból kimaradnak.
 SIM_VERSION = "v1.0-SZIMULACIO"
@@ -77,25 +77,25 @@ ITEMS = [
     {
         "kod": "F1", "nev": "A felső gerinc magassága", "jaw": "Felső állcsont",
         "rogzit": "A gipszmintán mérjük, milyen magas a felső állcsontgerinc.",
-        "A": "magas, jól megtartott gerinc", "B": "alacsony, sorvadt gerinc", "alak": "monoton", "optimum": False,
+        "A": "magas, jól megtartott gerinc (a mintán kb. 10 mm)", "B": "alacsony, sorvadt gerinc (a mintán kb. 5 mm)", "alak": "monoton", "optimum": False,
         "kuszob": "Milyen magasság alatt mondaná, hogy a felső gerinc alacsony? (mm)", "subs": [],
     },
     {
         "kod": "F2", "nev": "Alámenős területek a felső állcsonton", "jaw": "Felső állcsont",
         "rogzit": "A gipszmintán mérjük, mennyi alámenős terület van a felső állcsonton.",
-        "A": "kevés vagy kis alámenősség", "B": "nagy alámenősség", "alak": "optimum", "optimum": True,
+        "A": "kevés vagy alig van alámenősség", "M": "közepes alámenősség", "B": "nagy, kifejezett alámenősség", "alak": "optimum", "optimum": True,
         "kuszob": "Ha a közepes a legjobb: nagyjából milyen alámenősség az ideális? (pár szóval)", "subs": [],
     },
     {
         "kod": "F3", "nev": "A szájpad magassága", "jaw": "Felső állcsont",
         "rogzit": "A gipszmintán mérjük a szájpadboltozat magasságát.",
-        "A": "magas, boltozatos szájpad", "B": "lapos szájpad", "alak": "monoton", "optimum": False,
+        "A": "magas, boltozatos szájpad (kb. 25 mm)", "B": "lapos szájpad (kb. 17 mm)", "alak": "monoton", "optimum": False,
         "kuszob": "Milyen magasság alatt mondaná, hogy a szájpad lapos? (mm)", "subs": [],
     },
     {
         "kod": "F4", "nev": "A felső gerincív alakja", "jaw": "Felső állcsont",
         "rogzit": "A gipszmintán mérjük a gerincív szögét: a nagyobb szög szögletesebb, a kisebb hegyesebb, V-alakú ívet jelent.",
-        "A": "szögletes, széles ív", "B": "hegyes, V-alakú ív", "alak": "kuszobos", "optimum": False,
+        "A": "szögletes, széles ív (kb. 140°)", "B": "hegyes, V-alakú ív (kb. 125°)", "alak": "kuszobos", "optimum": False,
         "kuszob": "Van-e olyan szög, amely felett már nincs további előny? (°)", "subs": [],
     },
     {
@@ -109,7 +109,7 @@ ITEMS = [
     {
         "kod": "F6", "nev": "A felső és az alsó gerincél egymáshoz viszonyított helyzete", "jaw": "Felső állcsont",
         "rogzit": "A gipszmintán mérjük, hogy a felső és az alsó gerincél vonala függőlegesen egymás felett van-e (90°), vagy eltér egymástól.",
-        "A": "a két gerincél egymás felett van", "B": "a két gerincél jelentősen eltér egymástól", "alak": "optimum", "optimum": True,
+        "A": "a két gerincél egymás felett van (eltérés legfeljebb 5°)", "M": "közepes eltérés (kb. 10°)", "B": "nagy eltérés (20° vagy több)", "alak": "optimum", "optimum": True,
         "kuszob": "Mekkora eltérést tart már jelentősnek? (°)",
         "subs": [{"kod": "irany_szamit", "kerdes": "Számít-e, hogy melyik irányban tér el (az alsó szélesebb, vagy a felső)?",
                   "opciok": [("igen", "igen"), ("nem", "nem"), ("nem_tudom", "nem tudom")]}],
@@ -209,7 +209,7 @@ def localized_items(lang="hu"):
     for item in ITEMS:
         text = ITEM_TEXT_EN.get(item["kod"], {})
         copy = dict(item)
-        for key in ("nev", "rogzit", "A", "B", "kuszob"):
+        for key in ("nev", "rogzit", "A", "M", "B", "kuszob"):
             if key in text:
                 copy[key] = text[key]
         copy["jaw"] = JAW_LABELS["en"].get(item["jaw"], item["jaw"])
@@ -229,6 +229,17 @@ def localized_items(lang="hu"):
 
 ITEM_CODES = [item["kod"] for item in ITEMS]
 ITEMS_BY_CODE = {item["kod"]: item for item in ITEMS}
+# A folytonos tételek pólusaihoz rendelt mérési értékek (a kérdés szövegében is
+# szerepelnek). Az elemzés ezekkel váltja a pólusok közötti sikerkülönbséget
+# egységnyi (mm-, fok-) hatássá; a predict_szakertoi_prior_logit.R regiszterével
+# azonosnak kell lennie. A kohorsz mért eloszlásából (kb. alsó és felső ötöd)
+# kerekített, a vizsgálatvezető által módosítható javaslatok.
+POLE_VALUES = {
+    "F1": {"A": 10.0, "B": 5.0, "unit": "mm"},
+    "F3": {"A": 25.0, "B": 17.0, "unit": "mm"},
+    "F4": {"A": 140.0, "B": 125.0, "unit": "°"},
+    "F6": {"A": 2.5, "M": 10.0, "B": 20.0, "unit": "° eltérés 90°-tól"},
+}
 
 IRANY_VALUES = {"A_kedvezotlenebb", "B_kedvezotlenebb", "nem_monoton", "nincs_kulonbseg", "nem_tudom"}
 IRANY_LABELS = IRANY_LABELS_BY_LANG["hu"]
@@ -264,7 +275,18 @@ MECHANISM_LABELS = dict(MECHANISMS)
 LEGACY_MECHANISM_CODES = {"retencio", "stabilitas", "alatamasztas", "technikai"}
 MECHANISM_CODES = {code for code, _ in MECHANISMS} | LEGACY_MECHANISM_CODES
 ITEM_TEXT_FIELDS = {"kuszob", "megjegyzes", "mechanizmus_egyeb"}
-ITEM_INT_FIELDS = {"siker_A": (0, 100), "siker_B": (0, 100), "kulonbseg_min": (0, 100), "kulonbseg_max": (0, 100)}
+# Pólusonként pontbecslés és tartomány (húsz hasonló becslésből tizenkilenc ezen
+# belül); az optimum alakú tételeknél a közepes (M) forgatókönyv is. A
+# kulonbseg_min/max a v1 űrlap öröksége: olvasható marad, de már nem kérdezzük.
+ITEM_INT_FIELDS = {
+    "siker_A": (0, 100), "siker_A_min": (0, 100), "siker_A_max": (0, 100),
+    "siker_B": (0, 100), "siker_B_min": (0, 100), "siker_B_max": (0, 100),
+    "siker_M": (0, 100), "siker_M_min": (0, 100), "siker_M_max": (0, 100),
+    "kulonbseg_min": (0, 100), "kulonbseg_max": (0, 100),
+}
+ITEM_BOOL_FIELDS = {"nagysag_nem_tudom"}
+MAGNITUDE_ANSWERS = {"A_kedvezotlenebb", "B_kedvezotlenebb", "nem_monoton"}
+NODIFF_TOLERANCE = 10   # „nincs érdemi különbség” mellett ennél nagyobb pontkülönbség ellentmondás
 
 BACKGROUND_FIELDS = {
     "diploma_ev": ("int", 1950, 2100),
@@ -279,6 +301,8 @@ BACKGROUND_FIELDS = {
     "szerep": ("choice", set(ROLES)),
     "kepesites_ev": ("int", 1950, 2100),
     "mester": ("choice", {"igen", "nem"}),
+    # fogtechnikus: miből tudja meg, hogyan vált be a fogsor (a becslés forrása)
+    "visszajelzes": ("choice", {"rendszeres_fogorvosi", "visszakerulo_munkak", "kozvetlen_beteg", "egyeb"}),
 }
 
 
@@ -287,6 +311,11 @@ def role_of(background):
     role = (background or {}).get("szerep")
     return role if role in ROLES else "fogorvos"
 CALIBRATION_FIELDS = {
+    # felkészítő gyakorlókérdések (SHELF-mintájú kalibrációs gyakorlat; nem kötelező)
+    **{f"gyak_{i}_{part}": ("int", 0, 100000) for i in (1, 2, 3) for part in ("min", "pont", "max")},
+    "gyak_irany": ("choice", {"duna", "rajna"}),
+    "gyak_irany_p": ("choice", {str(v) for v in (50, 60, 70, 80, 90, 95, 99)}),
+    "felkeszites_kesz": ("choice", {"1"}),
     "alap_siker_100": ("int", 0, 100),
     "anatomia_sulya_pct": ("int", 0, 100),
     "felso_vagy_also": ("choice", {"felso", "also", "egyforman"}),
@@ -313,11 +342,13 @@ SECTION_COLUMNS = {"bg": "background", "cal": "calibration", "cl": "closing"}
 PRIOR_CSV_COLUMNS = [
     "szakerto_id", "datum", "tetel", "irany", "p_irany", "siker_A", "siker_B",
     "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes", "szerep",
+    "siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M", "siker_M_min", "siker_M_max",
+    "nagysag_nem_tudom", "polus_A_ertek", "polus_M_ertek", "polus_B_ertek", "polus_egyseg",
 ]
 BACKGROUND_CSV_COLUMNS = [
     "szakerto_id", "datum", "evek_gyakorlat", "fogsorok_szama_kat", "oktat", "alap_siker_100",
     "anatomia_sulya_pct", "rang_1", "rang_2", "rang_3", "rang_4", "rang_5", "hianyzo_kepletek", "megjegyzes",
-    "nev", "intezmeny", "szerep",
+    "nev", "intezmeny", "szerep", "visszajelzes",
 ]
 
 
@@ -686,6 +717,12 @@ def parse_item_field(item_code, field, value):
         if number not in P_IRANY_VALUES:
             raise FieldError("A bizonyosság csak 50, 60, 70, 80, 90, 95 vagy 99 lehet.")
         return field, number
+    if field in ITEM_BOOL_FIELDS:
+        if raw == "":
+            return field, None
+        if raw not in {"1", "0", "on", "off", "true", "false"}:
+            raise FieldError("Nem megengedett érték.")
+        return field, raw in {"1", "on", "true"}
     if field in ITEM_INT_FIELDS:
         if raw == "":
             return field, None
@@ -775,6 +812,8 @@ def completeness_errors(data, lang="hu"):
         problems.append(t["err_b1"])
     if calibration.get("anatomia_sulya_pct") is None:
         problems.append(t["err_b2"])
+    if role_of(background) == "fogtechnikus" and not background.get("visszajelzes"):
+        problems.append(t["err_visszajelzes"])
     for item in localized_items(lang):
         answers = items.get(item["kod"]) or {}
         label = f"{item['kod']} · {item['nev']}"
@@ -782,11 +821,47 @@ def completeness_errors(data, lang="hu"):
             problems.append(f"{label}: {t['err_direction']}")
         elif answers.get("irany") in DIRECTIONAL and answers.get("p_irany") is None:
             problems.append(f"{label}: {t['err_certainty']}")
-        lo, hi = answers.get("kulonbseg_min"), answers.get("kulonbseg_max")
-        if lo is not None and hi is not None and lo > hi:
-            problems.append(f"{label}: {t['err_range']}")
+        problems.extend(f"{label}: {text}" for text in consistency_errors(item, answers, t))
     if not closing.get("onertekeles"):
         problems.append(t["err_d5"])
+    return problems
+
+
+def consistency_errors(item, answers, t):
+    """Egy tétel számszerű válaszainak belső ellentmondásai és hiányai (beküldést
+    gátló szabályok; a szöveg a kért nyelven)."""
+    problems = []
+    irany = answers.get("irany")
+    unknown = bool(answers.get("nagysag_nem_tudom"))
+    poles = ["A", "M", "B"] if item.get("M") else ["A", "B"]   # közepes forgatókönyv csak ott, ahol a tétel adja (F2, F6)
+    point = {pole: answers.get(f"siker_{pole}") for pole in poles}
+    lo = {pole: answers.get(f"siker_{pole}_min") for pole in poles}
+    hi = {pole: answers.get(f"siker_{pole}_max") for pole in poles}
+    for pole in poles:
+        if lo[pole] is not None and hi[pole] is not None and lo[pole] > hi[pole]:
+            problems.append(t["err_range_order"].format(pole=pole))
+        if point[pole] is not None and lo[pole] is not None and point[pole] < lo[pole]:
+            problems.append(t["err_range_contains"].format(pole=pole))
+        if point[pole] is not None and hi[pole] is not None and point[pole] > hi[pole]:
+            problems.append(t["err_range_contains"].format(pole=pole))
+    if irany in MAGNITUDE_ANSWERS and not unknown:
+        needed = poles if irany == "nem_monoton" else ["A", "B"]
+        if any(point[pole] is None for pole in needed):
+            problems.append(t["err_magnitude_required"])
+        elif any(lo[pole] is None or hi[pole] is None for pole in needed):
+            problems.append(t["err_range_required"])
+    if unknown:
+        return problems
+    a, b, m = point["A"], point["B"], point.get("M")
+    if a is not None and b is not None:
+        if irany == "A_kedvezotlenebb" and a > b:
+            problems.append(t["err_numbers_direction"].format(worse="B"))
+        if irany == "B_kedvezotlenebb" and b > a:
+            problems.append(t["err_numbers_direction"].format(worse="A"))
+        if irany == "nincs_kulonbseg" and abs(a - b) >= NODIFF_TOLERANCE:
+            problems.append(t["err_nodiff_numbers"].format(diff=abs(a - b)))
+        if irany == "nem_monoton" and m is not None and m < max(a, b):
+            problems.append(t["err_optimum_numbers"])
     return problems
 
 
@@ -831,6 +906,7 @@ def prior_rows(responses):
         items = response.get("items") or {}
         for item in ITEMS:
             answers = items.get(item["kod"]) or {}
+            pole = POLE_VALUES.get(item["kod"], {})
             rows.append({
                 "szakerto_id": response["expert_code"],
                 "datum": datum,
@@ -846,6 +922,11 @@ def prior_rows(responses):
                 "kuszob": answers.get("kuszob") or "",
                 "megjegyzes": item_note(item, answers),
                 "szerep": role_of(response.get("background")),
+                **{key: (answers.get(key) if answers.get(key) is not None else "")
+                   for key in ("siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M", "siker_M_min", "siker_M_max")},
+                "nagysag_nem_tudom": "1" if answers.get("nagysag_nem_tudom") else "",
+                "polus_A_ertek": pole.get("A", ""), "polus_M_ertek": pole.get("M", ""), "polus_B_ertek": pole.get("B", ""),
+                "polus_egyseg": pole.get("unit", ""),
             })
     return rows
 
@@ -888,6 +969,7 @@ def background_rows(responses):
             "nev": response.get("expert_name") or "",
             "intezmeny": response.get("expert_affiliation") or "",
             "szerep": role_of(background),
+            "visszajelzes": background.get("visszajelzes", "") or "",
         })
     return rows
 
@@ -967,6 +1049,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             "item_names": {item["kod"]: item["nev"] for item in items},
             "role_labels": ROLE_LABELS[lang],
             "roles": ROLES,
+            "pole_values": POLE_VALUES,
         }
 
     @bp.after_request
@@ -1254,7 +1337,45 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             return render_template("expert_view.html", response=response, admin=False, t=texts, role=response["role"])
         if response["state"] == "invited":
             return redirect(url_for("expert.start"))
-        return render_template("expert_form.html", response=response, errors=[], t=texts, role=response["role"])
+        if (response["calibration"] or {}).get("felkeszites_kesz") != "1":
+            return redirect(url_for("expert.prep", token=token))
+        return render_template("expert_form.html", response=response, errors=[], t=texts, role=response["role"],
+                               nodiff_tolerance=NODIFF_TOLERANCE)
+
+    @bp.get("/urlap/<token>/felkeszites")
+    @require_expert
+    def prep(token):
+        """Felkészítő a valószínűségi ítéletekre (SHELF-mintájú): magyarázat, kidolgozott
+        példa, három gyakorlókérdés azonnali visszajelzéssel. A kérdőív csak ezután nyílik."""
+        response = get_response_by_token(token)
+        if response is None:
+            abort(404)
+        response = decorate(response)
+        session["expert_token"] = token
+        if response["status"] == "submitted":
+            return redirect(url_for("expert.form", token=token))
+        if response["state"] == "invited":
+            return redirect(url_for("expert.start"))
+        return render_template("expert_prep.html", response=response, t=ui_texts(current_lang(), response["role"]),
+                               role=response["role"], p_irany_values=P_IRANY_VALUES)
+
+    @bp.post("/urlap/<token>/felkeszites/kesz")
+    @require_expert
+    def prep_done(token):
+        validate_csrf()
+        response = get_response_by_token(token)
+        if response is None:
+            abort(404)
+        if response["status"] == "draft":
+            execute_transaction([(
+                """
+                UPDATE expert_prior_responses
+                SET calibration = COALESCE(calibration, '{}'::jsonb) || %s::jsonb, updated_at = CURRENT_TIMESTAMP
+                WHERE token = %s AND status = 'draft'
+                """,
+                [Json({"felkeszites_kesz": "1"}), token],
+            )])
+        return redirect(url_for("expert.form", token=token))
 
     @bp.post("/urlap/<token>/mentes")
     @require_expert
@@ -1319,7 +1440,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             merged = decorate({**response, **{k: data[k] for k in ("background", "calibration", "closing", "items")}})
             flash(UI[lang]["submit_incomplete"], "error")
             return render_template("expert_form.html", response=merged, errors=errors + problems,
-                                   t=ui_texts(lang, merged["role"]), role=merged["role"]), 400
+                                   t=ui_texts(lang, merged["role"]), role=merged["role"], nodiff_tolerance=NODIFF_TOLERANCE), 400
         execute_transaction([
             (
                 """

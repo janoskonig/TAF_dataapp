@@ -32,7 +32,7 @@ def response_row(**overrides):
     row = {
         "id": 7, "expert_code": "SZ07", "expert_name": "Dr. Teszt Elek", "expert_affiliation": "SE Fogpótlástani Klinika",
         "token": "tok", "status": "draft", "consent_confirmed": True,
-        "background": {}, "calibration": {}, "items": {}, "closing": {}, "form_version": "v1.0",
+        "background": {}, "calibration": {"felkeszites_kesz": "1"}, "items": {}, "closing": {}, "form_version": "v1.0",
         "submitted_at": None, "created_at": "2026-09-06 10:00", "updated_at": "2026-09-06 10:05",
         "invited_at": None, "opened_at": None, "invite_note": None,
         "invite_email": None, "invite_sent_at": None, "reminder_sent_at": None, "invite_deadline": None,
@@ -156,10 +156,12 @@ def complete_form():
     for code in ITEM_CODES:
         form[f"item__{code}__irany"] = "B_kedvezotlenebb"
         form[f"item__{code}__p_irany"] = "90"
-    form["item__A11__siker_A"] = "85"
-    form["item__A11__siker_B"] = "60"
-    form["item__A11__kulonbseg_min"] = "10"
-    form["item__A11__kulonbseg_max"] = "40"
+        form[f"item__{code}__siker_A"] = "85"
+        form[f"item__{code}__siker_A_min"] = "75"
+        form[f"item__{code}__siker_A_max"] = "92"
+        form[f"item__{code}__siker_B"] = "60"
+        form[f"item__{code}__siker_B_min"] = "45"
+        form[f"item__{code}__siker_B_max"] = "72"
     form["item__F5__sub__lokalizacio"] = "frontalis"
     return form
 
@@ -315,7 +317,7 @@ def test_submit_complete_form_marks_response_submitted():
     submits = [(sql, params) for connection in connections for sql, params in connection.executions if "status = 'submitted'" in sql]
     assert len(submits) == 1
     items = submits[0][1][2].adapted
-    assert items["A11"]["siker_A"] == 85 and items["A11"]["kulonbseg_max"] == 40
+    assert items["A11"]["siker_A"] == 85 and items["A11"]["siker_A_max"] == 92 and items["A11"]["siker_B_min"] == 45
     assert items["F5"]["sub_lokalizacio"] == "frontalis"
     assert submits[0][1][0].adapted["evek_gyakorlat"] == 22
 
@@ -334,7 +336,7 @@ def test_prior_export_matches_r_script_template():
         status="submitted",
         items={
             "F5": {"irany": "B_kedvezotlenebb", "p_irany": 80, "siker_A": 80, "siker_B": 55,
-                   "kulonbseg_min": 10, "kulonbseg_max": 40,
+                   "siker_A_min": 70, "siker_A_max": 90, "siker_B_min": 40, "siker_B_max": 65,
                    "sub_lokalizacio": "frontalis", "megjegyzes": "ritka"},
             "F2": {"irany": "nem_monoton"},
         },
@@ -354,6 +356,9 @@ def test_prior_export_matches_r_script_template():
     assert "lokalizacio=a frontális gerincen" in by_code["F5"]["megjegyzes"]
     assert by_code["F2"]["alak"] == "optimum"
     assert by_code["A3"]["irany"] == ""
+    assert by_code["F5"]["siker_A_min"] == "70" and by_code["F5"]["siker_B_max"] == "65" and by_code["F5"]["nagysag_nem_tudom"] == ""
+    assert by_code["F1"]["polus_A_ertek"] == "10.0" and by_code["F1"]["polus_B_ertek"] == "5.0" and by_code["F1"]["polus_egyseg"] == "mm"
+    assert by_code["F6"]["polus_M_ertek"] == "10.0" and by_code["A4"]["polus_A_ertek"] == ""
 
 
 def test_background_export_columns():
@@ -738,7 +743,7 @@ def test_technician_submission_keeps_role_and_accepts_technician_fields():
     client = app.test_client()
     auth_expert(client)
     form = complete_form()
-    form.update({"bg__kepesites_ev": "1998", "bg__mester": "igen", "item__A5__irany": "nem_tudom"})
+    form.update({"bg__kepesites_ev": "1998", "bg__mester": "igen", "bg__visszajelzes": "kozvetlen_beteg", "item__A5__irany": "nem_tudom"})
     form.pop("item__A5__p_irany")
     response = client.post("/expert/urlap/tok/bekuldes", data=form)
     assert response.status_code == 302
@@ -751,7 +756,7 @@ def test_technician_submission_keeps_role_and_accepts_technician_fields():
 def test_exports_carry_the_role_column():
     from expert_priors import BACKGROUND_CSV_COLUMNS, PRIOR_CSV_COLUMNS, background_rows, prior_rows
     rows = [response_row(status="submitted", background={"nyelv": "hu", "szerep": "fogtechnikus", "kepesites_ev": 1998, "mester": "igen", "evek_gyakorlat": 20})]
-    assert PRIOR_CSV_COLUMNS[-1] == "szerep" and BACKGROUND_CSV_COLUMNS[-1] == "szerep"
+    assert "szerep" in PRIOR_CSV_COLUMNS and BACKGROUND_CSV_COLUMNS[-2:] == ["szerep", "visszajelzes"]
     assert {r["szerep"] for r in prior_rows(rows)} == {"fogtechnikus"}
     background = background_rows(rows)[0]
     assert background["szerep"] == "fogtechnikus" and "képesítés: 1998" in background["megjegyzes"] and "mesterfogtechnikus: igen" in background["megjegyzes"]
@@ -780,3 +785,112 @@ def test_admin_invite_with_role_sends_technician_letter_and_lists_badge():
     assert '<span class="badge badge-muted">fogtechnikus</span>' in page and "fogtechnikusok (1)" in page
     filtered = client.get("/expert/admin?szerep=fogorvos").get_data(as_text=True)
     assert "<strong>fogorvosok (0)</strong>" in filtered
+
+
+def _submit(form_overrides, background=None):
+    row = response_row(background=background or {"nyelv": "hu"})
+    app, connections = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    form = complete_form()
+    form.update(form_overrides)
+    response = client.post("/expert/urlap/tok/bekuldes", data=form)
+    return response, connections
+
+
+def test_submission_flags_numbers_that_contradict_the_marked_direction():
+    response, _ = _submit({"item__A11__siker_A": "20", "item__A11__siker_A_min": "10", "item__A11__siker_A_max": "30",
+                           "item__A11__siker_B": "90", "item__A11__siker_B_min": "80", "item__A11__siker_B_max": "95"})
+    assert response.status_code == 400
+    page = response.get_data(as_text=True)
+    assert "A11" in page and "a számok szerint a(z) A változat a rosszabb" in page
+
+
+def test_submission_requires_point_inside_its_range():
+    response, _ = _submit({"item__F1__siker_A": "95"})   # tartomány 75–92
+    assert response.status_code == 400 and "F1" in response.get_data(as_text=True)
+    assert "legvalószínűbb szám nincs az alsó és a felső határ között" in response.get_data(as_text=True)
+
+
+def test_no_difference_answer_with_large_gap_is_rejected():
+    response, _ = _submit({"item__F7__irany": "nincs_kulonbseg", "item__F7__siker_A": "85", "item__F7__siker_B": "60"})
+    assert response.status_code == 400 and "de a két szám 25 beteggel tér el" in response.get_data(as_text=True)
+
+
+def test_optimum_answer_needs_middle_scenario_to_be_best():
+    overrides = {"item__F2__irany": "nem_monoton", "item__F2__siker_A": "70", "item__F2__siker_M": "60", "item__F2__siker_B": "50",
+                 "item__F2__siker_A_min": "60", "item__F2__siker_A_max": "80", "item__F2__siker_M_min": "50", "item__F2__siker_M_max": "70"}
+    response, _ = _submit(overrides)
+    page = response.get_data(as_text=True)
+    assert response.status_code == 400 and "a közepes szám nem a legmagasabb" in page
+    overrides["item__F2__siker_M"] = "80"; overrides["item__F2__siker_M_max"] = "90"
+    response, connections = _submit(overrides)
+    assert response.status_code == 302
+    items = [params for c in connections for sql, params in c.executions if "status = 'submitted'" in sql][0][2].adapted
+    assert items["F2"]["siker_M"] == 80 and items["F2"]["irany"] == "nem_monoton"
+
+
+def test_magnitude_unknown_replaces_the_numbers():
+    missing = {f"item__A5__{k}": "" for k in ("siker_A", "siker_A_min", "siker_A_max", "siker_B", "siker_B_min", "siker_B_max")}
+    response, _ = _submit(missing)
+    assert response.status_code == 400 and "vagy jelölje, hogy a nagyságot nem tudja megbecsülni" in response.get_data(as_text=True)
+    response, connections = _submit({**missing, "item__A5__nagysag_nem_tudom": "1"})
+    assert response.status_code == 302
+    items = [params for c in connections for sql, params in c.executions if "status = 'submitted'" in sql][0][2].adapted
+    assert items["A5"]["nagysag_nem_tudom"] is True and items["A5"]["siker_A"] is None
+
+
+def test_directional_answer_without_ranges_is_incomplete():
+    response, _ = _submit({"item__F3__siker_A_min": "", "item__F3__siker_A_max": ""})
+    assert response.status_code == 400 and "kérjük az alsó és felső határt is" in response.get_data(as_text=True)
+
+
+def test_technician_must_say_where_feedback_comes_from():
+    background = {"nyelv": "hu", "szerep": "fogtechnikus"}
+    response, _ = _submit({"bg__kepesites_ev": "1998"}, background=background)
+    assert response.status_code == 400 and "Miből tudja meg, hogyan vált be a fogsor" in response.get_data(as_text=True)
+    response, connections = _submit({"bg__kepesites_ev": "1998", "bg__visszajelzes": "rendszeres_fogorvosi"}, background=background)
+    assert response.status_code == 302
+    bg = [params for c in connections for sql, params in c.executions if "status = 'submitted'" in sql][0][0].adapted
+    assert bg["visszajelzes"] == "rendszeres_fogorvosi"
+
+
+def test_form_asks_per_pole_ranges_and_magnitude_checkbox():
+    row = response_row()
+    app, _ = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert/urlap/tok").get_data(as_text=True)
+    assert 'name="item__F1__siker_A_min"' in page and 'name="item__F1__siker_B_max"' in page
+    assert 'name="item__F2__siker_M"' in page and 'name="item__F1__siker_M"' not in page
+    assert 'name="item__F1__nagysag_nem_tudom"' in page and "húsz hasonló becslésből tizenkilencszer" in page
+    assert "kb. 10 mm" in page and "kb. 125°" in page and "közepes eltérés (kb. 10°)" in page
+    assert 'name="item__F1__kulonbseg_min"' not in page
+    assert "valóban ez az irány igaz, és nem a fordítottja" in page
+
+
+def test_preparation_gate_and_practice_page():
+    row = response_row(calibration={})
+    app, connections = build_app([SCHEMA_OK, token_lookup(row), token_lookup(row), token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    response = client.get("/expert/urlap/tok")
+    assert response.status_code == 302 and response.headers["Location"].endswith("/expert/urlap/tok/felkeszites")
+    page = client.get("/expert/urlap/tok/felkeszites").get_data(as_text=True)
+    assert "Kétféle bizonytalanság" in page and 'name="cal__gyak_1_pont"' in page and 'name="cal__gyak_irany"' in page
+    assert 'data-truth="243"' in page and "Semmelweis Ignác" in page and "Tovább a kérdőívre" in page
+    response = client.post("/expert/urlap/tok/felkeszites/kesz", data={"csrf_token": "csrf-test"})
+    assert response.status_code == 302 and response.headers["Location"].endswith("/expert/urlap/tok")
+    updates = [params for c in connections for sql, params in c.executions if "calibration = COALESCE(calibration" in sql]
+    assert updates and updates[0][0].adapted == {"felkeszites_kesz": "1"}
+
+
+def test_practice_answers_autosave_into_calibration():
+    row = response_row(calibration={})
+    app, connections = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    response = client.post("/expert/urlap/tok/mentes", data={"csrf_token": "csrf-test", "field": "cal__gyak_2_pont", "value": "45"})
+    assert response.status_code == 200
+    sql = [sql for c in connections for sql, params in c.executions if "SET calibration = calibration ||" in sql]
+    assert sql

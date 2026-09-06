@@ -1,481 +1,481 @@
-﻿szakerto_id,datum,tetel,irany,p_irany,siker_A,siker_B,kulonbseg_min,kulonbseg_max,alak,mechanizmus,kuszob,megjegyzes
-SZIM01,2026-09-10,F1,B_kedvezotlenebb,80,81,56,15,37,monoton,,,Fiatalabb betegnél kevésbé számít.
-SZIM01,2026-09-10,F2,nem_monoton,,,,,,optimum,,,Csak jó lenyomattal érvényesül.
-SZIM01,2026-09-10,F3,B_kedvezotlenebb,95,73,65,0,20,monoton,,18 mm,
-SZIM01,2026-09-10,F4,nincs_kulonbseg,,,,,,nincs_irany,,135°,
-SZIM01,2026-09-10,F5,B_kedvezotlenebb,90,85,53,,,monoton,,,lokalizacio=egyforma | Csak jó lenyomattal érvényesül.
-SZIM01,2026-09-10,F6,nincs_kulonbseg,,,,,,nincs_irany,,10°,irany_szamit=nem | Fiatalabb betegnél kevésbé számít.
-SZIM01,2026-09-10,F7,nem_tudom,,,,,,nincs_irany,,,alak_rosszabb=az orsó alakú | Sok múlik a beteg alkalmazkodásán.
-SZIM01,2026-09-10,F8,B_kedvezotlenebb,90,70,67,,,interakcio,,,kategoria_vagy_interakcio=az erők iránya
-SZIM01,2026-09-10,A1,B_kedvezotlenebb,95,79,58,,,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=nem tudom | Csak jó lenyomattal érvényesül.
-SZIM01,2026-09-10,A3,nem_tudom,,,,,,nincs_irany,,,lebenyezett=az a legjobb | Sok múlik a beteg alkalmazkodásán.
-SZIM01,2026-09-10,A4,nem_tudom,,,,,,nincs_irany,,,nagy_vs_kicsi=közepesen | Sok múlik a beteg alkalmazkodásán.
-SZIM01,2026-09-10,A5,B_kedvezotlenebb,90,76,62,5,22,monoton,,,nem_szukit_helye=a kettő között van | Csak jó lenyomattal érvényesül.
-SZIM01,2026-09-10,TUB,B_kedvezotlenebb,99,76,61,5,34,monoton,,,legfontosabb=az alakja | Sok múlik a beteg alkalmazkodásán.
-SZIM01,2026-09-10,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM01,2026-09-10,A11,B_kedvezotlenebb,95,84,54,15,41,monoton,,,
-SZIM01,2026-09-10,A12,B_kedvezotlenebb,95,73,65,0,17,monoton,,,erzekeny_vs_tapinthato=alig | Csak jó lenyomattal érvényesül.
-SZIM02,2026-09-15,F1,B_kedvezotlenebb,95,84,73,,,monoton,,6 mm,
-SZIM02,2026-09-15,F2,nem_monoton,,,,,,optimum,,,Sok múlik a beteg alkalmazkodásán.
-SZIM02,2026-09-15,F3,B_kedvezotlenebb,80,91,67,9,45,monoton,,17 mm,
-SZIM02,2026-09-15,F4,A_kedvezotlenebb,70,70,87,2,33,kuszobos,,,Fiatalabb betegnél kevésbé számít.
-SZIM02,2026-09-15,F5,B_kedvezotlenebb,90,89,69,7,35,monoton,,,lokalizacio=a tubereken | Sok múlik a beteg alkalmazkodásán.
-SZIM02,2026-09-15,F6,B_kedvezotlenebb,80,82,76,0,25,optimum,,12°,Egyoldali forma jobban tolerálható.
-SZIM02,2026-09-15,F7,B_kedvezotlenebb,60,88,70,6,29,monoton,,,alak_rosszabb=a plató alakú | Sok múlik a beteg alkalmazkodásán.
-SZIM02,2026-09-15,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája | Csak jó lenyomattal érvényesül.
-SZIM02,2026-09-15,A1,B_kedvezotlenebb,99,87,70,8,27,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=nem | Fiatalabb betegnél kevésbé számít.
-SZIM02,2026-09-15,A3,B_kedvezotlenebb,80,83,75,,,nincs_irany,,,lebenyezett=az a legjobb
-SZIM02,2026-09-15,A4,nincs_kulonbseg,,,,,,nincs_irany,,,nagy_vs_kicsi=alig | Egyoldali forma jobban tolerálható.
-SZIM02,2026-09-15,A5,nincs_kulonbseg,,,,,,nincs_irany,,,nem_szukit_helye=a kettő között van
-SZIM02,2026-09-15,TUB,B_kedvezotlenebb,90,98,59,27,58,monoton,,,legfontosabb=az alakja
-SZIM02,2026-09-15,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM02,2026-09-15,A11,nincs_kulonbseg,,,,,,nincs_irany,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel
-SZIM02,2026-09-15,A12,B_kedvezotlenebb,80,86,71,8,36,monoton,,,erzekeny_vs_tapinthato=alig
-SZIM03,2026-10-15,F1,nincs_kulonbseg,,,,,,nincs_irany,,7 mm,Csak jó lenyomattal érvényesül.
-SZIM03,2026-10-15,F2,B_kedvezotlenebb,95,86,70,7,34,optimum,,,Csak jó lenyomattal érvényesül.
-SZIM03,2026-10-15,F3,nincs_kulonbseg,,,,,,nincs_irany,,,
-SZIM03,2026-10-15,F4,B_kedvezotlenebb,90,83,73,2,26,kuszobos,,129°,
-SZIM03,2026-10-15,F5,B_kedvezotlenebb,99,97,59,28,47,monoton,,,lokalizacio=a frontális gerincen | Egyoldali forma jobban tolerálható.
-SZIM03,2026-10-15,F6,nincs_kulonbseg,,,,,,nincs_irany,,6°,irany_szamit=nem | Egyoldali forma jobban tolerálható.
-SZIM03,2026-10-15,F7,nincs_kulonbseg,,,,,,nincs_irany,,,alak_rosszabb=nem tudom | Egyoldali forma jobban tolerálható.
-SZIM03,2026-10-15,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája
-SZIM03,2026-10-15,A1,B_kedvezotlenebb,99,98,57,34,50,telitodo,,,negy_ot_kulonbseg=nem
-SZIM03,2026-10-15,A3,A_kedvezotlenebb,90,72,84,0,20,nincs_irany,,,Sok múlik a beteg alkalmazkodásán.
-SZIM03,2026-10-15,A4,B_kedvezotlenebb,90,89,67,,,monoton,,,nagy_vs_kicsi=nem tudom
-SZIM03,2026-10-15,A5,nem_tudom,,,,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel
-SZIM03,2026-10-15,TUB,A_kedvezotlenebb,95,73,82,0,23,monoton,,,legfontosabb=az alakja
-SZIM03,2026-10-15,A10,B_kedvezotlenebb,80,82,73,0,24,nincs_irany,,,melyik_rosszabb=az Angle II. | Egyoldali forma jobban tolerálható.
-SZIM03,2026-10-15,A11,B_kedvezotlenebb,95,94,62,24,49,monoton,,,
-SZIM03,2026-10-15,A12,B_kedvezotlenebb,95,83,72,1,26,monoton,,,
-SZIM04,2026-10-11,F1,B_kedvezotlenebb,95,96,66,16,45,monoton,,,
-SZIM04,2026-10-11,F2,nem_monoton,,,,,,optimum,,,
-SZIM04,2026-10-11,F3,B_kedvezotlenebb,80,91,72,4,33,monoton,,,
-SZIM04,2026-10-11,F4,nincs_kulonbseg,,,,,,nincs_irany,,131°,Csak jó lenyomattal érvényesül.
-SZIM04,2026-10-11,F5,B_kedvezotlenebb,99,98,63,25,55,monoton,,,lokalizacio=a tubereken | Fiatalabb betegnél kevésbé számít.
-SZIM04,2026-10-11,F6,B_kedvezotlenebb,70,92,70,13,39,optimum,,9°,irany_szamit=igen
-SZIM04,2026-10-11,F7,nincs_kulonbseg,,,,,,nincs_irany,,,Egyoldali forma jobban tolerálható.
-SZIM04,2026-10-11,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az erők iránya
-SZIM04,2026-10-11,A1,B_kedvezotlenebb,99,95,67,14,44,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=nem
-SZIM04,2026-10-11,A3,A_kedvezotlenebb,90,80,82,0,19,nincs_irany,,,lebenyezett=nem tudom
-SZIM04,2026-10-11,A4,B_kedvezotlenebb,80,92,70,10,35,monoton,,,nagy_vs_kicsi=alig
-SZIM04,2026-10-11,A5,B_kedvezotlenebb,95,96,67,14,46,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel
-SZIM04,2026-10-11,TUB,B_kedvezotlenebb,80,88,75,5,24,monoton,,,legfontosabb=a feszes ínyborítás
-SZIM04,2026-10-11,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=egyforma | Implantátum-elhorgonyzásnál más a kép.
-SZIM04,2026-10-11,A11,B_kedvezotlenebb,95,98,64,21,46,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Fiatalabb betegnél kevésbé számít.
-SZIM04,2026-10-11,A12,B_kedvezotlenebb,90,87,75,1,23,monoton,,,erzekeny_vs_tapinthato=nem tudom
-SZIM05,2026-09-27,F1,B_kedvezotlenebb,95,85,60,11,39,monoton,,6 mm,
-SZIM05,2026-09-27,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM05,2026-09-27,F3,B_kedvezotlenebb,90,82,63,6,33,monoton,,19 mm,Csak jó lenyomattal érvényesül.
-SZIM05,2026-09-27,F4,nem_tudom,,,,,,nincs_irany,,133°,Implantátum-elhorgonyzásnál más a kép.
-SZIM05,2026-09-27,F5,B_kedvezotlenebb,90,83,62,10,40,monoton,,,lokalizacio=nem tudom
-SZIM05,2026-09-27,F6,nem_tudom,,,,,,nincs_irany,,9°,irany_szamit=nem | Sok múlik a beteg alkalmazkodásán.
-SZIM05,2026-09-27,F7,B_kedvezotlenebb,60,75,70,0,13,monoton,,,alak_rosszabb=nem tudom | Fiatalabb betegnél kevésbé számít.
-SZIM05,2026-09-27,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az erők iránya | Fiatalabb betegnél kevésbé számít.
-SZIM05,2026-09-27,A1,B_kedvezotlenebb,99,82,63,11,34,telitodo,,,negy_ot_kulonbseg=igen
-SZIM05,2026-09-27,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=az a legrosszabb | Egyoldali forma jobban tolerálható.
-SZIM05,2026-09-27,A4,nincs_kulonbseg,,,,,,nincs_irany,,,nagy_vs_kicsi=nem tudom
-SZIM05,2026-09-27,A5,B_kedvezotlenebb,99,83,62,13,30,monoton,,,nem_szukit_helye=az inkább a B-hez áll közel
-SZIM05,2026-09-27,TUB,B_kedvezotlenebb,90,77,68,1,22,monoton,,,legfontosabb=az alakja | Csak jó lenyomattal érvényesül.
-SZIM05,2026-09-27,A10,nincs_kulonbseg,,,,,,nincs_irany,,,
-SZIM05,2026-09-27,A11,B_kedvezotlenebb,70,86,59,20,43,monoton,,,nem_elodomborodo_helye=az inkább a B-hez áll közel | Sok múlik a beteg alkalmazkodásán.
-SZIM05,2026-09-27,A12,B_kedvezotlenebb,70,80,65,4,34,monoton,,,erzekeny_vs_tapinthato=alig
-SZIM06,2026-09-12,F1,B_kedvezotlenebb,95,85,49,26,44,monoton,,8 mm,Egyoldali forma jobban tolerálható.
-SZIM06,2026-09-12,F2,nem_monoton,,,,,,optimum,,,Fiatalabb betegnél kevésbé számít.
-SZIM06,2026-09-12,F3,B_kedvezotlenebb,80,77,56,8,41,monoton,,17 mm,
-SZIM06,2026-09-12,F4,B_kedvezotlenebb,60,72,61,0,29,kuszobos,,,Egyoldali forma jobban tolerálható.
-SZIM06,2026-09-12,F5,nincs_kulonbseg,,,,,,nincs_irany,,,lokalizacio=a frontális gerincen
-SZIM06,2026-09-12,F6,B_kedvezotlenebb,95,69,64,0,19,optimum,,5°,Sok múlik a beteg alkalmazkodásán.
-SZIM06,2026-09-12,F7,B_kedvezotlenebb,70,70,63,0,15,monoton,,,alak_rosszabb=nem tudom
-SZIM06,2026-09-12,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=nem tudom | Sok múlik a beteg alkalmazkodásán.
-SZIM06,2026-09-12,A1,B_kedvezotlenebb,90,77,56,,,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=nem tudom
-SZIM06,2026-09-12,A3,A_kedvezotlenebb,60,63,70,0,16,nincs_irany,,,lebenyezett=az a legjobb | Fiatalabb betegnél kevésbé számít.
-SZIM06,2026-09-12,A4,B_kedvezotlenebb,95,72,62,2,21,monoton,,,nagy_vs_kicsi=alig | Fiatalabb betegnél kevésbé számít.
-SZIM06,2026-09-12,A5,B_kedvezotlenebb,60,75,59,5,37,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel | Implantátum-elhorgonyzásnál más a kép.
-SZIM06,2026-09-12,TUB,B_kedvezotlenebb,90,70,64,0,20,monoton,,,
-SZIM06,2026-09-12,A10,B_kedvezotlenebb,60,72,61,0,31,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM06,2026-09-12,A11,B_kedvezotlenebb,95,76,58,7,35,monoton,,,nem_elodomborodo_helye=nem tudom
-SZIM06,2026-09-12,A12,nem_tudom,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=közepesen | Fiatalabb betegnél kevésbé számít.
-SZIM07,2026-10-11,F1,B_kedvezotlenebb,90,84,75,0,19,monoton,,6 mm,Csak jó lenyomattal érvényesül.
-SZIM07,2026-10-11,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM07,2026-10-11,F3,nem_tudom,,,,,,nincs_irany,,15 mm,Egyoldali forma jobban tolerálható.
-SZIM07,2026-10-11,F4,B_kedvezotlenebb,95,82,78,0,23,kuszobos,,136°,
-SZIM07,2026-10-11,F5,B_kedvezotlenebb,80,89,71,8,39,monoton,,,lokalizacio=a frontális gerincen | Sok múlik a beteg alkalmazkodásán.
-SZIM07,2026-10-11,F6,B_kedvezotlenebb,95,88,71,9,26,optimum,,,Sok múlik a beteg alkalmazkodásán.
-SZIM07,2026-10-11,F7,A_kedvezotlenebb,80,74,86,3,27,monoton,,,Implantátum-elhorgonyzásnál más a kép.
-SZIM07,2026-10-11,F8,A_kedvezotlenebb,80,78,81,0,19,interakcio,,,kategoria_vagy_interakcio=az erők iránya
-SZIM07,2026-10-11,A1,B_kedvezotlenebb,80,91,69,14,42,telitodo,,,legnagyobb_ugras=2 és 3 között
-SZIM07,2026-10-11,A3,A_kedvezotlenebb,50,78,82,0,12,nincs_irany,,,lebenyezett=az a legjobb | Egyoldali forma jobban tolerálható.
-SZIM07,2026-10-11,A4,A_kedvezotlenebb,70,76,84,0,20,monoton,,,nagy_vs_kicsi=alig
-SZIM07,2026-10-11,A5,B_kedvezotlenebb,70,89,70,,,monoton,,,
-SZIM07,2026-10-11,TUB,B_kedvezotlenebb,90,88,71,8,26,monoton,,,legfontosabb=az alakja | Egyoldali forma jobban tolerálható.
-SZIM07,2026-10-11,A10,B_kedvezotlenebb,60,81,79,0,22,nincs_irany,,,melyik_rosszabb=az Angle III. | Sok múlik a beteg alkalmazkodásán.
-SZIM07,2026-10-11,A11,B_kedvezotlenebb,99,88,71,3,34,monoton,,,nem_elodomborodo_helye=nem tudom | Implantátum-elhorgonyzásnál más a kép.
-SZIM07,2026-10-11,A12,B_kedvezotlenebb,60,84,75,0,21,monoton,,,erzekeny_vs_tapinthato=nem tudom | Egyoldali forma jobban tolerálható.
-SZIM08,2026-10-05,F1,B_kedvezotlenebb,99,81,70,0,23,monoton,,8 mm,Fiatalabb betegnél kevésbé számít.
-SZIM08,2026-10-05,F2,B_kedvezotlenebb,80,78,73,,,optimum,,"enyhe, egyenletes alámenősség",Csak jó lenyomattal érvényesül.
-SZIM08,2026-10-05,F3,B_kedvezotlenebb,90,80,71,0,27,monoton,,17 mm,
-SZIM08,2026-10-05,F4,B_kedvezotlenebb,70,84,67,7,33,kuszobos,,131°,Egyoldali forma jobban tolerálható.
-SZIM08,2026-10-05,F5,B_kedvezotlenebb,99,82,70,,,monoton,,,Fiatalabb betegnél kevésbé számít.
-SZIM08,2026-10-05,F6,B_kedvezotlenebb,95,82,70,0,21,optimum,,9°,irany_szamit=igen | Csak jó lenyomattal érvényesül.
-SZIM08,2026-10-05,F7,B_kedvezotlenebb,80,81,70,0,25,monoton,,,alak_rosszabb=az orsó alakú
-SZIM08,2026-10-05,F8,B_kedvezotlenebb,80,80,71,0,26,interakcio,,,kategoria_vagy_interakcio=mindkettő
-SZIM08,2026-10-05,A1,B_kedvezotlenebb,90,87,64,15,37,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=nem | Egyoldali forma jobban tolerálható.
-SZIM08,2026-10-05,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=az a legjobb | Sok múlik a beteg alkalmazkodásán.
-SZIM08,2026-10-05,A4,B_kedvezotlenebb,90,77,75,0,20,monoton,,,nagy_vs_kicsi=alig | Sok múlik a beteg alkalmazkodásán.
-SZIM08,2026-10-05,A5,nincs_kulonbseg,,,,,,nincs_irany,,,
-SZIM08,2026-10-05,TUB,B_kedvezotlenebb,90,90,61,,,monoton,,,legfontosabb=a feszes ínyborítás | Implantátum-elhorgonyzásnál más a kép.
-SZIM08,2026-10-05,A10,B_kedvezotlenebb,60,78,73,0,22,nincs_irany,,,Egyoldali forma jobban tolerálható.
-SZIM08,2026-10-05,A11,B_kedvezotlenebb,99,95,56,30,52,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Csak jó lenyomattal érvényesül.
-SZIM08,2026-10-05,A12,nincs_kulonbseg,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=alig
-SZIM09,2026-10-11,F1,nem_tudom,,,,,,nincs_irany,,,
-SZIM09,2026-10-11,F2,B_kedvezotlenebb,95,77,67,0,28,optimum,,,Implantátum-elhorgonyzásnál más a kép.
-SZIM09,2026-10-11,F3,nincs_kulonbseg,,,,,,nincs_irany,,,Csak jó lenyomattal érvényesül.
-SZIM09,2026-10-11,F4,B_kedvezotlenebb,80,77,67,1,21,kuszobos,,,Fiatalabb betegnél kevésbé számít.
-SZIM09,2026-10-11,F5,B_kedvezotlenebb,95,89,55,20,48,monoton,,,lokalizacio=egyforma | Implantátum-elhorgonyzásnál más a kép.
-SZIM09,2026-10-11,F6,B_kedvezotlenebb,95,78,66,4,31,optimum,,7°,irany_szamit=nem
-SZIM09,2026-10-11,F7,nincs_kulonbseg,,,,,,nincs_irany,,,
-SZIM09,2026-10-11,F8,B_kedvezotlenebb,60,75,69,,,interakcio,,,kategoria_vagy_interakcio=az erők iránya | Csak jó lenyomattal érvényesül.
-SZIM09,2026-10-11,A1,B_kedvezotlenebb,95,88,56,22,47,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem
-SZIM09,2026-10-11,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=az a legjobb
-SZIM09,2026-10-11,A4,B_kedvezotlenebb,80,75,69,0,26,monoton,,,nagy_vs_kicsi=nem tudom
-SZIM09,2026-10-11,A5,B_kedvezotlenebb,99,77,67,0,19,monoton,,,nem_szukit_helye=az inkább a B-hez áll közel | Implantátum-elhorgonyzásnál más a kép.
-SZIM09,2026-10-11,TUB,B_kedvezotlenebb,95,90,54,25,56,monoton,,,
-SZIM09,2026-10-11,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM09,2026-10-11,A11,B_kedvezotlenebb,90,81,63,9,39,monoton,,,nem_elodomborodo_helye=az inkább a B-hez áll közel | Csak jó lenyomattal érvényesül.
-SZIM09,2026-10-11,A12,nincs_kulonbseg,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=alig
-SZIM10,2026-09-11,F1,B_kedvezotlenebb,90,85,63,,,monoton,,,Csak jó lenyomattal érvényesül.
-SZIM10,2026-09-11,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",Egyoldali forma jobban tolerálható.
-SZIM10,2026-09-11,F3,B_kedvezotlenebb,70,77,71,0,24,monoton,,17 mm,Fiatalabb betegnél kevésbé számít.
-SZIM10,2026-09-11,F4,B_kedvezotlenebb,70,81,67,,,kuszobos,,135°,
-SZIM10,2026-09-11,F5,B_kedvezotlenebb,90,90,58,18,53,monoton,,,lokalizacio=a frontális gerincen | Sok múlik a beteg alkalmazkodásán.
-SZIM10,2026-09-11,F6,A_kedvezotlenebb,70,71,77,0,15,optimum,,9°,irany_szamit=nem
-SZIM10,2026-09-11,F7,A_kedvezotlenebb,70,68,80,0,30,monoton,,,alak_rosszabb=egyforma | Fiatalabb betegnél kevésbé számít.
-SZIM10,2026-09-11,F8,A_kedvezotlenebb,80,70,78,0,26,interakcio,,,
-SZIM10,2026-09-11,A1,B_kedvezotlenebb,99,87,61,16,46,telitodo,,,negy_ot_kulonbseg=igen | Fiatalabb betegnél kevésbé számít.
-SZIM10,2026-09-11,A3,B_kedvezotlenebb,60,79,69,,,nincs_irany,,,lebenyezett=az a legrosszabb | Fiatalabb betegnél kevésbé számít.
-SZIM10,2026-09-11,A4,B_kedvezotlenebb,80,75,73,0,17,monoton,,,nagy_vs_kicsi=nem tudom
-SZIM10,2026-09-11,A5,nincs_kulonbseg,,,,,,nincs_irany,,,
-SZIM10,2026-09-11,TUB,B_kedvezotlenebb,80,81,67,5,28,monoton,,,legfontosabb=az alakja | Egyoldali forma jobban tolerálható.
-SZIM10,2026-09-11,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM10,2026-09-11,A11,B_kedvezotlenebb,70,80,68,4,24,monoton,,,nem_elodomborodo_helye=a kettő között van | Csak jó lenyomattal érvényesül.
-SZIM10,2026-09-11,A12,nincs_kulonbseg,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=nem tudom
-SZIM11,2026-10-12,F1,B_kedvezotlenebb,95,82,63,11,27,monoton,,,
-SZIM11,2026-10-12,F2,B_kedvezotlenebb,70,77,67,2,20,optimum,,"enyhe, egyenletes alámenősség",
-SZIM11,2026-10-12,F3,B_kedvezotlenebb,90,76,68,0,16,monoton,,,Csak jó lenyomattal érvényesül.
-SZIM11,2026-10-12,F4,B_kedvezotlenebb,60,79,65,0,32,kuszobos,,,Fiatalabb betegnél kevésbé számít.
-SZIM11,2026-10-12,F5,B_kedvezotlenebb,99,83,61,9,32,monoton,,,lokalizacio=a tubereken
-SZIM11,2026-10-12,F6,nem_monoton,,,,,,optimum,,6°,irany_szamit=igen
-SZIM11,2026-10-12,F7,nincs_kulonbseg,,,,,,nincs_irany,,,alak_rosszabb=az orsó alakú | Sok múlik a beteg alkalmazkodásán.
-SZIM11,2026-10-12,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=nem tudom
-SZIM11,2026-10-12,A1,B_kedvezotlenebb,99,77,67,,,telitodo,,,negy_ot_kulonbseg=igen
-SZIM11,2026-10-12,A3,A_kedvezotlenebb,80,71,74,,,nincs_irany,,,lebenyezett=az a legjobb
-SZIM11,2026-10-12,A4,B_kedvezotlenebb,95,79,65,0,33,monoton,,,nagy_vs_kicsi=alig | Csak jó lenyomattal érvényesül.
-SZIM11,2026-10-12,A5,B_kedvezotlenebb,80,83,61,,,monoton,,,
-SZIM11,2026-10-12,TUB,B_kedvezotlenebb,90,86,59,14,40,monoton,,,legfontosabb=az alakja | Csak jó lenyomattal érvényesül.
-SZIM11,2026-10-12,A10,B_kedvezotlenebb,95,78,66,1,32,nincs_irany,,,
-SZIM11,2026-10-12,A11,B_kedvezotlenebb,90,76,68,0,18,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel
-SZIM11,2026-10-12,A12,B_kedvezotlenebb,95,75,70,0,13,monoton,,,
-SZIM12,2026-09-08,F1,B_kedvezotlenebb,80,76,53,,,monoton,,4 mm,
-SZIM12,2026-09-08,F2,B_kedvezotlenebb,95,68,60,0,23,optimum,,,Sok múlik a beteg alkalmazkodásán.
-SZIM12,2026-09-08,F3,B_kedvezotlenebb,90,75,54,12,30,monoton,,17 mm,Csak jó lenyomattal érvényesül.
-SZIM12,2026-09-08,F4,B_kedvezotlenebb,50,74,55,12,36,kuszobos,,,
-SZIM12,2026-09-08,F5,B_kedvezotlenebb,99,89,39,35,68,monoton,,,lokalizacio=a tubereken | Fiatalabb betegnél kevésbé számít.
-SZIM12,2026-09-08,F6,B_kedvezotlenebb,70,70,58,2,28,optimum,,9°,irany_szamit=nem
-SZIM12,2026-09-08,F7,B_kedvezotlenebb,60,69,60,1,26,monoton,,,alak_rosszabb=az orsó alakú
-SZIM12,2026-09-08,F8,B_kedvezotlenebb,70,70,59,4,27,interakcio,,,kategoria_vagy_interakcio=az erők iránya
-SZIM12,2026-09-08,A1,B_kedvezotlenebb,99,86,43,32,63,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem | Sok múlik a beteg alkalmazkodásán.
-SZIM12,2026-09-08,A3,B_kedvezotlenebb,60,69,60,1,30,nincs_irany,,,lebenyezett=az a legrosszabb
-SZIM12,2026-09-08,A4,nincs_kulonbseg,,,,,,nincs_irany,,,nagy_vs_kicsi=sokkal | Csak jó lenyomattal érvényesül.
-SZIM12,2026-09-08,A5,nem_tudom,,,,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel | Sok múlik a beteg alkalmazkodásán.
-SZIM12,2026-09-08,TUB,B_kedvezotlenebb,90,78,50,,,monoton,,,legfontosabb=az alakja
-SZIM12,2026-09-08,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM12,2026-09-08,A11,B_kedvezotlenebb,90,86,42,30,64,monoton,,,Csak jó lenyomattal érvényesül.
-SZIM12,2026-09-08,A12,B_kedvezotlenebb,80,69,60,0,30,monoton,,,erzekeny_vs_tapinthato=alig | Egyoldali forma jobban tolerálható.
-SZIM13,2026-09-21,F1,B_kedvezotlenebb,99,85,65,,,monoton,,4 mm,Csak jó lenyomattal érvényesül.
-SZIM13,2026-09-21,F2,nem_monoton,,,,,,optimum,,,
-SZIM13,2026-09-21,F3,nincs_kulonbseg,,,,,,nincs_irany,,18 mm,Csak jó lenyomattal érvényesül.
-SZIM13,2026-09-21,F4,B_kedvezotlenebb,80,88,63,15,34,kuszobos,,,
-SZIM13,2026-09-21,F5,B_kedvezotlenebb,95,94,57,,,monoton,,,lokalizacio=a frontális gerincen | Fiatalabb betegnél kevésbé számít.
-SZIM13,2026-09-21,F6,B_kedvezotlenebb,90,86,65,,,optimum,,8°,irany_szamit=nem tudom | Implantátum-elhorgonyzásnál más a kép.
-SZIM13,2026-09-21,F7,A_kedvezotlenebb,70,66,85,8,36,monoton,,,alak_rosszabb=egyforma
-SZIM13,2026-09-21,F8,nem_tudom,,,,,,nincs_irany,,,
-SZIM13,2026-09-21,A1,B_kedvezotlenebb,99,94,56,24,59,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=igen
-SZIM13,2026-09-21,A3,A_kedvezotlenebb,60,74,76,0,13,nincs_irany,,,lebenyezett=az a legrosszabb
-SZIM13,2026-09-21,A4,B_kedvezotlenebb,80,88,63,16,38,monoton,,,nagy_vs_kicsi=közepesen | Csak jó lenyomattal érvényesül.
-SZIM13,2026-09-21,A5,B_kedvezotlenebb,90,82,68,0,35,monoton,,,nem_szukit_helye=a kettő között van
-SZIM13,2026-09-21,TUB,B_kedvezotlenebb,95,80,70,1,20,monoton,,,legfontosabb=az alakja | Egyoldali forma jobban tolerálható.
-SZIM13,2026-09-21,A10,B_kedvezotlenebb,70,84,67,6,38,nincs_irany,,,melyik_rosszabb=nem tudom
-SZIM13,2026-09-21,A11,B_kedvezotlenebb,95,95,55,27,50,monoton,,,nem_elodomborodo_helye=az inkább a B-hez áll közel
-SZIM13,2026-09-21,A12,B_kedvezotlenebb,90,86,65,7,33,monoton,,,erzekeny_vs_tapinthato=alig
-SZIM14,2026-10-03,F1,B_kedvezotlenebb,80,87,53,21,43,monoton,,5 mm,Egyoldali forma jobban tolerálható.
-SZIM14,2026-10-03,F2,nem_monoton,,,,,,optimum,,,
-SZIM14,2026-10-03,F3,B_kedvezotlenebb,60,78,62,6,27,monoton,,18 mm,
-SZIM14,2026-10-03,F4,nincs_kulonbseg,,,,,,nincs_irany,,137°,Fiatalabb betegnél kevésbé számít.
-SZIM14,2026-10-03,F5,B_kedvezotlenebb,90,83,57,,,monoton,,,lokalizacio=nem tudom | Egyoldali forma jobban tolerálható.
-SZIM14,2026-10-03,F6,B_kedvezotlenebb,60,74,66,0,20,optimum,,9°,irany_szamit=nem tudom
-SZIM14,2026-10-03,F7,nincs_kulonbseg,,,,,,nincs_irany,,,alak_rosszabb=az orsó alakú
-SZIM14,2026-10-03,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája
-SZIM14,2026-10-03,A1,B_kedvezotlenebb,90,77,63,0,30,telitodo,,,legnagyobb_ugras=nagyjából egyenletesen romlik | negy_ot_kulonbseg=nem
-SZIM14,2026-10-03,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=köztes
-SZIM14,2026-10-03,A4,B_kedvezotlenebb,80,78,62,3,32,monoton,,,nagy_vs_kicsi=közepesen
-SZIM14,2026-10-03,A5,nincs_kulonbseg,,,,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel
-SZIM14,2026-10-03,TUB,nincs_kulonbseg,,,,,,nincs_irany,,,legfontosabb=a feszes ínyborítás
-SZIM14,2026-10-03,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=az Angle III. | Sok múlik a beteg alkalmazkodásán.
-SZIM14,2026-10-03,A11,nem_tudom,,,,,,nincs_irany,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Sok múlik a beteg alkalmazkodásán.
-SZIM14,2026-10-03,A12,B_kedvezotlenebb,90,79,61,5,37,monoton,,,erzekeny_vs_tapinthato=alig
-SZIM15,2026-09-16,F1,B_kedvezotlenebb,90,89,64,15,42,monoton,,,
-SZIM15,2026-09-16,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",Csak jó lenyomattal érvényesül.
-SZIM15,2026-09-16,F3,B_kedvezotlenebb,90,84,69,2,23,monoton,,15 mm,
-SZIM15,2026-09-16,F4,nincs_kulonbseg,,,,,,nincs_irany,,,Egyoldali forma jobban tolerálható.
-SZIM15,2026-09-16,F5,B_kedvezotlenebb,95,86,68,9,37,monoton,,,lokalizacio=egyforma | Csak jó lenyomattal érvényesül.
-SZIM15,2026-09-16,F6,nem_tudom,,,,,,nincs_irany,,,irany_szamit=igen | Csak jó lenyomattal érvényesül.
-SZIM15,2026-09-16,F7,B_kedvezotlenebb,80,88,66,7,32,monoton,,,alak_rosszabb=a plató alakú
-SZIM15,2026-09-16,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája
-SZIM15,2026-09-16,A1,nem_tudom,,,,,,nincs_irany,,,legnagyobb_ugras=4 és 5 között | negy_ot_kulonbseg=igen
-SZIM15,2026-09-16,A3,nem_tudom,,,,,,nincs_irany,,,lebenyezett=az a legjobb | Sok múlik a beteg alkalmazkodásán.
-SZIM15,2026-09-16,A4,B_kedvezotlenebb,90,79,75,0,17,monoton,,,nagy_vs_kicsi=közepesen | Egyoldali forma jobban tolerálható.
-SZIM15,2026-09-16,A5,B_kedvezotlenebb,99,80,73,0,23,monoton,,,nem_szukit_helye=nem tudom | Implantátum-elhorgonyzásnál más a kép.
-SZIM15,2026-09-16,TUB,B_kedvezotlenebb,95,81,73,0,24,monoton,,,legfontosabb=hogy mozog-e | Fiatalabb betegnél kevésbé számít.
-SZIM15,2026-09-16,A10,nem_tudom,,,,,,nincs_irany,,,Egyoldali forma jobban tolerálható.
-SZIM15,2026-09-16,A11,B_kedvezotlenebb,95,93,60,22,48,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Egyoldali forma jobban tolerálható.
-SZIM15,2026-09-16,A12,nincs_kulonbseg,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=nem tudom
-SZIM16,2026-09-28,F1,B_kedvezotlenebb,80,78,55,,,monoton,,6 mm,
-SZIM16,2026-09-28,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",Sok múlik a beteg alkalmazkodásán.
-SZIM16,2026-09-28,F3,B_kedvezotlenebb,90,71,62,0,31,monoton,,17 mm,Fiatalabb betegnél kevésbé számít.
-SZIM16,2026-09-28,F4,B_kedvezotlenebb,80,68,65,0,21,kuszobos,,,
-SZIM16,2026-09-28,F5,nem_tudom,,,,,,nincs_irany,,,lokalizacio=nem tudom | Fiatalabb betegnél kevésbé számít.
-SZIM16,2026-09-28,F6,B_kedvezotlenebb,60,71,62,,,optimum,,6°,
-SZIM16,2026-09-28,F7,nincs_kulonbseg,,,,,,nincs_irany,,,Sok múlik a beteg alkalmazkodásán.
-SZIM16,2026-09-28,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő
-SZIM16,2026-09-28,A1,B_kedvezotlenebb,90,81,51,22,40,telitodo,,,
-SZIM16,2026-09-28,A3,B_kedvezotlenebb,90,67,65,0,18,nincs_irany,,,
-SZIM16,2026-09-28,A4,B_kedvezotlenebb,95,73,60,4,27,monoton,,,
-SZIM16,2026-09-28,A5,nincs_kulonbseg,,,,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel
-SZIM16,2026-09-28,TUB,B_kedvezotlenebb,80,77,56,14,30,monoton,,,legfontosabb=a feszes ínyborítás | Csak jó lenyomattal érvényesül.
-SZIM16,2026-09-28,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM16,2026-09-28,A11,B_kedvezotlenebb,99,74,59,5,34,monoton,,,
-SZIM16,2026-09-28,A12,B_kedvezotlenebb,70,67,65,,,monoton,,,erzekeny_vs_tapinthato=alig
-SZIM17,2026-10-14,F1,B_kedvezotlenebb,90,86,69,6,27,monoton,,7 mm,
-SZIM17,2026-10-14,F2,B_kedvezotlenebb,90,87,68,6,36,optimum,,"enyhe, egyenletes alámenősség",
-SZIM17,2026-10-14,F3,B_kedvezotlenebb,90,84,71,1,23,monoton,,17 mm,
-SZIM17,2026-10-14,F4,B_kedvezotlenebb,60,86,69,,,kuszobos,,137°,
-SZIM17,2026-10-14,F5,B_kedvezotlenebb,95,94,61,18,54,monoton,,,lokalizacio=a frontális gerincen
-SZIM17,2026-10-14,F6,nem_monoton,,,,,,optimum,,7°,irany_szamit=igen | Csak jó lenyomattal érvényesül.
-SZIM17,2026-10-14,F7,A_kedvezotlenebb,70,68,86,,,monoton,,,alak_rosszabb=az orsó alakú | Fiatalabb betegnél kevésbé számít.
-SZIM17,2026-10-14,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő | Csak jó lenyomattal érvényesül.
-SZIM17,2026-10-14,A1,B_kedvezotlenebb,99,86,68,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem | Egyoldali forma jobban tolerálható.
-SZIM17,2026-10-14,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=köztes
-SZIM17,2026-10-14,A4,B_kedvezotlenebb,50,82,73,1,23,monoton,,,nagy_vs_kicsi=közepesen | Fiatalabb betegnél kevésbé számít.
-SZIM17,2026-10-14,A5,nem_tudom,,,,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel | Fiatalabb betegnél kevésbé számít.
-SZIM17,2026-10-14,TUB,B_kedvezotlenebb,90,78,76,0,10,monoton,,,legfontosabb=a feszes ínyborítás
-SZIM17,2026-10-14,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM17,2026-10-14,A11,B_kedvezotlenebb,80,93,61,17,53,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Egyoldali forma jobban tolerálható.
-SZIM17,2026-10-14,A12,nem_tudom,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=közepesen
-SZIM18,2026-10-17,F1,B_kedvezotlenebb,95,60,40,10,35,monoton,,6 mm,Fiatalabb betegnél kevésbé számít.
-SZIM18,2026-10-17,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM18,2026-10-17,F3,B_kedvezotlenebb,80,60,40,11,29,monoton,,20 mm,Csak jó lenyomattal érvényesül.
-SZIM18,2026-10-17,F4,B_kedvezotlenebb,50,53,47,,,kuszobos,,135°,Csak jó lenyomattal érvényesül.
-SZIM18,2026-10-17,F5,B_kedvezotlenebb,95,66,34,20,43,monoton,,,lokalizacio=a frontális gerincen
-SZIM18,2026-10-17,F6,nem_monoton,,,,,,optimum,,12°,irany_szamit=igen
-SZIM18,2026-10-17,F7,nincs_kulonbseg,,,,,,nincs_irany,,,alak_rosszabb=az orsó alakú
-SZIM18,2026-10-17,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő
-SZIM18,2026-10-17,A1,B_kedvezotlenebb,90,67,33,21,54,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen
-SZIM18,2026-10-17,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=köztes | Fiatalabb betegnél kevésbé számít.
-SZIM18,2026-10-17,A4,A_kedvezotlenebb,80,43,57,0,31,monoton,,,nagy_vs_kicsi=alig
-SZIM18,2026-10-17,A5,A_kedvezotlenebb,60,40,60,13,33,monoton,,,nem_szukit_helye=nem tudom
-SZIM18,2026-10-17,TUB,B_kedvezotlenebb,80,67,33,27,48,monoton,,,legfontosabb=nem tudom
-SZIM18,2026-10-17,A10,B_kedvezotlenebb,70,51,49,0,15,nincs_irany,,,melyik_rosszabb=az Angle II. | Egyoldali forma jobban tolerálható.
-SZIM18,2026-10-17,A11,B_kedvezotlenebb,70,72,28,32,63,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Fiatalabb betegnél kevésbé számít.
-SZIM18,2026-10-17,A12,B_kedvezotlenebb,70,52,48,0,14,monoton,,,erzekeny_vs_tapinthato=sokkal
-SZIM19,2026-09-27,F1,B_kedvezotlenebb,99,73,66,,,monoton,,8 mm,Fiatalabb betegnél kevésbé számít.
-SZIM19,2026-09-27,F2,A_kedvezotlenebb,80,62,77,0,27,optimum,,"enyhe, egyenletes alámenősség",
-SZIM19,2026-09-27,F3,B_kedvezotlenebb,80,76,63,0,27,monoton,,15 mm,
-SZIM19,2026-09-27,F4,B_kedvezotlenebb,50,78,61,5,33,kuszobos,,138°,
-SZIM19,2026-09-27,F5,B_kedvezotlenebb,95,79,60,10,35,monoton,,,lokalizacio=a frontális gerincen | Csak jó lenyomattal érvényesül.
-SZIM19,2026-09-27,F6,B_kedvezotlenebb,90,73,66,0,21,optimum,,,irany_szamit=nem tudom | Sok múlik a beteg alkalmazkodásán.
-SZIM19,2026-09-27,F7,B_kedvezotlenebb,60,78,61,5,38,monoton,,,alak_rosszabb=nem tudom
-SZIM19,2026-09-27,F8,nem_tudom,,,,,,nincs_irany,,,
-SZIM19,2026-09-27,A1,B_kedvezotlenebb,99,81,58,9,33,telitodo,,,legnagyobb_ugras=nagyjából egyenletesen romlik | negy_ot_kulonbseg=nem | Csak jó lenyomattal érvényesül.
-SZIM19,2026-09-27,A3,A_kedvezotlenebb,80,65,74,0,23,nincs_irany,,,lebenyezett=nem tudom | Sok múlik a beteg alkalmazkodásán.
-SZIM19,2026-09-27,A4,B_kedvezotlenebb,60,79,60,7,31,monoton,,,nagy_vs_kicsi=alig
-SZIM19,2026-09-27,A5,B_kedvezotlenebb,80,72,67,0,19,monoton,,,Implantátum-elhorgonyzásnál más a kép.
-SZIM19,2026-09-27,TUB,B_kedvezotlenebb,90,77,62,3,22,monoton,,,Sok múlik a beteg alkalmazkodásán.
-SZIM19,2026-09-27,A10,B_kedvezotlenebb,90,73,66,0,25,nincs_irany,,,Implantátum-elhorgonyzásnál más a kép.
-SZIM19,2026-09-27,A11,B_kedvezotlenebb,80,85,54,16,51,monoton,,,nem_elodomborodo_helye=az inkább a B-hez áll közel | Fiatalabb betegnél kevésbé számít.
-SZIM19,2026-09-27,A12,nincs_kulonbseg,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=alig
-SZIM20,2026-09-22,F1,B_kedvezotlenebb,90,84,62,13,41,monoton,,7 mm,
-SZIM20,2026-09-22,F2,B_kedvezotlenebb,70,78,67,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM20,2026-09-22,F3,B_kedvezotlenebb,70,81,64,5,26,monoton,,20 mm,
-SZIM20,2026-09-22,F4,B_kedvezotlenebb,50,83,62,6,39,kuszobos,,129°,
-SZIM20,2026-09-22,F5,B_kedvezotlenebb,80,96,49,35,56,monoton,,,
-SZIM20,2026-09-22,F6,B_kedvezotlenebb,80,80,65,8,27,optimum,,7°,
-SZIM20,2026-09-22,F7,nincs_kulonbseg,,,,,,nincs_irany,,,alak_rosszabb=nem tudom
-SZIM20,2026-09-22,F8,nincs_kulonbseg,,,,,,nincs_irany,,,
-SZIM20,2026-09-22,A1,B_kedvezotlenebb,90,94,52,31,63,telitodo,,,legnagyobb_ugras=nagyjából egyenletesen romlik | negy_ot_kulonbseg=igen | Fiatalabb betegnél kevésbé számít.
-SZIM20,2026-09-22,A3,B_kedvezotlenebb,60,82,64,11,27,nincs_irany,,,lebenyezett=köztes
-SZIM20,2026-09-22,A4,B_kedvezotlenebb,60,79,67,3,26,monoton,,,nagy_vs_kicsi=nem tudom
-SZIM20,2026-09-22,A5,nincs_kulonbseg,,,,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel
-SZIM20,2026-09-22,TUB,B_kedvezotlenebb,90,88,57,22,48,monoton,,,legfontosabb=a feszes ínyborítás
-SZIM20,2026-09-22,A10,B_kedvezotlenebb,60,75,70,0,25,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM20,2026-09-22,A11,B_kedvezotlenebb,80,93,52,27,61,monoton,,,nem_elodomborodo_helye=a kettő között van
-SZIM20,2026-09-22,A12,B_kedvezotlenebb,70,79,66,0,30,monoton,,,erzekeny_vs_tapinthato=nem tudom
-SZIM21,2026-09-21,F1,B_kedvezotlenebb,90,83,61,12,31,monoton,,7 mm,Implantátum-elhorgonyzásnál más a kép.
-SZIM21,2026-09-21,F2,B_kedvezotlenebb,60,80,64,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM21,2026-09-21,F3,B_kedvezotlenebb,95,81,62,7,31,monoton,,18 mm,Fiatalabb betegnél kevésbé számít.
-SZIM21,2026-09-21,F4,nem_tudom,,,,,,nincs_irany,,133°,
-SZIM21,2026-09-21,F5,B_kedvezotlenebb,95,82,61,12,33,monoton,,,lokalizacio=a tubereken
-SZIM21,2026-09-21,F6,B_kedvezotlenebb,70,82,61,7,30,optimum,,5°,irany_szamit=nem
-SZIM21,2026-09-21,F7,B_kedvezotlenebb,50,82,62,9,36,monoton,,,alak_rosszabb=az orsó alakú
-SZIM21,2026-09-21,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája | Csak jó lenyomattal érvényesül.
-SZIM21,2026-09-21,A1,B_kedvezotlenebb,95,96,48,35,62,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=nem
-SZIM21,2026-09-21,A3,A_kedvezotlenebb,60,68,75,0,25,nincs_irany,,,lebenyezett=köztes
-SZIM21,2026-09-21,A4,nem_tudom,,,,,,nincs_irany,,,nagy_vs_kicsi=alig
-SZIM21,2026-09-21,A5,B_kedvezotlenebb,60,88,56,25,43,monoton,,,nem_szukit_helye=a kettő között van | Egyoldali forma jobban tolerálható.
-SZIM21,2026-09-21,TUB,B_kedvezotlenebb,95,88,55,23,47,monoton,,,legfontosabb=nem tudom | Implantátum-elhorgonyzásnál más a kép.
-SZIM21,2026-09-21,A10,B_kedvezotlenebb,70,77,67,0,22,nincs_irany,,,melyik_rosszabb=az Angle II.
-SZIM21,2026-09-21,A11,B_kedvezotlenebb,99,94,50,34,53,monoton,,,
-SZIM21,2026-09-21,A12,B_kedvezotlenebb,80,76,68,0,17,monoton,,,
-SZIM22,2026-10-07,F1,B_kedvezotlenebb,95,78,51,19,40,monoton,,5 mm,Egyoldali forma jobban tolerálható.
-SZIM22,2026-10-07,F2,nincs_kulonbseg,,,,,,nincs_irany,,"enyhe, egyenletes alámenősség",Sok múlik a beteg alkalmazkodásán.
-SZIM22,2026-10-07,F3,B_kedvezotlenebb,80,76,54,12,30,monoton,,19 mm,
-SZIM22,2026-10-07,F4,B_kedvezotlenebb,90,75,55,5,30,kuszobos,,130°,Csak jó lenyomattal érvényesül.
-SZIM22,2026-10-07,F5,nincs_kulonbseg,,,,,,nincs_irany,,,lokalizacio=a tubereken | Implantátum-elhorgonyzásnál más a kép.
-SZIM22,2026-10-07,F6,B_kedvezotlenebb,80,71,59,3,23,optimum,,10°,irany_szamit=igen | Fiatalabb betegnél kevésbé számít.
-SZIM22,2026-10-07,F7,A_kedvezotlenebb,80,60,69,0,20,monoton,,,alak_rosszabb=nem tudom | Egyoldali forma jobban tolerálható.
-SZIM22,2026-10-07,F8,nem_tudom,,,,,,nincs_irany,,,
-SZIM22,2026-10-07,A1,B_kedvezotlenebb,95,83,46,24,50,telitodo,,,negy_ot_kulonbseg=igen | Csak jó lenyomattal érvényesül.
-SZIM22,2026-10-07,A3,A_kedvezotlenebb,80,60,69,0,31,nincs_irany,,,lebenyezett=nem tudom
-SZIM22,2026-10-07,A4,A_kedvezotlenebb,70,57,73,2,34,monoton,,,nagy_vs_kicsi=közepesen
-SZIM22,2026-10-07,A5,B_kedvezotlenebb,80,72,58,4,25,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel | Implantátum-elhorgonyzásnál más a kép.
-SZIM22,2026-10-07,TUB,nem_tudom,,,,,,nincs_irany,,,legfontosabb=a feszes ínyborítás
-SZIM22,2026-10-07,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle III. | Sok múlik a beteg alkalmazkodásán.
-SZIM22,2026-10-07,A11,B_kedvezotlenebb,95,78,51,17,42,monoton,,,nem_elodomborodo_helye=nem tudom | Egyoldali forma jobban tolerálható.
-SZIM22,2026-10-07,A12,A_kedvezotlenebb,90,56,73,,,monoton,,,
-SZIM23,2026-09-19,F1,B_kedvezotlenebb,80,81,64,6,25,monoton,,4 mm,
-SZIM23,2026-09-19,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM23,2026-09-19,F3,B_kedvezotlenebb,80,81,64,10,24,monoton,,17 mm,Implantátum-elhorgonyzásnál más a kép.
-SZIM23,2026-09-19,F4,B_kedvezotlenebb,99,81,64,3,38,kuszobos,,132°,
-SZIM23,2026-09-19,F5,B_kedvezotlenebb,99,84,61,9,36,monoton,,,lokalizacio=egyforma | Sok múlik a beteg alkalmazkodásán.
-SZIM23,2026-09-19,F6,B_kedvezotlenebb,80,81,65,4,25,optimum,,11°,irany_szamit=igen
-SZIM23,2026-09-19,F7,B_kedvezotlenebb,90,77,68,0,26,monoton,,,alak_rosszabb=a plató alakú | Sok múlik a beteg alkalmazkodásán.
-SZIM23,2026-09-19,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő | Egyoldali forma jobban tolerálható.
-SZIM23,2026-09-19,A1,B_kedvezotlenebb,99,80,65,5,32,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen
-SZIM23,2026-09-19,A3,B_kedvezotlenebb,80,81,64,4,31,nincs_irany,,,lebenyezett=nem tudom | Csak jó lenyomattal érvényesül.
-SZIM23,2026-09-19,A4,B_kedvezotlenebb,99,76,70,0,14,monoton,,,nagy_vs_kicsi=közepesen | Sok múlik a beteg alkalmazkodásán.
-SZIM23,2026-09-19,A5,B_kedvezotlenebb,90,82,63,12,37,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel | Implantátum-elhorgonyzásnál más a kép.
-SZIM23,2026-09-19,TUB,nincs_kulonbseg,,,,,,nincs_irany,,,Csak jó lenyomattal érvényesül.
-SZIM23,2026-09-19,A10,nem_tudom,,,,,,nincs_irany,,,
-SZIM23,2026-09-19,A11,B_kedvezotlenebb,99,78,67,2,24,monoton,,,
-SZIM23,2026-09-19,A12,B_kedvezotlenebb,95,78,67,0,22,monoton,,,erzekeny_vs_tapinthato=közepesen
-SZIM24,2026-10-03,F1,A_kedvezotlenebb,90,51,83,17,50,monoton,,,
-SZIM24,2026-10-03,F2,B_kedvezotlenebb,90,75,59,7,38,optimum,,"enyhe, egyenletes alámenősség",Implantátum-elhorgonyzásnál más a kép.
-SZIM24,2026-10-03,F3,B_kedvezotlenebb,70,77,57,13,35,monoton,,16 mm,
-SZIM24,2026-10-03,F4,B_kedvezotlenebb,80,73,61,5,23,kuszobos,,,Implantátum-elhorgonyzásnál más a kép.
-SZIM24,2026-10-03,F5,B_kedvezotlenebb,90,87,47,25,57,monoton,,,lokalizacio=egyforma
-SZIM24,2026-10-03,F6,B_kedvezotlenebb,90,76,58,11,31,optimum,,7°,irany_szamit=nem
-SZIM24,2026-10-03,F7,A_kedvezotlenebb,80,59,75,7,27,monoton,,,
-SZIM24,2026-10-03,F8,A_kedvezotlenebb,70,64,71,0,17,interakcio,,,Sok múlik a beteg alkalmazkodásán.
-SZIM24,2026-10-03,A1,B_kedvezotlenebb,80,90,45,34,55,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen
-SZIM24,2026-10-03,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=az a legrosszabb
-SZIM24,2026-10-03,A4,B_kedvezotlenebb,80,75,59,6,25,monoton,,,nagy_vs_kicsi=alig
-SZIM24,2026-10-03,A5,B_kedvezotlenebb,80,81,53,,,monoton,,,
-SZIM24,2026-10-03,TUB,B_kedvezotlenebb,80,74,61,3,31,monoton,,,legfontosabb=nem tudom
-SZIM24,2026-10-03,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=egyforma
-SZIM24,2026-10-03,A11,B_kedvezotlenebb,90,89,45,33,65,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Egyoldali forma jobban tolerálható.
-SZIM24,2026-10-03,A12,B_kedvezotlenebb,70,79,55,8,31,monoton,,,
-SZIM25,2026-09-27,F1,B_kedvezotlenebb,90,84,73,4,31,monoton,,,Sok múlik a beteg alkalmazkodásán.
-SZIM25,2026-09-27,F2,A_kedvezotlenebb,80,75,83,0,15,optimum,,"enyhe, egyenletes alámenősség",
-SZIM25,2026-09-27,F3,B_kedvezotlenebb,80,89,69,11,35,monoton,,18 mm,
-SZIM25,2026-09-27,F4,B_kedvezotlenebb,60,85,72,0,34,kuszobos,,135°,
-SZIM25,2026-09-27,F5,nincs_kulonbseg,,,,,,nincs_irany,,,lokalizacio=a frontális gerincen
-SZIM25,2026-09-27,F6,B_kedvezotlenebb,70,83,75,0,17,optimum,,,irany_szamit=nem
-SZIM25,2026-09-27,F7,B_kedvezotlenebb,80,87,71,8,29,monoton,,,alak_rosszabb=az orsó alakú
-SZIM25,2026-09-27,F8,B_kedvezotlenebb,60,82,75,0,27,interakcio,,,kategoria_vagy_interakcio=az antagonista fajtája | Fiatalabb betegnél kevésbé számít.
-SZIM25,2026-09-27,A1,B_kedvezotlenebb,80,98,58,36,51,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen
-SZIM25,2026-09-27,A3,B_kedvezotlenebb,80,81,77,0,13,nincs_irany,,,lebenyezett=nem tudom
-SZIM25,2026-09-27,A4,B_kedvezotlenebb,70,80,78,,,monoton,,,nagy_vs_kicsi=közepesen | Sok múlik a beteg alkalmazkodásán.
-SZIM25,2026-09-27,A5,B_kedvezotlenebb,80,80,78,0,10,monoton,,,
-SZIM25,2026-09-27,TUB,B_kedvezotlenebb,99,98,58,28,51,monoton,,,legfontosabb=hogy mozog-e
-SZIM25,2026-09-27,A10,B_kedvezotlenebb,80,88,70,,,nincs_irany,,,
-SZIM25,2026-09-27,A11,B_kedvezotlenebb,99,96,62,21,55,monoton,,,
-SZIM25,2026-09-27,A12,nem_tudom,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=közepesen | Csak jó lenyomattal érvényesül.
-SZIM26,2026-09-27,F1,B_kedvezotlenebb,80,87,68,9,36,monoton,,6 mm,Sok múlik a beteg alkalmazkodásán.
-SZIM26,2026-09-27,F2,nincs_kulonbseg,,,,,,nincs_irany,,,
-SZIM26,2026-09-27,F3,nincs_kulonbseg,,,,,,nincs_irany,,16 mm,
-SZIM26,2026-09-27,F4,nem_tudom,,,,,,nincs_irany,,,
-SZIM26,2026-09-27,F5,B_kedvezotlenebb,95,91,65,17,46,monoton,,,lokalizacio=a frontális gerincen
-SZIM26,2026-09-27,F6,nincs_kulonbseg,,,,,,nincs_irany,,,irany_szamit=igen
-SZIM26,2026-09-27,F7,A_kedvezotlenebb,50,74,81,0,27,monoton,,,alak_rosszabb=az orsó alakú
-SZIM26,2026-09-27,F8,B_kedvezotlenebb,80,81,74,0,25,interakcio,,,kategoria_vagy_interakcio=mindkettő
-SZIM26,2026-09-27,A1,B_kedvezotlenebb,95,93,62,17,42,telitodo,,,legnagyobb_ugras=2 és 3 között | Csak jó lenyomattal érvényesül.
-SZIM26,2026-09-27,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=az a legjobb
-SZIM26,2026-09-27,A4,B_kedvezotlenebb,80,84,72,0,29,monoton,,,nagy_vs_kicsi=alig | Sok múlik a beteg alkalmazkodásán.
-SZIM26,2026-09-27,A5,nem_tudom,,,,,,nincs_irany,,,
-SZIM26,2026-09-27,TUB,B_kedvezotlenebb,95,83,72,0,18,monoton,,,Fiatalabb betegnél kevésbé számít.
-SZIM26,2026-09-27,A10,nem_tudom,,,,,,nincs_irany,,,Sok múlik a beteg alkalmazkodásán.
-SZIM26,2026-09-27,A11,nincs_kulonbseg,,,,,,nincs_irany,,,Sok múlik a beteg alkalmazkodásán.
-SZIM26,2026-09-27,A12,B_kedvezotlenebb,60,90,65,17,35,monoton,,,
-SZIM27,2026-09-17,F1,B_kedvezotlenebb,95,89,68,15,39,monoton,,6 mm,Sok múlik a beteg alkalmazkodásán.
-SZIM27,2026-09-17,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM27,2026-09-17,F3,B_kedvezotlenebb,90,85,72,3,24,monoton,,16 mm,Egyoldali forma jobban tolerálható.
-SZIM27,2026-09-17,F4,nem_tudom,,,,,,nincs_irany,,137°,
-SZIM27,2026-09-17,F5,B_kedvezotlenebb,99,98,57,34,60,monoton,,,Fiatalabb betegnél kevésbé számít.
-SZIM27,2026-09-17,F6,B_kedvezotlenebb,90,79,77,0,17,optimum,,8°,Implantátum-elhorgonyzásnál más a kép.
-SZIM27,2026-09-17,F7,B_kedvezotlenebb,90,81,76,0,25,monoton,,,alak_rosszabb=egyforma
-SZIM27,2026-09-17,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=nem tudom
-SZIM27,2026-09-17,A1,B_kedvezotlenebb,99,90,67,15,33,telitodo,,,legnagyobb_ugras=4 és 5 között | Egyoldali forma jobban tolerálható.
-SZIM27,2026-09-17,A3,B_kedvezotlenebb,50,84,73,3,27,nincs_irany,,,lebenyezett=az a legjobb
-SZIM27,2026-09-17,A4,B_kedvezotlenebb,70,89,68,12,40,monoton,,,nagy_vs_kicsi=alig | Sok múlik a beteg alkalmazkodásán.
-SZIM27,2026-09-17,A5,B_kedvezotlenebb,90,82,75,0,15,monoton,,,nem_szukit_helye=nem tudom
-SZIM27,2026-09-17,TUB,A_kedvezotlenebb,80,67,90,10,44,monoton,,,legfontosabb=hogy mozog-e | Egyoldali forma jobban tolerálható.
-SZIM27,2026-09-17,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=nem tudom | Sok múlik a beteg alkalmazkodásán.
-SZIM27,2026-09-17,A11,B_kedvezotlenebb,90,93,64,21,38,monoton,,,nem_elodomborodo_helye=a kettő között van
-SZIM27,2026-09-17,A12,B_kedvezotlenebb,70,84,73,0,22,monoton,,,erzekeny_vs_tapinthato=alig
-SZIM28,2026-10-04,F1,B_kedvezotlenebb,90,74,56,9,27,monoton,,8 mm,Implantátum-elhorgonyzásnál más a kép.
-SZIM28,2026-10-04,F2,nem_monoton,,,,,,optimum,,,
-SZIM28,2026-10-04,F3,B_kedvezotlenebb,95,72,58,0,26,monoton,,16 mm,Sok múlik a beteg alkalmazkodásán.
-SZIM28,2026-10-04,F4,B_kedvezotlenebb,80,68,62,0,20,kuszobos,,138°,
-SZIM28,2026-10-04,F5,B_kedvezotlenebb,95,71,59,5,27,monoton,,,
-SZIM28,2026-10-04,F6,nincs_kulonbseg,,,,,,nincs_irany,,6°,Egyoldali forma jobban tolerálható.
-SZIM28,2026-10-04,F7,B_kedvezotlenebb,50,66,64,0,23,monoton,,,alak_rosszabb=az orsó alakú
-SZIM28,2026-10-04,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő
-SZIM28,2026-10-04,A1,B_kedvezotlenebb,95,70,59,0,22,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem | Egyoldali forma jobban tolerálható.
-SZIM28,2026-10-04,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=az a legjobb | Csak jó lenyomattal érvényesül.
-SZIM28,2026-10-04,A4,B_kedvezotlenebb,90,73,56,4,38,monoton,,,nagy_vs_kicsi=közepesen
-SZIM28,2026-10-04,A5,B_kedvezotlenebb,80,72,58,,,monoton,,,
-SZIM28,2026-10-04,TUB,B_kedvezotlenebb,90,66,64,0,16,monoton,,,legfontosabb=a feszes ínyborítás
-SZIM28,2026-10-04,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=egyforma
-SZIM28,2026-10-04,A11,B_kedvezotlenebb,80,70,60,0,18,monoton,,,Egyoldali forma jobban tolerálható.
-SZIM28,2026-10-04,A12,B_kedvezotlenebb,90,71,59,1,32,monoton,,,erzekeny_vs_tapinthato=alig
-SZIM29,2026-10-08,F1,B_kedvezotlenebb,80,77,45,23,52,monoton,,,
-SZIM29,2026-10-08,F2,B_kedvezotlenebb,70,70,52,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM29,2026-10-08,F3,B_kedvezotlenebb,90,68,54,4,28,monoton,,18 mm,Csak jó lenyomattal érvényesül.
-SZIM29,2026-10-08,F4,B_kedvezotlenebb,60,64,58,,,kuszobos,,,Fiatalabb betegnél kevésbé számít.
-SZIM29,2026-10-08,F5,B_kedvezotlenebb,99,74,48,11,45,monoton,,,lokalizacio=egyforma
-SZIM29,2026-10-08,F6,nem_monoton,,,,,,optimum,,10°,irany_szamit=igen
-SZIM29,2026-10-08,F7,nincs_kulonbseg,,,,,,nincs_irany,,,alak_rosszabb=a plató alakú | Csak jó lenyomattal érvényesül.
-SZIM29,2026-10-08,F8,B_kedvezotlenebb,70,66,56,0,18,interakcio,,,kategoria_vagy_interakcio=az erők iránya
-SZIM29,2026-10-08,A1,B_kedvezotlenebb,95,81,41,29,49,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen
-SZIM29,2026-10-08,A3,nincs_kulonbseg,,,,,,nincs_irany,,,lebenyezett=az a legjobb
-SZIM29,2026-10-08,A4,B_kedvezotlenebb,60,70,52,4,28,monoton,,,nagy_vs_kicsi=alig | Csak jó lenyomattal érvényesül.
-SZIM29,2026-10-08,A5,nincs_kulonbseg,,,,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel | Egyoldali forma jobban tolerálható.
-SZIM29,2026-10-08,TUB,B_kedvezotlenebb,80,73,49,13,39,monoton,,,
-SZIM29,2026-10-08,A10,nem_monoton,,,,,,optimum,,,melyik_rosszabb=az Angle II.
-SZIM29,2026-10-08,A11,B_kedvezotlenebb,90,80,43,26,47,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Fiatalabb betegnél kevésbé számít.
-SZIM29,2026-10-08,A12,B_kedvezotlenebb,70,70,53,9,25,monoton,,,Implantátum-elhorgonyzásnál más a kép.
-SZIM30,2026-10-16,F1,nincs_kulonbseg,,,,,,nincs_irany,,5 mm,
-SZIM30,2026-10-16,F2,nem_monoton,,,,,,optimum,,"enyhe, egyenletes alámenősség",
-SZIM30,2026-10-16,F3,B_kedvezotlenebb,90,73,60,3,26,monoton,,18 mm,
-SZIM30,2026-10-16,F4,B_kedvezotlenebb,80,74,58,5,31,kuszobos,,132°,
-SZIM30,2026-10-16,F5,B_kedvezotlenebb,99,69,63,0,19,monoton,,,lokalizacio=a tubereken | Implantátum-elhorgonyzásnál más a kép.
-SZIM30,2026-10-16,F6,B_kedvezotlenebb,90,67,65,0,14,optimum,,15°,irany_szamit=igen | Fiatalabb betegnél kevésbé számít.
-SZIM30,2026-10-16,F7,A_kedvezotlenebb,60,65,68,,,monoton,,,alak_rosszabb=az orsó alakú
-SZIM30,2026-10-16,F8,nincs_kulonbseg,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája
-SZIM30,2026-10-16,A1,B_kedvezotlenebb,95,81,52,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen
-SZIM30,2026-10-16,A3,nem_tudom,,,,,,nincs_irany,,,lebenyezett=nem tudom
-SZIM30,2026-10-16,A4,nincs_kulonbseg,,,,,,nincs_irany,,,nagy_vs_kicsi=alig | Csak jó lenyomattal érvényesül.
-SZIM30,2026-10-16,A5,B_kedvezotlenebb,70,77,56,13,42,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel | Sok múlik a beteg alkalmazkodásán.
-SZIM30,2026-10-16,TUB,B_kedvezotlenebb,95,75,57,9,36,monoton,,,legfontosabb=az alakja
-SZIM30,2026-10-16,A10,nincs_kulonbseg,,,,,,nincs_irany,,,melyik_rosszabb=az Angle III.
-SZIM30,2026-10-16,A11,B_kedvezotlenebb,80,74,59,1,32,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Csak jó lenyomattal érvényesül.
-SZIM30,2026-10-16,A12,B_kedvezotlenebb,70,73,60,0,27,monoton,,,erzekeny_vs_tapinthato=nem tudom | Csak jó lenyomattal érvényesül.
+﻿szakerto_id,datum,tetel,irany,p_irany,siker_A,siker_B,kulonbseg_min,kulonbseg_max,alak,mechanizmus,kuszob,megjegyzes,szerep,siker_A_min,siker_A_max,siker_B_min,siker_B_max,siker_M,siker_M_min,siker_M_max,nagysag_nem_tudom,polus_A_ertek,polus_M_ertek,polus_B_ertek,polus_egyseg
+SZIM01,2026-09-27,F1,B_kedvezotlenebb,80,81,56,,,monoton,,,Fiatalabb betegnél kevésbé számít.,fogorvos,73,92,48,63,,,,,10.0,,5.0,mm
+SZIM01,2026-09-27,F2,nem_monoton,,57,62,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,49,64,54,69,72,64,79,,,,,
+SZIM01,2026-09-27,F3,A_kedvezotlenebb,70,65,73,,,monoton,,18 mm,,fogorvos,57,72,64,81,,,,,25.0,,17.0,mm
+SZIM01,2026-09-27,F4,nincs_kulonbseg,,69,71,,,nincs_irany,,133°,Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM01,2026-09-27,F5,B_kedvezotlenebb,99,,,,,monoton,,,lokalizacio=a frontális gerincen | Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,1,,,,
+SZIM01,2026-09-27,F6,B_kedvezotlenebb,95,,,,,optimum,,10°,irany_szamit=igen | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,1,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM01,2026-09-27,F7,nincs_kulonbseg,,69,71,,,nincs_irany,,,alak_rosszabb=egyforma | Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM01,2026-09-27,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM01,2026-09-27,A1,nem_tudom,,,,,,nincs_irany,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=nem tudom | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM01,2026-09-27,A3,A_kedvezotlenebb,90,64,73,,,nincs_irany,,,lebenyezett=köztes,fogorvos,49,79,61,82,,,,,,,,
+SZIM01,2026-09-27,A4,A_kedvezotlenebb,95,64,74,,,monoton,,,nagy_vs_kicsi=sokkal | Fiatalabb betegnél kevésbé számít.,fogorvos,49,74,58,82,,,,,,,,
+SZIM01,2026-09-27,A5,B_kedvezotlenebb,99,77,61,,,monoton,,,Fiatalabb betegnél kevésbé számít.,fogorvos,63,92,49,70,,,,,,,,
+SZIM01,2026-09-27,TUB,B_kedvezotlenebb,80,82,56,,,monoton,,,legfontosabb=az alakja,fogorvos,70,92,48,62,,,,,,,,
+SZIM01,2026-09-27,A10,B_kedvezotlenebb,80,76,61,,,nincs_irany,,,melyik_rosszabb=az Angle II. | Egyoldali forma jobban tolerálható.,fogorvos,61,89,45,73,,,,,,,,
+SZIM01,2026-09-27,A11,B_kedvezotlenebb,95,82,56,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Sok múlik a beteg alkalmazkodásán.,fogorvos,77,89,49,62,,,,,,,,
+SZIM01,2026-09-27,A12,nincs_kulonbseg,,69,65,,,nincs_irany,,,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM02,2026-09-28,F1,nincs_kulonbseg,,67,69,,,nincs_irany,,,,fogorvos,,,,,,,,,10.0,,5.0,mm
+SZIM02,2026-09-28,F2,nem_monoton,,52,67,,,optimum,,,Fiatalabb betegnél kevésbé számít.,fogorvos,41,62,56,77,75,64,85,,,,,
+SZIM02,2026-09-28,F3,B_kedvezotlenebb,80,75,59,,,monoton,,19 mm,,fogorvos,68,82,51,66,,,,,25.0,,17.0,mm
+SZIM02,2026-09-28,F4,B_kedvezotlenebb,80,70,64,,,kuszobos,,128°,Fiatalabb betegnél kevésbé számít.,fogorvos,61,78,56,70,,,,,140.0,,125.0,°
+SZIM02,2026-09-28,F5,B_kedvezotlenebb,99,73,60,,,monoton,,,lokalizacio=a tubereken | Fiatalabb betegnél kevésbé számít.,fogorvos,59,82,52,70,,,,,,,,
+SZIM02,2026-09-28,F6,B_kedvezotlenebb,90,75,59,,,optimum,,15°,irany_szamit=nem,fogorvos,69,80,51,64,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM02,2026-09-28,F7,nincs_kulonbseg,,67,63,,,nincs_irany,,,alak_rosszabb=az orsó alakú,fogorvos,,,,,,,,,,,,
+SZIM02,2026-09-28,F8,nem_tudom,,,,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM02,2026-09-28,A1,B_kedvezotlenebb,90,72,61,,,telitodo,,,legnagyobb_ugras=2 és 3 között,fogorvos,66,78,55,67,,,,,,,,
+SZIM02,2026-09-28,A3,A_kedvezotlenebb,80,61,73,,,nincs_irany,,,Fiatalabb betegnél kevésbé számít.,fogorvos,48,69,65,82,,,,,,,,
+SZIM02,2026-09-28,A4,nincs_kulonbseg,,67,67,,,nincs_irany,,,Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM02,2026-09-28,A5,B_kedvezotlenebb,90,77,57,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel,fogorvos,71,86,49,68,,,,,,,,
+SZIM02,2026-09-28,TUB,B_kedvezotlenebb,95,,,,,monoton,,,,fogorvos,,,,,,,,1,,,,
+SZIM02,2026-09-28,A10,B_kedvezotlenebb,90,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.,fogorvos,,,,,,,,1,,,,
+SZIM02,2026-09-28,A11,B_kedvezotlenebb,95,84,50,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Egyoldali forma jobban tolerálható.,fogorvos,78,89,42,56,,,,,,,,
+SZIM02,2026-09-28,A12,B_kedvezotlenebb,90,70,63,,,monoton,,,Sok múlik a beteg alkalmazkodásán.,fogorvos,65,75,58,67,,,,,,,,
+SZIM03,2026-10-11,F1,B_kedvezotlenebb,99,75,56,,,monoton,,8 mm,Fiatalabb betegnél kevésbé számít.,fogorvos,69,82,48,61,,,,,10.0,,5.0,mm
+SZIM03,2026-10-11,F2,nem_monoton,,56,67,,,optimum,,,Csak jó lenyomattal érvényesül.,fogorvos,47,64,58,75,74,65,82,,,,,
+SZIM03,2026-10-11,F3,B_kedvezotlenebb,95,75,56,,,monoton,,18 mm,,fogorvos,64,87,47,68,,,,,25.0,,17.0,mm
+SZIM03,2026-10-11,F4,B_kedvezotlenebb,60,72,59,,,kuszobos,,137°,Sok múlik a beteg alkalmazkodásán.,fogorvos,63,79,49,68,,,,,140.0,,125.0,°
+SZIM03,2026-10-11,F5,B_kedvezotlenebb,90,82,49,,,monoton,,,,fogorvos,76,87,43,55,,,,,,,,
+SZIM03,2026-10-11,F6,nem_tudom,,,,,,nincs_irany,,10°,irany_szamit=nem | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM03,2026-10-11,F7,B_kedvezotlenebb,70,70,61,,,monoton,,,alak_rosszabb=a plató alakú,fogorvos,63,79,51,69,,,,,,,,
+SZIM03,2026-10-11,F8,B_kedvezotlenebb,70,72,59,,,interakcio,,,kategoria_vagy_interakcio=mindkettő,fogorvos,61,80,46,66,,,,,,,,
+SZIM03,2026-10-11,A1,B_kedvezotlenebb,99,76,55,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem | Fiatalabb betegnél kevésbé számít.,fogorvos,68,83,48,59,,,,,,,,
+SZIM03,2026-10-11,A3,A_kedvezotlenebb,80,63,68,,,nincs_irany,,,lebenyezett=az a legjobb | Egyoldali forma jobban tolerálható.,fogorvos,55,69,59,74,,,,,,,,
+SZIM03,2026-10-11,A4,B_kedvezotlenebb,80,72,58,,,monoton,,,nagy_vs_kicsi=közepesen | Implantátum-elhorgonyzásnál más a kép.,fogorvos,63,78,49,65,,,,,,,,
+SZIM03,2026-10-11,A5,B_kedvezotlenebb,90,75,55,,,monoton,,,nem_szukit_helye=nem tudom,fogorvos,69,84,45,62,,,,,,,,
+SZIM03,2026-10-11,TUB,nincs_kulonbseg,,65,69,,,nincs_irany,,,legfontosabb=az alakja | Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM03,2026-10-11,A10,nincs_kulonbseg,,65,67,,,nincs_irany,,,melyik_rosszabb=az Angle II.,fogorvos,,,,,,,,,,,,
+SZIM03,2026-10-11,A11,B_kedvezotlenebb,80,83,48,,,monoton,,,nem_elodomborodo_helye=az inkább a B-hez áll közel,fogorvos,71,94,35,57,,,,,,,,
+SZIM03,2026-10-11,A12,B_kedvezotlenebb,90,71,60,,,monoton,,,erzekeny_vs_tapinthato=alig | Egyoldali forma jobban tolerálható.,fogorvos,63,80,53,69,,,,,,,,
+SZIM04,2026-10-06,F1,B_kedvezotlenebb,90,78,57,,,monoton,,6 mm,,fogorvos,66,88,45,70,,,,,10.0,,5.0,mm
+SZIM04,2026-10-06,F2,nem_monoton,,58,61,,,optimum,,,,fogorvos,47,68,50,71,76,65,86,,,,,
+SZIM04,2026-10-06,F3,nem_tudom,,,,,,nincs_irany,,18 mm,Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM04,2026-10-06,F4,B_kedvezotlenebb,80,,,,,kuszobos,,136°,,fogorvos,,,,,,,,1,140.0,,125.0,°
+SZIM04,2026-10-06,F5,B_kedvezotlenebb,95,73,62,,,monoton,,,lokalizacio=a tubereken | Sok múlik a beteg alkalmazkodásán.,fogorvos,66,77,55,66,,,,,,,,
+SZIM04,2026-10-06,F6,B_kedvezotlenebb,90,71,64,,,optimum,,11°,irany_szamit=igen,fogorvos,60,83,52,77,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM04,2026-10-06,F7,B_kedvezotlenebb,80,69,66,,,monoton,,,Egyoldali forma jobban tolerálható.,fogorvos,59,79,51,74,,,,,,,,
+SZIM04,2026-10-06,F8,nincs_kulonbseg,,68,70,,,nincs_irany,,,kategoria_vagy_interakcio=az erők iránya,fogorvos,,,,,,,,,,,,
+SZIM04,2026-10-06,A1,B_kedvezotlenebb,90,74,61,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem | Egyoldali forma jobban tolerálható.,fogorvos,69,79,55,66,,,,,,,,
+SZIM04,2026-10-06,A3,B_kedvezotlenebb,50,69,67,,,nincs_irany,,,lebenyezett=nem tudom,fogorvos,56,82,56,74,,,,,,,,
+SZIM04,2026-10-06,A4,B_kedvezotlenebb,80,72,63,,,monoton,,,nagy_vs_kicsi=sokkal | Egyoldali forma jobban tolerálható.,fogorvos,61,81,46,74,,,,,,,,
+SZIM04,2026-10-06,A5,B_kedvezotlenebb,90,71,65,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel,fogorvos,57,79,49,79,,,,,,,,
+SZIM04,2026-10-06,TUB,B_kedvezotlenebb,95,76,59,,,monoton,,,Implantátum-elhorgonyzásnál más a kép.,fogorvos,60,87,46,68,,,,,,,,
+SZIM04,2026-10-06,A10,nincs_kulonbseg,,68,68,,,nincs_irany,,,melyik_rosszabb=az Angle II.,fogorvos,,,,,,,,,,,,
+SZIM04,2026-10-06,A11,B_kedvezotlenebb,99,79,57,,,monoton,,,nem_elodomborodo_helye=a kettő között van | Fiatalabb betegnél kevésbé számít.,fogorvos,72,89,47,68,,,,,,,,
+SZIM04,2026-10-06,A12,B_kedvezotlenebb,80,,,,,monoton,,,erzekeny_vs_tapinthato=közepesen | Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,1,,,,
+SZIM05,2026-10-04,F1,B_kedvezotlenebb,90,77,56,,,monoton,,5 mm,Fiatalabb betegnél kevésbé számít.,fogorvos,69,84,45,63,,,,,10.0,,5.0,mm
+SZIM05,2026-10-04,F2,B_kedvezotlenebb,90,69,63,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,61,74,59,68,,,,,,,,
+SZIM05,2026-10-04,F3,B_kedvezotlenebb,80,72,60,,,monoton,,18 mm,Sok múlik a beteg alkalmazkodásán.,fogorvos,59,82,45,69,,,,,25.0,,17.0,mm
+SZIM05,2026-10-04,F4,nincs_kulonbseg,,66,62,,,nincs_irany,,133°,Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM05,2026-10-04,F5,B_kedvezotlenebb,99,72,61,,,monoton,,,lokalizacio=nem tudom,fogorvos,65,76,56,66,,,,,,,,
+SZIM05,2026-10-04,F6,B_kedvezotlenebb,90,77,56,,,optimum,,13°,irany_szamit=nem tudom | Egyoldali forma jobban tolerálható.,fogorvos,64,85,40,71,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM05,2026-10-04,F7,nincs_kulonbseg,,66,68,,,nincs_irany,,,alak_rosszabb=az orsó alakú,fogorvos,,,,,,,,,,,,
+SZIM05,2026-10-04,F8,nincs_kulonbseg,,66,64,,,nincs_irany,,,kategoria_vagy_interakcio=az erők iránya,fogorvos,,,,,,,,,,,,
+SZIM05,2026-10-04,A1,B_kedvezotlenebb,80,82,51,,,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=igen,fogorvos,72,91,44,59,,,,,,,,
+SZIM05,2026-10-04,A3,A_kedvezotlenebb,60,65,67,,,nincs_irany,,,,fogorvos,59,70,59,73,,,,,,,,
+SZIM05,2026-10-04,A4,B_kedvezotlenebb,60,70,63,,,monoton,,,nagy_vs_kicsi=közepesen | Fiatalabb betegnél kevésbé számít.,fogorvos,54,84,48,74,,,,,,,,
+SZIM05,2026-10-04,A5,B_kedvezotlenebb,90,80,53,,,monoton,,,nem_szukit_helye=nem tudom | Fiatalabb betegnél kevésbé számít.,fogorvos,71,92,40,65,,,,,,,,
+SZIM05,2026-10-04,TUB,B_kedvezotlenebb,90,76,56,,,monoton,,,legfontosabb=az alakja | Egyoldali forma jobban tolerálható.,fogorvos,69,84,47,63,,,,,,,,
+SZIM05,2026-10-04,A10,nem_tudom,,,,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM05,2026-10-04,A11,B_kedvezotlenebb,95,80,53,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Fiatalabb betegnél kevésbé számít.,fogorvos,68,89,44,62,,,,,,,,
+SZIM05,2026-10-04,A12,B_kedvezotlenebb,60,73,59,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,61,86,47,68,,,,,,,,
+SZIM06,2026-10-05,F1,B_kedvezotlenebb,90,89,64,,,monoton,,5 mm,Implantátum-elhorgonyzásnál más a kép.,fogorvos,80,96,52,72,,,,,10.0,,5.0,mm
+SZIM06,2026-10-05,F2,nem_monoton,,60,63,,,optimum,,,,fogorvos,52,67,55,70,82,74,89,,,,,
+SZIM06,2026-10-05,F3,B_kedvezotlenebb,70,84,70,,,monoton,,19 mm,Egyoldali forma jobban tolerálható.,fogorvos,77,91,59,78,,,,,25.0,,17.0,mm
+SZIM06,2026-10-05,F4,nem_tudom,,,,,,nincs_irany,,,,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM06,2026-10-05,F5,B_kedvezotlenebb,95,92,62,,,monoton,,,lokalizacio=nem tudom | Implantátum-elhorgonyzásnál más a kép.,fogorvos,84,98,54,69,,,,,,,,
+SZIM06,2026-10-05,F6,nincs_kulonbseg,,77,81,,,nincs_irany,,9°,irany_szamit=nem tudom,fogorvos,,,,,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM06,2026-10-05,F7,B_kedvezotlenebb,60,79,74,,,monoton,,,alak_rosszabb=az orsó alakú,fogorvos,72,84,67,80,,,,,,,,
+SZIM06,2026-10-05,F8,nincs_kulonbseg,,77,81,,,nincs_irany,,,Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM06,2026-10-05,A1,B_kedvezotlenebb,90,89,64,,,telitodo,,,legnagyobb_ugras=3 és 4 között | negy_ot_kulonbseg=igen | Csak jó lenyomattal érvényesül.,fogorvos,82,95,58,69,,,,,,,,
+SZIM06,2026-10-05,A3,nincs_kulonbseg,,77,77,,,nincs_irany,,,lebenyezett=az a legjobb | Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,,,,,
+SZIM06,2026-10-05,A4,B_kedvezotlenebb,80,89,64,,,monoton,,,nagy_vs_kicsi=nem tudom,fogorvos,76,99,56,70,,,,,,,,
+SZIM06,2026-10-05,A5,B_kedvezotlenebb,70,82,71,,,monoton,,,nem_szukit_helye=a kettő között van | Fiatalabb betegnél kevésbé számít.,fogorvos,67,92,60,78,,,,,,,,
+SZIM06,2026-10-05,TUB,B_kedvezotlenebb,99,90,64,,,monoton,,,,fogorvos,80,97,58,70,,,,,,,,
+SZIM06,2026-10-05,A10,B_kedvezotlenebb,50,81,72,,,nincs_irany,,,melyik_rosszabb=az Angle III. | Egyoldali forma jobban tolerálható.,fogorvos,74,88,64,78,,,,,,,,
+SZIM06,2026-10-05,A11,B_kedvezotlenebb,70,87,66,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,73,95,52,78,,,,,,,,
+SZIM06,2026-10-05,A12,B_kedvezotlenebb,70,80,73,,,monoton,,,,fogorvos,70,87,66,79,,,,,,,,
+SZIM07,2026-10-11,F1,B_kedvezotlenebb,95,72,52,,,monoton,,5 mm,,fogorvos,61,81,43,62,,,,,10.0,,5.0,mm
+SZIM07,2026-10-11,F2,nem_monoton,,62,52,,,optimum,,"enyhe, egyenletes alámenősség",Implantátum-elhorgonyzásnál más a kép.,fogorvos,51,72,41,62,69,58,79,,,,,
+SZIM07,2026-10-11,F3,B_kedvezotlenebb,90,72,52,,,monoton,,,,fogorvos,64,79,39,65,,,,,25.0,,17.0,mm
+SZIM07,2026-10-11,F4,nincs_kulonbseg,,62,60,,,nincs_irany,,136°,,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM07,2026-10-11,F5,B_kedvezotlenebb,90,75,49,,,monoton,,,lokalizacio=a tubereken,fogorvos,70,80,43,57,,,,,,,,
+SZIM07,2026-10-11,F6,nem_monoton,,52,47,,,optimum,,13°,irany_szamit=nem,fogorvos,42,61,37,56,68,58,77,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM07,2026-10-11,F7,nincs_kulonbseg,,62,60,,,nincs_irany,,,alak_rosszabb=egyforma | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM07,2026-10-11,F8,nincs_kulonbseg,,62,60,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő,fogorvos,,,,,,,,,,,,
+SZIM07,2026-10-11,A1,B_kedvezotlenebb,99,86,38,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen,fogorvos,78,96,27,43,,,,,,,,
+SZIM07,2026-10-11,A3,B_kedvezotlenebb,70,69,55,,,nincs_irany,,,lebenyezett=köztes,fogorvos,61,79,48,61,,,,,,,,
+SZIM07,2026-10-11,A4,B_kedvezotlenebb,80,72,52,,,monoton,,,nagy_vs_kicsi=nem tudom | Implantátum-elhorgonyzásnál más a kép.,fogorvos,66,78,47,59,,,,,,,,
+SZIM07,2026-10-11,A5,nincs_kulonbseg,,62,58,,,nincs_irany,,,Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM07,2026-10-11,TUB,B_kedvezotlenebb,95,66,58,,,monoton,,,legfontosabb=a feszes ínyborítás,fogorvos,59,74,49,65,,,,,,,,
+SZIM07,2026-10-11,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II. | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM07,2026-10-11,A11,B_kedvezotlenebb,99,82,42,,,monoton,,,,fogorvos,71,91,30,47,,,,,,,,
+SZIM07,2026-10-11,A12,B_kedvezotlenebb,90,72,52,,,monoton,,,erzekeny_vs_tapinthato=sokkal | Egyoldali forma jobban tolerálható.,fogorvos,64,81,45,59,,,,,,,,
+SZIM08,2026-09-16,F1,B_kedvezotlenebb,90,85,59,,,monoton,,5 mm,,fogorvos,72,91,52,71,,,,,10.0,,5.0,mm
+SZIM08,2026-09-16,F2,nincs_kulonbseg,,72,70,,,nincs_irany,,,Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM08,2026-09-16,F3,A_kedvezotlenebb,60,66,78,,,monoton,,19 mm,,fogorvos,55,78,61,94,,,,,25.0,,17.0,mm
+SZIM08,2026-09-16,F4,B_kedvezotlenebb,60,75,69,,,kuszobos,,130°,Fiatalabb betegnél kevésbé számít.,fogorvos,57,92,50,82,,,,,140.0,,125.0,°
+SZIM08,2026-09-16,F5,B_kedvezotlenebb,80,84,60,,,monoton,,,lokalizacio=egyforma,fogorvos,70,97,42,77,,,,,,,,
+SZIM08,2026-09-16,F6,nem_monoton,,54,55,,,optimum,,,irany_szamit=nem tudom | Egyoldali forma jobban tolerálható.,fogorvos,45,62,46,63,75,66,83,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM08,2026-09-16,F7,A_kedvezotlenebb,60,,,,,monoton,,,alak_rosszabb=az orsó alakú,fogorvos,,,,,,,,1,,,,
+SZIM08,2026-09-16,F8,B_kedvezotlenebb,60,74,70,,,interakcio,,,kategoria_vagy_interakcio=az antagonista fajtája,fogorvos,63,82,58,82,,,,,,,,
+SZIM08,2026-09-16,A1,B_kedvezotlenebb,95,90,54,,,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=igen | Fiatalabb betegnél kevésbé számít.,fogorvos,77,100,39,68,,,,,,,,
+SZIM08,2026-09-16,A3,nincs_kulonbseg,,72,76,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,,,,,,,,,,,,
+SZIM08,2026-09-16,A4,B_kedvezotlenebb,70,76,68,,,monoton,,,nagy_vs_kicsi=alig,fogorvos,59,87,49,80,,,,,,,,
+SZIM08,2026-09-16,A5,B_kedvezotlenebb,50,78,66,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel,fogorvos,69,90,56,76,,,,,,,,
+SZIM08,2026-09-16,TUB,B_kedvezotlenebb,90,83,61,,,monoton,,,legfontosabb=a feszes ínyborítás | Csak jó lenyomattal érvényesül.,fogorvos,77,88,52,71,,,,,,,,
+SZIM08,2026-09-16,A10,nincs_kulonbseg,,72,68,,,nincs_irany,,,melyik_rosszabb=az Angle II.,fogorvos,,,,,,,,,,,,
+SZIM08,2026-09-16,A11,B_kedvezotlenebb,95,82,62,,,monoton,,,,fogorvos,72,95,52,69,,,,,,,,
+SZIM08,2026-09-16,A12,B_kedvezotlenebb,50,75,69,,,monoton,,,erzekeny_vs_tapinthato=közepesen | Fiatalabb betegnél kevésbé számít.,fogorvos,59,86,54,85,,,,,,,,
+SZIM09,2026-09-08,F1,B_kedvezotlenebb,80,82,70,,,monoton,,8 mm,,fogorvos,67,91,57,84,,,,,10.0,,5.0,mm
+SZIM09,2026-09-08,F2,nem_monoton,,72,63,,,optimum,,"enyhe, egyenletes alámenősség",Implantátum-elhorgonyzásnál más a kép.,fogorvos,64,79,55,70,82,74,89,,,,,
+SZIM09,2026-09-08,F3,nincs_kulonbseg,,76,74,,,nincs_irany,,16 mm,Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM09,2026-09-08,F4,nem_tudom,,,,,,nincs_irany,,130°,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM09,2026-09-08,F5,B_kedvezotlenebb,80,82,70,,,monoton,,,lokalizacio=a frontális gerincen | Implantátum-elhorgonyzásnál más a kép.,fogorvos,75,88,65,76,,,,,,,,
+SZIM09,2026-09-08,F6,nem_monoton,,66,58,,,optimum,,14°,irany_szamit=nem,fogorvos,54,77,46,69,82,70,93,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM09,2026-09-08,F7,B_kedvezotlenebb,60,77,75,,,monoton,,,alak_rosszabb=az orsó alakú | Csak jó lenyomattal érvényesül.,fogorvos,68,83,68,79,,,,,,,,
+SZIM09,2026-09-08,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája,fogorvos,,,,,,,,,,,,
+SZIM09,2026-09-08,A1,B_kedvezotlenebb,95,89,63,,,telitodo,,,legnagyobb_ugras=nagyjából egyenletesen romlik | negy_ot_kulonbseg=igen,fogorvos,77,100,54,74,,,,,,,,
+SZIM09,2026-09-08,A3,nincs_kulonbseg,,76,80,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,,,,,,,,,,,,
+SZIM09,2026-09-08,A4,B_kedvezotlenebb,99,84,69,,,monoton,,,nagy_vs_kicsi=alig | Sok múlik a beteg alkalmazkodásán.,fogorvos,78,90,60,80,,,,,,,,
+SZIM09,2026-09-08,A5,nincs_kulonbseg,,76,76,,,nincs_irany,,,nem_szukit_helye=a kettő között van,fogorvos,,,,,,,,,,,,
+SZIM09,2026-09-08,TUB,B_kedvezotlenebb,99,86,66,,,monoton,,,,fogorvos,80,95,56,73,,,,,,,,
+SZIM09,2026-09-08,A10,nincs_kulonbseg,,76,78,,,nincs_irany,,,melyik_rosszabb=az Angle III.,fogorvos,,,,,,,,,,,,
+SZIM09,2026-09-08,A11,B_kedvezotlenebb,95,86,66,,,monoton,,,nem_elodomborodo_helye=a kettő között van,fogorvos,80,91,59,72,,,,,,,,
+SZIM09,2026-09-08,A12,nincs_kulonbseg,,76,76,,,nincs_irany,,,erzekeny_vs_tapinthato=alig,fogorvos,,,,,,,,,,,,
+SZIM10,2026-09-30,F1,B_kedvezotlenebb,95,91,67,,,monoton,,8 mm,,fogorvos,82,98,59,73,,,,,10.0,,5.0,mm
+SZIM10,2026-09-30,F2,nem_monoton,,79,66,,,optimum,,,Fiatalabb betegnél kevésbé számít.,fogorvos,70,87,57,74,85,76,93,,,,,
+SZIM10,2026-09-30,F3,B_kedvezotlenebb,80,85,73,,,monoton,,19 mm,Csak jó lenyomattal érvényesül.,fogorvos,76,97,63,85,,,,,25.0,,17.0,mm
+SZIM10,2026-09-30,F4,B_kedvezotlenebb,90,83,75,,,kuszobos,,132°,Egyoldali forma jobban tolerálható.,fogorvos,75,94,65,81,,,,,140.0,,125.0,°
+SZIM10,2026-09-30,F5,B_kedvezotlenebb,90,98,60,,,monoton,,,lokalizacio=a frontális gerincen,fogorvos,87,100,52,67,,,,,,,,
+SZIM10,2026-09-30,F6,B_kedvezotlenebb,95,87,71,,,optimum,,8°,irany_szamit=igen | Fiatalabb betegnél kevésbé számít.,fogorvos,75,94,57,83,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM10,2026-09-30,F7,nincs_kulonbseg,,79,81,,,nincs_irany,,,alak_rosszabb=az orsó alakú,fogorvos,,,,,,,,,,,,
+SZIM10,2026-09-30,F8,nincs_kulonbseg,,79,81,,,nincs_irany,,,kategoria_vagy_interakcio=az erők iránya,fogorvos,,,,,,,,,,,,
+SZIM10,2026-09-30,A1,B_kedvezotlenebb,90,89,69,,,telitodo,,,legnagyobb_ugras=1 és 2 között,fogorvos,83,98,60,77,,,,,,,,
+SZIM10,2026-09-30,A3,B_kedvezotlenebb,50,83,74,,,nincs_irany,,,lebenyezett=az a legjobb | Csak jó lenyomattal érvényesül.,fogorvos,73,90,63,83,,,,,,,,
+SZIM10,2026-09-30,A4,B_kedvezotlenebb,80,88,70,,,monoton,,,Implantátum-elhorgonyzásnál más a kép.,fogorvos,82,94,61,76,,,,,,,,
+SZIM10,2026-09-30,A5,nincs_kulonbseg,,79,75,,,nincs_irany,,,nem_szukit_helye=az inkább a B-hez áll közel,fogorvos,,,,,,,,,,,,
+SZIM10,2026-09-30,TUB,nem_tudom,,,,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM10,2026-09-30,A10,nincs_kulonbseg,,79,77,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM10,2026-09-30,A11,B_kedvezotlenebb,95,92,66,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,86,99,58,72,,,,,,,,
+SZIM10,2026-09-30,A12,B_kedvezotlenebb,60,80,78,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,68,89,67,91,,,,,,,,
+SZIM11,2026-10-07,F1,B_kedvezotlenebb,90,85,66,,,monoton,,5 mm,Fiatalabb betegnél kevésbé számít.,fogorvos,73,94,55,73,,,,,10.0,,5.0,mm
+SZIM11,2026-10-07,F2,nincs_kulonbseg,,76,80,,,nincs_irany,,"enyhe, egyenletes alámenősség",Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,,,,,
+SZIM11,2026-10-07,F3,B_kedvezotlenebb,95,79,72,,,monoton,,15 mm,Fiatalabb betegnél kevésbé számít.,fogorvos,71,88,63,81,,,,,25.0,,17.0,mm
+SZIM11,2026-10-07,F4,nincs_kulonbseg,,76,76,,,nincs_irany,,138°,,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM11,2026-10-07,F5,B_kedvezotlenebb,99,84,68,,,monoton,,,lokalizacio=a tubereken,fogorvos,75,94,61,76,,,,,,,,
+SZIM11,2026-10-07,F6,B_kedvezotlenebb,90,80,72,,,optimum,,12°,irany_szamit=nem,fogorvos,72,84,64,77,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM11,2026-10-07,F7,nincs_kulonbseg,,76,72,,,nincs_irany,,,alak_rosszabb=egyforma | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM11,2026-10-07,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=nem tudom | Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,,,,
+SZIM11,2026-10-07,A1,B_kedvezotlenebb,90,93,59,,,telitodo,,,,fogorvos,82,100,48,69,,,,,,,,
+SZIM11,2026-10-07,A3,A_kedvezotlenebb,70,75,77,,,nincs_irany,,,lebenyezett=az a legrosszabb | Egyoldali forma jobban tolerálható.,fogorvos,70,82,71,83,,,,,,,,
+SZIM11,2026-10-07,A4,B_kedvezotlenebb,99,85,66,,,monoton,,,nagy_vs_kicsi=alig,fogorvos,71,94,53,75,,,,,,,,
+SZIM11,2026-10-07,A5,B_kedvezotlenebb,80,82,70,,,monoton,,,nem_szukit_helye=nem tudom | Egyoldali forma jobban tolerálható.,fogorvos,70,92,57,77,,,,,,,,
+SZIM11,2026-10-07,TUB,B_kedvezotlenebb,95,,,,,monoton,,,legfontosabb=nem tudom,fogorvos,,,,,,,,1,,,,
+SZIM11,2026-10-07,A10,nincs_kulonbseg,,76,76,,,nincs_irany,,,melyik_rosszabb=egyforma | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM11,2026-10-07,A11,B_kedvezotlenebb,99,98,50,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,88,100,40,58,,,,,,,,
+SZIM11,2026-10-07,A12,B_kedvezotlenebb,80,84,68,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,74,90,58,77,,,,,,,,
+SZIM12,2026-09-29,F1,B_kedvezotlenebb,95,88,79,,,monoton,,5 mm,Implantátum-elhorgonyzásnál más a kép.,fogorvos,78,93,71,87,,,,,10.0,,5.0,mm
+SZIM12,2026-09-29,F2,nem_monoton,,70,66,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,61,78,57,74,90,81,98,,,,,
+SZIM12,2026-09-29,F3,B_kedvezotlenebb,70,89,77,,,monoton,,16 mm,Fiatalabb betegnél kevésbé számít.,fogorvos,81,96,69,81,,,,,25.0,,17.0,mm
+SZIM12,2026-09-29,F4,B_kedvezotlenebb,95,85,81,,,kuszobos,,,Egyoldali forma jobban tolerálható.,fogorvos,80,90,74,87,,,,,140.0,,125.0,°
+SZIM12,2026-09-29,F5,B_kedvezotlenebb,99,94,72,,,monoton,,,lokalizacio=nem tudom,fogorvos,83,100,61,81,,,,,,,,
+SZIM12,2026-09-29,F6,A_kedvezotlenebb,80,74,92,,,optimum,,,irany_szamit=nem,fogorvos,68,81,87,97,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM12,2026-09-29,F7,nincs_kulonbseg,,83,85,,,nincs_irany,,,alak_rosszabb=a plató alakú | Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM12,2026-09-29,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM12,2026-09-29,A1,B_kedvezotlenebb,99,98,63,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen,fogorvos,88,100,55,68,,,,,,,,
+SZIM12,2026-09-29,A3,nincs_kulonbseg,,83,79,,,nincs_irany,,,lebenyezett=az a legjobb | Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,,,,
+SZIM12,2026-09-29,A4,B_kedvezotlenebb,80,87,79,,,monoton,,,nagy_vs_kicsi=alig,fogorvos,78,98,71,86,,,,,,,,
+SZIM12,2026-09-29,A5,B_kedvezotlenebb,90,84,82,,,monoton,,,Csak jó lenyomattal érvényesül.,fogorvos,73,92,74,92,,,,,,,,
+SZIM12,2026-09-29,TUB,B_kedvezotlenebb,99,90,76,,,monoton,,,legfontosabb=az alakja,fogorvos,84,96,69,84,,,,,,,,
+SZIM12,2026-09-29,A10,nem_monoton,,78,75,,,optimum,,,melyik_rosszabb=nem tudom,fogorvos,70,85,67,82,90,82,97,,,,,
+SZIM12,2026-09-29,A11,B_kedvezotlenebb,99,98,59,,,monoton,,,,fogorvos,91,100,50,66,,,,,,,,
+SZIM12,2026-09-29,A12,B_kedvezotlenebb,90,87,79,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,80,93,67,89,,,,,,,,
+SZIM13,2026-09-14,F1,B_kedvezotlenebb,80,98,62,,,monoton,,4 mm,Csak jó lenyomattal érvényesül.,fogorvos,89,100,52,68,,,,,10.0,,5.0,mm
+SZIM13,2026-09-14,F2,nem_tudom,,,,,,nincs_irany,,"enyhe, egyenletes alámenősség",,fogorvos,,,,,,,,,,,,
+SZIM13,2026-09-14,F3,nincs_kulonbseg,,80,80,,,nincs_irany,,,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM13,2026-09-14,F4,B_kedvezotlenebb,70,,,,,kuszobos,,,,fogorvos,,,,,,,,1,140.0,,125.0,°
+SZIM13,2026-09-14,F5,B_kedvezotlenebb,70,,,,,monoton,,,lokalizacio=a frontális gerincen,fogorvos,,,,,,,,1,,,,
+SZIM13,2026-09-14,F6,B_kedvezotlenebb,80,87,73,,,optimum,,,irany_szamit=igen,fogorvos,78,93,66,78,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM13,2026-09-14,F7,B_kedvezotlenebb,90,83,77,,,monoton,,,alak_rosszabb=egyforma | Implantátum-elhorgonyzásnál más a kép.,fogorvos,75,89,65,88,,,,,,,,
+SZIM13,2026-09-14,F8,nincs_kulonbseg,,80,84,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő,fogorvos,,,,,,,,,,,,
+SZIM13,2026-09-14,A1,B_kedvezotlenebb,99,98,60,,,telitodo,,,legnagyobb_ugras=nagyjából egyenletesen romlik | negy_ot_kulonbseg=nem tudom,fogorvos,84,100,50,72,,,,,,,,
+SZIM13,2026-09-14,A3,nincs_kulonbseg,,80,84,,,nincs_irany,,,lebenyezett=az a legrosszabb,fogorvos,,,,,,,,,,,,
+SZIM13,2026-09-14,A4,nincs_kulonbseg,,80,84,,,nincs_irany,,,nagy_vs_kicsi=alig | Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,,,,
+SZIM13,2026-09-14,A5,B_kedvezotlenebb,70,92,68,,,monoton,,,nem_szukit_helye=a kettő között van | Csak jó lenyomattal érvényesül.,fogorvos,82,99,55,78,,,,,,,,
+SZIM13,2026-09-14,TUB,B_kedvezotlenebb,95,,,,,monoton,,,legfontosabb=a dőlése,fogorvos,,,,,,,,1,,,,
+SZIM13,2026-09-14,A10,B_kedvezotlenebb,70,88,72,,,nincs_irany,,,melyik_rosszabb=az Angle II. | Egyoldali forma jobban tolerálható.,fogorvos,75,95,63,80,,,,,,,,
+SZIM13,2026-09-14,A11,B_kedvezotlenebb,70,,,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,,,,,,,,1,,,,
+SZIM13,2026-09-14,A12,B_kedvezotlenebb,70,83,77,,,monoton,,,erzekeny_vs_tapinthato=alig | Fiatalabb betegnél kevésbé számít.,fogorvos,71,91,67,83,,,,,,,,
+SZIM14,2026-09-18,F1,B_kedvezotlenebb,95,85,61,,,monoton,,4 mm,Implantátum-elhorgonyzásnál más a kép.,fogorvos,73,98,46,71,,,,,10.0,,5.0,mm
+SZIM14,2026-09-18,F2,nincs_kulonbseg,,73,73,,,nincs_irany,,"enyhe, egyenletes alámenősség",Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,,,,,
+SZIM14,2026-09-18,F3,nincs_kulonbseg,,73,69,,,nincs_irany,,18 mm,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM14,2026-09-18,F4,nincs_kulonbseg,,73,73,,,nincs_irany,,,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM14,2026-09-18,F5,nincs_kulonbseg,,73,75,,,nincs_irany,,,Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,,,,
+SZIM14,2026-09-18,F6,B_kedvezotlenebb,80,74,72,,,optimum,,8°,irany_szamit=igen | Csak jó lenyomattal érvényesül.,fogorvos,65,80,60,82,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM14,2026-09-18,F7,nincs_kulonbseg,,73,71,,,nincs_irany,,,alak_rosszabb=a plató alakú,fogorvos,,,,,,,,,,,,
+SZIM14,2026-09-18,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az erők iránya,fogorvos,,,,,,,,,,,,
+SZIM14,2026-09-18,A1,B_kedvezotlenebb,95,76,71,,,telitodo,,,negy_ot_kulonbseg=nem,fogorvos,70,81,63,76,,,,,,,,
+SZIM14,2026-09-18,A3,B_kedvezotlenebb,60,80,66,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,68,87,57,73,,,,,,,,
+SZIM14,2026-09-18,A4,B_kedvezotlenebb,70,,,,,monoton,,,nagy_vs_kicsi=alig | Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,1,,,,
+SZIM14,2026-09-18,A5,B_kedvezotlenebb,60,74,72,,,monoton,,,nem_szukit_helye=a kettő között van | Fiatalabb betegnél kevésbé számít.,fogorvos,64,88,57,83,,,,,,,,
+SZIM14,2026-09-18,TUB,B_kedvezotlenebb,95,81,65,,,monoton,,,legfontosabb=az alakja,fogorvos,71,92,53,76,,,,,,,,
+SZIM14,2026-09-18,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=egyforma,fogorvos,,,,,,,,,,,,
+SZIM14,2026-09-18,A11,B_kedvezotlenebb,80,82,64,,,monoton,,,,fogorvos,74,87,57,70,,,,,,,,
+SZIM14,2026-09-18,A12,B_kedvezotlenebb,95,76,70,,,monoton,,,erzekeny_vs_tapinthato=közepesen,fogorvos,68,84,60,80,,,,,,,,
+SZIM15,2026-09-29,F1,nincs_kulonbseg,,72,70,,,nincs_irany,,8 mm,,fogorvos,,,,,,,,,10.0,,5.0,mm
+SZIM15,2026-09-29,F2,nem_tudom,,,,,,nincs_irany,,"enyhe, egyenletes alámenősség",,fogorvos,,,,,,,,,,,,
+SZIM15,2026-09-29,F3,nem_tudom,,,,,,nincs_irany,,18 mm,,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM15,2026-09-29,F4,B_kedvezotlenebb,99,78,67,,,kuszobos,,,Csak jó lenyomattal érvényesül.,fogorvos,71,82,60,73,,,,,140.0,,125.0,°
+SZIM15,2026-09-29,F5,nem_tudom,,,,,,nincs_irany,,,lokalizacio=a tubereken,fogorvos,,,,,,,,,,,,
+SZIM15,2026-09-29,F6,B_kedvezotlenebb,90,80,65,,,optimum,,,irany_szamit=igen | Implantátum-elhorgonyzásnál más a kép.,fogorvos,71,88,52,79,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM15,2026-09-29,F7,A_kedvezotlenebb,60,69,76,,,monoton,,,alak_rosszabb=nem tudom | Egyoldali forma jobban tolerálható.,fogorvos,62,77,70,84,,,,,,,,
+SZIM15,2026-09-29,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája,fogorvos,,,,,,,,,,,,
+SZIM15,2026-09-29,A1,B_kedvezotlenebb,99,92,52,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem,fogorvos,84,100,41,65,,,,,,,,
+SZIM15,2026-09-29,A3,B_kedvezotlenebb,70,74,71,,,nincs_irany,,,lebenyezett=nem tudom,fogorvos,63,79,61,78,,,,,,,,
+SZIM15,2026-09-29,A4,B_kedvezotlenebb,70,79,65,,,monoton,,,nagy_vs_kicsi=alig,fogorvos,69,90,54,72,,,,,,,,
+SZIM15,2026-09-29,A5,B_kedvezotlenebb,95,89,56,,,monoton,,,nem_szukit_helye=a kettő között van | Fiatalabb betegnél kevésbé számít.,fogorvos,81,97,47,61,,,,,,,,
+SZIM15,2026-09-29,TUB,B_kedvezotlenebb,90,87,58,,,monoton,,,,fogorvos,79,96,49,71,,,,,,,,
+SZIM15,2026-09-29,A10,nem_monoton,,67,68,,,optimum,,,,fogorvos,53,80,54,81,82,68,95,,,,,
+SZIM15,2026-09-29,A11,B_kedvezotlenebb,99,96,49,,,monoton,,,nem_elodomborodo_helye=az inkább a B-hez áll közel | Egyoldali forma jobban tolerálható.,fogorvos,86,100,38,60,,,,,,,,
+SZIM15,2026-09-29,A12,B_kedvezotlenebb,80,85,60,,,monoton,,,erzekeny_vs_tapinthato=közepesen,fogorvos,77,93,51,69,,,,,,,,
+SZIM16,2026-09-15,F1,B_kedvezotlenebb,95,88,54,,,monoton,,,,fogorvos,83,96,46,59,,,,,10.0,,5.0,mm
+SZIM16,2026-09-15,F2,B_kedvezotlenebb,70,76,66,,,optimum,,,,fogorvos,70,83,57,71,,,,,,,,
+SZIM16,2026-09-15,F3,nincs_kulonbseg,,71,67,,,nincs_irany,,,,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM16,2026-09-15,F4,B_kedvezotlenebb,90,78,64,,,kuszobos,,134°,Fiatalabb betegnél kevésbé számít.,fogorvos,67,92,53,78,,,,,140.0,,125.0,°
+SZIM16,2026-09-15,F5,nincs_kulonbseg,,71,67,,,nincs_irany,,,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM16,2026-09-15,F6,nincs_kulonbseg,,71,69,,,nincs_irany,,14°,irany_szamit=nem tudom,fogorvos,,,,,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM16,2026-09-15,F7,nincs_kulonbseg,,71,67,,,nincs_irany,,,alak_rosszabb=az orsó alakú,fogorvos,,,,,,,,,,,,
+SZIM16,2026-09-15,F8,nincs_kulonbseg,,71,75,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája,fogorvos,,,,,,,,,,,,
+SZIM16,2026-09-15,A1,B_kedvezotlenebb,99,88,54,,,telitodo,,,legnagyobb_ugras=4 és 5 között | negy_ot_kulonbseg=nem tudom,fogorvos,82,96,49,58,,,,,,,,
+SZIM16,2026-09-15,A3,A_kedvezotlenebb,60,69,72,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,63,75,66,80,,,,,,,,
+SZIM16,2026-09-15,A4,B_kedvezotlenebb,90,80,62,,,monoton,,,Implantátum-elhorgonyzásnál más a kép.,fogorvos,70,86,54,70,,,,,,,,
+SZIM16,2026-09-15,A5,B_kedvezotlenebb,60,81,61,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel | Fiatalabb betegnél kevésbé számít.,fogorvos,68,88,47,74,,,,,,,,
+SZIM16,2026-09-15,TUB,B_kedvezotlenebb,99,,,,,monoton,,,legfontosabb=a feszes ínyborítás,fogorvos,,,,,,,,1,,,,
+SZIM16,2026-09-15,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=az Angle II.,fogorvos,,,,,,,,,,,,
+SZIM16,2026-09-15,A11,B_kedvezotlenebb,90,89,53,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Csak jó lenyomattal érvényesül.,fogorvos,81,100,44,63,,,,,,,,
+SZIM16,2026-09-15,A12,B_kedvezotlenebb,80,78,64,,,monoton,,,erzekeny_vs_tapinthato=alig | Implantátum-elhorgonyzásnál más a kép.,fogorvos,71,84,58,72,,,,,,,,
+SZIM17,2026-10-16,F1,B_kedvezotlenebb,80,,,,,monoton,,5 mm,,fogorvos,,,,,,,,1,10.0,,5.0,mm
+SZIM17,2026-10-16,F2,nincs_kulonbseg,,69,67,,,nincs_irany,,"enyhe, egyenletes alámenősség",,fogorvos,,,,,,,,,,,,
+SZIM17,2026-10-16,F3,A_kedvezotlenebb,80,,,,,monoton,,17 mm,,fogorvos,,,,,,,,1,25.0,,17.0,mm
+SZIM17,2026-10-16,F4,B_kedvezotlenebb,90,,,,,kuszobos,,131°,,fogorvos,,,,,,,,1,140.0,,125.0,°
+SZIM17,2026-10-16,F5,B_kedvezotlenebb,90,78,60,,,monoton,,,lokalizacio=a tubereken | Csak jó lenyomattal érvényesül.,fogorvos,60,95,43,74,,,,,,,,
+SZIM17,2026-10-16,F6,B_kedvezotlenebb,90,76,62,,,optimum,,12°,irany_szamit=igen,fogorvos,62,97,40,77,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM17,2026-10-16,F7,nincs_kulonbseg,,69,65,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM17,2026-10-16,F8,A_kedvezotlenebb,60,65,74,,,interakcio,,,kategoria_vagy_interakcio=az erők iránya,fogorvos,46,83,64,87,,,,,,,,
+SZIM17,2026-10-16,A1,B_kedvezotlenebb,80,,,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen,fogorvos,,,,,,,,1,,,,
+SZIM17,2026-10-16,A3,B_kedvezotlenebb,80,,,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,,,,,,,,1,,,,
+SZIM17,2026-10-16,A4,nincs_kulonbseg,,69,65,,,nincs_irany,,,nagy_vs_kicsi=alig | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM17,2026-10-16,A5,nincs_kulonbseg,,69,73,,,nincs_irany,,,Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM17,2026-10-16,TUB,B_kedvezotlenebb,90,79,59,,,monoton,,,legfontosabb=a feszes ínyborítás | Csak jó lenyomattal érvényesül.,fogorvos,70,90,50,70,,,,,,,,
+SZIM17,2026-10-16,A10,B_kedvezotlenebb,50,76,62,,,nincs_irany,,,melyik_rosszabb=az Angle II.,fogorvos,65,89,44,71,,,,,,,,
+SZIM17,2026-10-16,A11,B_kedvezotlenebb,70,85,54,,,monoton,,,nem_elodomborodo_helye=nem tudom | Fiatalabb betegnél kevésbé számít.,fogorvos,72,95,41,68,,,,,,,,
+SZIM17,2026-10-16,A12,B_kedvezotlenebb,80,79,59,,,monoton,,,erzekeny_vs_tapinthato=alig | Sok múlik a beteg alkalmazkodásán.,fogorvos,59,93,39,73,,,,,,,,
+SZIM18,2026-10-04,F1,nincs_kulonbseg,,79,77,,,nincs_irany,,,Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,10.0,,5.0,mm
+SZIM18,2026-10-04,F2,A_kedvezotlenebb,90,76,81,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,66,91,67,90,,,,,,,,
+SZIM18,2026-10-04,F3,B_kedvezotlenebb,70,84,73,,,monoton,,20 mm,Egyoldali forma jobban tolerálható.,fogorvos,69,96,57,89,,,,,25.0,,17.0,mm
+SZIM18,2026-10-04,F4,nem_tudom,,,,,,nincs_irany,,131°,,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM18,2026-10-04,F5,B_kedvezotlenebb,90,98,59,,,monoton,,,lokalizacio=a tubereken,fogorvos,85,100,48,71,,,,,,,,
+SZIM18,2026-10-04,F6,B_kedvezotlenebb,90,82,75,,,optimum,,,irany_szamit=igen,fogorvos,73,92,64,87,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM18,2026-10-04,F7,B_kedvezotlenebb,80,82,75,,,monoton,,,alak_rosszabb=az orsó alakú,fogorvos,75,88,68,80,,,,,,,,
+SZIM18,2026-10-04,F8,B_kedvezotlenebb,90,82,75,,,interakcio,,,kategoria_vagy_interakcio=az antagonista fajtája | Fiatalabb betegnél kevésbé számít.,fogorvos,76,91,67,80,,,,,,,,
+SZIM18,2026-10-04,A1,B_kedvezotlenebb,95,93,64,,,telitodo,,,legnagyobb_ugras=2 és 3 között | negy_ot_kulonbseg=igen | Fiatalabb betegnél kevésbé számít.,fogorvos,87,100,57,69,,,,,,,,
+SZIM18,2026-10-04,A3,nincs_kulonbseg,,79,77,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,,,,,,,,,,,,
+SZIM18,2026-10-04,A4,B_kedvezotlenebb,80,84,73,,,monoton,,,nagy_vs_kicsi=közepesen | Implantátum-elhorgonyzásnál más a kép.,fogorvos,79,90,65,78,,,,,,,,
+SZIM18,2026-10-04,A5,A_kedvezotlenebb,90,69,88,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel,fogorvos,63,73,83,92,,,,,,,,
+SZIM18,2026-10-04,TUB,B_kedvezotlenebb,99,92,65,,,monoton,,,legfontosabb=az alakja | Egyoldali forma jobban tolerálható.,fogorvos,80,100,56,73,,,,,,,,
+SZIM18,2026-10-04,A10,B_kedvezotlenebb,80,80,77,,,nincs_irany,,,melyik_rosszabb=az Angle II. | Sok múlik a beteg alkalmazkodásán.,fogorvos,74,87,72,82,,,,,,,,
+SZIM18,2026-10-04,A11,B_kedvezotlenebb,95,98,58,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel | Fiatalabb betegnél kevésbé számít.,fogorvos,91,100,51,63,,,,,,,,
+SZIM18,2026-10-04,A12,B_kedvezotlenebb,95,84,73,,,monoton,,,erzekeny_vs_tapinthato=közepesen | Fiatalabb betegnél kevésbé számít.,fogorvos,75,90,62,80,,,,,,,,
+SZIM19,2026-10-05,F1,B_kedvezotlenebb,60,70,46,,,monoton,,8 mm,,fogorvos,57,82,35,56,,,,,10.0,,5.0,mm
+SZIM19,2026-10-05,F2,nem_monoton,,50,44,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,39,60,33,54,65,54,75,,,,,
+SZIM19,2026-10-05,F3,B_kedvezotlenebb,60,68,48,,,monoton,,18 mm,,fogorvos,58,78,37,54,,,,,25.0,,17.0,mm
+SZIM19,2026-10-05,F4,nincs_kulonbseg,,58,62,,,nincs_irany,,129°,,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM19,2026-10-05,F5,B_kedvezotlenebb,90,76,41,,,monoton,,,lokalizacio=a tubereken,fogorvos,61,85,27,55,,,,,,,,
+SZIM19,2026-10-05,F6,B_kedvezotlenebb,50,63,53,,,optimum,,10°,Fiatalabb betegnél kevésbé számít.,fogorvos,51,80,42,70,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM19,2026-10-05,F7,B_kedvezotlenebb,80,62,54,,,monoton,,,alak_rosszabb=a plató alakú,fogorvos,43,79,35,75,,,,,,,,
+SZIM19,2026-10-05,F8,nincs_kulonbseg,,58,60,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő,fogorvos,,,,,,,,,,,,
+SZIM19,2026-10-05,A1,B_kedvezotlenebb,95,,,,,telitodo,,,negy_ot_kulonbseg=igen | Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,1,,,,
+SZIM19,2026-10-05,A3,B_kedvezotlenebb,60,63,54,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,50,79,42,73,,,,,,,,
+SZIM19,2026-10-05,A4,nincs_kulonbseg,,58,58,,,nincs_irany,,,nagy_vs_kicsi=nem tudom,fogorvos,,,,,,,,,,,,
+SZIM19,2026-10-05,A5,nincs_kulonbseg,,58,54,,,nincs_irany,,,nem_szukit_helye=a kettő között van | Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,,,,,
+SZIM19,2026-10-05,TUB,B_kedvezotlenebb,70,,,,,monoton,,,,fogorvos,,,,,,,,1,,,,
+SZIM19,2026-10-05,A10,B_kedvezotlenebb,50,61,55,,,nincs_irany,,,melyik_rosszabb=az Angle III. | Egyoldali forma jobban tolerálható.,fogorvos,47,70,44,66,,,,,,,,
+SZIM19,2026-10-05,A11,B_kedvezotlenebb,80,77,39,,,monoton,,,nem_elodomborodo_helye=a kettő között van,fogorvos,62,88,27,49,,,,,,,,
+SZIM19,2026-10-05,A12,B_kedvezotlenebb,60,66,51,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,56,75,43,59,,,,,,,,
+SZIM20,2026-10-03,F1,B_kedvezotlenebb,90,,,,,monoton,,,,fogorvos,,,,,,,,1,10.0,,5.0,mm
+SZIM20,2026-10-03,F2,nem_monoton,,90,87,,,optimum,,"enyhe, egyenletes alámenősség",Egyoldali forma jobban tolerálható.,fogorvos,82,97,79,94,98,90,100,,,,,
+SZIM20,2026-10-03,F3,B_kedvezotlenebb,90,98,75,,,monoton,,,,fogorvos,88,100,60,84,,,,,25.0,,17.0,mm
+SZIM20,2026-10-03,F4,B_kedvezotlenebb,80,93,83,,,kuszobos,,134°,,fogorvos,84,100,74,97,,,,,140.0,,125.0,°
+SZIM20,2026-10-03,F5,B_kedvezotlenebb,90,98,62,,,monoton,,,lokalizacio=a frontális gerincen | Egyoldali forma jobban tolerálható.,fogorvos,88,100,53,71,,,,,,,,
+SZIM20,2026-10-03,F6,B_kedvezotlenebb,80,94,82,,,optimum,,13°,irany_szamit=igen,fogorvos,87,100,75,90,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM20,2026-10-03,F7,nincs_kulonbseg,,88,84,,,nincs_irany,,,alak_rosszabb=nem tudom,fogorvos,,,,,,,,,,,,
+SZIM20,2026-10-03,F8,B_kedvezotlenebb,70,93,83,,,interakcio,,,kategoria_vagy_interakcio=az erők iránya | Csak jó lenyomattal érvényesül.,fogorvos,87,100,75,89,,,,,,,,
+SZIM20,2026-10-03,A1,B_kedvezotlenebb,99,98,70,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem,fogorvos,87,100,63,78,,,,,,,,
+SZIM20,2026-10-03,A3,nincs_kulonbseg,,88,88,,,nincs_irany,,,lebenyezett=az a legjobb | Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,,,,,
+SZIM20,2026-10-03,A4,A_kedvezotlenebb,60,80,96,,,monoton,,,nagy_vs_kicsi=alig,fogorvos,75,84,91,100,,,,,,,,
+SZIM20,2026-10-03,A5,nincs_kulonbseg,,88,92,,,nincs_irany,,,nem_szukit_helye=a kettő között van,fogorvos,,,,,,,,,,,,
+SZIM20,2026-10-03,TUB,B_kedvezotlenebb,90,,,,,monoton,,,legfontosabb=az alakja,fogorvos,,,,,,,,1,,,,
+SZIM20,2026-10-03,A10,B_kedvezotlenebb,70,94,82,,,nincs_irany,,,melyik_rosszabb=egyforma,fogorvos,87,100,76,86,,,,,,,,
+SZIM20,2026-10-03,A11,B_kedvezotlenebb,99,,,,,monoton,,,nem_elodomborodo_helye=az inkább a B-hez áll közel,fogorvos,,,,,,,,1,,,,
+SZIM20,2026-10-03,A12,B_kedvezotlenebb,90,,,,,monoton,,,,fogorvos,,,,,,,,1,,,,
+SZIM21,2026-09-30,F1,nem_tudom,,,,,,nincs_irany,,7 mm,Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,10.0,,5.0,mm
+SZIM21,2026-09-30,F2,nem_monoton,,71,73,,,optimum,,"enyhe, egyenletes alámenősség",Fiatalabb betegnél kevésbé számít.,fogorvos,61,80,63,82,83,73,92,,,,,
+SZIM21,2026-09-30,F3,B_kedvezotlenebb,80,87,71,,,monoton,,,Fiatalabb betegnél kevésbé számít.,fogorvos,80,97,61,78,,,,,25.0,,17.0,mm
+SZIM21,2026-09-30,F4,nincs_kulonbseg,,79,83,,,nincs_irany,,132°,Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM21,2026-09-30,F5,B_kedvezotlenebb,90,98,56,,,monoton,,,lokalizacio=a frontális gerincen,fogorvos,88,100,43,69,,,,,,,,
+SZIM21,2026-09-30,F6,B_kedvezotlenebb,90,87,72,,,optimum,,6°,,fogorvos,79,95,65,82,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM21,2026-09-30,F7,B_kedvezotlenebb,70,81,78,,,monoton,,,alak_rosszabb=egyforma,fogorvos,68,90,65,91,,,,,,,,
+SZIM21,2026-09-30,F8,nincs_kulonbseg,,79,83,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM21,2026-09-30,A1,B_kedvezotlenebb,95,95,63,,,telitodo,,,negy_ot_kulonbseg=igen,fogorvos,89,100,57,69,,,,,,,,
+SZIM21,2026-09-30,A3,nem_tudom,,,,,,nincs_irany,,,lebenyezett=köztes,fogorvos,,,,,,,,,,,,
+SZIM21,2026-09-30,A4,B_kedvezotlenebb,80,80,78,,,monoton,,,,fogorvos,70,85,68,83,,,,,,,,
+SZIM21,2026-09-30,A5,A_kedvezotlenebb,95,66,93,,,monoton,,,nem_szukit_helye=nem tudom | Sok múlik a beteg alkalmazkodásán.,fogorvos,54,72,83,99,,,,,,,,
+SZIM21,2026-09-30,TUB,B_kedvezotlenebb,95,88,70,,,monoton,,,legfontosabb=az alakja,fogorvos,76,100,58,78,,,,,,,,
+SZIM21,2026-09-30,A10,A_kedvezotlenebb,90,74,84,,,nincs_irany,,,melyik_rosszabb=az Angle III.,fogorvos,67,83,76,93,,,,,,,,
+SZIM21,2026-09-30,A11,B_kedvezotlenebb,90,97,62,,,monoton,,,nem_elodomborodo_helye=a kettő között van,fogorvos,89,100,53,70,,,,,,,,
+SZIM21,2026-09-30,A12,B_kedvezotlenebb,70,,,,,monoton,,,erzekeny_vs_tapinthato=közepesen | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,1,,,,
+SZIM22,2026-09-27,F1,B_kedvezotlenebb,95,91,81,,,monoton,,6 mm,,fogorvos,81,97,74,88,,,,,10.0,,5.0,mm
+SZIM22,2026-09-27,F2,nem_monoton,,86,75,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,75,96,64,85,94,83,100,,,,,
+SZIM22,2026-09-27,F3,B_kedvezotlenebb,95,89,83,,,monoton,,,Sok múlik a beteg alkalmazkodásán.,fogorvos,79,96,72,94,,,,,25.0,,17.0,mm
+SZIM22,2026-09-27,F4,B_kedvezotlenebb,95,,,,,kuszobos,,134°,,fogorvos,,,,,,,,1,140.0,,125.0,°
+SZIM22,2026-09-27,F5,B_kedvezotlenebb,90,90,81,,,monoton,,,lokalizacio=nem tudom,fogorvos,81,98,75,87,,,,,,,,
+SZIM22,2026-09-27,F6,B_kedvezotlenebb,90,90,82,,,optimum,,13°,,fogorvos,75,100,73,91,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM22,2026-09-27,F7,B_kedvezotlenebb,70,90,82,,,monoton,,,alak_rosszabb=az orsó alakú | Csak jó lenyomattal érvényesül.,fogorvos,86,95,74,87,,,,,,,,
+SZIM22,2026-09-27,F8,nincs_kulonbseg,,86,88,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM22,2026-09-27,A1,B_kedvezotlenebb,90,98,72,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen | Sok múlik a beteg alkalmazkodásán.,fogorvos,92,100,67,77,,,,,,,,
+SZIM22,2026-09-27,A3,nincs_kulonbseg,,86,90,,,nincs_irany,,,lebenyezett=az a legjobb,fogorvos,,,,,,,,,,,,
+SZIM22,2026-09-27,A4,B_kedvezotlenebb,90,91,81,,,monoton,,,Csak jó lenyomattal érvényesül.,fogorvos,80,100,67,90,,,,,,,,
+SZIM22,2026-09-27,A5,B_kedvezotlenebb,90,95,77,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel,fogorvos,88,100,66,84,,,,,,,,
+SZIM22,2026-09-27,TUB,B_kedvezotlenebb,90,96,76,,,monoton,,,legfontosabb=a feszes ínyborítás,fogorvos,90,100,71,82,,,,,,,,
+SZIM22,2026-09-27,A10,B_kedvezotlenebb,80,87,85,,,nincs_irany,,,melyik_rosszabb=nem tudom | Sok múlik a beteg alkalmazkodásán.,fogorvos,77,95,75,94,,,,,,,,
+SZIM22,2026-09-27,A11,B_kedvezotlenebb,95,96,76,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,81,100,60,90,,,,,,,,
+SZIM22,2026-09-27,A12,B_kedvezotlenebb,80,90,82,,,monoton,,,erzekeny_vs_tapinthato=alig | Implantátum-elhorgonyzásnál más a kép.,fogorvos,84,98,72,87,,,,,,,,
+SZIM23,2026-09-15,F1,A_kedvezotlenebb,90,62,94,,,monoton,,7 mm,Egyoldali forma jobban tolerálható.,fogorvos,47,83,77,100,,,,,10.0,,5.0,mm
+SZIM23,2026-09-15,F2,A_kedvezotlenebb,80,73,84,,,optimum,,,,fogorvos,60,87,70,96,,,,,,,,
+SZIM23,2026-09-15,F3,B_kedvezotlenebb,80,94,63,,,monoton,,20 mm,,fogorvos,83,100,47,77,,,,,25.0,,17.0,mm
+SZIM23,2026-09-15,F4,B_kedvezotlenebb,60,81,75,,,kuszobos,,,Sok múlik a beteg alkalmazkodásán.,fogorvos,63,91,58,87,,,,,140.0,,125.0,°
+SZIM23,2026-09-15,F5,B_kedvezotlenebb,90,90,67,,,monoton,,,lokalizacio=a tubereken | Sok múlik a beteg alkalmazkodásán.,fogorvos,69,100,53,84,,,,,,,,
+SZIM23,2026-09-15,F6,B_kedvezotlenebb,60,87,69,,,optimum,,,irany_szamit=nem tudom,fogorvos,73,100,53,79,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM23,2026-09-15,F7,B_kedvezotlenebb,70,81,75,,,monoton,,,alak_rosszabb=a plató alakú | Fiatalabb betegnél kevésbé számít.,fogorvos,68,97,63,92,,,,,,,,
+SZIM23,2026-09-15,F8,B_kedvezotlenebb,60,84,72,,,interakcio,,,kategoria_vagy_interakcio=az erők iránya | Fiatalabb betegnél kevésbé számít.,fogorvos,72,96,57,83,,,,,,,,
+SZIM23,2026-09-15,A1,B_kedvezotlenebb,95,93,64,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=nem,fogorvos,82,100,53,77,,,,,,,,
+SZIM23,2026-09-15,A3,A_kedvezotlenebb,60,72,84,,,nincs_irany,,,lebenyezett=az a legjobb | Implantátum-elhorgonyzásnál más a kép.,fogorvos,65,83,74,92,,,,,,,,
+SZIM23,2026-09-15,A4,B_kedvezotlenebb,80,85,71,,,monoton,,,nagy_vs_kicsi=alig,fogorvos,73,98,56,80,,,,,,,,
+SZIM23,2026-09-15,A5,B_kedvezotlenebb,60,90,67,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel,fogorvos,76,100,54,74,,,,,,,,
+SZIM23,2026-09-15,TUB,B_kedvezotlenebb,60,95,61,,,monoton,,,legfontosabb=hogy mozog-e | Fiatalabb betegnél kevésbé számít.,fogorvos,88,100,52,68,,,,,,,,
+SZIM23,2026-09-15,A10,nem_tudom,,,,,,nincs_irany,,,melyik_rosszabb=az Angle III. | Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,,,,,
+SZIM23,2026-09-15,A11,B_kedvezotlenebb,70,86,71,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,73,100,56,93,,,,,,,,
+SZIM23,2026-09-15,A12,B_kedvezotlenebb,60,80,76,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,68,91,60,85,,,,,,,,
+SZIM24,2026-10-12,F1,B_kedvezotlenebb,90,89,59,,,monoton,,8 mm,,fogorvos,83,95,54,66,,,,,10.0,,5.0,mm
+SZIM24,2026-10-12,F2,B_kedvezotlenebb,95,83,65,,,optimum,,"enyhe, egyenletes alámenősség",Egyoldali forma jobban tolerálható.,fogorvos,74,90,56,71,,,,,,,,
+SZIM24,2026-10-12,F3,nem_tudom,,,,,,nincs_irany,,15 mm,Fiatalabb betegnél kevésbé számít.,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM24,2026-10-12,F4,B_kedvezotlenebb,60,87,61,,,kuszobos,,130°,,fogorvos,77,92,54,68,,,,,140.0,,125.0,°
+SZIM24,2026-10-12,F5,B_kedvezotlenebb,90,90,58,,,monoton,,,Sok múlik a beteg alkalmazkodásán.,fogorvos,82,96,51,63,,,,,,,,
+SZIM24,2026-10-12,F6,nincs_kulonbseg,,74,74,,,nincs_irany,,5°,irany_szamit=nem | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM24,2026-10-12,F7,A_kedvezotlenebb,70,70,78,,,monoton,,,Csak jó lenyomattal érvényesül.,fogorvos,60,81,67,92,,,,,,,,
+SZIM24,2026-10-12,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az erők iránya,fogorvos,,,,,,,,,,,,
+SZIM24,2026-10-12,A1,B_kedvezotlenebb,90,95,53,,,telitodo,,,legnagyobb_ugras=3 és 4 között | negy_ot_kulonbseg=igen | Sok múlik a beteg alkalmazkodásán.,fogorvos,90,100,47,58,,,,,,,,
+SZIM24,2026-10-12,A3,A_kedvezotlenebb,60,,,,,nincs_irany,,,lebenyezett=köztes | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,1,,,,
+SZIM24,2026-10-12,A4,nincs_kulonbseg,,74,70,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM24,2026-10-12,A5,nincs_kulonbseg,,74,70,,,nincs_irany,,,nem_szukit_helye=a kettő között van,fogorvos,,,,,,,,,,,,
+SZIM24,2026-10-12,TUB,B_kedvezotlenebb,80,85,63,,,monoton,,,legfontosabb=nem tudom | Implantátum-elhorgonyzásnál más a kép.,fogorvos,73,94,55,69,,,,,,,,
+SZIM24,2026-10-12,A10,nem_monoton,,59,66,,,optimum,,,melyik_rosszabb=az Angle II. | Fiatalabb betegnél kevésbé számít.,fogorvos,50,67,57,74,82,73,90,,,,,
+SZIM24,2026-10-12,A11,B_kedvezotlenebb,90,94,54,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,89,100,49,61,,,,,,,,
+SZIM24,2026-10-12,A12,B_kedvezotlenebb,90,79,69,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,72,86,62,74,,,,,,,,
+SZIM25,2026-10-17,F1,B_kedvezotlenebb,90,,,,,monoton,,7 mm,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,1,10.0,,5.0,mm
+SZIM25,2026-10-17,F2,nem_monoton,,47,47,,,optimum,,"enyhe, egyenletes alámenősség",Sok múlik a beteg alkalmazkodásán.,fogorvos,36,57,36,57,66,55,76,,,,,
+SZIM25,2026-10-17,F3,B_kedvezotlenebb,95,65,48,,,monoton,,19 mm,,fogorvos,58,72,37,58,,,,,25.0,,17.0,mm
+SZIM25,2026-10-17,F4,nincs_kulonbseg,,56,58,,,nincs_irany,,137°,,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM25,2026-10-17,F5,nincs_kulonbseg,,56,58,,,nincs_irany,,,lokalizacio=nem tudom,fogorvos,,,,,,,,,,,,
+SZIM25,2026-10-17,F6,B_kedvezotlenebb,95,60,53,,,optimum,,8°,irany_szamit=igen,fogorvos,54,66,45,58,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM25,2026-10-17,F7,nincs_kulonbseg,,56,56,,,nincs_irany,,,alak_rosszabb=az orsó alakú | Implantátum-elhorgonyzásnál más a kép.,fogorvos,,,,,,,,,,,,
+SZIM25,2026-10-17,F8,nincs_kulonbseg,,56,56,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája,fogorvos,,,,,,,,,,,,
+SZIM25,2026-10-17,A1,B_kedvezotlenebb,90,67,46,,,telitodo,,,legnagyobb_ugras=nagyjából egyenletesen romlik | negy_ot_kulonbseg=nem,fogorvos,59,76,39,54,,,,,,,,
+SZIM25,2026-10-17,A3,B_kedvezotlenebb,90,57,55,,,nincs_irany,,,,fogorvos,46,67,45,68,,,,,,,,
+SZIM25,2026-10-17,A4,B_kedvezotlenebb,80,59,54,,,monoton,,,nagy_vs_kicsi=nem tudom | Egyoldali forma jobban tolerálható.,fogorvos,47,70,42,65,,,,,,,,
+SZIM25,2026-10-17,A5,B_kedvezotlenebb,90,57,55,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel | Sok múlik a beteg alkalmazkodásán.,fogorvos,50,64,50,59,,,,,,,,
+SZIM25,2026-10-17,TUB,B_kedvezotlenebb,99,66,47,,,monoton,,,legfontosabb=hogy mozog-e,fogorvos,51,82,36,62,,,,,,,,
+SZIM25,2026-10-17,A10,B_kedvezotlenebb,80,59,54,,,nincs_irany,,,melyik_rosszabb=az Angle II. | Implantátum-elhorgonyzásnál más a kép.,fogorvos,51,64,47,58,,,,,,,,
+SZIM25,2026-10-17,A11,B_kedvezotlenebb,99,69,44,,,monoton,,,nem_elodomborodo_helye=a kettő között van,fogorvos,60,79,35,52,,,,,,,,
+SZIM25,2026-10-17,A12,B_kedvezotlenebb,80,60,53,,,monoton,,,erzekeny_vs_tapinthato=alig,fogorvos,55,67,45,58,,,,,,,,
+SZIM26,2026-10-13,F1,B_kedvezotlenebb,90,72,60,,,monoton,,7 mm,Egyoldali forma jobban tolerálható.,fogorvos,58,88,41,76,,,,,10.0,,5.0,mm
+SZIM26,2026-10-13,F2,nem_monoton,,62,65,,,optimum,,"enyhe, egyenletes alámenősség",Egyoldali forma jobban tolerálható.,fogorvos,50,73,53,76,74,62,85,,,,,
+SZIM26,2026-10-13,F3,B_kedvezotlenebb,70,77,55,,,monoton,,19 mm,,fogorvos,58,95,41,75,,,,,25.0,,17.0,mm
+SZIM26,2026-10-13,F4,B_kedvezotlenebb,80,69,63,,,kuszobos,,131°,Sok múlik a beteg alkalmazkodásán.,fogorvos,56,81,45,75,,,,,140.0,,125.0,°
+SZIM26,2026-10-13,F5,B_kedvezotlenebb,80,87,44,,,monoton,,,lokalizacio=egyforma,fogorvos,73,96,29,57,,,,,,,,
+SZIM26,2026-10-13,F6,B_kedvezotlenebb,60,,,,,optimum,,15°,irany_szamit=nem tudom | Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,1,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM26,2026-10-13,F7,B_kedvezotlenebb,70,,,,,monoton,,,alak_rosszabb=a plató alakú | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,1,,,,
+SZIM26,2026-10-13,F8,A_kedvezotlenebb,50,65,67,,,interakcio,,,kategoria_vagy_interakcio=az antagonista fajtája | Csak jó lenyomattal érvényesül.,fogorvos,48,83,50,85,,,,,,,,
+SZIM26,2026-10-13,A1,B_kedvezotlenebb,90,74,58,,,telitodo,,,legnagyobb_ugras=1 és 2 között | negy_ot_kulonbseg=igen | Egyoldali forma jobban tolerálható.,fogorvos,55,90,40,71,,,,,,,,
+SZIM26,2026-10-13,A3,nincs_kulonbseg,,66,66,,,nincs_irany,,,lebenyezett=az a legrosszabb,fogorvos,,,,,,,,,,,,
+SZIM26,2026-10-13,A4,B_kedvezotlenebb,60,69,63,,,monoton,,,nagy_vs_kicsi=alig | Implantátum-elhorgonyzásnál más a kép.,fogorvos,61,78,54,75,,,,,,,,
+SZIM26,2026-10-13,A5,B_kedvezotlenebb,80,74,58,,,monoton,,,nem_szukit_helye=nem tudom | Implantátum-elhorgonyzásnál más a kép.,fogorvos,64,83,42,71,,,,,,,,
+SZIM26,2026-10-13,TUB,B_kedvezotlenebb,80,70,62,,,monoton,,,Implantátum-elhorgonyzásnál más a kép.,fogorvos,51,81,46,78,,,,,,,,
+SZIM26,2026-10-13,A10,nem_tudom,,,,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM26,2026-10-13,A11,B_kedvezotlenebb,80,75,57,,,monoton,,,nem_elodomborodo_helye=a kettő között van,fogorvos,69,84,51,65,,,,,,,,
+SZIM26,2026-10-13,A12,B_kedvezotlenebb,80,70,61,,,monoton,,,,fogorvos,56,88,44,74,,,,,,,,
+SZIM27,2026-10-11,F1,B_kedvezotlenebb,90,88,51,,,monoton,,,,fogorvos,72,100,38,59,,,,,10.0,,5.0,mm
+SZIM27,2026-10-11,F2,B_kedvezotlenebb,80,73,66,,,optimum,,"enyhe, egyenletes alámenősség",Fiatalabb betegnél kevésbé számít.,fogorvos,64,77,60,73,,,,,,,,
+SZIM27,2026-10-11,F3,B_kedvezotlenebb,80,84,55,,,monoton,,18 mm,Sok múlik a beteg alkalmazkodásán.,fogorvos,77,92,47,62,,,,,25.0,,17.0,mm
+SZIM27,2026-10-11,F4,B_kedvezotlenebb,70,78,61,,,kuszobos,,134°,,fogorvos,69,86,55,67,,,,,140.0,,125.0,°
+SZIM27,2026-10-11,F5,B_kedvezotlenebb,99,89,50,,,monoton,,,lokalizacio=egyforma | Fiatalabb betegnél kevésbé számít.,fogorvos,79,94,44,58,,,,,,,,
+SZIM27,2026-10-11,F6,A_kedvezotlenebb,95,58,81,,,optimum,,,irany_szamit=nem tudom | Egyoldali forma jobban tolerálható.,fogorvos,46,64,71,90,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM27,2026-10-11,F7,B_kedvezotlenebb,80,76,63,,,monoton,,,alak_rosszabb=nem tudom,fogorvos,67,89,51,74,,,,,,,,
+SZIM27,2026-10-11,F8,nincs_kulonbseg,,69,65,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő,fogorvos,,,,,,,,,,,,
+SZIM27,2026-10-11,A1,B_kedvezotlenebb,95,92,46,,,telitodo,,,negy_ot_kulonbseg=igen | Implantátum-elhorgonyzásnál más a kép.,fogorvos,82,99,38,52,,,,,,,,
+SZIM27,2026-10-11,A3,B_kedvezotlenebb,70,,,,,nincs_irany,,,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,1,,,,
+SZIM27,2026-10-11,A4,B_kedvezotlenebb,70,73,65,,,monoton,,,nagy_vs_kicsi=közepesen,fogorvos,63,79,57,70,,,,,,,,
+SZIM27,2026-10-11,A5,nincs_kulonbseg,,69,73,,,nincs_irany,,,nem_szukit_helye=az inkább az A-hoz áll közel,fogorvos,,,,,,,,,,,,
+SZIM27,2026-10-11,TUB,B_kedvezotlenebb,90,79,60,,,monoton,,,legfontosabb=az alakja | Csak jó lenyomattal érvényesül.,fogorvos,70,87,51,67,,,,,,,,
+SZIM27,2026-10-11,A10,A_kedvezotlenebb,80,61,78,,,nincs_irany,,,melyik_rosszabb=az Angle II. | Implantátum-elhorgonyzásnál más a kép.,fogorvos,53,68,68,85,,,,,,,,
+SZIM27,2026-10-11,A11,nincs_kulonbseg,,69,67,,,nincs_irany,,,nem_elodomborodo_helye=a kettő között van | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM27,2026-10-11,A12,nem_tudom,,,,,,nincs_irany,,,erzekeny_vs_tapinthato=közepesen,fogorvos,,,,,,,,,,,,
+SZIM28,2026-10-02,F1,B_kedvezotlenebb,70,81,60,,,monoton,,5 mm,,fogorvos,69,92,52,72,,,,,10.0,,5.0,mm
+SZIM28,2026-10-02,F2,A_kedvezotlenebb,90,56,85,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,45,68,73,96,,,,,,,,
+SZIM28,2026-10-02,F3,B_kedvezotlenebb,80,82,59,,,monoton,,16 mm,Fiatalabb betegnél kevésbé számít.,fogorvos,75,89,53,65,,,,,25.0,,17.0,mm
+SZIM28,2026-10-02,F4,B_kedvezotlenebb,80,78,62,,,kuszobos,,,,fogorvos,70,84,55,68,,,,,140.0,,125.0,°
+SZIM28,2026-10-02,F5,B_kedvezotlenebb,99,83,57,,,monoton,,,lokalizacio=a frontális gerincen,fogorvos,78,89,48,63,,,,,,,,
+SZIM28,2026-10-02,F6,nincs_kulonbseg,,70,72,,,nincs_irany,,,irany_szamit=nem | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM28,2026-10-02,F7,B_kedvezotlenebb,80,77,64,,,monoton,,,alak_rosszabb=a plató alakú | Sok múlik a beteg alkalmazkodásán.,fogorvos,69,86,57,69,,,,,,,,
+SZIM28,2026-10-02,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=az antagonista fajtája | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM28,2026-10-02,A1,B_kedvezotlenebb,95,86,54,,,telitodo,,,legnagyobb_ugras=4 és 5 között | negy_ot_kulonbseg=igen,fogorvos,82,90,47,60,,,,,,,,
+SZIM28,2026-10-02,A3,nincs_kulonbseg,,70,66,,,nincs_irany,,,lebenyezett=nem tudom,fogorvos,,,,,,,,,,,,
+SZIM28,2026-10-02,A4,B_kedvezotlenebb,90,79,61,,,monoton,,,nagy_vs_kicsi=közepesen,fogorvos,72,82,53,66,,,,,,,,
+SZIM28,2026-10-02,A5,B_kedvezotlenebb,80,82,58,,,monoton,,,Sok múlik a beteg alkalmazkodásán.,fogorvos,73,94,51,69,,,,,,,,
+SZIM28,2026-10-02,TUB,B_kedvezotlenebb,70,,,,,monoton,,,,fogorvos,,,,,,,,1,,,,
+SZIM28,2026-10-02,A10,B_kedvezotlenebb,50,79,61,,,nincs_irany,,,melyik_rosszabb=egyforma,fogorvos,70,85,54,66,,,,,,,,
+SZIM28,2026-10-02,A11,B_kedvezotlenebb,95,83,57,,,monoton,,,nem_elodomborodo_helye=az inkább az A-hoz áll közel,fogorvos,75,90,48,64,,,,,,,,
+SZIM28,2026-10-02,A12,B_kedvezotlenebb,70,,,,,monoton,,,erzekeny_vs_tapinthato=közepesen | Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,1,,,,
+SZIM29,2026-10-10,F1,B_kedvezotlenebb,99,75,65,,,monoton,,,Csak jó lenyomattal érvényesül.,fogorvos,68,83,53,73,,,,,10.0,,5.0,mm
+SZIM29,2026-10-10,F2,nem_monoton,,72,56,,,optimum,,"enyhe, egyenletes alámenősség",,fogorvos,62,81,46,65,79,69,88,,,,,
+SZIM29,2026-10-10,F3,nincs_kulonbseg,,70,72,,,nincs_irany,,16 mm,,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM29,2026-10-10,F4,B_kedvezotlenebb,80,71,68,,,kuszobos,,137°,,fogorvos,63,78,55,75,,,,,140.0,,125.0,°
+SZIM29,2026-10-10,F5,B_kedvezotlenebb,99,77,63,,,monoton,,,lokalizacio=a frontális gerincen | Egyoldali forma jobban tolerálható.,fogorvos,72,81,59,67,,,,,,,,
+SZIM29,2026-10-10,F6,B_kedvezotlenebb,80,74,66,,,optimum,,,irany_szamit=nem | Csak jó lenyomattal érvényesül.,fogorvos,62,80,57,78,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM29,2026-10-10,F7,A_kedvezotlenebb,70,68,71,,,monoton,,,alak_rosszabb=az orsó alakú,fogorvos,58,79,61,85,,,,,,,,
+SZIM29,2026-10-10,F8,B_kedvezotlenebb,90,73,67,,,interakcio,,,,fogorvos,65,81,59,73,,,,,,,,
+SZIM29,2026-10-10,A1,B_kedvezotlenebb,95,82,58,,,telitodo,,,legnagyobb_ugras=nagyjából egyenletesen romlik | negy_ot_kulonbseg=igen,fogorvos,75,86,50,64,,,,,,,,
+SZIM29,2026-10-10,A3,nincs_kulonbseg,,70,72,,,nincs_irany,,,Sok múlik a beteg alkalmazkodásán.,fogorvos,,,,,,,,,,,,
+SZIM29,2026-10-10,A4,nincs_kulonbseg,,70,72,,,nincs_irany,,,nagy_vs_kicsi=közepesen,fogorvos,,,,,,,,,,,,
+SZIM29,2026-10-10,A5,nincs_kulonbseg,,70,72,,,nincs_irany,,,,fogorvos,,,,,,,,,,,,
+SZIM29,2026-10-10,TUB,B_kedvezotlenebb,95,78,61,,,monoton,,,legfontosabb=az alakja | Egyoldali forma jobban tolerálható.,fogorvos,67,85,49,69,,,,,,,,
+SZIM29,2026-10-10,A10,nem_monoton,,56,59,,,optimum,,,Implantátum-elhorgonyzásnál más a kép.,fogorvos,43,68,46,71,79,66,91,,,,,
+SZIM29,2026-10-10,A11,B_kedvezotlenebb,90,81,59,,,monoton,,,nem_elodomborodo_helye=a kettő között van,fogorvos,76,86,53,64,,,,,,,,
+SZIM29,2026-10-10,A12,B_kedvezotlenebb,80,,,,,monoton,,,erzekeny_vs_tapinthato=közepesen,fogorvos,,,,,,,,1,,,,
+SZIM30,2026-10-10,F1,B_kedvezotlenebb,80,,,,,monoton,,4 mm,Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,1,10.0,,5.0,mm
+SZIM30,2026-10-10,F2,nincs_kulonbseg,,79,83,,,nincs_irany,,"enyhe, egyenletes alámenősség",Egyoldali forma jobban tolerálható.,fogorvos,,,,,,,,,,,,
+SZIM30,2026-10-10,F3,nincs_kulonbseg,,79,79,,,nincs_irany,,,,fogorvos,,,,,,,,,25.0,,17.0,mm
+SZIM30,2026-10-10,F4,nem_tudom,,,,,,nincs_irany,,137°,,fogorvos,,,,,,,,,140.0,,125.0,°
+SZIM30,2026-10-10,F5,B_kedvezotlenebb,80,95,64,,,monoton,,,lokalizacio=a tubereken,fogorvos,87,100,55,72,,,,,,,,
+SZIM30,2026-10-10,F6,nincs_kulonbseg,,79,83,,,nincs_irany,,,irany_szamit=nem tudom,fogorvos,,,,,,,,,2.5,10.0,20.0,° eltérés 90°-tól
+SZIM30,2026-10-10,F7,nincs_kulonbseg,,79,81,,,nincs_irany,,,alak_rosszabb=egyforma | Csak jó lenyomattal érvényesül.,fogorvos,,,,,,,,,,,,
+SZIM30,2026-10-10,F8,nem_tudom,,,,,,nincs_irany,,,kategoria_vagy_interakcio=mindkettő,fogorvos,,,,,,,,,,,,
+SZIM30,2026-10-10,A1,B_kedvezotlenebb,95,97,62,,,telitodo,,,legnagyobb_ugras=3 és 4 között | negy_ot_kulonbseg=nem tudom,fogorvos,83,100,54,70,,,,,,,,
+SZIM30,2026-10-10,A3,B_kedvezotlenebb,60,86,72,,,nincs_irany,,,lebenyezett=az a legrosszabb,fogorvos,75,92,60,82,,,,,,,,
+SZIM30,2026-10-10,A4,B_kedvezotlenebb,95,82,76,,,monoton,,,nagy_vs_kicsi=közepesen,fogorvos,74,90,68,82,,,,,,,,
+SZIM30,2026-10-10,A5,B_kedvezotlenebb,95,82,77,,,monoton,,,nem_szukit_helye=az inkább az A-hoz áll közel | Sok múlik a beteg alkalmazkodásán.,fogorvos,75,90,70,83,,,,,,,,
+SZIM30,2026-10-10,TUB,B_kedvezotlenebb,99,89,69,,,monoton,,,legfontosabb=a feszes ínyborítás | Sok múlik a beteg alkalmazkodásán.,fogorvos,82,94,61,77,,,,,,,,
+SZIM30,2026-10-10,A10,B_kedvezotlenebb,60,80,78,,,nincs_irany,,,melyik_rosszabb=az Angle II.,fogorvos,73,84,72,82,,,,,,,,
+SZIM30,2026-10-10,A11,nem_tudom,,,,,,nincs_irany,,,nem_elodomborodo_helye=a kettő között van,fogorvos,,,,,,,,,,,,
+SZIM30,2026-10-10,A12,nincs_kulonbseg,,79,79,,,nincs_irany,,,erzekeny_vs_tapinthato=sokkal,fogorvos,,,,,,,,,,,,
