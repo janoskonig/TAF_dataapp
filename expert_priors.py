@@ -1659,6 +1659,73 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             deliver(token, "invite", email, expert_name, lang, link, deadline, role)
         return redirect(url_for("expert.admin", uj=code))
 
+    @bp.post("/admin/meghivo/tomeges")
+    @require_admin
+    def admin_bulk_invite():
+        """Több meghívó egyszerre: soronként név, munkahely, e-mail, szerep, nyelv. A hibás
+        vagy már meghívott sorok kimaradnak (jelentéssel), a többi egy tranzakcióban jön
+        létre, majd a levelek egyenként mennek ki; az eredmény soronként flash-üzenetben."""
+        validate_csrf()
+        setup_response = require_schema()
+        if setup_response:
+            return setup_response
+        names = request.form.getlist("nev[]")
+        affiliations = request.form.getlist("munkahely[]")
+        emails = request.form.getlist("email[]")
+        roles = request.form.getlist("szerep[]")
+        langs = request.form.getlist("nyelv[]")
+        send_now = request.form.get("send_now") == "on"
+        pad = lambda values, n: list(values) + [""] * (n - len(values))
+        n = max(len(names), len(emails))
+        names, affiliations, emails, roles, langs = (pad(v, n) for v in (names, affiliations, emails, roles, langs))
+        valid, report, seen = [], [], set()
+        for index in range(n):
+            name = _clean_text(names[index], 200)
+            affiliation = _clean_text(affiliations[index], 200) or None
+            email = _clean_text(emails[index], 200).lower()
+            role = roles[index] if roles[index] in ROLES else "fogorvos"
+            lang = langs[index] if langs[index] in LANGS else "hu"
+            if not name and not email and not affiliation:
+                continue
+            if not name or "@" not in email or "." not in email.rsplit("@", 1)[-1]:
+                report.append(f"{index + 1}. sor: kimaradt, hiányzik a név vagy hibás az e-mail-cím ({name or '–'}, {email or '–'}).")
+                continue
+            if email in seen or email_invited(email):
+                report.append(f"{index + 1}. sor: {name} ({email}) már meghívva, kimaradt.")
+                continue
+            seen.add(email)
+            valid.append((name, affiliation, email, role, lang))
+        created = []
+        if valid:
+            conn = connection_factory()
+            try:
+                with conn.cursor() as cursor:
+                    for name, affiliation, email, role, lang in valid:
+                        _, code, token = create_response(cursor, name, affiliation, lang, False, True, None, email, None, role=role)
+                        created.append((code, token, name, email, role, lang))
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+            finally:
+                conn.close()
+        sent = 0
+        for code, token, name, email, role, lang in created:
+            if send_now and mail_available():
+                link = absolute_url("expert.invite", token=token)
+                if deliver(token, "invite", email, name, lang, link, None, role, quiet=True):
+                    sent += 1
+                    report.append(f"{code} · {name}: meghívó elkészült, levél elment ({email}).")
+                else:
+                    report.append(f"{code} · {name}: meghívó elkészült, de a levél nem ment el ({email}); a listából újra küldhető.")
+            else:
+                report.append(f"{code} · {name}: meghívó elkészült, levél nem ment (a listából küldhető).")
+        summary = f"Tömeges meghívó: {len(created)} meghívó elkészült, {sent} levél elment, {n - len(created)} sor kimaradt vagy üres."
+        flash(summary, "success" if created else "error")
+        for line in report:
+            flash(line, "success" if "elment" in line and "nem ment" not in line else "error")
+        return redirect(url_for("expert.admin"))
+
     def deliver(token, kind, email, name, lang, link, deadline, role="fogorvos", referrer=None, quiet=False):
         """Meghívó vagy emlékeztető küldése. A meghívó határideje a küldés napja +
         DEADLINE_DAYS (ISO-dátumként az adatbázisba is kerül); az emlékeztető a tárolt

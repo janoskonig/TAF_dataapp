@@ -77,6 +77,45 @@
     </form>
 </section>
 
+<section class="card section-card" id="bulk-invite">
+    <div class="section-head">
+        <div><h2>Több meghívó egyszerre</h2><p class="muted">Soronként egy kolléga: név, munkahely, e-mail-cím, szerep, nyelv. Táblázatból (Excel, Numbers) is beilleszthető a mező alá: soronként név, munkahely, e-mail, szerep, tabulátorral vagy pontosvesszővel elválasztva. A hibás vagy már meghívott sorok kimaradnak, a többi elkészül, és a levelek kimennek.</p></div>
+    </div>
+    <form method="post" action="{{ url_for('expert.admin_bulk_invite') }}" id="bulkForm">
+        <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+        <div class="patient-table-wrap">
+            <table class="patient-table bulk-table" id="bulkTable">
+                <thead><tr><th>#</th><th>Név *</th><th>Munkahely</th><th>E-mail-cím *</th><th>Szerep</th><th>Nyelv</th></tr></thead>
+                <tbody>
+                {% for i in range(1, 6) %}
+                <tr>
+                    <td class="bulk-index">{{ i }}.</td>
+                    <td><input type="text" name="nev[]" maxlength="200" autocomplete="off"></td>
+                    <td><input type="text" name="munkahely[]" maxlength="200" autocomplete="off"></td>
+                    <td><input type="email" name="email[]" maxlength="200" autocomplete="off"></td>
+                    <td><select name="szerep[]"><option value="fogorvos">fogorvos</option><option value="fogtechnikus">fogtechnikus</option></select></td>
+                    <td><select name="nyelv[]"><option value="hu">magyar</option><option value="en">English</option></select></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="toolbar" style="margin-top:10px; gap:10px; flex-wrap:wrap">
+            <button class="button button-secondary" type="button" id="bulkAddRow">+ sor</button>
+            <label class="checkbox-line" style="margin:0">
+                <input type="checkbox" name="send_now" {% if mail_configured %}checked{% else %}disabled{% endif %}>
+                <span>{% if mail_configured %}A felkérő levelek elküldése most{% else %}A levélküldés nincs beállítva; a meghívók elkészülnek, a linkek a listából másolhatók{% endif %}</span>
+            </label>
+            <button class="button button-primary" type="submit">Meghívók készítése és küldése</button>
+        </div>
+        <details style="margin-top:14px">
+            <summary class="muted small">Beillesztés táblázatból</summary>
+            <textarea id="bulkPaste" rows="5" placeholder="Dr. Kovács Péter&#9;Fogpótlástani Klinika&#9;kovacs@example.hu&#9;fogorvos" style="margin-top:8px"></textarea>
+            <div class="toolbar" style="margin-top:8px"><button class="button button-secondary" type="button" id="bulkLoad">Betöltés a táblázatba</button></div>
+        </details>
+    </form>
+</section>
+
 <section class="card section-card">
     <div class="section-head">
         <div><h2>Kitöltések</h2><p class="muted">A szakértők a <code>{{ start_url }}</code> címen, a szakértői hozzáférési kóddal töltik ki az űrlapot; a kitöltés indításakor a nevüket megadják.</p></div>
@@ -143,4 +182,43 @@
         </table>
     </div>
 </section>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+    const table = document.getElementById('bulkTable');
+    if (!table) return;
+    const body = table.querySelector('tbody');
+    function addRow() {
+        const row = body.rows[body.rows.length - 1].cloneNode(true);
+        row.querySelectorAll('input').forEach(input => { input.value = ''; });
+        row.querySelectorAll('select').forEach(select => { select.selectedIndex = 0; });
+        body.appendChild(row);
+        renumber();
+        return row;
+    }
+    function renumber() {
+        [...body.rows].forEach((row, index) => { row.querySelector('.bulk-index').textContent = `${index + 1}.`; });
+    }
+    document.getElementById('bulkAddRow').addEventListener('click', addRow);
+    document.getElementById('bulkLoad').addEventListener('click', () => {
+        const lines = document.getElementById('bulkPaste').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        let target = [...body.rows].find(row => !row.querySelector('input[name="nev[]"]').value && !row.querySelector('input[name="email[]"]').value);
+        lines.forEach(line => {
+            const parts = line.split(/\t|;|,(?=\s)/).map(p => p.trim());
+            const row = target || addRow();
+            target = null;
+            const [name = '', affiliation = '', email = '', role = '', lang = ''] = parts.length >= 3 ? parts : [parts[0] || '', '', parts[1] || '', parts[2] || ''];
+            row.querySelector('input[name="nev[]"]').value = name;
+            row.querySelector('input[name="munkahely[]"]').value = affiliation;
+            row.querySelector('input[name="email[]"]').value = email;
+            const roleSelect = row.querySelector('select[name="szerep[]"]');
+            roleSelect.value = /techn/i.test(role) ? 'fogtechnikus' : 'fogorvos';
+            const langSelect = row.querySelector('select[name="nyelv[]"]');
+            langSelect.value = /^en|angol|english/i.test(lang) ? 'en' : 'hu';
+            target = [...body.rows].find(r => !r.querySelector('input[name="nev[]"]').value && !r.querySelector('input[name="email[]"]').value) || null;
+        });
+    });
+})();
+</script>
 {% endblock %}

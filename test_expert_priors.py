@@ -1003,3 +1003,49 @@ def test_referral_refuses_duplicates_limits_and_foreign_sessions():
     auth_expert_with_token(client)
     client.post("/expert/urlap/tok/ajanlas", data={"csrf_token": "csrf-test", "ref_name": "", "ref_email": "nem-email"})
     assert not any("INSERT INTO" in sql for sql in executed_sql(connections))
+
+
+def test_bulk_invitations_create_rows_skip_bad_ones_and_send_letters():
+    sent = []
+    app, connections = build_app([SCHEMA_OK, EMAIL_FREE, INSERT_OK, NEXT_CODE_OK], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_admin(client)
+    response = client.post("/expert/admin/meghivo/tomeges", data={
+        "csrf_token": "csrf-test", "send_now": "on",
+        "nev[]": ["Dr. Első Anna", "", "Második Béla", "Harmadik Cili", "Dr. Első Anna"],
+        "munkahely[]": ["SE Fogpótlástani Klinika", "", "Labor Kft.", "", ""],
+        "email[]": ["anna@example.org", "", "bela@example.org", "nem-email", "ANNA@example.org"],
+        "szerep[]": ["fogorvos", "fogorvos", "fogtechnikus", "fogorvos", "fogorvos"],
+        "nyelv[]": ["hu", "hu", "hu", "hu", "en"],
+    })
+    assert response.status_code == 302
+    inserts = [params for c in connections for sql, params in c.executions if "INSERT INTO expert_prior_responses" in sql]
+    assert len(inserts) == 2
+    assert inserts[0][1] == "Dr. Első Anna" and inserts[0][2] == "SE Fogpótlástani Klinika" and inserts[0][9] == "anna@example.org"
+    assert inserts[1][1] == "Második Béla" and inserts[1][6].adapted["szerep"] == "fogtechnikus"
+    assert len(sent) == 2 and sent[1][0] == "bela@example.org" and "fogtechnikus kollégáknak" in sent[1][2]
+    with client.session_transaction() as session:
+        flashes = [message for _, message in session.get("_flashes", [])]
+    assert any("2 meghívó elkészült, 2 levél elment" in m for m in flashes)
+    assert any("4. sor" in m and "hibás az e-mail-cím" in m for m in flashes)
+    assert any("5. sor" in m and "már meghívva" in m for m in flashes)
+
+
+def test_bulk_invitations_skip_addresses_already_invited():
+    sent = []
+    app, connections = build_app([SCHEMA_OK, EMAIL_TAKEN, INSERT_OK, NEXT_CODE_OK], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_admin(client)
+    client.post("/expert/admin/meghivo/tomeges", data={"csrf_token": "csrf-test", "send_now": "on", "nev[]": ["Dr. X"], "munkahely[]": [""], "email[]": ["x@example.org"], "szerep[]": ["fogorvos"], "nyelv[]": ["hu"]})
+    assert not sent and not any("INSERT INTO" in sql for sql in executed_sql(connections))
+    with client.session_transaction() as session:
+        assert any("0 meghívó elkészült" in message for _, message in session.get("_flashes", []))
+
+
+def test_admin_page_shows_bulk_invitation_table():
+    app, _ = build_app([SCHEMA_OK, listing([])])
+    client = app.test_client()
+    auth_admin(client)
+    page = client.get("/expert/admin").get_data(as_text=True)
+    assert 'action="/expert/admin/meghivo/tomeges"' in page and page.count('<input type="text" name="nev[]"') == 5 and 'id="bulkPaste"' in page
+    assert 'name="invite_deadline"' not in page
