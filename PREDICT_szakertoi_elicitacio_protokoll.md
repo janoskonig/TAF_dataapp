@@ -86,7 +86,7 @@ A folytonos tételek pólusai konkrét mérési értékek (a kohorsz alsó és f
 |---|---|---|---|---|
 | F1 felső gerincmagasság | 10 | – | 5 | mm |
 | F3 szájpadboltozat | 25 | – | 17 | mm |
-| F4 gerincív szöge | 140 | – | 125 | ° |
+| F4 gerincív szöge (tuber – locus caninus – papilla incisiva szög, két oldal átlaga) | 140 | – | 125 | ° |
 | F6 gerincélek eltérése | ≤ 5 (2,5) | 10 | ≥ 20 | ° eltérés 90°-tól |
 
 Az A10 kategoriális (Angle I. vs. II./III.); az elemzésben a mért szög

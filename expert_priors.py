@@ -129,7 +129,7 @@ ITEMS = [
     },
     {
         "kod": "F4", "nev": "A felső gerincív alakja", "jaw": "Felső állcsont",
-        "rogzit": "A gipszmintán mérjük a gerincív szögét: a nagyobb szög szögletesebb, a kisebb hegyesebb, V-alakú ívet jelent.",
+        "rogzit": "A gipszmintán mérjük: a tuber – locus caninus – papilla incisiva pontok által bezárt szög, mindkét oldalon, a két oldal átlaga. A nagyobb szög szögletesebb, széles, a kisebb hegyesebb, V-alakú ívet jelent.",
         "A": "szögletes, széles ív (kb. 140°)", "B": "hegyes, V-alakú ív (kb. 125°)", "alak": "kuszobos", "optimum": False,
         "kuszob": "Van-e olyan szög, amely felett már nincs további előny? (°)", "subs": [],
     },

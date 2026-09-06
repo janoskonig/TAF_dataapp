@@ -70,7 +70,7 @@ ITEM_TEXT_EN = {
     },
     "F4": {
         "nev": "Shape of the upper ridge arch",
-        "rogzit": "On the cast we measure the arch angle: a larger angle means a squarer arch, a smaller one a tapered, V-shaped arch.",
+        "rogzit": "Measured on the cast: the angle formed by the tuberosity, the canine point and the incisive papilla, on both sides, averaged over the two sides. A larger angle means a squarer, wider arch, a smaller one a tapering, V-shaped arch.",
         "A": "square, wide arch (about 140°)", "B": "tapered, V-shaped arch",
         "kuszob": "Is there an angle above which there is no further benefit? (°)",
         "B": "tapering, V-shaped arch (about 125°)",
