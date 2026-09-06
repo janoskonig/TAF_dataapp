@@ -121,6 +121,13 @@ kalibrációs jelzésként rögzíti (nem gátol, nem számít kétszer).
    Stan-alapú változat a fordítási környezet javítása után), semleges és
    szakértői priorral egyaránt (érzékenység), posterior prediktív ellenőrzés.
    A szkript szimulált adaton mutatja be a folyamatot (abra_04).
+6b. Betegadatok a szakértői ábrákon: a hat longitudinális beteg minden tételnél
+   a mért érték alapján az A vagy B pólushoz (optimum tételnél a közepeshez)
+   sorolódik a kérdés küszöbeivel; a protokoll szerinti siker (MCID-egység
+   átlag ≥ 1) pólusonként sikeres/összes arányként kerül az 5. ábrára a
+   szakértők pólusonkénti becslései mellé, és Haldane-korrigált esélyhányadosként
+   az 1. ábrára a prior mellé (PREDICT_PATIENT_CSV; a kimenetben csak P01…
+   sorszám, azonosító nem). Ugyanez a mechanizmus fogadja majd a teljes kohorszot.
 7. A kis elemszámú feltáró elemzés (predict_bayes_feltaro.R) ugyanezekből a
    válaszokból korrelációs skálájú priort készít; a választípusok ott is külön
    kezeltek, és a szakértői prior csak az elsődleges kimenetre (Δ-siker-index)

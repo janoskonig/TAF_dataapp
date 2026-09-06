@@ -116,9 +116,15 @@ row_samples <- function(r) {
   p_pos <- switch(irany, B_kedvezotlenebb = p_dir, A_kedvezotlenebb = 1 - p_dir, 0.5)
   unknown <- isTRUE(r$nagysag_nem_tudom == 1)
   has_pts <- is.finite(r$siker_A) && is.finite(r$siker_B)
+  poles <- NULL
+  if (has_pts) {
+    A <- beta_from(r$siker_A, r$siker_A_min, r$siker_A_max); B <- beta_from(r$siker_B, r$siker_B_min, r$siker_B_max)
+    poles <- list(A = rbeta(N_MC, A[1], A[2]), B = rbeta(N_MC, B[1], B[2]))
+    if (is.finite(r$siker_M)) { M <- beta_from(r$siker_M, r$siker_M_min, r$siker_M_max); poles$M <- rbeta(N_MC, M[1], M[2]) }
+  }
   if (irany == "nincs_kulonbseg") {
     centre <- if (has_pts) logit(1 - clamp(r$siker_B / 100, .01, .99)) - logit(1 - clamp(r$siker_A / 100, .01, .99)) else 0
-    return(list(tipus = "nincs érdemi különbség", beta = rnorm(N_MC, centre, 0.15), p_pos_implikalt = NA_real_, p_pos_allitott = NA_real_))
+    return(list(tipus = "nincs érdemi különbség", beta = rnorm(N_MC, centre, 0.15), p_pos_implikalt = NA_real_, p_pos_allitott = NA_real_, poles = poles))
   }
   if (irany == "nem_monoton") {
     if (unknown || !has_pts || !is.finite(r$siker_M)) return(list(tipus = "görbület (nagyság nem becsült)", beta = NULL, gorbulet = -abs(rnorm(N_MC, 0, 0.5)), p_pos_implikalt = NA_real_, p_pos_allitott = NA_real_))
@@ -127,7 +133,7 @@ row_samples <- function(r) {
     pm <- rbeta(N_MC, beta_from(r$siker_M, r$siker_M_min, r$siker_M_max)[1], beta_from(r$siker_M, r$siker_M_min, r$siker_M_max)[2])
     lin <- logit(1 - pb) - logit(1 - pa)
     curv <- logit(1 - pm) - (logit(1 - pa) + logit(1 - pb)) / 2
-    return(list(tipus = "görbület (három forgatókönyv)", beta = lin, gorbulet = curv, p_pos_implikalt = mean(lin > 0), p_pos_allitott = NA_real_))
+    return(list(tipus = "görbület (három forgatókönyv)", beta = lin, gorbulet = curv, p_pos_implikalt = mean(lin > 0), p_pos_allitott = NA_real_, poles = poles))
   }
   # irányos válasz
   if (unknown || !has_pts) {
@@ -138,11 +144,11 @@ row_samples <- function(r) {
   pa <- rbeta(N_MC, A[1], A[2]); pb <- rbeta(N_MC, B[1], B[2])
   beta <- logit(1 - pb) - logit(1 - pa)
   tipus <- if (is.finite(r$siker_A_min) && is.finite(r$siker_B_min)) "pólusok tartománnyal" else "pólusok tartomány nélkül"
-  list(tipus = tipus, beta = beta, p_pos_implikalt = mean(beta > 0), p_pos_allitott = p_pos)
+  list(tipus = tipus, beta = beta, p_pos_implikalt = mean(beta > 0), p_pos_allitott = p_pos, poles = poles)
 }
 
 q <- function(x, p) if (length(x)) unname(quantile(x, p, na.rm = TRUE)) else NA_real_
-per_expert <- list(); samples <- list(); curvature <- list()
+per_expert <- list(); samples <- list(); curvature <- list(); pole_samples <- list()
 for (i in seq_len(nrow(raw))) {
   r <- raw[i, ]
   sm <- row_samples(r)
@@ -157,6 +163,7 @@ for (i in seq_len(nrow(raw))) {
     samples[[length(samples) + 1]] <- tibble(szakerto_id = r$szakerto_id, szerep = r$szerep, tetel = r$tetel, beta = b)
   }
   if (!is.null(sm$gorbulet)) curvature[[length(curvature) + 1]] <- tibble(szakerto_id = r$szakerto_id, szerep = r$szerep, tetel = r$tetel, gorbulet = sm$gorbulet)
+  if (!is.null(sm$poles)) for (pole in names(sm$poles)) pole_samples[[length(pole_samples) + 1]] <- tibble(szakerto_id = r$szakerto_id, szerep = r$szerep, tetel = r$tetel, polus = pole, p = sm$poles[[pole]])
   flag <- if (is.finite(sm$p_pos_allitott) && is.finite(sm$p_pos_implikalt) && abs(sm$p_pos_allitott - sm$p_pos_implikalt) > 0.25) "az állított és a számokból implikált irány-bizonyosság eltér" else ""
   per_expert[[length(per_expert) + 1]] <- tibble(
     szakerto_id = r$szakerto_id, szerep = r$szerep, tetel = r$tetel, tipus = sm$tipus,
@@ -169,6 +176,7 @@ per_expert <- bind_rows(per_expert) |> left_join(items |> select(tetel, cimke, c
 write_csv_utf8(per_expert, "01_szakertonkenti_prior_logit.csv")
 samples <- bind_rows(samples)
 curvature <- bind_rows(curvature)
+pole_samples <- bind_rows(pole_samples)
 
 # --- Egyesített (lineáris pool) prior tételenként, a kiválasztott szerep(ek)ből ---------
 pool_samples <- if (EXPERT_ROLE == "all") samples else samples |> filter(szerep == EXPERT_ROLE)
@@ -208,6 +216,64 @@ by_role <- samples |> group_by(tetel, szerep) |>
   left_join(items |> select(tetel, cimke, csoport), by = "tetel")
 write_csv_utf8(by_role, "04_szerep_szerint.csv")
 
+# --- Betegadatok (opcionális): pólus-hozzárendelés és megfigyelt siker ----------------------
+# A hat longitudinális beteg (anonim, tisztított CSV) minden tételnél a kérdőív A vagy B
+# pólusához (optimum tételnél M-hez) sorolódik a mért érték alapján, ugyanazokkal a
+# küszöbökkel, mint a kérdés szövege; a siker a protokoll szerint: a három javulás
+# MCID-egységben kifejezett átlaga ≥ 1 (MCID: 01_mcid_roc_osszefoglalo.csv, primer vágás).
+PATIENT_CSV <- Sys.getenv("PREDICT_PATIENT_CSV", unset = file.path(ROOT, "analíziiiis", "predict_elemzes_adatok_TISZTITOTT.csv"))
+MCID <- c(OHIP = 4.5, GOHAI = 16, MAI = 8.62)
+num <- function(x) suppressWarnings(as.numeric(gsub(",", ".", as.character(x))))
+zsc <- function(x) if (sd(x, na.rm = TRUE) > 0) (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE) else x * 0
+pole_of <- function(item, p) {
+  switch(item,
+    F1 = ifelse(num(p$F1) >= 7.5, "A", "B"),
+    F2 = { v <- num(p$F2); ifelse(v < 60, "A", ifelse(v > 250, "B", "M")) },
+    F3 = ifelse(num(p$F3) >= 21, "A", "B"),
+    F4 = ifelse(num(p$F4) >= 132.5, "A", "B"),
+    F5 = ifelse(as.integer(num(p$F5)) == 1L, "A", "B"),
+    F6 = { d <- abs(num(p$F6) - 90); ifelse(d <= 5, "A", ifelse(d >= 15, "B", "M")) },
+    F7 = ifelse(as.integer(num(p$F7)) == 1L, "A", "B"),
+    F8 = ifelse(as.integer(num(p$F8)) == 1L, "A", "B"),
+    A1 = { k <- as.integer(num(p$A1_Kaan)); ifelse(k <= 2, "A", ifelse(k >= 4, "B", NA_character_)) },
+    A3 = ifelse(p$A3 == "beszukulo", "A", ifelse(p$A3 == "kiszelesedo", "B", NA_character_)),
+    A4 = ifelse(p$A4 == "nincs", "A", "B"),
+    A5 = { v <- as.integer(num(p$A5)); ifelse(v == 0L, "A", ifelse(v == 2L, "B", NA_character_)) },
+    TUB = { v <- num(p$tuberculum_score); ifelse(v <= 0.4, "A", ifelse(v >= 0.6, "B", NA_character_)) },
+    A10 = ifelse(num(p$A10) <= 10, "A", "B"),
+    A11 = { v <- as.integer(num(p$A11)); ifelse(v == 1L, "A", ifelse(v == 3L, "B", NA_character_)) },
+    A12 = ifelse(as.integer(num(p$A12)) == 1L, "A", "B"),
+    rep(NA_character_, nrow(p)))
+}
+patients <- NULL; observed <- NULL
+if (file.exists(PATIENT_CSV)) {
+  pt <- read.csv(PATIENT_CSV, check.names = FALSE, stringsAsFactors = FALSE)
+  names(pt) <- sub("^\ufeff", "", names(pt))
+  pt <- pt |> mutate(
+    d_OHIP = num(OHIP_sum_init) - num(OHIP_sum_followup),
+    d_GOHAI = num(GOHAI_sum_followup) - num(GOHAI_sum_init),
+    d_MAI = num(MAI_huedegree_init) - num(MAI_huedegree_followup),
+    mcid_atlag = (d_OHIP / MCID[["OHIP"]] + d_GOHAI / MCID[["GOHAI"]] + d_MAI / MCID[["MAI"]]) / 3,
+    siker = mcid_atlag >= 1,
+    d_index = (zsc(d_OHIP) + zsc(d_GOHAI) + zsc(d_MAI)) / 3,
+    kod = paste0("P", sprintf("%02d", seq_len(n()))))   # anonim sorszám; a CSV azonosítói (patient_code) nem kerülnek kimenetbe
+  patients <- bind_rows(lapply(items$tetel, function(k) tibble(tetel = k, kod = pt$kod, polus = pole_of(k, pt), siker = pt$siker, mcid_atlag = pt$mcid_atlag, d_index = pt$d_index))) |>
+    filter(!is.na(polus))
+  observed <- patients |> group_by(tetel, polus) |> summarise(n = n(), k = sum(siker), arany = 100 * k / n, betegek = paste0(kod, ifelse(siker, "✓", "✗"), collapse = " "), .groups = "drop") |>
+    left_join(items |> select(tetel, cimke), by = "tetel")
+  write_csv_utf8(patients |> left_join(items |> select(tetel, cimke), by = "tetel"), "06_betegek_polus_siker.csv")
+  write_csv_utf8(observed, "06b_megfigyelt_sikeraranyok.csv")
+  # adat-alapú esélyhányados (sikertelenség, B vs. A) Haldane-korrekcióval — az 1. ábrára
+  data_or <- observed |> select(tetel, polus, n, k) |> pivot_wider(names_from = polus, values_from = c(n, k), values_fill = 0)
+  if (all(c("n_A", "n_B") %in% names(data_or))) {
+    data_or <- data_or |> filter(n_A >= 1, n_B >= 1) |>
+      mutate(fA = n_A - k_A, fB = n_B - k_B,
+             log_or = log((fB + 0.5) / (k_B + 0.5)) - log((fA + 0.5) / (k_A + 0.5)),
+             se = sqrt(1 / (fB + 0.5) + 1 / (k_B + 0.5) + 1 / (fA + 0.5) + 1 / (k_A + 0.5)),
+             OR_adat = exp(log_or), OR_adat_q05 = exp(log_or - 1.645 * se), OR_adat_q95 = exp(log_or + 1.645 * se))
+  } else data_or <- NULL
+} else data_or <- NULL
+
 # --- 1. ábra: egyesített prior esélyhányados-skálán, szakértőnkénti pontokkal -----------
 # Sorrend: a regiszter sorrendje (felső, majd alsó állcsont); a tengelyfelirat hordozza az n-t és a P(B rosszabb)-ot.
 group_levels <- c("Felső állcsont", "Alsó állcsont")
@@ -224,15 +290,21 @@ if (nrow(plot_pool)) {
     geom_segment(data = plot_pool, aes(x = OR_q25, xend = OR_q75, y = cimke2, yend = cimke2), colour = PAL$blue, linewidth = 3) +
     geom_point(data = plot_ind, aes(x = OR_q50, y = cimke2, shape = tipus), colour = PAL$orange, size = 2.2, alpha = 0.8, position = position_jitter(height = 0.18, width = 0, seed = 1)) +
     geom_point(data = plot_pool, aes(x = OR_q50, y = cimke2), colour = PAL$ink, fill = PAL$surface, shape = 21, size = 3, stroke = 1.2) +
+    { if (!is.null(data_or) && nrow(data_or)) {
+        dd <- data_or |> left_join(pool_labels |> select(tetel, cimke2, csoport), by = "tetel") |> mutate(cimke2 = factor(cimke2, levels = lab_levels), csoport = factor(csoport, levels = group_levels))
+        list(geom_linerange(data = dd, aes(xmin = pmax(OR_adat_q05, 0.1), xmax = pmin(OR_adat_q95, 50), y = cimke2), colour = PAL$aqua, linewidth = 0.6, alpha = 0.8, position = position_nudge(y = -0.36)),
+             geom_point(data = dd, aes(x = OR_adat, y = cimke2), colour = PAL$aqua, shape = 15, size = 2.4, position = position_nudge(y = -0.36)))
+      } } +
     facet_grid(csoport ~ ., scales = "free_y", space = "free_y") +
-    scale_x_log10(breaks = c(0.2, 0.5, 1, 2, 5, 10, 20), labels = c("0,2", "0,5", "1", "2", "5", "10", "20")) +
+    scale_x_log10(breaks = c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50), labels = c("0,1", "0,2", "0,5", "1", "2", "5", "10", "20", "50")) +
     scale_shape_manual(values = c(16, 17, 15, 18, 8, 4), name = "szakértőnkénti válasz típusa") +
     labs(title = "Szakértői prior a sikertelenség esélyhányadosára: B pólus az A-hoz képest",
          subtitle = wrap(paste0("Egyenlő súlyú keverék (", if (EXPERT_ROLE == "all") "fogorvosok és fogtechnikusok" else EXPERT_ROLE, "). Kék sáv: 5–95 % és 25–75 %, karika: medián. Narancs jel: egy-egy szakértő mediánja."), 110),
          x = "esélyhányados (OR), logaritmikus skála · OR > 1: a B változat mellett több a sikertelen fogsor", y = NULL,
-         caption = wrap("β = logit(1 − p_B) − logit(1 − p_A); pólusonként béta-eloszlás a legvalószínűbb számból és a 19/20-os határokból. A „nem tudom megítélni” válaszok nem szerepelnek; a „nincs érdemi különbség” szűk, 1 körüli eloszlás.", 130)) +
+         caption = wrap(paste0("β = logit(1 − p_B) − logit(1 − p_A); pólusonként béta-eloszlás a legvalószínűbb számból és a 19/20-os határokból. A „nem tudom megítélni” válaszok nem szerepelnek; a „nincs érdemi különbség” szűk, 1 körüli eloszlás.",
+                               if (!is.null(data_or) && nrow(data_or)) " Zöld négyzet és vonal (a sor alatt): a hat beteg adatából számított esélyhányados 90 %-os sávval (Haldane-korrekció, 0,1–50-re vágva); a pólusonkénti betegszámokat az 5. ábra mutatja." else ""), 130)) +
     theme_p(10) + theme(strip.text.y = element_text(angle = 0), legend.direction = "vertical", axis.text.y = element_text(size = 8, lineheight = 0.9))
-  save_png("abra_01_egyesitett_prior_OR.png", p1, 22, 17)
+  save_png("abra_01_egyesitett_prior_OR.png", p1, 22, 19)
 }
 
 # --- 2. ábra: fogorvosok vs. fogtechnikusok ----------------------------------------------
@@ -264,6 +336,31 @@ if (nrow(implied)) {
          caption = "Nagy, egyirányú eltérés a pont és a vonal között azt jelzi, hogy a szakértők a pólusokat nem az átlagos beteghez viszonyítva számolták.") +
     theme_p(10)
   save_png("abra_03_prior_prediktiv.png", p3, 18, 12)
+}
+
+# --- 5. ábra: a szakértők pólusonkénti sikerarányai és a betegek megfigyelt sikere -----------
+if (nrow(pole_samples)) {
+  pool_poles <- if (EXPERT_ROLE == "all") pole_samples else pole_samples |> filter(szerep == EXPERT_ROLE)
+  pole_pool <- pool_poles |> group_by(tetel, polus) |> summarise(q05 = 100 * quantile(p, .05), q50 = 100 * quantile(p, .5), q95 = 100 * quantile(p, .95), n_szakerto = n_distinct(szakerto_id), .groups = "drop")
+  pole_ind <- pool_poles |> group_by(tetel, polus, szakerto_id) |> summarise(med = 100 * median(p), .groups = "drop")
+  pole_levels <- c("B", "M", "A")
+  prep_pole <- function(d) d |> left_join(items |> select(tetel, cimke), by = "tetel") |> mutate(cimke = factor(cimke, levels = items$cimke), polus = factor(polus, levels = pole_levels))
+  p5 <- ggplot() +
+    geom_linerange(data = prep_pole(pole_pool), aes(xmin = q05, xmax = q95, y = polus), colour = PAL$blue, linewidth = 4, alpha = 0.25) +
+    geom_point(data = prep_pole(pole_ind), aes(x = med, y = polus), colour = PAL$orange, size = 1.6, alpha = 0.75, position = position_jitter(height = 0.15, width = 0, seed = 2)) +
+    geom_point(data = prep_pole(pole_pool), aes(x = q50, y = polus), colour = PAL$ink, fill = PAL$surface, shape = 21, size = 2.6, stroke = 1) +
+    { if (!is.null(observed) && nrow(observed)) list(
+        geom_point(data = prep_pole(observed |> select(-cimke)), aes(x = arany, y = polus), colour = PAL$aqua, shape = 18, size = 4, position = position_nudge(y = -0.28)),
+        geom_text(data = prep_pole(observed |> select(-cimke)), aes(x = 50, y = polus, label = paste0(k, "/", n, " sikeres · ", betegek)), colour = PAL$aqua, size = 2.3, position = position_nudge(y = -0.5), hjust = 0.5)) } +
+    facet_wrap(~ cimke, ncol = 4, scales = "free_y") +
+    scale_x_continuous(limits = c(0, 100), breaks = c(0, 50, 100)) +
+    scale_y_discrete(labels = c(B = "B", M = "közepes", A = "A"), drop = TRUE, expand = expansion(add = c(0.7, 0.5))) +
+    labs(title = "Száz betegből hány sikeres? A szakértők pólusonkénti becslése és a betegek megfigyelt sikere",
+         subtitle = wrap(paste0("Narancs: egy-egy szakértő legvalószínűbb száma; kék sáv és karika: az egyesített keverék 5–95 %-a és mediánja (", if (EXPERT_ROLE == "all") "minden szerep" else EXPERT_ROLE, "). Zöld rombusz és felirat: a hat beteg közül az adott pólushoz sorolt betegek sikeres/összes aránya, betegkóddal (✓ sikeres, ✗ nem)."), 150),
+         x = "sikeres fogsor 100 betegből", y = NULL,
+         caption = wrap("Siker a protokoll szerint: az OHIP-5-, GOHAI- és MAI-javulás MCID-egységben kifejezett átlaga ≥ 1 (MCID: 4,5 / 16 / 8,6). A betegek pólusa a mért értékből, a kérdés küszöbeivel; a közepes kategóriájú vagy a kontrasztba nem eső beteg nem szerepel az adott tételnél.", 170)) +
+    theme_p(9) + theme(strip.text = element_text(size = 8), panel.spacing.x = unit(10, "pt"))
+  save_png("abra_05_szakertok_es_betegek.png", p5, 26, 20)
 }
 
 # --- Demó szimulált adaton: Bayes-i logisztikus regresszió az egyesített priorral ---------
