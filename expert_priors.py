@@ -427,7 +427,21 @@ def absolute_url(endpoint, **values):
     return url_for(endpoint, _external=True, **values)
 
 
-def build_email(kind, lang, name, link, deadline=None, logo_url=None):
+def email_header_html(logo_url=None, partner_logo_url=None):
+    """A levél fejléce: balra a PREDICT-logó, jobbra a Semmelweis Egyetem logója,
+    táblázatban, hogy a levelezőprogramok egyformán rajzolják."""
+    if not logo_url and not partner_logo_url:
+        return ""
+    left = f'<img src="{logo_url}" alt="PREDICT" width="112" style="width:112px;height:auto;display:block">' if logo_url else ""
+    right = (f'<img src="{partner_logo_url}" alt="Semmelweis Egyetem" width="176" style="width:176px;height:auto;display:block">'
+             if partner_logo_url else "")
+    return ('<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" '
+            'style="max-width:560px;margin:0 0 22px;border-bottom:1px solid #dce7e9">'
+            f'<tr><td align="left" valign="bottom" style="padding:0 0 14px">{left}</td>'
+            f'<td align="right" valign="bottom" style="padding:0 0 14px">{right}</td></tr></table>')
+
+
+def build_email(kind, lang, name, link, deadline=None, logo_url=None, partner_logo_url=None):
     """(subject, text, html) a meghívóhoz ('invite') vagy az emlékeztetőhöz ('reminder')."""
     texts = MAIL_TEXTS["en" if lang == "en" else "hu"]
     deadline_sentence = texts["deadline"].format(deadline=deadline) if deadline else ""
@@ -440,7 +454,7 @@ def build_email(kind, lang, name, link, deadline=None, logo_url=None):
         escaped = (paragraph.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
         escaped = escaped.replace(link, f'<a href="{link}">{link}</a>').replace("\n", "<br>")
         html_parts.append(f"<p>{escaped}</p>")
-    logo = f'<p style="margin:0 0 18px"><img src="{logo_url}" alt="PREDICT" width="120" style="width:120px;height:auto"></p>' if logo_url else ""
+    logo = email_header_html(logo_url, partner_logo_url)
     html = '<div style="font-family: Georgia, serif; font-size: 15px; line-height: 1.5; color: #1f2933">' + logo + "".join(html_parts) + "</div>"
     return texts[subject_key], text, html
 
@@ -1292,7 +1306,9 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
     def deliver(token, kind, email, name, lang, link, deadline):
         """Meghívó vagy emlékeztető küldése; az eredmény flash-üzenetben, a
         sikeres küldés időbélyege az adatbázisban."""
-        subject, text, html = build_email(kind, lang, name, link, deadline, logo_url=absolute_url("static", filename="predict-logo.png"))
+        subject, text, html = build_email(kind, lang, name, link, deadline,
+                                          logo_url=absolute_url("static", filename="predict-logo.png"),
+                                          partner_logo_url=absolute_url("static", filename="semmelweis-logo.png"))
         try:
             send_mail(email, name, subject, text, html)
         except MailError as err:

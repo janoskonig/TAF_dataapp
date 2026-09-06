@@ -11,7 +11,10 @@
     <style>
         .home-shell { max-width: 920px; margin: 0 auto; padding: 64px 22px; }
         .home-brand { display: flex; align-items: center; gap: 18px; margin-bottom: 42px; }
+        .home-brand-main { display: flex; align-items: center; gap: 18px; flex: 1; }
         .home-logo { width: 96px; height: auto; }
+        .home-partner { height: 58px; width: auto; flex: none; opacity: .95; }
+        @media (max-width: 560px) { .home-partner { height: 44px; } }
         .home-brand strong, .home-brand span { display: block; }
         .home-brand strong { font-size: 22px; letter-spacing: .08em; }
         .home-brand span { color: var(--muted); margin-top: 2px; }
@@ -30,7 +33,10 @@
 </head>
 <body>
 <main class="home-shell">
-    <div class="home-brand"><img class="home-logo" src="{{ url_for('static', filename='predict-logo.png') }}" alt="PREDICT"><div><strong>PREDICT</strong><span>klinikai adatfelvitel</span></div></div>
+    <div class="home-brand">
+        <div class="home-brand-main"><img class="home-logo" src="{{ url_for('static', filename='predict-logo.png') }}" alt="PREDICT"><div><strong>PREDICT</strong><span>klinikai adatfelvitel</span></div></div>
+        <img class="home-partner" src="{{ url_for('static', filename='semmelweis-logo.png') }}" alt="Semmelweis Egyetem" width="199" height="58">
+    </div>
     <section class="home-intro">
         <p class="eyebrow">PRognostic Evaluation of EDentulousness: Inspecting CriTical anatomy</p>
         <h1>Milyen vizitet rögzítesz?</h1>

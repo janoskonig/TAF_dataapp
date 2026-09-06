@@ -9,6 +9,7 @@ applikáció (expert_priors.py), így a papír és a webes változat szövege az
 """
 
 from docx import Document
+from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import OxmlElement
@@ -180,10 +181,24 @@ def page_break():
 # --- Címlap és útmutató -------------------------------------------------------
 HU = LANG == "hu"
 if os.path.exists("static/predict-logo.png"):
-    logo_par = doc.add_paragraph()
-    logo_par.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    logo_par.add_run().add_picture("static/predict-logo.png", width=Cm(4.2))
-    logo_par.paragraph_format.space_after = Pt(4)
+    # Címlap fejléce, mint a levélben: balra a PREDICT-logó, jobbra a Semmelweis
+    # Egyetem logója, keret nélküli kétcellás táblázatban, alulra igazítva.
+    if os.path.exists("static/semmelweis-logo.png"):
+        header = doc.add_table(rows=1, cols=2)
+        header.autofit = False
+        left, right = header.rows[0].cells
+        left.width, right.width = Cm(8.7), Cm(8.7)
+        for cell in (left, right):
+            cell.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
+        left.paragraphs[0].add_run().add_picture("static/predict-logo.png", width=Cm(2.6))
+        right.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        right.paragraphs[0].add_run().add_picture("static/semmelweis-logo.png", width=Cm(5.6))
+        doc.add_paragraph().paragraph_format.space_after = Pt(2)
+    else:
+        logo_par = doc.add_paragraph()
+        logo_par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        logo_par.add_run().add_picture("static/predict-logo.png", width=Cm(4.2))
+        logo_par.paragraph_format.space_after = Pt(4)
 para("PREDICT" + ("-vizsgálat" if HU else " study"), bold=True, size=13, color=BLUE, align=WD_ALIGN_PARAGRAPH.CENTER, after=2)
 para(T["start_h1"], bold=True, size=20, align=WD_ALIGN_PARAGRAPH.CENTER, after=2)
 para(T["start_eyebrow"], size=13, color=INK2, align=WD_ALIGN_PARAGRAPH.CENTER, after=10)

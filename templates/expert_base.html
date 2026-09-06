@@ -87,6 +87,7 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
+    {% with footer_text = t.footer_line %}{% include '_institution_footer.html' %}{% endwith %}
 
     {% block scripts %}{% endblock %}
 </body>

@@ -618,10 +618,15 @@ def test_pages_show_the_predict_logo_and_favicon():
     assert 'rel="icon" type="image/svg+xml" href="/static/predict-mark.svg"' in html
 
 
-def test_email_html_carries_logo_when_url_given():
+def test_email_html_carries_both_logos_when_urls_given():
     from expert_priors import build_email
-    _, _, html = build_email("invite", "hu", "Dr. X", "https://x/expert/meghivo/a", None, logo_url="https://x/static/predict-logo.png")
+    _, _, html = build_email("invite", "hu", "Dr. X", "https://x/expert/meghivo/a", None,
+                             logo_url="https://x/static/predict-logo.png", partner_logo_url="https://x/static/semmelweis-logo.png")
     assert '<img src="https://x/static/predict-logo.png"' in html
+    assert '<img src="https://x/static/semmelweis-logo.png" alt="Semmelweis Egyetem"' in html
+    assert html.index("predict-logo.png") < html.index("semmelweis-logo.png") < html.index("Tisztelt Dr. X!")
+    _, _, plain = build_email("invite", "hu", "Dr. X", "https://x/expert/meghivo/a")
+    assert "<img" not in plain and "<table" not in plain
 
 
 def test_sender_name_always_carries_predict(monkeypatch):
@@ -670,6 +675,7 @@ def test_links_use_configured_public_base_url_not_request_host(monkeypatch):
     text, html = sent[0][3], sent[0][4]
     assert "https://predict-study.hu/expert/meghivo/" in text and "onrender.com" not in text
     assert '<img src="https://predict-study.hu/static/predict-logo.png"' in html
+    assert '<img src="https://predict-study.hu/static/semmelweis-logo.png"' in html
     row = response_row(consent_confirmed=False, invited_at="2026-09-06")
     app, _ = build_app([SCHEMA_OK, listing([row])])
     client = app.test_client()

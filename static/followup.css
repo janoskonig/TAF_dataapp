@@ -240,3 +240,10 @@ code { background: #eef3f4; border-radius: 5px; padding: 2px 5px; }
     .answer-option label { min-height: 45px; justify-items: start; text-align: left; }
     .card { padding: 18px; }
 }
+
+/* Intézményi lábléc: a Semmelweis-logó a világos háttéren, a sötét fejléc alatt nem. */
+.site-footer { max-width: 1180px; margin: 0 auto; padding: 8px 22px 40px; display: flex; align-items: center; gap: 16px; color: var(--muted); font-size: 13px; }
+.site-footer::before { content: ""; flex: 1; border-top: 1px solid var(--line); order: 2; margin: 0 4px; }
+.site-footer .site-footer-logo { height: 46px; width: auto; order: 1; flex: none; }
+.site-footer span { order: 3; text-align: right; }
+@media (max-width: 680px) { .site-footer { flex-wrap: wrap; } .site-footer::before { display: none; } .site-footer span { text-align: left; } }

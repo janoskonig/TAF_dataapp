@@ -157,6 +157,7 @@ ITEM_TEXT_EN = {
 UI = {
     "hu": {
         "brand_small": "szakértői kérdőív",
+        "footer_line": "Semmelweis Egyetem · Fogpótlástani Klinika · PREDICT-vizsgálat",
         "nav_admin": "Válaszok (vizsgálatvezető)",
         "logout": "Kilépés",
         "lang_other": "English",
@@ -279,6 +280,7 @@ UI = {
     },
     "en": {
         "brand_small": "expert questionnaire",
+        "footer_line": "Semmelweis University · Department of Prosthodontics · PREDICT study",
         "nav_admin": "Responses (investigator)",
         "logout": "Log out",
         "lang_other": "Magyar",
