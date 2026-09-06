@@ -32,10 +32,12 @@
 #     szerint kedvezőtlenebb), y = ROSSZABB kimenet (nagyobb = rosszabb), így
 #     β > 0 ⇔ „a kedvezőtlen anatómia rosszabb eredménnyel jár” ⇔ egyezik az
 #     elődök tapasztalatával.
-#   * „Siker” = az ÚJ fogsorral elért állapot az utánkövetéskor (OHIP-5,
-#     GOHAI, MAI, önbevallott rágóképesség, valamint ezek z-átlagából képzett
-#     siker-index); a kiindulás→utánkövetés VÁLTOZÁS másodlagos nézet, mert a
-#     kiindulási rágásteszt a régi fogpótlással készült.
+#   * Elsődleges kimenet (vizsgálatvezetői döntés, 2026-09-06): a Δ-siker-index,
+#     az OHIP-5-, GOHAI- és MAI-VÁLTOZÁS (kiindulás → 3 hónappal az átadás után)
+#     z-átlaga; a szakértői prior csak erre kerül rá. Az új fogsorral elért
+#     állapot (OHIP-5, GOHAI, MAI, önbevallott rágás, állapot-siker-index) és a
+#     többi változás másodlagos, semleges priorral (a kiindulási rágásteszt a
+#     régi fogpótlással készült, ezt a változás-kimenet értelmezésénél tudni kell).
 #   * A lemorzsolódás leírásához a szkript csak olvasásra kapcsolódik az
 #     adatbázishoz; ha az nem elérhető, ezt a blokkot kihagyja.
 #
@@ -170,6 +172,14 @@ d6 <- raw6 |>
   )
 z <- function(x) (x - mean(x)) / sd(x)
 d6$s_INDEX <- rowMeans(cbind(z(d6$s_OHIP), z(d6$s_GOHAI), z(d6$s_MAI), z(d6$s_RAGAS)))
+# Elsődleges kimenet (vizsgálatvezetői döntés, 2026-09-06): a siker-index az OHIP-,
+# GOHAI- és MAI-VÁLTOZÁSBÓL (kiindulás → 3 hónappal az átadás után), a három
+# javulás z-átlaga; a szakértői prior csak erre a kimenetre kerül rá. Az
+# állapot-alapú s_INDEX és a többi kimenet másodlagos, semleges priorral
+# (PREDICT_PRIOR_ALL_OUTCOMES=1: érzékenységi futás, minden kimenetre prior).
+d6$v_INDEX <- rowMeans(cbind(z(d6$v_OHIP), z(d6$v_GOHAI), z(d6$v_MAI)))
+HEADLINE_OUT <- "v_INDEX"
+APPLY_PRIOR_ALL <- Sys.getenv("PREDICT_PRIOR_ALL_OUTCOMES", unset = "0") == "1"
 
 # Kockázatirányított anatómia (nagyobb = az elődök szerint kedvezőtlenebb);
 # az irány nélküli tételek nyers kóddal, „irány-semleges” jelöléssel.
@@ -234,7 +244,8 @@ predictors <- tribble(
 
 outcomes <- tribble(
   ~kod, ~var, ~cimke, ~blokk, ~rovid,
-  "s_INDEX", "s_INDEX", "Siker-index (4 kimenet z-átlaga)",         "Állapot az új fogsorral", "Siker-index",
+  "v_INDEX", "v_INDEX", "Δ-siker-index (OHIP-, GOHAI-, MAI-változás z-átlaga) · elsődleges", "Változás (kiindulás → utánkövetés)", "Δ-siker-index",
+  "s_INDEX", "s_INDEX", "Siker-index, állapot (4 kimenet z-átlaga)", "Állapot az új fogsorral", "Siker-index (állapot)",
   "s_GOHAI", "s_GOHAI", "GOHAI az utánkövetéskor (↑ jobb)",        "Állapot az új fogsorral", "GOHAI",
   "s_OHIP",  "s_OHIP",  "OHIP-5 az utánkövetéskor (↓ jobb)",       "Állapot az új fogsorral", "OHIP-5",
   "s_MAI",   "s_MAI",   "MAI az utánkövetéskor (↓ jobb)",          "Állapot az új fogsorral", "MAI",
@@ -254,7 +265,7 @@ patient_table <- d6 |>
     GOHAI_init = GOHAI_sum_init, GOHAI_fu = GOHAI_sum_followup,
     MAI_init = round(MAI_huedegree_init, 1), MAI_fu = round(MAI_huedegree_followup, 1),
     ragas_init = chewing_today_init, ragas_fu = chewing_today_followup, GRC_ragas = chewing_change,
-    siker_index = round(s_INDEX, 2),
+    siker_index = round(s_INDEX, 2), siker_index_valtozas = round(v_INDEX, 2),
     F1, F2, F2_L3 = signif(F2_standardizalt, 3), F3, F4, F5, F6, F7, F8,
     A1_Kaan, A2_atlag, A3, A4, A5, tuberculum_score, A10, A11, A12
   )
@@ -742,13 +753,13 @@ bayes <- bind_rows(lapply(seq_len(nrow(assoc)), function(i) {
   if (!is.finite(a$r_normal_score)) {
     return(tibble(pred = a$pred, out = a$out, n = a$n, r_ns = NA_real_,
                   adat_P_pos = NA_real_, adat_median = NA_real_, adat_q05 = NA_real_, adat_q95 = NA_real_,
-                  prior_P_pos = expert_pool[[a$pred]]$p_pos,
+                  prior_P_pos = if (a$out == HEADLINE_OUT || APPLY_PRIOR_ALL) expert_pool[[a$pred]]$p_pos else 0.5,
                   post_P_pos = NA_real_, post_median = NA_real_, post_q05 = NA_real_, post_q95 = NA_real_))
   }
   ll <- log_lik_beta(a$r_normal_score, a$n)
   lik <- normalize(exp(ll - max(ll)))
   post_neutral <- normalize(prior_neutral * lik)
-  pr <- expert_pool[[a$pred]]$prior
+  pr <- if (a$out == HEADLINE_OUT || APPLY_PRIOR_ALL) expert_pool[[a$pred]]$prior else prior_neutral
   post_expert <- normalize(pr * lik)
   s1 <- posterior_summary(post_neutral); s2 <- posterior_summary(post_expert)
   tibble(pred = a$pred, out = a$out, n = a$n, r_ns = a$r_normal_score,
@@ -765,7 +776,8 @@ write_csv_utf8(bayes, "06_bayes_posterior_osszes.csv")
 N_GRID <- c(6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200, 300, 500)
 n_needed <- bind_rows(lapply(seq_len(nrow(bayes)), function(i) {
   b <- bayes[i, ]
-  if (!b$irany_van || !is.finite(b$r_ns) || !(b$blokk == "Állapot az új fogsorral")) return(NULL)
+  # csak az elsődleges kimenetre (a szakértői prior oda kerül); PREDICT_PRIOR_ALL_OUTCOMES=1 esetén az állapot-kimenetekre is
+  if (!b$irany_van || !is.finite(b$r_ns) || !(b$out == HEADLINE_OUT || (APPLY_PRIOR_ALL && b$blokk == "Állapot az új fogsorral"))) return(NULL)
   pr <- expert_pool[[b$pred]]$prior
   curve <- vapply(N_GRID, function(n) {
     ll <- log_lik_beta(b$r_ns, n); lik <- normalize(exp(ll - max(ll)))
@@ -882,7 +894,7 @@ raw_text <- function(k, i) {
 }
 minmax <- function(x) if (diff(range(x)) == 0) rep(0.5, length(x)) else (x - min(x)) / (max(x) - min(x))
 dir_preds <- predictors |> filter(irany_van)
-order_ids <- d6$study_id[order(-d6$s_INDEX)]
+order_ids <- d6$study_id[order(-d6$v_INDEX)]
 map_df <- bind_rows(lapply(seq_len(nrow(dir_preds)), function(j) {
   k <- dir_preds$kod[j]; v <- d6[[dir_preds$var[j]]]
   tibble(study_id = d6$study_id, tetel = dir_preds$rovid[j], csoport = as.character(dir_preds$csoport[j]),
@@ -896,10 +908,10 @@ out_df <- bind_rows(
   d6 |> transmute(study_id, kimenet = "GOHAI (↑ jobb)", ertek = GOHAI_sum_followup, z = z(s_GOHAI), szoveg = as.character(GOHAI_sum_followup)),
   d6 |> transmute(study_id, kimenet = "MAI (↓ jobb)", ertek = MAI_huedegree_followup, z = z(s_MAI), szoveg = label_pt(MAI_huedegree_followup, 0)),
   d6 |> transmute(study_id, kimenet = "Önbev. rágás", ertek = ragas_fu, z = z(s_RAGAS), szoveg = chewing_today_followup),
-  d6 |> transmute(study_id, kimenet = "Siker-index", ertek = s_INDEX, z = s_INDEX / sd(s_INDEX), szoveg = label_pt(s_INDEX, 2))
+  d6 |> transmute(study_id, kimenet = "Δ-siker-index", ertek = v_INDEX, z = v_INDEX / sd(v_INDEX), szoveg = label_pt(v_INDEX, 2))
 ) |>
   mutate(study_id = factor(study_id, levels = order_ids),
-         kimenet = factor(kimenet, levels = rev(c("OHIP-5 (↓ jobb)", "GOHAI (↑ jobb)", "MAI (↓ jobb)", "Önbev. rágás", "Siker-index"))))
+         kimenet = factor(kimenet, levels = rev(c("OHIP-5 (↓ jobb)", "GOHAI (↑ jobb)", "MAI (↓ jobb)", "Önbev. rágás", "Δ-siker-index"))))
 p3a <- ggplot(map_df, aes(x = study_id, y = tetel, fill = kockazat)) +
   geom_tile(colour = PAL$surface, linewidth = 1.2) +
   geom_text(aes(label = szoveg, colour = kockazat > 0.6), size = 2.7) +
@@ -908,7 +920,7 @@ p3a <- ggplot(map_df, aes(x = study_id, y = tetel, fill = kockazat)) +
   scale_colour_manual(values = c(`TRUE` = "white", `FALSE` = PAL$ink), guide = "none") +
   scale_x_discrete(position = "top") +
   labs(title = "Anatómiai térkép: ki hordoz kedvezőtlen képleteket, és ki járt jól az új fogsorral?",
-       subtitle = "Oszlopok: betegek a siker-index szerint csökkenő sorrendben (balra a legjobb kimenet).\nSötétebb kék = az elődök szerint kedvezőtlenebb változat (a hat betegen belül skálázva).",
+       subtitle = "Oszlopok: betegek a Δ-siker-index (elsődleges kimenet) szerint csökkenő sorrendben (balra a legjobb kimenet).\nSötétebb kék = az elődök szerint kedvezőtlenebb változat (a hat betegen belül skálázva).",
        x = NULL, y = NULL) +
   theme_predict(10.5) + theme(panel.grid = element_blank(), legend.position = "right", strip.text.y = element_text(angle = 0))
 p3b <- ggplot(out_df, aes(x = study_id, y = kimenet, fill = z)) +
@@ -918,14 +930,14 @@ p3b <- ggplot(out_df, aes(x = study_id, y = kimenet, fill = z)) +
   scale_colour_manual(values = c(`TRUE` = "white", `FALSE` = PAL$ink), guide = "none") +
   labs(x = NULL, y = NULL, subtitle = "Állapot az új fogsorral (utánkövetés)") +
   theme_predict(10.5) + theme(panel.grid = element_blank(), axis.text.x = element_blank())
-p3c <- ggplot(d6, aes(x = anat_index, y = s_INDEX)) +
+p3c <- ggplot(d6, aes(x = anat_index, y = v_INDEX)) +
   geom_hline(yintercept = 0, colour = PAL$axis, linewidth = 0.5) +
   geom_point(colour = PAL$blue, size = 3.2) +
   geom_text_repel(aes(label = study_id), size = 3, colour = PAL$ink2, seed = 3) +
   scale_x_continuous(limits = c(0, 1)) +
   labs(title = "Összesített kép",
-       subtitle = paste0("Spearman-ρ = ", fmt(safe_cor(d6$anat_index, d6$s_INDEX)), " (n = 6)"),
-       x = "Anatómiai kedvezőtlenség-index (a 13 irányított tétel átlaga, 0–1)", y = "Siker-index (↑ jobb)") +
+       subtitle = paste0("Spearman-ρ = ", fmt(safe_cor(d6$anat_index, d6$v_INDEX)), " (n = 6)"),
+       x = "Anatómiai kedvezőtlenség-index (a 13 irányított tétel átlaga, 0–1)", y = "Δ-siker-index: OHIP-, GOHAI-, MAI-javulás z-átlaga (↑ jobb)") +
   theme_predict(10.5)
 p3 <- (p3a / p3b + plot_layout(heights = c(13, 5))) | p3c + plot_layout(widths = c(2.1, 1))
 save_png("abra_03_anatomiai_terkep_es_siker.png", p3, 16, 10.5)
@@ -980,9 +992,9 @@ prior_data_post_plot <- function(bdf, title, subtitle, facet = FALSE) {
     theme_predict(10.5) + theme(legend.position = "bottom", legend.direction = "vertical", strip.text.y = element_text(angle = 0))
   if (facet) g + facet_grid(csoport ~ out_rovid, scales = "free_y", space = "free_y") else g + facet_grid(csoport ~ ., scales = "free_y", space = "free_y")
 }
-b_index <- bayes |> filter(irany_van, out == "s_INDEX")
+b_index <- bayes |> filter(irany_van, out == HEADLINE_OUT)
 p5 <- prior_data_post_plot(b_index,
-  "Mennyit mozdít hat beteg adata az elődök meggyőződésén? (siker-index)",
+  "Mennyit mozdít hat beteg adata az elődök meggyőződésén? (Δ-siker-index, elsődleges kimenet)",
   "Üres kör: prior. Kék: mit mondana az adat önmagában. Narancs rombusz: posterior. Ahol a kék az 50%-tól balra van, a hat beteg az elődökkel ELLENTÉTES irányt mutat – de a posterior alig mozdul.")
 save_png("abra_05_prior_adat_posterior_sikerindex.png", p5, 12.5, 8.5)
 b_comp <- bayes |> filter(irany_van, out %in% c("s_GOHAI", "s_OHIP", "s_MAI", "s_RAGAS")) |>
@@ -995,7 +1007,7 @@ save_png("abra_06_prior_adat_posterior_kimenetenkent.png", p6, 16, 9)
 ## 6.6 Prior–likelihood–posterior sűrűségek ----------------------------------
 dens_items <- c("A1", "A11", "TUB", "A4", "F7", "F5")
 dens_df <- bind_rows(lapply(dens_items, function(k) {
-  b <- bayes |> filter(pred == k, out == "s_INDEX")
+  b <- bayes |> filter(pred == k, out == HEADLINE_OUT)
   if (!is.finite(b$r_ns)) return(NULL)
   ll <- log_lik_beta(b$r_ns, b$n); lik <- normalize(exp(ll - max(ll)))
   pr <- expert_pool[[k]]$prior; po <- normalize(pr * lik)
@@ -1008,7 +1020,7 @@ p7 <- ggplot(dens_df, aes(x = beta, y = suruseg, colour = gorbe)) +
   geom_line(linewidth = 1.1) +
   facet_wrap(~tetel, ncol = 3, scales = "free_y") +
   scale_colour_manual(values = c(PAL$muted, PAL$blue, PAL$orange), name = NULL) +
-  labs(title = "Prior, likelihood és posterior a korrelációs skálán (siker-index)",
+  labs(title = "Prior, likelihood és posterior a korrelációs skálán (Δ-siker-index)",
        subtitle = "β > 0: a kedvezőtlen anatómia rosszabb eredménnyel jár (az elődök iránya). Hat betegnél a likelihood lapos; a posterior alakját a prior adja.",
        x = "β (standardizált hatás, –1 … +1)", y = "Sűrűség",
        caption = prior_caption) +
@@ -1016,11 +1028,11 @@ p7 <- ggplot(dens_df, aes(x = beta, y = suruseg, colour = gorbe)) +
 save_png("abra_07_prior_likelihood_posterior_surusegek.png", p7, 13, 8)
 
 ## 6.7 Hány beteg kellene? ----------------------------------------------------
-nn <- n_needed |> filter(out == "s_INDEX") |>
+nn <- n_needed |> filter(out == HEADLINE_OUT) |>
   pivot_longer(c(P_expert_prior, P_semleges_prior), names_to = "prior", values_to = "P") |>
   mutate(prior = factor(prior, levels = c("P_expert_prior", "P_semleges_prior"), labels = c("Elődök priorjával", "Semleges priorral")),
          panel = factor(paste0(pred_rovid, "  (r = ", label_pt(r_ns, 2), ")"), levels = unique(paste0(pred_rovid, "  (r = ", label_pt(r_ns, 2), ")"))))
-ann <- n_needed_summary |> filter(out == "s_INDEX") |>
+ann <- n_needed_summary |> filter(out == HEADLINE_OUT) |>
   mutate(panel = factor(paste0(pred_rovid, "  (r = ", label_pt(r_ns, 2), ")"), levels = levels(nn$panel)),
          szoveg = case_when(
            adat_iranya == "nincs jel" ~ "nincs irányjel",
@@ -1041,7 +1053,7 @@ p8 <- ggplot(nn, aes(x = n, y = P, colour = prior)) +
   theme_predict(10.5) + theme(legend.position = "bottom")
 save_png("abra_08_hany_beteg_kellene.png", p8, 15, 8.5)
 
-## 6.8 Folytonos morfometria vs. siker-index ----------------------------------
+## 6.8 Folytonos morfometria vs. Δ-siker-index ----------------------------------
 cont <- tribble(
   ~kod, ~var, ~cimke,
   "F1", "F1", "F1 felső gerincmagasság (mm) — elődök: ↑ kedvezőbb",
@@ -1054,7 +1066,7 @@ cont <- tribble(
   "F2s", "F2_standardizalt", "F2/L³ — elődök: optimum, nem monoton",
   "A10", "A10", "A10 állcsontreláció (°) — nincs tankönyvi irány"
 )
-cont_df <- bind_rows(lapply(seq_len(nrow(cont)), function(i) tibble(study_id = d6$study_id, panel = cont$cimke[i], x = d6[[cont$var[i]]], y = d6$s_INDEX))) |>
+cont_df <- bind_rows(lapply(seq_len(nrow(cont)), function(i) tibble(study_id = d6$study_id, panel = cont$cimke[i], x = d6[[cont$var[i]]], y = d6$v_INDEX))) |>
   mutate(panel = factor(panel, levels = cont$cimke))
 cont_ann <- cont_df |> group_by(panel) |> summarise(rho = safe_cor(x, y), .groups = "drop") |> mutate(lab = paste0(panel, "\nρ(mérés, siker-index) = ", label_pt(rho, 2)))
 cont_df <- cont_df |> mutate(panel2 = factor(cont_ann$lab[match(panel, cont_ann$panel)], levels = cont_ann$lab))
@@ -1063,9 +1075,9 @@ p9 <- ggplot(cont_df, aes(x = x, y = y)) +  # (ρ a fejlécben)
   geom_point(colour = PAL$blue, size = 2.8) +
   geom_text_repel(aes(label = study_id), size = 2.6, colour = PAL$ink2, seed = 5) +
   facet_wrap(~panel2, scales = "free_x", ncol = 3) +
-  labs(title = "Folytonos morfometria és a siker-index",
+  labs(title = "Folytonos morfometria és a Δ-siker-index",
        subtitle = "Nyers mérések a vízszintes tengelyen; a fejlécben az elődök várt iránya. Hat pont — a mintázat csak hipotézisgenerálásra való.",
-       x = "Mérés", y = "Siker-index (↑ jobb)") +
+       x = "Mérés", y = "Δ-siker-index: OHIP-, GOHAI-, MAI-javulás z-átlaga (↑ jobb)") +
   theme_predict(10.5) + theme(strip.text = element_text(size = 8, lineheight = 0.95))
 save_png("abra_09_folytonos_morfometria_sikerindex.png", p9, 14, 10)
 
@@ -1081,7 +1093,7 @@ if (!is.null(consensus) && any(consensus$n_szakerto > 0)) {
       tibble(tetel = lab, szakerto = i, beta = BETA[beta_idx], suruseg = d[beta_idx], tipus = "egy-egy szakértő priorja")
     }))
     pooled <- tibble(tetel = lab, szakerto = 0L, beta = BETA[beta_idx], suruseg = ep$prior[beta_idx] / DBETA, tipus = "egyesített szakértői prior")
-    b <- bayes |> filter(pred == k, out == "s_INDEX")
+    b <- bayes |> filter(pred == k, out == HEADLINE_OUT)
     post <- NULL
     if (nrow(b) == 1L && is.finite(b$r_ns)) {
       ll <- log_lik_beta(b$r_ns, b$n); lik <- normalize(exp(ll - max(ll))); po <- normalize(ep$prior * lik)
@@ -1177,11 +1189,11 @@ qa <- tibble(
               ifelse(all(c(d6$OHIP_sum_init, d6$OHIP_sum_followup) >= 0 & c(d6$OHIP_sum_init, d6$OHIP_sum_followup) <= 20), "OK", "HIBA"),
               ifelse(all(c(d6$GOHAI_sum_init, d6$GOHAI_sum_followup) >= 12 & c(d6$GOHAI_sum_init, d6$GOHAI_sum_followup) <= 60), "OK", "HIBA"),
               ifelse(all(c(d6$MAI_huedegree_init, d6$MAI_huedegree_followup) >= 0), "OK", "HIBA"),
-              ifelse(all(is.finite(d6$s_INDEX)), "OK", "HIBA"),
+              ifelse(all(is.finite(d6$v_INDEX)), "OK", "HIBA"),
               ifelse(is.null(expert_raw), "NINCS (regiszter-alapú tankönyvi prior)", paste0("OK (", length(unique(expert_raw$szakerto_id)), " szakértő, ", nrow(expert_raw), " sor; forrás: ", paste(unique(expert_raw$forras), collapse = " + "), ")")),
               ifelse(db_ok, "OK", "KIHAGYVA"), ifelse(all(is.finite(d6$kor_ev)), "OK", "hiányzik (DB nélkül)")),
   reszlet = c(paste0(nrow(d6), " beteg"), paste(sort(d6$patient_id), collapse = ", ") |> (\(x) "P01–P06 (adatbázis-id nem kerül fájlba)")(),
-              "", "", "", paste0("tartomány ", fmt(min(d6$s_INDEX)), " … ", fmt(max(d6$s_INDEX))),
+              "", "", "", paste0("tartomány ", fmt(min(d6$v_INDEX)), " … ", fmt(max(d6$v_INDEX))),
               ifelse(is.null(expert_raw), expert_path, paste(unique(expert_raw$szakerto_id), collapse = "; ")), db_note,
               ifelse(all(is.finite(d6$kor_ev)), paste0(fmt(min(d6$kor_ev), 0), "–", fmt(max(d6$kor_ev), 0), " év"), ""))
 )
@@ -1189,7 +1201,7 @@ write_csv_utf8(qa, "08_QA_ellenorzes.csv")
 
 egyezes_tab <- assoc |> filter(irany_van, blokk == "Állapot az új fogsorral", is.finite(rho)) |>
   group_by(out_rovid) |> summarise(egyezik = sum(rho > 0.1), ellentmond = sum(rho < -0.1), semleges = sum(abs(rho) <= 0.1), .groups = "drop")
-top_index <- bayes |> filter(irany_van, out == "s_INDEX", is.finite(rho)) |> arrange(desc(abs(rho)))
+top_index <- bayes |> filter(irany_van, out == HEADLINE_OUT, is.finite(rho)) |> arrange(desc(abs(rho)))
 
 summary_lines <- c(
   "# PREDICT – Bayes-i keretű feltáró elemzés: az elődök tapasztalata vs. hat teljes eset",
@@ -1211,7 +1223,7 @@ summary_lines <- c(
   "",
   paste0("- ", egyezes_tab$out_rovid, ": egyezik ", egyezes_tab$egyezik, " · ellentmond ", egyezes_tab$ellentmond, " · semleges ", egyezes_tab$semleges, "."),
   "",
-  paste0("- Anatómiai kedvezőtlenség-index ↔ siker-index: Spearman-ρ = ", fmt(safe_cor(d6$anat_index, d6$s_INDEX)), "."),
+  paste0("- Anatómiai kedvezőtlenség-index ↔ Δ-siker-index (elsődleges kimenet): Spearman-ρ = ", fmt(safe_cor(d6$anat_index, d6$v_INDEX)), "."),
   "",
   "## Siker-index: prior → adat → posterior (|ρ| szerint)",
   "",
@@ -1240,7 +1252,7 @@ cat("\n--- Irány-egyezés (Spearman-ρ; + = egyezik az elődökkel) ---\n")
 print(as.data.frame(assoc |> select(pred_rovid, out_rovid, rho) |> mutate(rho = round(rho, 2)) |> pivot_wider(names_from = out_rovid, values_from = rho)), row.names = FALSE)
 if (!is.null(consensus)) { cat("\n--- Szakértői konszenzus (pool) ---\n"); print(as.data.frame(consensus |> transmute(cimke, n = n_szakerto, B = round(B_arany, 2), A = round(A_arany, 2), opt = round(optimum_arany, 2), nincs = round(nincs_arany, 2), nt = round(nem_tudom_arany, 2), p_atlag = round(p_irany_atlag, 0), diff_atlag = round(kulonbseg_atlag, 1), pool_P = round(pool_P_varhato_irany, 3), pool_med = round(pool_median, 2), q05 = round(pool_q05, 2), q95 = round(pool_q95, 2), sdP = round(egyet_nem_ertes_sd_P, 2))), row.names = FALSE) }
 cat("\n--- Bayes: siker-index ---\n")
-print(as.data.frame(bayes |> filter(out == "s_INDEX") |> transmute(pred_rovid, rho = round(rho, 2), prior = round(prior_P_pos, 3), adat = round(adat_P_pos, 3), posterior = round(post_P_pos, 3), post_median = round(post_median, 2), post_q05 = round(post_q05, 2), post_q95 = round(post_q95, 2))), row.names = FALSE)
+print(as.data.frame(bayes |> filter(out == HEADLINE_OUT) |> transmute(pred_rovid, rho = round(rho, 2), prior = round(prior_P_pos, 3), adat = round(adat_P_pos, 3), posterior = round(post_P_pos, 3), post_median = round(post_median, 2), post_q05 = round(post_q05, 2), post_q95 = round(post_q95, 2))), row.names = FALSE)
 cat("\n--- Hány beteg kellene? (siker-index) ---\n")
-print(as.data.frame(n_needed_summary |> filter(out == "s_INDEX") |> transmute(pred_rovid, r = round(r_ns, 2), adat_iranya, P_n6 = round(P_expert_n6, 2), P_n30 = round(P_expert_n30, 2), P_n100 = round(P_expert_n100, 2), n_atbillenes_expert, n_95pct_semleges)), row.names = FALSE)
+print(as.data.frame(n_needed_summary |> filter(out == HEADLINE_OUT) |> transmute(pred_rovid, r = round(r_ns, 2), adat_iranya, P_n6 = round(P_expert_n6, 2), P_n30 = round(P_expert_n30, 2), P_n100 = round(P_expert_n100, 2), n_atbillenes_expert, n_95pct_semleges)), row.names = FALSE)
 cat("\n--- QA ---\n"); print(as.data.frame(qa), row.names = FALSE)

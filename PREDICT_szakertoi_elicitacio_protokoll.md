@@ -10,11 +10,17 @@ változatosságot és a tudás bizonytalanságát külön kérdezzük.
 
 ## 1. Cél és becsülendő mennyiségek
 
-* **Elsődleges kimenet:** sikeres fogsor igen/nem az átadás utáni fél évnél.
-  Sikeres a fogsor, ha a beteg rendszeresen hordja, tud vele enni, nincs komoly
-  fájdalma vagy nyomási panasza, és elégedett vele. (A fogtechnikusi
-  változatban kiegészítve: a labor felől nézve nem jön vissza panasszal,
-  alábélelésre vagy újrakészítésre.)
+* **Elsődleges kimenet (vizsgálatvezetői döntés, 2026-09-06):** a
+  siker-index az OHIP-5-, GOHAI- és MAI-változásból, három hónappal az
+  átadás után (kiindulás a régi fogsorral → 3 hónap az újjal). Folytonos
+  alak: a három javulás standardizált átlaga (Δ-siker-index). Kétértékű alak
+  a szakértői kérdéshez: sikeres a fogsor, ha a beteg a régi fogsorához képest
+  klinikailag érzékelhetően javult: jobban rág a rágástesztben, és jobb a
+  szájegészséggel kapcsolatos életminősége mindkét kérdőívben; előzetes
+  küszöb: a három változás MCID-egységben kifejezett átlaga ≥ 1 (a MCID-
+  elemzés alapján véglegesítendő). A fogtechnikusi változat ugyanezt a mért
+  meghatározást használja, kiegészítve azzal, hogy ezt a betegen mérjük, nem a
+  laborba visszakerülésből.
 * **Paraméter tételenként:** a sikertelenség esélyhányadosának logaritmusa a
   B pólus (az elődök szerint kedvezőtlen változat) és az A pólus között, a többi
   adottság azonos értéke mellett (feltételes hatás): β = logit(1 − p_B) −
@@ -109,14 +115,17 @@ kalibrációs jelzésként rögzíti (nem gátol, nem számít kétszer).
    vs. a B1 alapráta.
 5. Szerep szerinti bontás (fogorvos vs. fogtechnikus), PREDICT_EXPERT_ROLE
    választja a poolba kerülő csoportot (alap: fogorvos).
-6. Modell a betegadaton: Bayes-i logisztikus regresszió az összes tétellel,
+6. Modell a betegadaton: a kétértékű sikerre Bayes-i logisztikus regresszió, a
+   folytonos Δ-siker-indexre lineáris modell, mindkettő az összes tétellel,
    a koefficienseken az egyesített normális priorral (MCMCpack::MCMClogit;
    Stan-alapú változat a fordítási környezet javítása után), semleges és
    szakértői priorral egyaránt (érzékenység), posterior prediktív ellenőrzés.
    A szkript szimulált adaton mutatja be a folyamatot (abra_04).
 7. A kis elemszámú feltáró elemzés (predict_bayes_feltaro.R) ugyanezekből a
    válaszokból korrelációs skálájú priort készít; a választípusok ott is külön
-   kezeltek.
+   kezeltek, és a szakértői prior csak az elsődleges kimenetre (Δ-siker-index)
+   kerül rá, a többi kimenet semleges priorral fut (PREDICT_PRIOR_ALL_OUTCOMES=1:
+   érzékenységi futás).
 
 ## 7. Adatkezelés, riportálás
 

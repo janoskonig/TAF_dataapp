@@ -9,6 +9,10 @@
 # az optimum alakú tételeknél (F2, F6) a közepes forgatókönyv is, és a
 # „nagyságát nem tudom megbecsülni” jelölés.
 #
+# Elsődleges kimenet (vizsgálatvezetői döntés, 2026-09-06): siker = klinikailag
+# érzékelhető javulás a régi fogsorhoz képest három hónappal az átadás után, az
+# OHIP-5-, GOHAI- és MAI-változásból képzett siker-index alapján; a szakértő erre
+# mond valószínűséget („100 betegből hány sikeres”).
 # Ez a szkript a sikerarányokból közvetlenül a modellparaméter (a sikertelenség
 # esélyhányadosának logaritmusa a B pólus és az A pólus között) priorját állítja
 # elő szakértőnként, majd egyenlő súlyú lineáris véleménykeveréssel egyesíti:
