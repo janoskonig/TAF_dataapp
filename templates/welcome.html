@@ -15,7 +15,7 @@
         .home-brand span { color: var(--muted); margin-top: 2px; }
         .home-intro { max-width: 720px; margin-bottom: 28px; }
         .home-intro h1 { font-size: clamp(34px, 7vw, 58px); margin: 0 0 12px; }
-        .workflow-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .workflow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
         .workflow-card { display: flex; flex-direction: column; min-height: 270px; }
         .workflow-card .step-number { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--brand-soft); color: var(--brand-dark); font-weight: 850; }
         .workflow-card h2 { font-size: 26px; margin: 24px 0 10px; }
@@ -32,7 +32,7 @@
     <section class="home-intro">
         <p class="eyebrow">PRognostic Evaluation of EDentulousness: Inspecting CriTical anatomy</p>
         <h1>Milyen vizitet rögzítesz?</h1>
-        <p class="lead">Mindkét betegadat-kezelő munkafelület hozzáférési kóddal védett.</p>
+        <p class="lead">Minden munkafelület hozzáférési kóddal védett.</p>
     </section>
     <section class="workflow-grid">
         <article class="card workflow-card">
@@ -47,10 +47,17 @@
             <p>Kétállcsontos betegek megkeresése, időpont, recall OHIP–GOHAI, anchor-kérdések, F9 és utánkövetési MAI.</p>
             <a class="button button-primary" href="{{ url_for('followup.dashboard') }}">Utánkövetés megnyitása</a>
         </article>
+        <article class="card workflow-card">
+            <span class="step-number">3</span>
+            <h2>Szakértői prior-felmérés</h2>
+            <p>Tapasztalt kollégák előzetes véleménye az anatómiai képletek kedvező vagy kedvezőtlen voltáról; a Bayes-i elemzés prior-bemenete. Külön szakértői hozzáférési kóddal.</p>
+            <a class="button button-primary" href="{{ url_for('expert.start') }}">Felmérés megnyitása</a>
+        </article>
     </section>
     <nav class="secondary-links" aria-label="További funkciók">
         <a href="{{ url_for('results') }}">Eddigi eredmények</a>
         <a href="{{ url_for('student_exam') }}">Hallgatói fizikális vizsgálat</a>
+        <a href="{{ url_for('expert.admin') }}">Szakértői válaszok (vizsgálatvezető)</a>
     </nav>
 </main>
 </body>

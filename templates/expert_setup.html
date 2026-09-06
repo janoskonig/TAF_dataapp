@@ -1,0 +1,10 @@
+{% extends "expert_base.html" %}
+{% block title %}Beállítás szükséges · PREDICT szakértői felmérés{% endblock %}
+{% block content %}
+<section class="narrow-card card">
+    <p class="eyebrow">Egyszeri beállítás</p>
+    <h1>A szakértői felmérés még nincs aktiválva</h1>
+    <p>A szakértői válaszok táblája hiányzik. Futtasd a <code>migrate_expert_priors.sql</code> migrációt az alkalmazás adatbázisán.</p>
+    <p class="muted">A betegadatokat tartalmazó táblákat a felmérés nem érinti.</p>
+</section>
+{% endblock %}

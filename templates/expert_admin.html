@@ -1,0 +1,80 @@
+{% extends "expert_base.html" %}
+{% block title %}Válaszok · PREDICT szakértői felmérés{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Vizsgálatvezetői nézet</p>
+        <h1>Szakértői válaszok</h1>
+        <p class="lead">A beküldött válaszok a Bayes-i elemzés (predict_bayes_feltaro.R) prior-bemenetei. Az export oszlopai megegyeznek a predict_expert_priorok.csv és a predict_expert_hatter.csv sablonnal.</p>
+    </div>
+    <div class="heading-actions">
+        <a class="button button-primary" href="{{ url_for('expert.export_priors') }}">Priorok CSV (beküldött)</a>
+        <a class="button button-secondary" href="{{ url_for('expert.export_background') }}">Háttér CSV (beküldött)</a>
+        <a class="button button-secondary" href="{{ url_for('expert.export_priors', status='all') }}">Priorok CSV piszkozatokkal</a>
+    </div>
+</div>
+
+<section class="stats-grid" aria-label="Összesítés">
+    <div class="stat"><strong>{{ responses|length }}</strong><span>kitöltés összesen</span></div>
+    <div class="stat stat-emphasis"><strong>{{ submitted_count }}</strong><span>beküldött</span></div>
+    <div class="stat"><strong>{{ responses|length - submitted_count }}</strong><span>piszkozat</span></div>
+    <div class="stat"><strong>{{ expert_items|length }}</strong><span>tétel / kitöltés</span></div>
+</section>
+
+<section class="card section-card">
+    <div class="section-head">
+        <div><h2>Kitöltések</h2><p class="muted">A szakértők a <code>{{ url_for('expert.start', _external=True) }}</code> címen, a szakértői hozzáférési kóddal töltik ki az űrlapot; a kitöltés indításakor a nevüket megadják.</p></div>
+    </div>
+    {% if responses %}
+    <div class="patient-table-wrap">
+        <table class="patient-table">
+            <thead><tr><th>Kód</th><th>Név</th><th>Állapot</th><th>Tételek</th><th>Gyakorlat (év)</th><th>Fogsorok</th><th>Önértékelés</th><th>Létrehozva</th><th>Beküldve</th><th></th></tr></thead>
+            <tbody>
+            {% for response in responses %}
+            <tr>
+                <td><strong>{{ response.expert_code }}</strong></td>
+                <td>{{ response.expert_name or '–' }}{% if response.expert_affiliation %}<br><small class="muted">{{ response.expert_affiliation }}</small>{% endif %}</td>
+                <td>{% if response.status == 'submitted' %}<span class="badge badge-success">beküldve</span>{% else %}<span class="badge badge-warning">piszkozat</span>{% endif %}</td>
+                <td>{{ response.items_answered }} / {{ response.items_total }}</td>
+                <td>{{ response.background.get('evek_gyakorlat') if response.background.get('evek_gyakorlat') is not none else '–' }}</td>
+                <td>{{ response.background.get('fogsorok_szama_kat') or '–' }}</td>
+                <td>{{ response.closing.get('onertekeles') or '–' }}</td>
+                <td>{{ response.created_at_label }}</td>
+                <td>{{ response.submitted_at_label or '–' }}</td>
+                <td class="patient-row-action"><a class="button button-secondary" href="{{ url_for('expert.admin_view', response_id=response.id) }}">Megtekintés</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="empty-state">Még nincs kitöltés.</p>
+    {% endif %}
+</section>
+
+<section class="card section-card">
+    <div class="section-head">
+        <div><h2>Tételenkénti gyorsösszesítés</h2><p class="muted">Csak a beküldött válaszokból. „B” = a tankönyvi értelemben kedvezőtlen pólus. Az elemzéshez a lineáris véleménykeveréket az R-szkript számolja.</p></div>
+    </div>
+    <div class="patient-table-wrap">
+        <table class="patient-table tally-table">
+            <thead><tr><th>Tétel</th><th>n</th><th>A kedvezőtlenebb</th><th>B kedvezőtlenebb</th><th>optimum</th><th>nincs különbség</th><th>nem tudom</th><th>átlagos bizonyosság</th><th>átlagos |különbség| (100-ból)</th></tr></thead>
+            <tbody>
+            {% for row in tally %}
+            <tr>
+                <td><strong>{{ row.kod }}</strong><br><small class="muted">{{ row.nev }}</small></td>
+                <td class="num">{{ row.n_valasz }}</td>
+                <td class="num">{{ row.counts.A_kedvezotlenebb }}</td>
+                <td class="num">{{ row.counts.B_kedvezotlenebb }}</td>
+                <td class="num">{{ row.counts.nem_monoton }}</td>
+                <td class="num">{{ row.counts.nincs_kulonbseg }}</td>
+                <td class="num">{{ row.counts.nem_tudom }}</td>
+                <td class="num">{{ row.p_irany_atlag ~ ' %' if row.p_irany_atlag is not none else '–' }}</td>
+                <td class="num">{{ row.kulonbseg_atlag if row.kulonbseg_atlag is not none else '–' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

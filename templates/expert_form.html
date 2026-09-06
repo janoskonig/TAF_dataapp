@@ -1,0 +1,362 @@
+{% extends "expert_base.html" %}
+{% block title %}Kitöltés · {{ response.expert_code }} · PREDICT szakértői felmérés{% endblock %}
+{% set bg = response.background %}
+{% set cal = response.calibration %}
+{% set cl = response.closing %}
+{% set it = response['items'] %}
+{% macro radio_grid(name, options, current, grid_class='answer-grid') %}
+<div class="{{ grid_class }}" data-group="{{ name }}">
+    {% for value, label in options %}
+    <div class="answer-option">
+        <input type="radio" id="{{ name }}_{{ loop.index }}" name="{{ name }}" value="{{ value }}" data-autosave {% if current is not none and current|string == value|string %}checked{% endif %}>
+        <label for="{{ name }}_{{ loop.index }}">{{ label }}</label>
+    </div>
+    {% endfor %}
+</div>
+{% endmacro %}
+{% block content %}
+<div class="questionnaire-shell">
+    <div class="breadcrumb"><a href="{{ url_for('expert.start') }}">← Tájékoztató</a></div>
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">{{ response.expert_code }}{% if response.expert_name %} · {{ response.expert_name }}{% endif %}{% if response.expert_affiliation %} · {{ response.expert_affiliation }}{% endif %}</p>
+            <h1>Szakértői prior-felmérés</h1>
+            <p class="lead">A válaszok automatikusan mentődnek. A beküldéshez minden tételnél kell irány (és irányított válasznál bizonyosság); a többi mező kitöltése ajánlott, de nem kötelező.</p>
+        </div>
+    </div>
+
+    {% if errors %}
+    <div class="flash flash-error">
+        <strong>Hiányzó vagy hibás mezők:</strong>
+        <ul class="error-list">
+            {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="question-progress" aria-live="polite">
+        <strong><span id="itemsDone">{{ response.items_answered }}</span> / {{ response.items_total }} tétel megválaszolva</strong>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width: {{ (100 * response.items_answered / response.items_total)|round(1) }}%"></div></div>
+        <small class="muted" id="saveStatus">A válaszok automatikusan mentődnek.</small>
+        <nav class="item-nav" aria-label="Tételek">
+            {% for item in expert_items %}
+            <a href="#item-{{ item.kod }}" id="nav-{{ item.kod }}">{{ item.kod }}</a>
+            {% endfor %}
+        </nav>
+    </div>
+
+    <form method="post" id="expertForm" action="{{ url_for('expert.submit', token=response.token) }}">
+        <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+
+        <section class="card section-card" id="section-a">
+            <div class="section-head"><div><p class="eyebrow">A.</p><h2>A szakértő szakmai háttere</h2></div></div>
+            <div class="grid grid-2">
+                <div>
+                    <label class="field-label" for="bg__diploma_ev">A1. Diploma éve</label>
+                    <input type="number" id="bg__diploma_ev" name="bg__diploma_ev" min="1950" max="2100" value="{{ bg.get('diploma_ev', '') if bg.get('diploma_ev') is not none else '' }}" data-autosave>
+                </div>
+                <div>
+                    <label class="field-label" for="bg__evek_gyakorlat">A2. Fogpótlástani (protetikai) gyakorlat (év) *</label>
+                    <input type="number" id="bg__evek_gyakorlat" name="bg__evek_gyakorlat" min="0" max="70" value="{{ bg.get('evek_gyakorlat', '') if bg.get('evek_gyakorlat') is not none else '' }}" data-autosave>
+                </div>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">A3. Eddig készített teljes lemezes fogpótlások becsült száma *</p>
+                {{ radio_grid('bg__fogsorok_szama_kat', [('<100','< 100'),('100-500','100–500'),('500-1000','500–1000'),('1000-3000','1000–3000'),('>3000','> 3000')], bg.get('fogsorok_szama_kat')) }}
+            </div>
+            <div class="expert-q">
+                <p class="q-title">A4. Oktat-e fogpótlástant (graduális vagy posztgraduális)?</p>
+                {{ radio_grid('bg__oktat', [('igen','igen'),('nem','nem'),('korabban','korábban igen')], bg.get('oktat'), 'answer-grid answer-grid-3') }}
+            </div>
+            <div class="expert-q">
+                <p class="q-title">A5. Jelenlegi tevékenység</p>
+                {{ radio_grid('bg__tevekenyseg', [('egyetemi','egyetemi klinika'),('maganpraxis','magánpraxis'),('mindketto','mindkettő'),('egyeb','egyéb')], bg.get('tevekenyseg'), 'answer-grid sub-grid') }}
+            </div>
+            <div class="grid grid-2" style="margin-top:16px">
+                <div>
+                    <label class="field-label" for="bg__szakvizsga">A6. Szakvizsga / szakirány</label>
+                    <input type="text" id="bg__szakvizsga" name="bg__szakvizsga" maxlength="200" value="{{ bg.get('szakvizsga', '') or '' }}" data-autosave>
+                </div>
+                <div>
+                    <label class="field-label" for="bg__evi_fogsorok">A7. Évente készített teljes fogsorok száma (utóbbi 5 év)</label>
+                    <input type="number" id="bg__evi_fogsorok" name="bg__evi_fogsorok" min="0" max="2000" value="{{ bg.get('evi_fogsorok', '') if bg.get('evi_fogsorok') is not none else '' }}" data-autosave>
+                </div>
+            </div>
+        </section>
+
+        <section class="card section-card" id="section-b">
+            <div class="section-head"><div><p class="eyebrow">B.</p><h2>Alapkérdések a sikerről</h2><p class="muted">Siker: a beteg 3–6 hónap után rendszeresen viseli a fogsort, elfogadhatóan rág vele, nincs lényeges fájdalma, és elégedett.</p></div></div>
+            <div class="expert-q">
+                <p class="q-title">B1. Alap-sikerarány *</p>
+                <p class="q-help">Az Ön tapasztalata szerint 100 átlagos, teljes lemezes fogpótlásra szoruló betegből hány esetében sikeres a fogpótlás a fenti meghatározás szerint?</p>
+                <input type="number" id="cal__alap_siker_100" name="cal__alap_siker_100" min="0" max="100" style="max-width:180px" value="{{ cal.get('alap_siker_100', '') if cal.get('alap_siker_100') is not none else '' }}" data-autosave> <span class="muted small">beteg a 100-ból</span>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">B2. Az anatómia súlya *</p>
+                <p class="q-help">A siker vagy sikertelenség hány százalékát magyarázza az állcsontok anatómiája, szemben a technikai kivitelezéssel, a beteg alkalmazkodóképességével és az általános tényezőkkel?</p>
+                <input type="number" id="cal__anatomia_sulya_pct" name="cal__anatomia_sulya_pct" min="0" max="100" style="max-width:180px" value="{{ cal.get('anatomia_sulya_pct', '') if cal.get('anatomia_sulya_pct') is not none else '' }}" data-autosave> <span class="muted small">% (0 = semmit, 100 = mindent)</span>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">B3. Melyik állcsont anatómiája fontosabb a siker szempontjából?</p>
+                {{ radio_grid('cal__felso_vagy_also', [('felso','a felső'),('also','az alsó'),('egyforman','egyformán')], cal.get('felso_vagy_also'), 'answer-grid answer-grid-3') }}
+                <label class="field-label" for="cal__felso_also_arany" style="margin-top:10px">Ha az egyik fontosabb: hányszor?</label>
+                <input type="text" id="cal__felso_also_arany" name="cal__felso_also_arany" maxlength="40" style="max-width:220px" value="{{ cal.get('felso_also_arany', '') or '' }}" data-autosave>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">B4. Kizáró képletek</p>
+                <p class="q-help">Van-e olyan anatómiai képlet vagy kombináció, amelynek jelenlétekor Ön eleve más megoldást javasolna (pl. implantátum-elhorgonyzás), mert a hagyományos teljes fogsor sikerét kilátástalannak tartja?</p>
+                <textarea id="cal__kizaro_kepletek" name="cal__kizaro_kepletek" maxlength="2000" data-autosave>{{ cal.get('kizaro_kepletek', '') or '' }}</textarea>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">B5. Mennyiben befolyásolja a siker megítélését, hogy a betegnek korábban volt-e (és milyen) teljes fogsora?</p>
+                {{ radio_grid('cal__regi_fogsor', [('alig','alig'),('kozepesen','közepesen'),('erosen','erősen')], cal.get('regi_fogsor'), 'answer-grid answer-grid-3') }}
+                <input type="text" id="cal__regi_fogsor_megjegyzes" name="cal__regi_fogsor_megjegyzes" maxlength="1000" placeholder="megjegyzés" style="margin-top:10px" value="{{ cal.get('regi_fogsor_megjegyzes', '') or '' }}" data-autosave>
+            </div>
+        </section>
+
+        <h2 class="question-section-title">C. Anatómiai képletek tételenként</h2>
+        <p class="muted questionnaire-instruction">Minden tételnél ugyanaz a hat kérdés. Az „A” és „B” pólus sorrendje rögzített; a bizonyosság és a „100 beteg” kérdés a megjelölt kedvezőtlenebb pólusra vonatkozik.</p>
+
+        {% for item in expert_items %}
+        {% set ans = it.get(item.kod, {}) %}
+        {% set pfx = 'item__' ~ item.kod ~ '__' %}
+        <section class="card section-card expert-item" id="item-{{ item.kod }}" data-item="{{ item.kod }}">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">C{{ loop.index }} · {{ item.jaw }}</p>
+                    <h2>{{ item.kod }} · {{ item.nev }}</h2>
+                    <p class="rogzit"><strong>A PREDICT így rögzíti:</strong> {{ item.rogzit }}</p>
+                </div>
+                <span class="badge badge-muted item-status" data-status-for="{{ item.kod }}">hiányos</span>
+            </div>
+
+            <div class="expert-q">
+                <p class="q-title">1. Irány: melyik változat a kedvezőtlenebb a siker szempontjából?</p>
+                <div class="pole-grid" data-group="{{ pfx }}irany">
+                    <div class="answer-option">
+                        <input type="radio" id="{{ pfx }}irany_A" name="{{ pfx }}irany" value="A_kedvezotlenebb" data-autosave {% if ans.get('irany') == 'A_kedvezotlenebb' %}checked{% endif %}>
+                        <label for="{{ pfx }}irany_A"><small>A pólus a kedvezőtlenebb</small>{{ item.A }}</label>
+                    </div>
+                    <div class="answer-option">
+                        <input type="radio" id="{{ pfx }}irany_B" name="{{ pfx }}irany" value="B_kedvezotlenebb" data-autosave {% if ans.get('irany') == 'B_kedvezotlenebb' %}checked{% endif %}>
+                        <label for="{{ pfx }}irany_B"><small>B pólus a kedvezőtlenebb</small>{{ item.B }}</label>
+                    </div>
+                    {% if item.optimum %}
+                    <div class="answer-option">
+                        <input type="radio" id="{{ pfx }}irany_O" name="{{ pfx }}irany" value="nem_monoton" data-autosave {% if ans.get('irany') == 'nem_monoton' %}checked{% endif %}>
+                        <label for="{{ pfx }}irany_O"><small>Nem monoton</small>a közepes érték a legjobb (optimum)</label>
+                    </div>
+                    {% endif %}
+                    <div class="answer-option">
+                        <input type="radio" id="{{ pfx }}irany_N" name="{{ pfx }}irany" value="nincs_kulonbseg" data-autosave {% if ans.get('irany') == 'nincs_kulonbseg' %}checked{% endif %}>
+                        <label for="{{ pfx }}irany_N">Nincs érdemi különbség</label>
+                    </div>
+                    <div class="answer-option">
+                        <input type="radio" id="{{ pfx }}irany_X" name="{{ pfx }}irany" value="nem_tudom" data-autosave {% if ans.get('irany') == 'nem_tudom' %}checked{% endif %}>
+                        <label for="{{ pfx }}irany_X">Nem tudom megítélni</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expert-q" data-needs-direction="{{ item.kod }}">
+                <p class="q-title">2. Bizonyosság: mennyire biztos abban, hogy a megjelölt pólus a kedvezőtlenebb?</p>
+                <p class="q-help">50 % = pénzfeldobás · 90 % = tízből kilencszer így van · 99 % = gyakorlatilag biztos</p>
+                {{ radio_grid(pfx ~ 'p_irany', [(50,'50 %'),(60,'60 %'),(70,'70 %'),(80,'80 %'),(90,'90 %'),(95,'95 %'),(99,'99 %')], ans.get('p_irany'), 'scale-grid') }}
+            </div>
+
+            <div class="expert-q">
+                <p class="q-title">3. Hatásnagyság: „100 beteg” az egyik és „100 beteg” a másik változattal</p>
+                <p class="q-help">Egyébként hasonló betegek. Hány betegnél lesz sikeres a fogpótlás?</p>
+                <div class="hundred-grid">
+                    <div>
+                        <label for="{{ pfx }}siker_A">A változat ({{ item.A }}): sikeres a 100-ból</label>
+                        <input type="number" id="{{ pfx }}siker_A" name="{{ pfx }}siker_A" min="0" max="100" value="{{ ans.get('siker_A', '') if ans.get('siker_A') is not none else '' }}" data-autosave>
+                    </div>
+                    <div>
+                        <label for="{{ pfx }}siker_B">B változat ({{ item.B }}): sikeres a 100-ból</label>
+                        <input type="number" id="{{ pfx }}siker_B" name="{{ pfx }}siker_B" min="0" max="100" value="{{ ans.get('siker_B', '') if ans.get('siker_B') is not none else '' }}" data-autosave>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expert-q">
+                <p class="q-title">4. Hihető tartomány: a két csoport közötti különbség (betegek száma 100-ból)</p>
+                <p class="q-help">Olyan határok, amelyeken kívül eső valós különbségen már nagyon meglepődne (kb. 95 %-os biztonsággal e határok közé esik).</p>
+                <div class="hundred-grid">
+                    <div>
+                        <label for="{{ pfx }}kulonbseg_min">legalább</label>
+                        <input type="number" id="{{ pfx }}kulonbseg_min" name="{{ pfx }}kulonbseg_min" min="0" max="100" value="{{ ans.get('kulonbseg_min', '') if ans.get('kulonbseg_min') is not none else '' }}" data-autosave>
+                    </div>
+                    <div>
+                        <label for="{{ pfx }}kulonbseg_max">legfeljebb</label>
+                        <input type="number" id="{{ pfx }}kulonbseg_max" name="{{ pfx }}kulonbseg_max" min="0" max="100" value="{{ ans.get('kulonbseg_max', '') if ans.get('kulonbseg_max') is not none else '' }}" data-autosave>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expert-q">
+                <p class="q-title">5. Mechanizmus (több is jelölhető)</p>
+                <div class="mech-grid" data-mechanism="{{ item.kod }}">
+                    {% for code, label in mechanisms %}
+                    <label><input type="checkbox" name="{{ pfx }}mechanizmus" value="{{ code }}" {% if code in (ans.get('mechanizmus') or []) %}checked{% endif %}> {{ label }}</label>
+                    {% endfor %}
+                </div>
+                <input type="text" name="{{ pfx }}mechanizmus_egyeb" maxlength="200" placeholder="egyéb mechanizmus (szabad szöveg)" style="margin-top:8px" value="{{ ans.get('mechanizmus_egyeb', '') or '' }}" data-autosave>
+            </div>
+
+            {% if item.kuszob %}
+            <div class="expert-q">
+                <p class="q-title">6. Küszöb / alak</p>
+                <label class="field-label" for="{{ pfx }}kuszob">{{ item.kuszob }}</label>
+                <input type="text" id="{{ pfx }}kuszob" name="{{ pfx }}kuszob" maxlength="200" style="max-width:360px" value="{{ ans.get('kuszob', '') or '' }}" data-autosave>
+            </div>
+            {% endif %}
+
+            {% for sub in item.subs %}
+            <div class="expert-q">
+                <p class="q-title">{% if item.kuszob or not loop.first %}6{{ 'b' if item.kuszob else '' }}.{% else %}6.{% endif %} Részkontraszt: {{ sub.kerdes }}</p>
+                {{ radio_grid(pfx ~ 'sub__' ~ sub.kod, sub.opciok, ans.get('sub_' ~ sub.kod), 'sub-grid') }}
+            </div>
+            {% endfor %}
+
+            <div class="expert-q">
+                <label class="field-label" for="{{ pfx }}megjegyzes">Megjegyzés</label>
+                <textarea id="{{ pfx }}megjegyzes" name="{{ pfx }}megjegyzes" maxlength="1000" data-autosave>{{ ans.get('megjegyzes', '') or '' }}</textarea>
+            </div>
+        </section>
+        {% endfor %}
+
+        <section class="card section-card" id="section-d">
+            <div class="section-head"><div><p class="eyebrow">D.</p><h2>Záró kérdések</h2></div></div>
+            <div class="expert-q">
+                <p class="q-title">D1. Rangsorolja az öt legfontosabb képletet a siker szempontjából</p>
+                <div class="rank-grid">
+                    {% for i in range(1, 6) %}
+                    <div>
+                        <label for="cl__rang_{{ i }}">{{ i }}.</label>
+                        <select id="cl__rang_{{ i }}" name="cl__rang_{{ i }}" data-autosave>
+                            <option value="">–</option>
+                            {% for code in item_codes %}
+                            <option value="{{ code }}" {% if cl.get('rang_' ~ i) == code %}selected{% endif %}>{{ code }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">D2. Legrosszabb kombináció</p>
+                <p class="q-help">Melyik két képlet együttes jelenléte a legrosszabb, rosszabb, mint a két hatás összege? Miért?</p>
+                <textarea id="cl__legrosszabb_kombinacio" name="cl__legrosszabb_kombinacio" maxlength="1000" data-autosave>{{ cl.get('legrosszabb_kombinacio', '') or '' }}</textarea>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">D3. Ellensúlyozó képlet</p>
+                <p class="q-help">Van-e olyan képlet, amely ellensúlyozni tudja egy másik kedvezőtlen képlet hatását? Hogyan?</p>
+                <textarea id="cl__ellensulyozo" name="cl__ellensulyozo" maxlength="1000" data-autosave>{{ cl.get('ellensulyozo', '') or '' }}</textarea>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">D4. Hiányzó képlet</p>
+                <p class="q-help">Van-e olyan anatómiai vagy funkcionális jellegzetesség, amelyet a PREDICT nem rögzít, de Ön a siker szempontjából fontosnak tart?</p>
+                <textarea id="cl__hianyzo_kepletek" name="cl__hianyzo_kepletek" maxlength="2000" data-autosave>{{ cl.get('hianyzo_kepletek', '') or '' }}</textarea>
+            </div>
+            <div class="expert-q">
+                <p class="q-title">D5. Mennyire tartja megbízhatónak saját mai válaszait összességében? *</p>
+                {{ radio_grid('cl__onertekeles', [('1','1 · nagyon bizonytalan'),('2','2'),('3','3'),('4','4'),('5','5 · nagyon megbízható')], cl.get('onertekeles')) }}
+            </div>
+            <div class="expert-q">
+                <label class="field-label" for="cl__megjegyzes">Egyéb megjegyzés</label>
+                <textarea id="cl__megjegyzes" name="cl__megjegyzes" maxlength="3000" data-autosave>{{ cl.get('megjegyzes', '') or '' }}</textarea>
+            </div>
+            <div class="form-actions">
+                <span class="muted small" style="align-self:center">A beküldés után a válaszok már nem módosíthatók.</span>
+                <button class="button button-primary" type="submit">Válaszok beküldése</button>
+            </div>
+        </section>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+    const form = document.getElementById('expertForm');
+    const csrf = form.querySelector('input[name="csrf_token"]').value;
+    const saveUrl = {{ url_for('expert.autosave', token=response.token)|tojson }};
+    const saveStatus = document.getElementById('saveStatus');
+    const itemsDone = document.getElementById('itemsDone');
+    const fill = document.getElementById('progressFill');
+    const itemCards = [...form.querySelectorAll('.expert-item')];
+    const directional = new Set(['A_kedvezotlenebb', 'B_kedvezotlenebb']);
+    let pending = 0;
+    let failed = false;
+
+    function itemState(card) {
+        const code = card.dataset.item;
+        const irany = form.querySelector(`input[name="item__${code}__irany"]:checked`);
+        const p = form.querySelector(`input[name="item__${code}__p_irany"]:checked`);
+        const needsP = irany && directional.has(irany.value);
+        const block = card.querySelector('[data-needs-direction]');
+        if (block) block.classList.toggle('is-disabled', !needsP);
+        return Boolean(irany) && (!needsP || Boolean(p));
+    }
+
+    function refresh() {
+        let done = 0;
+        itemCards.forEach(card => {
+            const ok = itemState(card);
+            const code = card.dataset.item;
+            const badge = card.querySelector('[data-status-for]');
+            const nav = document.getElementById(`nav-${code}`);
+            if (ok) done += 1;
+            if (badge) {
+                badge.textContent = ok ? 'kész' : 'hiányos';
+                badge.classList.toggle('badge-success', ok);
+                badge.classList.toggle('badge-muted', !ok);
+            }
+            if (nav) nav.classList.toggle('done', ok);
+        });
+        itemsDone.textContent = done;
+        fill.style.width = `${(done / itemCards.length) * 100}%`;
+    }
+
+    function updateStatus() {
+        if (failed) {
+            saveStatus.textContent = 'A mentés nem sikerült, a válaszok beküldéskor újra átadásra kerülnek.';
+        } else if (pending > 0) {
+            saveStatus.textContent = 'Mentés folyamatban…';
+        } else {
+            saveStatus.textContent = 'Minden válasz elmentve.';
+        }
+    }
+
+    async function save(field, value) {
+        const data = new FormData();
+        data.set('csrf_token', csrf);
+        data.set('field', field);
+        data.set('value', value);
+        pending += 1; updateStatus();
+        try {
+            const response = await fetch(saveUrl, {method: 'POST', body: data, credentials: 'same-origin', headers: {'X-Requested-With': 'XMLHttpRequest'}});
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            failed = false;
+        } catch (error) {
+            failed = true;
+        } finally {
+            pending -= 1; updateStatus();
+        }
+    }
+
+    form.addEventListener('change', event => {
+        const target = event.target;
+        if (target.type === 'checkbox' && target.name.endsWith('__mechanizmus')) {
+            const values = [...form.querySelectorAll(`input[name="${target.name}"]:checked`)].map(input => input.value);
+            save(target.name, values.join(';'));
+        } else if (target.hasAttribute('data-autosave')) {
+            save(target.name, target.value);
+        }
+        refresh();
+    });
+
+    refresh();
+})();
+</script>
+{% endblock %}

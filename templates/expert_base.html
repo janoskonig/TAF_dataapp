@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>{% block title %}PREDICT szakértői felmérés{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
+    <style>
+        .expert-item { scroll-margin-top: 90px; }
+        .expert-item .section-head h2 { margin-bottom: 4px; }
+        .expert-item .rogzit { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 6px 0 0; }
+        .expert-q { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+        .expert-q .q-title { font-weight: 750; margin: 0 0 4px; }
+        .expert-q .q-help { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 0 0 10px; }
+        .pole-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .pole-grid .answer-option label { min-height: 64px; text-align: left; justify-items: start; line-height: 1.3; }
+        .pole-grid .answer-option label small { display: block; color: inherit; opacity: .8; font-weight: 600; margin-bottom: 2px; }
+        .scale-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+        .scale-grid .answer-option label { min-height: 46px; }
+        .hundred-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .hundred-grid label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.35; }
+        .hundred-grid input { max-width: 180px; }
+        .mech-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+        .mech-grid label { display: flex; align-items: center; gap: 8px; border: 1px solid #bfd0d4; border-radius: 10px; padding: 9px 10px; font-size: 13px; font-weight: 650; background: white; cursor: pointer; }
+        .mech-grid input { width: 18px; height: 18px; }
+        .sub-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+        .sub-grid .answer-option label { min-height: 44px; font-weight: 650; }
+        .is-disabled { opacity: .45; pointer-events: none; }
+        .item-status { white-space: nowrap; }
+        .item-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+        .item-nav a { font-size: 12px; font-weight: 750; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; background: white; color: var(--ink); }
+        .item-nav a.done { background: var(--success-soft); border-color: #b9dfca; color: var(--success); }
+        .error-list { margin: 0; padding-left: 20px; line-height: 1.5; }
+        .definition-box { border-left: 4px solid var(--brand); background: var(--brand-soft); border-radius: 10px; padding: 14px 16px; margin: 14px 0; line-height: 1.55; }
+        .tally-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .expert-view dl { display: grid; grid-template-columns: 220px 1fr; gap: 6px 14px; margin: 0; font-size: 14px; }
+        .expert-view dt { color: var(--muted); font-weight: 700; }
+        .expert-view dd { margin: 0; }
+        .rank-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+        .rank-grid label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+        @media (max-width: 760px) {
+            .pole-grid, .hundred-grid, .mech-grid { grid-template-columns: 1fr; }
+            .scale-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .sub-grid, .rank-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .expert-view dl { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-inner">
+            <a class="brand" href="{{ url_for('expert.start') }}">
+                <span class="brand-mark">P</span>
+                <span><strong>PREDICT</strong><small>szakértői prior-felmérés</small></span>
+            </a>
+            <nav class="header-actions" aria-label="Fő navigáció">
+                {% if session.get('followup_authenticated') %}
+                <a href="{{ url_for('expert.admin') }}">Válaszok (vizsgálatvezető)</a>
+                {% endif %}
+                {% if expert_code_required() and session.get('expert_authenticated') %}
+                <form action="{{ url_for('expert.logout') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+                    <button class="link-button" type="submit">Kilépés</button>
+                </form>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-shell">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

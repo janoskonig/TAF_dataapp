@@ -363,6 +363,7 @@ def allowed_file(filename):
 
 from followup import create_followup_blueprint, normalise_taj
 from baseline import create_baseline_blueprint
+from expert_priors import create_expert_blueprint
 from longitudinal_analysis import build_longitudinal_report
 
 
@@ -516,6 +517,10 @@ app.register_blueprint(
         allowed_file=allowed_file,
     )
 )
+
+# Szakértői prior-felmérés: különálló, EXPERT_ACCESS_CODE-dal védett oldal;
+# a vizsgálatvezetői nézet a klinikai munkamenethez kötött.
+app.register_blueprint(create_expert_blueprint(connection_factory=create_db_connection))
 
 LEGACY_FOLLOWUP_PATHS = {
     "/questionnaire3",

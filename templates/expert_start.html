@@ -1,0 +1,76 @@
+{% extends "expert_base.html" %}
+{% block title %}Tájékoztató · PREDICT szakértői felmérés{% endblock %}
+{% block content %}
+<div class="questionnaire-shell">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">PREDICT-vizsgálat · szakértői felmérés</p>
+            <h1>Előzetes szakmai vélemény az anatómiai képletekről</h1>
+            <p class="lead">Az anatómiai képletek és a teljes lemezes fogpótlás sikeressége. Kb. 40–50 perc: 17 anatómiai tétel és néhány általános kérdés.</p>
+        </div>
+    </div>
+
+    {% if current %}
+    <section class="card section-card">
+        <div class="section-head">
+            <div>
+                <p class="eyebrow">Folyamatban lévő kitöltés</p>
+                <h2>{{ current.expert_code }}{% if current.expert_name %} · {{ current.expert_name }}{% endif %}</h2>
+                <p class="muted">{{ current.items_answered }} / {{ current.items_total }} tétel megválaszolva ·
+                    {% if current.status == 'submitted' %}beküldve{% else %}piszkozat, automatikusan mentve{% endif %}</p>
+            </div>
+            <a class="button button-primary" href="{{ url_for('expert.form', token=current.token) }}">
+                {% if current.status == 'submitted' %}Válaszaim megtekintése{% else %}Folytatás{% endif %}
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="card section-card">
+        <h2>Miért kérjük a véleményét?</h2>
+        <p>A teljes lemezes fogpótlás sikerességét befolyásoló anatómiai képletek kedvező vagy kedvezőtlen voltát elődeink és tanáraink tapasztalati alapon jegyezték fel a tankönyvekbe. A PREDICT-vizsgálat ezt a tapasztalati tudást szeretné számszerűsíteni, és Bayes-i elemzésben előzetes eloszlásként (priorként) egyesíteni a mért betegadatokkal. Ehhez több tapasztalt kolléga személyes szakmai meggyőződését gyűjtjük össze ugyanazzal a kérdéssorral.</p>
+        <p><strong>Nincs jó vagy rossz válasz.</strong> Nem a tankönyvi állítást kérdezzük, hanem az Ön saját, betegekkel szerzett tapasztalatát, akkor is, ha az eltér a tanultaktól. A bizonytalanság maga is értékes információ: ha valamiben nem biztos, azt a bizonyossági skálán jelölje, ne találgasson.</p>
+
+        <h3>A „siker” egységes meghatározása</h3>
+        <div class="definition-box">
+            <strong>A teljes lemezes fogpótlás SIKERES, ha az átadást követő 3–6 hónapban a beteg a fogsort rendszeresen viseli, vele elfogadhatóan tud rágni, nincs lényeges fájdalma vagy nyomási panasza, és összességében elégedett vele</strong> – a beteg saját megítélése és a kezelőorvos megítélése alapján egyaránt.
+        </div>
+        <p>A retenció, a stabilitás vagy az alátámasztás nem maga a siker, hanem csak az odáig vezető mechanizmus; ezt külön kérdezzük. Minden kérdésnél tegye fel, hogy két, egyébként hasonló betegcsoportot hasonlít össze (hasonló életkor, általános állapot, technikai kivitelezés, antagonista fogazat), amelyek <strong>csak az adott képletben különböznek</strong>.</p>
+
+        <h3>A kérdések felépítése tételenként</h3>
+        <ol class="instruction-list">
+            <li><strong>Irány.</strong> Melyik változat a kedvezőtlenebb a siker szempontjából? Két pólust adunk meg (A és B); jelölhető „nincs érdemi különbség” vagy „nem tudom megítélni” is, ahol értelmes, „optimum” (a közepes érték a legjobb) is.</li>
+            <li><strong>Bizonyosság.</strong> Mennyire biztos abban, hogy a megjelölt pólus a kedvezőtlenebb? 50 % = pénzfeldobás; 90 % = tízből kilencszer így van; 99 % = gyakorlatilag biztos.</li>
+            <li><strong>Hatásnagyság („100 beteg”).</strong> Képzeljen el 100 beteget az A változattal és 100 beteget a B változattal. Hány betegnél lesz sikeres a fogpótlás az egyik és a másik csoportban? Példa: ha 100 magas gerincű betegből 85, 100 alacsony gerincűből 60 sikeres, a különbség 25 beteg 100-ból.</li>
+            <li><strong>Hihető tartomány.</strong> A két csoport közötti különbség legalább és legfeljebb mennyi lehet? Olyan határok, amelyeken kívül eső valós különbségen már nagyon meglepődne.</li>
+            <li><strong>Mechanizmus.</strong> Melyik mechanizmuson keresztül hat a képlet? Több is jelölhető.</li>
+            <li><strong>Küszöb vagy részkontraszt.</strong> Folytonos méréseknél: mettől klinikailag jelentős; többfokozatú tételeknél: hol a legnagyobb ugrás.</li>
+        </ol>
+        <p class="muted small">A válaszok automatikusan mentődnek, a kitöltés később folytatható ugyanebből a böngészőből. A PREDICT rögzítési kategóriáit minden tételnél feltüntetjük, hogy a válasz ugyanarra a képletdefinícióra vonatkozzon, mint a mért adat.</p>
+
+        <h3>Adatkezelés</h3>
+        <p>A kitöltő nevét a vizsgálatvezető számára rögzítjük, hogy tudjuk, kit kérdeztünk; a válaszokat kóddal (SZ01, SZ02 …) azonosítva, kizárólag összesítve, a szakértők közötti véleménykeverékként használjuk fel. Név egyéni válasszal együtt nem kerül publikálásra.</p>
+
+        <form method="post" action="{{ url_for('expert.start_response') }}" class="stack-form">
+            <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+            <div class="grid grid-2">
+                <div>
+                    <label for="expert_name">A kitöltő szakértő neve *</label>
+                    <input id="expert_name" name="expert_name" type="text" maxlength="200" required autocomplete="name">
+                </div>
+                <div>
+                    <label for="expert_affiliation">Munkahely / intézmény</label>
+                    <input id="expert_affiliation" name="expert_affiliation" type="text" maxlength="200" autocomplete="organization">
+                </div>
+            </div>
+            <label class="checkbox-line">
+                <input type="checkbox" name="consent" required>
+                <span>Hozzájárulok, hogy válaszaimat anonim módon, tudományos célra, összesítve felhasználják.</span>
+            </label>
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">{% if current and current.status == 'draft' %}Új kitöltés indítása (a folyamatban lévő megmarad){% else %}Kitöltés indítása{% endif %}</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

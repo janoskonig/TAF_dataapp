@@ -1,0 +1,14 @@
+{% extends "expert_base.html" %}
+{% block title %}Köszönjük · PREDICT szakértői felmérés{% endblock %}
+{% block content %}
+<section class="narrow-card card">
+    <p class="eyebrow">Beküldve</p>
+    <h1>Köszönjük a válaszait!</h1>
+    <p class="lead">A(z) <strong>{{ response.expert_code }}</strong> kódú kitöltés{% if response.expert_name %} ({{ response.expert_name }}){% endif %} beérkezett{% if response.submitted_at_label %} ({{ response.submitted_at_label }}){% endif %}.</p>
+    <p>A válaszokat a többi szakértő véleményével együtt, összesítve használjuk fel a PREDICT-vizsgálat Bayes-i elemzésében.</p>
+    <div class="form-actions">
+        <a class="button button-secondary" href="{{ url_for('expert.form', token=response.token) }}">Válaszaim megtekintése</a>
+        <a class="button button-primary" href="{{ url_for('expert.start') }}">Vissza a kezdőoldalra</a>
+    </div>
+</section>
+{% endblock %}
