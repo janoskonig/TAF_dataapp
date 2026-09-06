@@ -1,4 +1,6 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
+from functools import wraps
+
+from flask import Flask, request, render_template, redirect, url_for, flash, jsonify, session
 import secrets
 import json
 import uuid
@@ -554,6 +556,20 @@ def close_legacy_followup_routes():
     if request.path in LEGACY_BASELINE_PATHS:
         return render_template("legacy_baseline_closed.html"), 410
 
+def require_clinical_access(view):
+    """A klinikai hozzáférési kódhoz (FOLLOWUP_ACCESS_CODE) kötött oldal: az eddigi
+    eredmények és a hallgatói betegvizsgálat is csak a klinikai belépés után nyílik
+    meg, ugyanazzal a munkamenettel, mint a kezdő- és utánkövetési vizit."""
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("followup_authenticated"):
+            # Hiányzó kód esetén is a klinikai belépőre visz; ott a beállítás hiánya kiderül.
+            return redirect(url_for("followup.login", next=request.full_path.rstrip("?")))
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
@@ -571,10 +587,12 @@ def questionnaire3():
     return render_template('questionnaire3.html')
 
 @app.route('/student_exam')
+@require_clinical_access
 def student_exam():
     return render_template('student_exam.html')
 
 @app.route('/submit_student_exam', methods=['POST'])
+@require_clinical_access
 def submit_student_exam():
     cursor = get_db_cursor()
     student_name = request.form['student_name']
@@ -2684,6 +2702,7 @@ def _build_profile_figure(rows, value='rel', title='', yaxis='',
 
 
 @app.route('/results')
+@require_clinical_access
 def results():
     connection = create_db_connection()
     try:
