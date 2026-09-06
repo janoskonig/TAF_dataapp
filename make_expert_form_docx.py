@@ -219,7 +219,7 @@ two_col([
 
 doc.add_heading(T["greeting"], level=1)
 para(T["intro_1"])
-para(T["intro_2_lead"] + " " + T["intro_2"] + " " + ("A kitöltés körülbelül 25–35 perc." if HU else "Completing it takes about 25–35 minutes."), after=6)
+para(T["intro_2_lead"] + " " + T["intro_2"] + " " + ("A kitöltés körülbelül 35–45 perc." if HU else "Completing it takes about 35–45 minutes."), after=6)
 doc.add_heading(T["success_h3"], level=2)
 para(T["success_def"], bold=True)
 para(T["comparable_1"] + " " + T["comparable_lead"] + T["comparable_2"], after=6)

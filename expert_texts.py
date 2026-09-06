@@ -219,7 +219,7 @@ UI = {
         "start_title": "Tájékoztató · PREDICT szakértői kérdőív",
         "start_eyebrow": "PREDICT-vizsgálat · kérdőív tapasztalt fogorvosoknak",
         "start_h1": "Mit tanított Önnek a tapasztalat a teljes fogsorról?",
-        "start_lead": "Arra kérjük, ossza meg velünk, mely anatómiai adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét. A kitöltés körülbelül 25–35 perc.",
+        "start_lead": "Arra kérjük, ossza meg velünk, mely anatómiai adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét. A kitöltés körülbelül 35–45 perc.",
         "current_eyebrow": "Megkezdett kitöltés",
         "current_answered": "{n} / {total} adottság megválaszolva",
         "current_submitted": "beküldve",
@@ -388,7 +388,7 @@ UI = {
         "start_title": "Information · PREDICT expert questionnaire",
         "start_eyebrow": "PREDICT study · questionnaire for experienced dentists",
         "start_h1": "What has experience taught you about complete dentures?",
-        "start_lead": "We ask you to share which anatomical features help, and which hinder, the success of a complete denture. Completing it takes about 25–35 minutes.",
+        "start_lead": "We ask you to share which anatomical features help, and which hinder, the success of a complete denture. Completing it takes about 35–45 minutes.",
         "current_eyebrow": "Questionnaire in progress",
         "current_answered": "{n} / {total} features answered",
         "current_submitted": "submitted",
@@ -528,7 +528,7 @@ ROLE_UI = {
     "fogtechnikus": {
         "hu": {
             "start_eyebrow": "PREDICT-vizsgálat · kérdőív tapasztalt fogtechnikusoknak",
-            "start_lead": "Arra kérjük, ossza meg velünk, mely anatómiai adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét, ahogy azt Ön a laborból, a mintákról és a visszakerülő munkákból látja. A kitöltés körülbelül 25–35 perc.",
+            "start_lead": "Arra kérjük, ossza meg velünk, mely anatómiai adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét, ahogy azt Ön a laborból, a mintákról és a visszakerülő munkákból látja. A kitöltés körülbelül 35–45 perc.",
             "intro_2": "Nem a tankönyvre, hanem az Ön saját, a munkája során szerzett tapasztalatára vagyunk kíváncsiak, akkor is, ha az eltér a tanultaktól. Ha valamit a mintáról, a laborból nem lehet megítélni, jelölje azt, ne találgasson: az is fontos információ.",
             "success_def": "Sikeres a fogsor, ha a beteg az átadás utáni fél évben rendszeresen hordja, tud vele enni, nincs komoly fájdalma vagy nyomási panasza, és elégedett vele. A labor felől nézve: nem jön vissza panasszal, alábélelésre vagy újrakészítésre.",
             "how_3": "Ha 100 ilyen beteg fogsorát készítené az egyik, és 100-ét a másik változattal, hánynak lenne sikeres a fogsora itt és ott? Például: 100 magas gerincű betegből 85-nek, 100 alacsony gerincűből 60-nak. A különbség így 25 beteg a százból.",
@@ -549,7 +549,7 @@ ROLE_UI = {
         },
         "en": {
             "start_eyebrow": "PREDICT study · questionnaire for experienced dental technicians",
-            "start_lead": "We ask you to share which anatomical features help, and which hinder, the success of a complete denture, as you see it in the laboratory, on the casts and in the work that comes back. Completing it takes about 25–35 minutes.",
+            "start_lead": "We ask you to share which anatomical features help, and which hinder, the success of a complete denture, as you see it in the laboratory, on the casts and in the work that comes back. Completing it takes about 35–45 minutes.",
             "intro_2": "We are not asking about the textbook but about your own experience from your work, even where it differs from what you were taught. If something cannot be judged from the cast, in the laboratory, mark that rather than guessing: that is valuable information too.",
             "success_def": "A denture is successful if, in the six months after delivery, the patient wears it regularly, can eat with it, has no serious pain or pressure complaints, and is satisfied with it. Seen from the laboratory: it does not come back with complaints, for relining or for a remake.",
             "how_3": "If you made the dentures of 100 such patients with one variant and 100 with the other, how many would have a successful denture in each group? For example: 85 of 100 patients with a high ridge, 60 of 100 with a low ridge. The difference is then 25 patients in a hundred.",
