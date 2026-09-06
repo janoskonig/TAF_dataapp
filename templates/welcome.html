@@ -6,12 +6,14 @@
     <meta name="robots" content="noindex,nofollow">
     <title>PREDICT klinikai adatfelvitel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='predict-mark.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     <style>
         .home-shell { max-width: 920px; margin: 0 auto; padding: 64px 22px; }
-        .home-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 42px; }
-        .home-brand .brand-mark { width: 52px; height: 52px; color: white; font-size: 26px; }
+        .home-brand { display: flex; align-items: center; gap: 18px; margin-bottom: 42px; }
+        .home-logo { width: 96px; height: auto; }
         .home-brand strong, .home-brand span { display: block; }
-        .home-brand strong { font-size: 22px; }
+        .home-brand strong { font-size: 22px; letter-spacing: .08em; }
         .home-brand span { color: var(--muted); margin-top: 2px; }
         .home-intro { max-width: 720px; margin-bottom: 28px; }
         .home-intro h1 { font-size: clamp(34px, 7vw, 58px); margin: 0 0 12px; }
@@ -28,7 +30,7 @@
 </head>
 <body>
 <main class="home-shell">
-    <div class="home-brand"><span class="brand-mark">P</span><div><strong>PREDICT</strong><span>klinikai adatfelvitel</span></div></div>
+    <div class="home-brand"><img class="home-logo" src="{{ url_for('static', filename='predict-logo.png') }}" alt="PREDICT"><div><strong>PREDICT</strong><span>klinikai adatfelvitel</span></div></div>
     <section class="home-intro">
         <p class="eyebrow">PRognostic Evaluation of EDentulousness: Inspecting CriTical anatomy</p>
         <h1>Milyen vizitet rögzítesz?</h1>

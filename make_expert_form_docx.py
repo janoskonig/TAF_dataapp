@@ -15,6 +15,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
+import os
 import sys
 
 from expert_priors import localized_items
@@ -178,6 +179,11 @@ def page_break():
 
 # --- Címlap és útmutató -------------------------------------------------------
 HU = LANG == "hu"
+if os.path.exists("static/predict-logo.png"):
+    logo_par = doc.add_paragraph()
+    logo_par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    logo_par.add_run().add_picture("static/predict-logo.png", width=Cm(4.2))
+    logo_par.paragraph_format.space_after = Pt(4)
 para("PREDICT" + ("-vizsgálat" if HU else " study"), bold=True, size=13, color=BLUE, align=WD_ALIGN_PARAGRAPH.CENTER, after=2)
 para(T["start_h1"], bold=True, size=20, align=WD_ALIGN_PARAGRAPH.CENTER, after=2)
 para(T["start_eyebrow"], size=13, color=INK2, align=WD_ALIGN_PARAGRAPH.CENTER, after=10)

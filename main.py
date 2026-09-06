@@ -37,6 +37,13 @@ import plotly.graph_objects as go
 load_dotenv(dotenv_path=".env")
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
+if os.getenv("RENDER", "").lower() == "true":
+    # A Render fordított proxyja mögött az X-Forwarded-* fejlécekből jön a séma
+    # és a gazdanév, különben az url_for(_external=True) http://-s linkeket adna
+    # (pl. a szakértői meghívó-levelekben).
+    from werkzeug.middleware.proxy_fix import ProxyFix
+
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Strict",

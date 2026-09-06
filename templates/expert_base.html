@@ -6,6 +6,8 @@
     <meta name="robots" content="noindex,nofollow">
     <title>{% block title %}PREDICT szakértői felmérés{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='predict-mark.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     <style>
         .expert-item { scroll-margin-top: 90px; }
         .expert-item .section-head h2 { margin-bottom: 4px; }
@@ -55,7 +57,7 @@
     <header class="app-header">
         <div class="header-inner">
             <a class="brand" href="{{ url_for('expert.start') }}">
-                <span class="brand-mark">P</span>
+                <img class="brand-logo" src="{{ url_for('static', filename='predict-mark.svg') }}" alt="" width="40" height="40">
                 <span><strong>PREDICT</strong><small>{{ t.brand_small }}</small></span>
             </a>
             <nav class="header-actions" aria-label="Fő navigáció">

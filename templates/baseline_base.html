@@ -6,12 +6,14 @@
     <meta name="robots" content="noindex,nofollow">
     <title>{% block title %}PREDICT kezdővizit{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='followup.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='predict-mark.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
 </head>
 <body>
     <header class="app-header">
         <div class="header-inner">
             <a class="brand" href="{{ url_for('baseline.dashboard') }}">
-                <span class="brand-mark">P</span>
+                <img class="brand-logo" src="{{ url_for('static', filename='predict-mark.svg') }}" alt="" width="40" height="40">
                 <span><strong>PREDICT</strong><small>kiindulási vizit</small></span>
             </a>
             {% if session.get('followup_authenticated') and baseline_csrf_token is defined %}

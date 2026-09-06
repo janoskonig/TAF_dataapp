@@ -397,7 +397,7 @@ def mail_from_name():
     return os.getenv("EMAIL_FROM_NAME") or os.getenv("SMTP_FROM_NAME") or os.getenv("EXPERT_MAIL_FROM_NAME") or "PREDICT-vizsgálat"
 
 
-def build_email(kind, lang, name, link, deadline=None):
+def build_email(kind, lang, name, link, deadline=None, logo_url=None):
     """(subject, text, html) a meghívóhoz ('invite') vagy az emlékeztetőhöz ('reminder')."""
     texts = MAIL_TEXTS["en" if lang == "en" else "hu"]
     deadline_sentence = texts["deadline"].format(deadline=deadline) if deadline else ""
@@ -409,7 +409,8 @@ def build_email(kind, lang, name, link, deadline=None):
         escaped = (paragraph.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
         escaped = escaped.replace(link, f'<a href="{link}">{link}</a>').replace("\n", "<br>")
         html_parts.append(f"<p>{escaped}</p>")
-    html = '<div style="font-family: Georgia, serif; font-size: 15px; line-height: 1.5; color: #1f2933">' + "".join(html_parts) + "</div>"
+    logo = f'<p style="margin:0 0 18px"><img src="{logo_url}" alt="PREDICT" width="120" style="width:120px;height:auto"></p>' if logo_url else ""
+    html = '<div style="font-family: Georgia, serif; font-size: 15px; line-height: 1.5; color: #1f2933">' + logo + "".join(html_parts) + "</div>"
     return texts[subject_key], text, html
 
 
@@ -1259,7 +1260,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
     def deliver(token, kind, email, name, lang, link, deadline):
         """Meghívó vagy emlékeztető küldése; az eredmény flash-üzenetben, a
         sikeres küldés időbélyege az adatbázisban."""
-        subject, text, html = build_email(kind, lang, name, link, deadline)
+        subject, text, html = build_email(kind, lang, name, link, deadline, logo_url=url_for("static", filename="predict-logo.png", _external=True))
         try:
             send_mail(email, name, subject, text, html)
         except MailError as err:

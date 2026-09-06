@@ -607,3 +607,18 @@ def test_sendgrid_api_key_alone_configures_smtp_relay(monkeypatch):
     assert settings["sender"] == "predict@example.org" and expert_priors.mail_configured() is True
     monkeypatch.setenv("SMTP_PASS", "${SendGridAPI_Key}")
     assert expert_priors.resolve_mail_settings()["password"] == "SG.kulcs"
+
+
+def test_pages_show_the_predict_logo_and_favicon():
+    app, _ = build_app([SCHEMA_OK])
+    client = app.test_client()
+    auth_expert(client)
+    html = client.get("/expert").get_data(as_text=True)
+    assert 'class="brand-logo" src="/static/predict-mark.svg"' in html
+    assert 'rel="icon" type="image/svg+xml" href="/static/predict-mark.svg"' in html
+
+
+def test_email_html_carries_logo_when_url_given():
+    from expert_priors import build_email
+    _, _, html = build_email("invite", "hu", "Dr. X", "https://x/expert/meghivo/a", None, logo_url="https://x/static/predict-logo.png")
+    assert '<img src="https://x/static/predict-logo.png"' in html
