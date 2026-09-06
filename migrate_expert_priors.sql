@@ -37,4 +37,11 @@ ALTER TABLE expert_prior_responses
     ADD COLUMN IF NOT EXISTS opened_at TIMESTAMP NULL,
     ADD COLUMN IF NOT EXISTS invite_note TEXT NULL;
 
+-- 2026-09-06: e-mailes meghívó és emlékeztető (SendGrid) nyilvántartása.
+ALTER TABLE expert_prior_responses
+    ADD COLUMN IF NOT EXISTS invite_email TEXT NULL,
+    ADD COLUMN IF NOT EXISTS invite_deadline TEXT NULL,
+    ADD COLUMN IF NOT EXISTS invite_sent_at TIMESTAMP NULL,
+    ADD COLUMN IF NOT EXISTS reminder_sent_at TIMESTAMP NULL;
+
 COMMIT;

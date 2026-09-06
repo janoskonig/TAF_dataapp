@@ -21,7 +21,7 @@ from expert_priors import (
 RESPONSE_COLUMNS = [
     "id", "expert_code", "expert_name", "expert_affiliation", "token", "status", "consent_confirmed",
     "background", "calibration", "items", "closing", "form_version", "submitted_at", "created_at", "updated_at",
-    "invited_at", "opened_at", "invite_note",
+    "invited_at", "opened_at", "invite_note", "invite_email", "invite_sent_at", "reminder_sent_at", "invite_deadline",
 ]
 SCHEMA_OK = ("to_regclass('public.expert_prior_responses')", ["responses_table", "name_column"], [("expert_prior_responses", True)])
 INSERT_OK = ("INSERT INTO expert_prior_responses", ["id"], [(41,)])
@@ -35,6 +35,7 @@ def response_row(**overrides):
         "background": {}, "calibration": {}, "items": {}, "closing": {}, "form_version": "v1.0",
         "submitted_at": None, "created_at": "2026-09-06 10:00", "updated_at": "2026-09-06 10:05",
         "invited_at": None, "opened_at": None, "invite_note": None,
+        "invite_email": None, "invite_sent_at": None, "reminder_sent_at": None, "invite_deadline": None,
     }
     row.update(overrides)
     return row
@@ -105,7 +106,7 @@ class FakeConnection:
         self.closed = True
 
 
-def build_app(script):
+def build_app(script, mail_sender=None):
     connections = []
 
     def factory():
@@ -123,7 +124,7 @@ def build_app(script):
         return "klinikai belépés"
 
     app.register_blueprint(clinical)
-    app.register_blueprint(create_expert_blueprint(connection_factory=factory))
+    app.register_blueprint(create_expert_blueprint(connection_factory=factory, mail_sender=mail_sender))
     return app, connections
 
 
@@ -457,6 +458,7 @@ def test_admin_can_create_invitation_with_link():
     params = inserts[0][1]
     assert params[1] == "Dr. Meghívott Mária" and params[4] is False and params[7] is True and params[8] == "maria@example.org"
     assert params[6].adapted == {"nyelv": "en"}
+    assert params[9] is None and params[10] is None
 
 
 def test_invite_link_logs_in_without_code_and_asks_for_consent(monkeypatch):
@@ -493,3 +495,115 @@ def test_invalid_invite_link_shows_friendly_page():
     response = client.get("/expert/meghivo/nincs-ilyen")
     assert response.status_code == 404
     assert "érvénytelen" in response.get_data(as_text=True)
+
+
+def test_invitation_email_is_sent_through_sendgrid_sender():
+    sent = []
+
+    def fake_sender(to_email, to_name, subject, text, html):
+        sent.append((to_email, to_name, subject, text, html))
+
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK], mail_sender=fake_sender)
+    client = app.test_client()
+    auth_admin(client)
+    response = client.post("/expert/admin/meghivo", data={
+        "csrf_token": "csrf-test", "expert_name": "Dr. Meghívott Mária", "lang": "en",
+        "invite_email": "maria@example.org", "invite_deadline": "15 October 2026", "send_now": "on",
+    })
+    assert response.status_code == 302
+    assert len(sent) == 1
+    to_email, to_name, subject, text, html = sent[0]
+    assert to_email == "maria@example.org" and to_name == "Dr. Meghívott Mária"
+    assert subject.startswith("A request for your experience")
+    assert "/expert/meghivo/" in text and "15 October 2026" in text and "Dear Dr. Meghívott Mária" in text
+    assert "<a href=" in html
+    assert any("invite_sent_at = CURRENT_TIMESTAMP" in sql for sql in executed_sql(connections))
+
+
+def test_reminder_uses_stored_email_and_language():
+    sent = []
+    row = response_row(consent_confirmed=False, invited_at="2026-09-06", invite_email="elek@example.org",
+                       invite_sent_at="2026-09-06 10:00", background={"nyelv": "hu"})
+    app, connections = build_app([id_lookup(row)], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_admin(client)
+    response = client.post("/expert/admin/7/email", data={"csrf_token": "csrf-test"})
+    assert response.status_code == 302
+    assert len(sent) == 1 and sent[0][0] == "elek@example.org" and sent[0][2] == "Emlékeztető: PREDICT szakértői kérdőív"
+    assert "Tisztelt Dr. Teszt Elek!" in sent[0][3]
+    assert any("reminder_sent_at = CURRENT_TIMESTAMP" in sql for sql in executed_sql(connections))
+
+
+def test_mail_failure_keeps_invitation_and_reports_error():
+    from expert_priors import MailError
+
+    def failing_sender(*_args):
+        raise MailError("nincs kulcs")
+
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK], mail_sender=failing_sender)
+    client = app.test_client()
+    auth_admin(client)
+    response = client.post("/expert/admin/meghivo", data={"csrf_token": "csrf-test", "expert_name": "Dr. X", "invite_email": "x@example.org", "send_now": "on"}, follow_redirects=False)
+    assert response.status_code == 302
+    assert any("INSERT INTO expert_prior_responses" in sql for sql in executed_sql(connections))
+    assert not any("invite_sent_at = CURRENT_TIMESTAMP" in sql for sql in executed_sql(connections))
+    with client.session_transaction() as session:
+        flashes = session.get("_flashes", [])
+    assert any("nem ment el" in message for _, message in flashes)
+
+
+def test_smtp_sender_requires_configuration(monkeypatch):
+    import expert_priors
+    from expert_priors import MailError, smtp_send
+    for key in ("SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "SMTP_PASS", "SMTP_SENDER_EMAIL", "SMTP_FROM"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setattr(expert_priors, "SIBLING_ENV_CANDIDATES", [])
+    assert expert_priors.mail_configured() is False
+    with pytest.raises(MailError):
+        smtp_send("a@example.org", "A", "s", "t", "<p>t</p>")
+
+
+def test_smtp_sender_builds_shadematch_style_message(monkeypatch):
+    import expert_priors
+    monkeypatch.setenv("SMTP_HOST", "smtp.sendgrid.net")
+    monkeypatch.setenv("SMTP_USER", "apikey")
+    monkeypatch.setenv("SMTP_PASSWORD", "SG.test")
+    monkeypatch.setenv("SMTP_SENDER_EMAIL", "predict@example.org")
+    monkeypatch.setenv("EMAIL_FROM_NAME", "PREDICT")
+    sent = {}
+
+    class FakeServer:
+        def __init__(self, host, port, timeout=None):
+            sent["host"], sent["port"] = host, port
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            return False
+        def starttls(self):
+            sent["tls"] = True
+        def login(self, user, password):
+            sent["login"] = (user, password)
+        def send_message(self, message):
+            sent["message"] = message
+
+    monkeypatch.setattr(expert_priors.smtplib, "SMTP", FakeServer)
+    expert_priors.smtp_send("kollega@example.org", "Dr. Kolléga", "Tárgy", "szöveg http://x", "<p>szöveg</p>")
+    assert sent["host"] == "smtp.sendgrid.net" and sent["port"] == 587 and sent["tls"] is True
+    assert sent["login"] == ("apikey", "SG.test")
+    message = sent["message"]
+    assert message["From"].endswith("<predict@example.org>") and "Dr. Kolléga" in message["To"]
+    assert message["Auto-Submitted"] == "auto-generated" and message["Message-ID"]
+
+
+def test_sendgrid_api_key_alone_configures_smtp_relay(monkeypatch):
+    import expert_priors
+    for key in ("SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "SMTP_PASS", "SMTP_SENDER_EMAIL"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setattr(expert_priors, "SIBLING_ENV_CANDIDATES", [])
+    monkeypatch.setenv("SendGridAPI_Key", "SG.kulcs")
+    monkeypatch.setenv("SMTP_FROM", "predict@example.org")
+    settings = expert_priors.resolve_mail_settings()
+    assert settings["host"] == "smtp.sendgrid.net" and settings["user"] == "apikey" and settings["password"] == "SG.kulcs"
+    assert settings["sender"] == "predict@example.org" and expert_priors.mail_configured() is True
+    monkeypatch.setenv("SMTP_PASS", "${SendGridAPI_Key}")
+    assert expert_priors.resolve_mail_settings()["password"] == "SG.kulcs"

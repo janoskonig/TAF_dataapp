@@ -20,6 +20,10 @@ import io
 import json
 import os
 import secrets
+import smtplib
+import uuid
+from email.message import EmailMessage
+from email.utils import formataddr, formatdate, make_msgid
 from datetime import datetime, timezone
 from functools import wraps
 from zoneinfo import ZoneInfo
@@ -304,6 +308,201 @@ BACKGROUND_CSV_COLUMNS = [
     "anatomia_sulya_pct", "rang_1", "rang_2", "rang_3", "rang_4", "rang_5", "hianyzo_kepletek", "megjegyzes",
     "nev", "intezmeny",
 ]
+
+
+class MailError(RuntimeError):
+    """E-mail-küldési hiba (hiányzó beállítás vagy SendGrid-hiba)."""
+
+
+MAIL_TEXTS = {
+    "hu": {
+        "subject": "Kérés a tapasztalatáról a teljes fogsor sikeréről (PREDICT-vizsgálat, kb. 30 perc)",
+        "body": (
+            "Tisztelt {name}!\n\n"
+            "A Semmelweis Egyetem Fogpótlástani Klinikáján a PREDICT-vizsgálatban azt kutatjuk, mely anatómiai adottságok segítik, "
+            "és melyek nehezítik a teljes lemezes fogsor sikerét. Elődeink és tanáraink ezt a tapasztalatukból tanították; mi most ezt a "
+            "tapasztalati tudást szeretnénk összegyűjteni néhány, a teljes fogsor készítésében nagy gyakorlattal rendelkező kollégától, "
+            "és összevetni a mért betegadatainkkal.\n\n"
+            "Ezért kérem Önt, hogy töltsön ki egy kérdőívet. Tizenhat anatómiai adottságról kérdezzük ugyanazt a néhány dolgot: melyik "
+            "változat a rosszabb a fogsor sikere szempontjából, mennyire biztos ebben, és száz beteg közül hánynak lesz sikeres a fogsora "
+            "az egyik és a másik esetben. A kitöltés körülbelül 25–35 perc.\n\n"
+            "Nincs jó vagy rossz válasz. Nem a tankönyvre vagyunk kíváncsiak, hanem arra, mit tanított Önnek a saját praxisa, akkor is, "
+            "ha az eltér a tanultaktól. Kérem, egyedül töltse ki, és ne beszélje meg közben kollégákkal, mert éppen az egymástól független "
+            "vélemények érdekelnek minket. Ha valamiben bizonytalan, jelölje azt; a bizonytalanság is fontos információ.\n\n"
+            "A kérdőívet ezen a személyes linken éri el, belépési kód nélkül:\n{link}\n\n"
+            "A válaszok maguktól mentődnek, a kitöltést bármikor megszakíthatja, és ugyanazon a számítógépen később folytathatja. "
+            "A nevét csak én látom, hogy tudjam, kit kérdeztem meg; a válaszokat kóddal azonosítjuk, és kizárólag a többi kolléga "
+            "válaszával együtt, összesítve használjuk fel. Egyéni válasz névvel nem kerül nyilvánosságra.\n\n"
+            "{deadline_sentence}"
+            "Ha bármi kérdése van, keressen bizalommal.\n\n"
+            "Köszönöm az idejét és a tapasztalatát.\n\n"
+            "Tisztelettel,\n{signature}"
+        ),
+        "deadline": "Hálás lennék, ha a kérdőívet {deadline}-ig ki tudná tölteni.\n\n",
+        "reminder_subject": "Emlékeztető: PREDICT szakértői kérdőív",
+        "reminder_body": (
+            "Tisztelt {name}!\n\n"
+            "Nemrég küldtem a PREDICT-vizsgálat szakértői kérdőívét a teljes fogsor sikerét befolyásoló anatómiai adottságokról. "
+            "Ha már kitöltötte, köszönöm, és kérem, tekintse tárgytalannak ezt a levelet. Ha még nem jutott rá ideje, a személyes link "
+            "továbbra is él, és a megkezdett kitöltés onnan folytatható, ahol abbahagyta:\n{link}\n\n"
+            "{deadline_sentence}"
+            "Köszönöm a segítségét.\n\n"
+            "Tisztelettel,\n{signature}"
+        ),
+    },
+    "en": {
+        "subject": "A request for your experience on complete denture success (PREDICT study, about 30 minutes)",
+        "body": (
+            "Dear {name},\n\n"
+            "In the PREDICT study at the Department of Prosthodontics, Semmelweis University, we are investigating which anatomical "
+            "features help, and which hinder, the success of complete dentures. Our predecessors and teachers taught this from "
+            "experience; we now want to collect this experiential knowledge from a small number of colleagues with extensive "
+            "experience in complete denture treatment and compare it with our measured patient data.\n\n"
+            "I would therefore like to ask you to complete a questionnaire. For sixteen anatomical features we ask the same few things: "
+            "which variant is worse for the success of the denture, how sure you are, and how many out of a hundred patients would have "
+            "a successful denture in one case and in the other. Completing it takes about 25–35 minutes.\n\n"
+            "There are no right or wrong answers. We are not asking about the textbook but about what your own practice has taught you, "
+            "even where it differs from what you were taught. Please fill it in on your own, without discussing it with colleagues, "
+            "because it is the independent opinions that we need. If you are unsure about something, mark that; uncertainty is valuable "
+            "information too.\n\n"
+            "You can reach the questionnaire through this personal link, no access code needed:\n{link}\n\n"
+            "Your answers are saved automatically; you can stop at any time and continue later on the same computer. Only I see your "
+            "name, so that I know whom I have asked; the answers are identified by a code and used solely pooled with the answers of "
+            "the other colleagues. No individual answer is published with a name.\n\n"
+            "{deadline_sentence}"
+            "If you have any questions, please do not hesitate to contact me.\n\n"
+            "Thank you for your time and your experience.\n\n"
+            "Yours sincerely,\n{signature}"
+        ),
+        "deadline": "I would be grateful if you could complete the questionnaire by {deadline}.\n\n",
+        "reminder_subject": "Reminder: PREDICT expert questionnaire",
+        "reminder_body": (
+            "Dear {name},\n\n"
+            "I recently sent you the PREDICT study's expert questionnaire on the anatomical features that influence the success of "
+            "complete dentures. If you have already completed it, thank you, and please disregard this message. If you have not yet had "
+            "time, your personal link is still active and a questionnaire in progress continues where you left off:\n{link}\n\n"
+            "{deadline_sentence}"
+            "Thank you for your help.\n\n"
+            "Yours sincerely,\n{signature}"
+        ),
+    },
+}
+
+
+def mail_signature():
+    return os.getenv("EXPERT_MAIL_SIGNATURE") or mail_from_name()
+
+
+def mail_from_name():
+    return os.getenv("EMAIL_FROM_NAME") or os.getenv("SMTP_FROM_NAME") or os.getenv("EXPERT_MAIL_FROM_NAME") or "PREDICT-vizsgálat"
+
+
+def build_email(kind, lang, name, link, deadline=None):
+    """(subject, text, html) a meghívóhoz ('invite') vagy az emlékeztetőhöz ('reminder')."""
+    texts = MAIL_TEXTS["en" if lang == "en" else "hu"]
+    deadline_sentence = texts["deadline"].format(deadline=deadline) if deadline else ""
+    body_key, subject_key = ("reminder_body", "reminder_subject") if kind == "reminder" else ("body", "subject")
+    text = texts[body_key].format(name=name, link=link, deadline_sentence=deadline_sentence, signature=mail_signature())
+    paragraphs = text.split("\n\n")
+    html_parts = []
+    for paragraph in paragraphs:
+        escaped = (paragraph.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+        escaped = escaped.replace(link, f'<a href="{link}">{link}</a>').replace("\n", "<br>")
+        html_parts.append(f"<p>{escaped}</p>")
+    html = '<div style="font-family: Georgia, serif; font-size: 15px; line-height: 1.5; color: #1f2933">' + "".join(html_parts) + "</div>"
+    return texts[subject_key], text, html
+
+
+# SMTP-beállítások a ShadeMatch- és a maxillofaciális alkalmazással azonos
+# környezeti változókból (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD vagy
+# SMTP_PASS, SMTP_SENDER_EMAIL vagy SMTP_FROM, SMTP_USE_TLS, SMTP_USE_SSL,
+# EMAIL_FROM_NAME vagy SMTP_FROM_NAME, EXPERT_MAIL_REPLY_TO vagy SMTP_REPLY_TO);
+# SendGrid esetén SMTP_HOST=smtp.sendgrid.net, SMTP_USER=apikey, jelszó = API-kulcs.
+# Ha a változók hiányoznak, a testvérprojekt .env-jét próbálja (helyi fejlesztés).
+SIBLING_ENV_CANDIDATES = [
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "maxillofacialisrehabilitacio", ".env")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "shadematch_python", ".env")),
+]
+
+
+def resolve_mail_settings():
+    settings = {
+        "host": os.getenv("SMTP_HOST", "").strip(),
+        "port": int(os.getenv("SMTP_PORT", "587") or "587"),
+        "user": os.getenv("SMTP_USER", "").strip(),
+        "password": os.getenv("SMTP_PASSWORD", "").strip() or os.getenv("SMTP_PASS", "").strip(),
+        "sender": os.getenv("SMTP_SENDER_EMAIL", "").strip() or os.getenv("SMTP_FROM", "").strip(),
+        "use_tls": os.getenv("SMTP_USE_TLS", "true").strip().lower() != "false",
+        "use_ssl": os.getenv("SMTP_USE_SSL", "false").strip().lower() == "true",
+    }
+    # A konigfogaszat-mintának megfelelően a SendGrid API-kulcs önmagában is elég
+    # (SENDGRID_API_KEY vagy SendGridAPI_Key): ilyenkor az SMTP-relay adatai
+    # adottak, csak a feladó címe kell. Az SMTP_PASS-ban a ${SendGridAPI_Key}
+    # hivatkozást is feloldjuk.
+    api_key = os.getenv("SENDGRID_API_KEY", "").strip() or os.getenv("SendGridAPI_Key", "").strip()
+    if settings["password"] and api_key:
+        for placeholder in ("${SendGridAPI_Key}", "${SENDGRID_API_KEY}"):
+            settings["password"] = settings["password"].replace(placeholder, api_key)
+    if not settings["password"] and api_key:
+        settings["password"] = api_key
+        settings["host"] = settings["host"] or "smtp.sendgrid.net"
+        settings["user"] = settings["user"] or "apikey"
+    if all([settings["host"], settings["user"], settings["password"], settings["sender"]]):
+        return settings
+    for candidate in SIBLING_ENV_CANDIDATES:
+        if not os.path.exists(candidate):
+            continue
+        try:
+            from dotenv import dotenv_values
+        except ImportError:  # pragma: no cover
+            break
+        values = dotenv_values(candidate)
+        settings["host"] = settings["host"] or (values.get("SMTP_HOST") or "").strip()
+        settings["port"] = settings["port"] or int(values.get("SMTP_PORT") or 587)
+        settings["user"] = settings["user"] or (values.get("SMTP_USER") or "").strip()
+        settings["password"] = settings["password"] or ((values.get("SMTP_PASSWORD") or "").strip() or (values.get("SMTP_PASS") or "").strip())
+        settings["sender"] = settings["sender"] or ((values.get("SMTP_SENDER_EMAIL") or "").strip() or (values.get("SMTP_FROM") or "").strip() or (values.get("SMTP_USER") or "").strip())
+        if values.get("SMTP_USE_TLS") is not None:
+            settings["use_tls"] = str(values.get("SMTP_USE_TLS")).strip().lower() != "false"
+        if values.get("SMTP_USE_SSL") is not None:
+            settings["use_ssl"] = str(values.get("SMTP_USE_SSL")).strip().lower() == "true"
+        break
+    return settings
+
+
+def mail_configured():
+    settings = resolve_mail_settings()
+    return all([settings["host"], settings["user"], settings["password"], settings["sender"]])
+
+
+def smtp_send(to_email, to_name, subject, text, html):
+    """Egy levél elküldése SMTP-n (a ShadeMatch küldőjével azonos fejlécekkel); hiba esetén MailError."""
+    settings = resolve_mail_settings()
+    if not all([settings["host"], settings["user"], settings["password"], settings["sender"]]):
+        raise MailError("Az e-mail-küldés nincs beállítva (SMTP_HOST, SMTP_USER, SMTP_PASSWORD és SMTP_SENDER_EMAIL szükséges).")
+    sender = settings["sender"]
+    domain = sender.split("@")[-1] if "@" in sender else "predict.local"
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = formataddr((mail_from_name(), sender))
+    message["To"] = formataddr((to_name, to_email)) if to_name else to_email
+    message["Reply-To"] = os.getenv("EXPERT_MAIL_REPLY_TO") or os.getenv("SMTP_REPLY_TO") or sender
+    message["Date"] = formatdate(localtime=True)
+    message["Message-ID"] = make_msgid("predict", domain=domain)
+    message["X-Entity-Ref-ID"] = uuid.uuid4().hex
+    message["Auto-Submitted"] = "auto-generated"
+    message["X-Auto-Response-Suppress"] = "OOF, AutoReply"
+    message.set_content(text)
+    message.add_alternative(html, subtype="html")
+    smtp_class = smtplib.SMTP_SSL if settings["use_ssl"] else smtplib.SMTP
+    try:
+        with smtp_class(settings["host"], settings["port"], timeout=20) as server:
+            if settings["use_tls"] and not settings["use_ssl"]:
+                server.starttls()
+            server.login(settings["user"], settings["password"])
+            server.send_message(message)
+    except (smtplib.SMTPException, OSError) as err:
+        raise MailError(f"Az SMTP-küldés nem sikerült: {err}") from err
 
 
 class FieldError(ValueError):
@@ -595,8 +794,9 @@ def write_csv(rows, columns):
     return "\ufeff" + buffer.getvalue()
 
 
-def create_expert_blueprint(connection_factory):
+def create_expert_blueprint(connection_factory, mail_sender=None):
     bp = Blueprint("expert", __name__, url_prefix="/expert")
+    send_mail = mail_sender or smtp_send
 
     # -- munkamenet, CSRF, fejlécek -------------------------------------------
     def csrf_token():
@@ -701,7 +901,7 @@ def create_expert_blueprint(connection_factory):
                     SELECT 1 FROM information_schema.columns
                     WHERE table_schema = 'public'
                       AND table_name = 'expert_prior_responses'
-                      AND column_name = 'invited_at'
+                      AND column_name = 'invite_email'
                 ) AS name_column
             """
         )
@@ -715,7 +915,7 @@ def create_expert_blueprint(connection_factory):
     RESPONSE_COLUMNS = (
         "id, expert_code, expert_name, expert_affiliation, token, status, consent_confirmed, "
         "background, calibration, items, closing, form_version, submitted_at, created_at, updated_at, "
-        "invited_at, opened_at, invite_note"
+        "invited_at, opened_at, invite_note, invite_email, invite_sent_at, reminder_sent_at, invite_deadline"
     )
 
     def get_response_by_token(token):
@@ -755,22 +955,24 @@ def create_expert_blueprint(connection_factory):
             response["state"] = "invited"
         else:
             response["state"] = "draft"
-        for key in ("created_at", "updated_at", "submitted_at"):
+        for key in ("created_at", "updated_at", "submitted_at", "invite_sent_at", "reminder_sent_at"):
             response[f"{key}_label"] = format_stamp(response.get(key)) if response.get(key) else ""
         return response
 
-    def create_response(cursor, expert_name, expert_affiliation, lang, consent, invited, invite_note=None):
+    def create_response(cursor, expert_name, expert_affiliation, lang, consent, invited, invite_note=None,
+                        invite_email=None, invite_deadline=None):
         """Új kitöltés sora folytonos SZnn kóddal; a token a kitöltés kulcsa."""
         token = secrets.token_urlsafe(24)
         cursor.execute(
             """
             INSERT INTO expert_prior_responses
                 (expert_code, expert_name, expert_affiliation, token, consent_confirmed, form_version, background,
-                 invited_at, invite_note)
-            VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, CASE WHEN %s THEN CURRENT_TIMESTAMP ELSE NULL END, %s)
+                 invited_at, invite_note, invite_email, invite_deadline)
+            VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, CASE WHEN %s THEN CURRENT_TIMESTAMP ELSE NULL END, %s, %s, %s)
             RETURNING id
             """,
-            ["SZ-új", expert_name, expert_affiliation, token, consent, FORM_VERSION, Json({"nyelv": lang}), invited, invite_note],
+            ["SZ-új", expert_name, expert_affiliation, token, consent, FORM_VERSION, Json({"nyelv": lang}), invited,
+             invite_note, invite_email, invite_deadline],
         )
         new_id = cursor.fetchone()[0]
         cursor.execute(
@@ -1010,6 +1212,7 @@ def create_expert_blueprint(connection_factory):
             invited_count=sum(1 for row in responses if row["state"] == "invited"),
             draft_count=sum(1 for row in responses if row["state"] == "draft"),
             new_code=request.args.get("uj"),
+            mail_configured=mail_configured(),
             simulated_count=simulated_count,
             include_simulated=include_simulated,
             tally=item_tally(submitted),
@@ -1028,13 +1231,19 @@ def create_expert_blueprint(connection_factory):
         if lang not in LANGS:
             lang = "hu"
         note = _clean_text(request.form.get("invite_note"), 500) or None
+        email = _clean_text(request.form.get("invite_email"), 200) or None
+        deadline = _clean_text(request.form.get("invite_deadline"), 80) or None
+        send_now = request.form.get("send_now") == "on"
         if not expert_name:
             flash("A meghívóhoz add meg a szakértő nevét.", "error")
+            return redirect(url_for("expert.admin"))
+        if email and "@" not in email:
+            flash("Az e-mail-cím nem tűnik érvényesnek.", "error")
             return redirect(url_for("expert.admin"))
         conn = connection_factory()
         try:
             with conn.cursor() as cursor:
-                _, code, token = create_response(cursor, expert_name, expert_affiliation, lang, False, True, note)
+                _, code, token = create_response(cursor, expert_name, expert_affiliation, lang, False, True, note, email, deadline)
             conn.commit()
         except Exception:
             conn.rollback()
@@ -1043,7 +1252,50 @@ def create_expert_blueprint(connection_factory):
             conn.close()
         link = url_for("expert.invite", token=token, _external=True)
         flash(f"Meghívó elkészült: {code} · {expert_name}. Link: {link}", "success")
+        if send_now and email:
+            deliver(token, "invite", email, expert_name, lang, link, deadline)
         return redirect(url_for("expert.admin", uj=code))
+
+    def deliver(token, kind, email, name, lang, link, deadline):
+        """Meghívó vagy emlékeztető küldése; az eredmény flash-üzenetben, a
+        sikeres küldés időbélyege az adatbázisban."""
+        subject, text, html = build_email(kind, lang, name, link, deadline)
+        try:
+            send_mail(email, name, subject, text, html)
+        except MailError as err:
+            flash(f"A levél nem ment el ({email}): {err}", "error")
+            return False
+        column = "reminder_sent_at" if kind == "reminder" else "invite_sent_at"
+        execute_transaction([(
+            f"UPDATE expert_prior_responses SET {column} = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE token = %s",
+            [token],
+        )])
+        flash(("Emlékeztető elküldve: " if kind == "reminder" else "Meghívó elküldve: ") + f"{name} ({email}).", "success")
+        return True
+
+    @bp.post("/admin/<int:response_id>/email")
+    @require_admin
+    def admin_email(response_id):
+        """Meghívó (első alkalommal) vagy emlékeztető (később) küldése egy sorhoz."""
+        validate_csrf()
+        response = get_response_by_id(response_id)
+        if response is None:
+            abort(404)
+        response = decorate(response)
+        if response["status"] == "submitted":
+            flash("Ez a kitöltés már beküldve, nem kell levél.", "error")
+            return redirect(url_for("expert.admin"))
+        email = _clean_text(request.form.get("invite_email"), 200) or response.get("invite_email")
+        if not email or "@" not in email:
+            flash("Adj meg egy e-mail-címet a küldéshez.", "error")
+            return redirect(url_for("expert.admin"))
+        if email != response.get("invite_email"):
+            execute_transaction([("UPDATE expert_prior_responses SET invite_email = %s WHERE id = %s", [email, response_id])])
+        lang = (response["background"] or {}).get("nyelv", "hu")
+        link = url_for("expert.invite", token=response["token"], _external=True)
+        kind = "reminder" if response.get("invite_sent_at") else "invite"
+        deliver(response["token"], kind, email, response["expert_name"] or "", lang, link, response.get("invite_deadline"))
+        return redirect(url_for("expert.admin"))
 
     @bp.get("/admin/<int:response_id>")
     @require_admin

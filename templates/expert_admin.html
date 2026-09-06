@@ -51,9 +51,23 @@
             <label class="field-label" for="invite_lang">Nyelv</label>
             <select id="invite_lang" name="lang"><option value="hu">magyar</option><option value="en">English</option></select>
         </div>
-        <div style="grid-column: 1 / -1">
-            <label class="field-label" for="invite_note">Megjegyzés (pl. e-mail-cím, honnan ismerjük; csak neked látszik)</label>
+        <div>
+            <label class="field-label" for="invite_email">E-mail-cím</label>
+            <input id="invite_email" name="invite_email" type="email" maxlength="200" placeholder="nev@intezmeny.hu">
+        </div>
+        <div>
+            <label class="field-label" for="invite_deadline">Határidő a levélben (szabad szöveg, elhagyható)</label>
+            <input id="invite_deadline" name="invite_deadline" type="text" maxlength="80" placeholder="pl. 2026. október 15.">
+        </div>
+        <div>
+            <label class="field-label" for="invite_note">Megjegyzés (csak neked látszik)</label>
             <input id="invite_note" name="invite_note" type="text" maxlength="500">
+        </div>
+        <div style="grid-column: 1 / -1">
+            <label class="checkbox-line">
+                <input type="checkbox" name="send_now" {% if mail_configured %}checked{% else %}disabled{% endif %}>
+                <span>{% if mail_configured %}A felkérő levél elküldése most a megadott e-mail-címre{% else %}A levélküldés nincs beállítva: az SMTP_HOST, SMTP_USER, SMTP_PASSWORD és SMTP_SENDER_EMAIL környezeti változó szükséges hozzá (SendGrid SMTP-relay, mint a ShadeMatchben); addig a linket kézzel küldheted{% endif %}</span>
+            </label>
         </div>
         <div><button class="button button-primary" type="submit">Meghívó készítése</button></div>
     </form>
@@ -66,7 +80,7 @@
     {% if responses %}
     <div class="patient-table-wrap">
         <table class="patient-table">
-            <thead><tr><th>Kód</th><th>Név</th><th>Állapot</th><th>Tételek</th><th>Gyakorlat (év)</th><th>Fogsorok</th><th>Létrehozva</th><th>Beküldve</th><th>Meghívó-link</th><th></th></tr></thead>
+            <thead><tr><th>Kód</th><th>Név</th><th>Állapot</th><th>Tételek</th><th>Gyakorlat (év)</th><th>Létrehozva</th><th>Beküldve</th><th>Meghívó-link</th><th>Levél</th><th></th></tr></thead>
             <tbody>
             {% for response in responses %}
             <tr>
@@ -75,10 +89,19 @@
                 <td>{% if response.state == 'submitted' %}<span class="badge badge-success">beküldve</span>{% elif response.state == 'invited' %}<span class="badge badge-muted">meghívva</span>{% else %}<span class="badge badge-warning">megkezdve</span>{% endif %}{% if response.simulated %} <span class="badge badge-muted">szimulált</span>{% endif %}{% if response.background.get('nyelv') == 'en' %} <span class="badge badge-muted">EN</span>{% endif %}{% if response.invite_note %}<br><small class="muted">{{ response.invite_note }}</small>{% endif %}</td>
                 <td>{{ response.items_answered }} / {{ response.items_total }}</td>
                 <td>{{ response.background.get('evek_gyakorlat') if response.background.get('evek_gyakorlat') is not none else '–' }}</td>
-                <td>{{ response.background.get('fogsorok_szama_kat') or '–' }}</td>
                 <td>{{ response.created_at_label }}</td>
                 <td>{{ response.submitted_at_label or '–' }}</td>
                 <td>{% if response.state != 'submitted' %}<input type="text" class="invite-link" value="{{ response.invite_link }}" readonly onclick="this.select()" title="Kattints a kijelöléshez, majd másold ki">{% else %}–{% endif %}</td>
+                <td class="mail-cell">
+                    {% if response.state != 'submitted' %}
+                    <form method="post" action="{{ url_for('expert.admin_email', response_id=response.id) }}" class="mail-form">
+                        <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+                        <input type="email" name="invite_email" value="{{ response.invite_email or '' }}" placeholder="e-mail-cím" maxlength="200" class="invite-link">
+                        <button class="button button-secondary" type="submit" {% if not mail_configured %}disabled title="A levélküldés nincs beállítva"{% endif %}>{% if response.invite_sent_at %}Emlékeztető küldése{% else %}Meghívó küldése{% endif %}</button>
+                    </form>
+                    <small class="muted">{% if response.invite_sent_at %}meghívó: {{ response.invite_sent_at_label }}{% else %}még nem ment levél{% endif %}{% if response.reminder_sent_at %} · emlékeztető: {{ response.reminder_sent_at_label }}{% endif %}</small>
+                    {% else %}{{ response.invite_email or '–' }}{% endif %}
+                </td>
                 <td class="patient-row-action"><a class="button button-secondary" href="{{ url_for('expert.admin_view', response_id=response.id) }}">Megtekintés</a></td>
             </tr>
             {% endfor %}
