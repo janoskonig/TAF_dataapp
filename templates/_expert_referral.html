@@ -1,0 +1,51 @@
+{% if referral %}
+<section class="card section-card" id="referral">
+    <h2>{{ t.referral_h3 }}</h2>
+    <p class="muted">{{ t.referral_p }}</p>
+    {% if referral.left > 0 %}
+    <form method="post" action="{{ url_for('expert.refer', token=response.token) }}" class="stack-form">
+        <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+        <div class="grid grid-2">
+            <div>
+                <label class="field-label" for="ref_name">{{ t.referral_name }}</label>
+                <input id="ref_name" name="ref_name" type="text" maxlength="200" required autocomplete="off">
+            </div>
+            <div>
+                <label class="field-label" for="ref_email">{{ t.referral_email }}</label>
+                <input id="ref_email" name="ref_email" type="email" maxlength="200" required autocomplete="off">
+            </div>
+        </div>
+        <div class="grid grid-2" style="margin-top:12px">
+            <div>
+                <p class="field-label">{{ t.referral_role }}</p>
+                <div class="answer-grid answer-grid-3" data-group="ref_role">
+                    {% for value in roles %}
+                    <div class="answer-option">
+                        <input type="radio" id="ref_role_{{ value }}" name="ref_role" value="{{ value }}" {% if loop.first %}checked{% endif %}>
+                        <label for="ref_role_{{ value }}">{{ role_labels[value] }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <label class="field-label" for="ref_lang">{{ t.referral_lang }}</label>
+                <select id="ref_lang" name="ref_lang">
+                    <option value="hu" {% if lang == 'hu' %}selected{% endif %}>magyar</option>
+                    <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
+                </select>
+            </div>
+        </div>
+        <label class="checkbox-line" style="margin-top:12px">
+            <input type="checkbox" name="ref_include_name" checked>
+            <span>{{ t.referral_include_name }}</span>
+        </label>
+        <div class="form-actions">
+            <span class="muted small" style="align-self:center">{{ t.referral_remaining.format(n=referral.left) }}</span>
+            <button class="button button-secondary" type="submit">{{ t.referral_button }}</button>
+        </div>
+    </form>
+    {% else %}
+    <p class="definition-box">{{ t.referral_none_left }}</p>
+    {% endif %}
+</section>
+{% endif %}

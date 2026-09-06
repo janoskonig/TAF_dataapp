@@ -24,7 +24,7 @@ import smtplib
 import uuid
 from email.message import EmailMessage
 from email.utils import formataddr, formatdate, make_msgid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from zoneinfo import ZoneInfo
 from urllib.parse import urlsplit
@@ -69,6 +69,41 @@ def format_stamp(value, fmt="%Y-%m-%d %H:%M"):
     if not value:
         return ""
     return str(value)[:10] if fmt == "%Y-%m-%d" else str(value)[:16]
+
+
+# A kitöltési határidő nem szabad szöveg: a felkérő levél küldésének napjától
+# számított EXPERT_DEADLINE_DAYS (alapból 14) nap; ISO-dátumként tárolódik, a
+# levélben a nyelv szerint formázva. Az emlékeztető ugyanezt a dátumot ismétli.
+DEADLINE_DAYS = int(os.getenv("EXPERT_DEADLINE_DAYS", "14") or 14)
+HU_MONTHS = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"]
+EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+
+def deadline_iso(days=None, now=None):
+    base = (now or datetime.now(LOCAL_TZ)).date()
+    return (base + timedelta(days=DEADLINE_DAYS if days is None else days)).isoformat()
+
+
+def format_deadline(value, lang="hu"):
+    """ISO-dátum → „2026. szeptember 20” (magyar, a -ig rag a levélben) / „20 September 2026”;
+    a nem ISO (régi, szabad szöveges) érték változatlanul marad."""
+    text = str(value or "").strip()
+    try:
+        day = datetime.strptime(text[:10], "%Y-%m-%d").date()
+    except ValueError:
+        return text
+    if lang == "en":
+        return f"{day.day} {EN_MONTHS[day.month - 1]} {day.year}"
+    return f"{day.year}. {HU_MONTHS[day.month - 1]} {day.day}"
+
+
+# A meghívottak maguk is ajánlhatnak kollégát (hólabda-toborzás): a rendszer
+# személyes linkkel küldi a felkérést, az ajánló kódját a háttérben rögzíti.
+REFERRAL_LIMIT = int(os.getenv("EXPERT_REFERRAL_LIMIT", "3") or 3)
+
+
+def referrals_enabled():
+    return os.getenv("EXPERT_REFERRALS", "1") != "0"
 
 # ---------------------------------------------------------------------------
 # Tételregiszter — a kódok azonosak az R-szkript regiszterével
@@ -348,7 +383,7 @@ PRIOR_CSV_COLUMNS = [
 BACKGROUND_CSV_COLUMNS = [
     "szakerto_id", "datum", "evek_gyakorlat", "fogsorok_szama_kat", "oktat", "alap_siker_100",
     "anatomia_sulya_pct", "rang_1", "rang_2", "rang_3", "rang_4", "rang_5", "hianyzo_kepletek", "megjegyzes",
-    "nev", "intezmeny", "szerep", "visszajelzes",
+    "nev", "intezmeny", "szerep", "visszajelzes", "ajanlo_kod",
 ]
 
 
@@ -360,7 +395,7 @@ MAIL_TEXTS = {
     "hu": {
         "subject": "Kérés a tapasztalatáról a teljes fogsor sikeréről (PREDICT-vizsgálat, kb. 30 perc)",
         "body": (
-            "Tisztelt {name}!\n\n"
+            "Tisztelt {name}!\n\n{referrer_sentence}"
             "A Semmelweis Egyetem Fogpótlástani Klinikáján a PREDICT-vizsgálatban ({acronym}) azt kutatjuk, mely anatómiai "
             "adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét. Elődeink és tanáraink ezt a tapasztalatukból "
             "tanították; mi most ezt a tapasztalati tudást szeretnénk összegyűjteni néhány, a teljes fogsor készítésében nagy "
@@ -383,10 +418,12 @@ MAIL_TEXTS = {
             "Köszönöm az idejét és a tapasztalatát.\n\n"
             "Tisztelettel,\n{signature}"
         ),
-        "deadline": "Hálás lennék, ha a kérdőívet {deadline}-ig ki tudná tölteni.\n\n",
+        "deadline": "Hálás lennék, ha a kérdőívet két héten belül, {deadline}-ig ki tudná tölteni.\n\n",
+        "deadline_reminder": "Hálás lennék, ha a kérdőívet {deadline}-ig ki tudná tölteni.\n\n",
+        "referrer": "Erre a felmérésre {referrer} kolléga ajánlotta Önt.\n\n",
         "reminder_subject": "Emlékeztető: PREDICT szakértői kérdőív",
         "reminder_body": (
-            "Tisztelt {name}!\n\n"
+            "Tisztelt {name}!\n\n{referrer_sentence}"
             "Nemrég küldtem a PREDICT-vizsgálat szakértői kérdőívét a teljes fogsor sikerét befolyásoló anatómiai adottságokról. "
             "Ha már kitöltötte, köszönöm, és kérem, tekintse tárgytalannak ezt a levelet. Ha még nem jutott rá ideje, a személyes link "
             "továbbra is él, és a megkezdett kitöltés onnan folytatható, ahol abbahagyta:\n{link}\n\n"
@@ -398,7 +435,7 @@ MAIL_TEXTS = {
     "en": {
         "subject": "A request for your experience on complete denture success (PREDICT study, about 30 minutes)",
         "body": (
-            "Dear {name},\n\n"
+            "Dear {name},\n\n{referrer_sentence}"
             "In the PREDICT study ({acronym}) at the Department of Prosthodontics, Semmelweis University, we are investigating "
             "which anatomical features help, and which hinder, the success of complete dentures. Our predecessors and teachers "
             "taught this from experience; we now want to collect this experiential knowledge from a small number of colleagues "
@@ -422,10 +459,12 @@ MAIL_TEXTS = {
             "Thank you for your time and your experience.\n\n"
             "Yours sincerely,\n{signature}"
         ),
-        "deadline": "I would be grateful if you could complete the questionnaire by {deadline}.\n\n",
+        "deadline": "I would be grateful if you could complete the questionnaire within two weeks, by {deadline}.\n\n",
+        "deadline_reminder": "I would be grateful if you could complete the questionnaire by {deadline}.\n\n",
+        "referrer": "You were recommended for this survey by {referrer}.\n\n",
         "reminder_subject": "Reminder: PREDICT expert questionnaire",
         "reminder_body": (
-            "Dear {name},\n\n"
+            "Dear {name},\n\n{referrer_sentence}"
             "I recently sent you the PREDICT study's expert questionnaire on the anatomical features that influence the success of "
             "complete dentures. If you have already completed it, thank you, and please disregard this message. If you have not yet had "
             "time, your personal link is still active and a questionnaire in progress continues where you left off:\n{link}\n\n"
@@ -444,7 +483,7 @@ MAIL_ROLE_TEXTS = {
         "hu": {
             "subject": "Kérés a tapasztalatáról a teljes fogsor sikeréről (PREDICT-vizsgálat, fogtechnikus kollégáknak, kb. 30 perc)",
             "body": (
-                "Tisztelt {name}!\n\n"
+                "Tisztelt {name}!\n\n{referrer_sentence}"
                 "A Semmelweis Egyetem Fogpótlástani Klinikáján a PREDICT-vizsgálatban ({acronym}) azt kutatjuk, mely anatómiai "
                 "adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét. Elődeink és tanáraink ezt a tapasztalatukból "
                 "tanították; mi most ezt a tapasztalati tudást szeretnénk összegyűjteni néhány, a teljes fogsor készítésében nagy "
@@ -474,7 +513,7 @@ MAIL_ROLE_TEXTS = {
         "en": {
             "subject": "A request for your experience on complete denture success (PREDICT study, for dental technicians, about 30 minutes)",
             "body": (
-                "Dear {name},\n\n"
+                "Dear {name},\n\n{referrer_sentence}"
                 "In the PREDICT study ({acronym}) at the Department of Prosthodontics, Semmelweis University, we are investigating "
                 "which anatomical features help, and which hinder, the success of complete dentures. Our predecessors and teachers "
                 "taught this from experience; we now want to collect this experiential knowledge from a small number of dentists and "
@@ -552,16 +591,19 @@ def email_header_html(logo_url=None, partner_logo_url=None):
             f'<td align="right" valign="bottom" style="padding:0 0 14px">{right}</td></tr></table>')
 
 
-def build_email(kind, lang, name, link, deadline=None, logo_url=None, partner_logo_url=None, role="fogorvos"):
+def build_email(kind, lang, name, link, deadline=None, logo_url=None, partner_logo_url=None, role="fogorvos", referrer=None):
     """(subject, text, html) a meghívóhoz ('invite') vagy az emlékeztetőhöz ('reminder'); a szerep
-    (fogorvos / fogtechnikus) a felkérés szövegét váltja."""
+    (fogorvos / fogtechnikus) a felkérés szövegét váltja; a határidő ISO-dátum, a nyelv szerint
+    formázva; referrer: az ajánló kolléga neve (hólabda-meghívó)."""
     key = "en" if lang == "en" else "hu"
     texts = dict(MAIL_TEXTS[key])
     texts.update(MAIL_ROLE_TEXTS.get(role, {}).get(key, {}))
-    deadline_sentence = texts["deadline"].format(deadline=deadline) if deadline else ""
+    deadline_key = "deadline_reminder" if kind == "reminder" else "deadline"
+    deadline_sentence = texts[deadline_key].format(deadline=format_deadline(deadline, key)) if deadline else ""
+    referrer_sentence = texts["referrer"].format(referrer=referrer) if (referrer and kind != "reminder") else ""
     body_key, subject_key = ("reminder_body", "reminder_subject") if kind == "reminder" else ("body", "subject")
     text = texts[body_key].format(name=name, link=link, deadline_sentence=deadline_sentence, signature=mail_signature(),
-                                  acronym=STUDY_ACRONYM["en" if lang == "en" else "hu"])
+                                  referrer_sentence=referrer_sentence, acronym=STUDY_ACRONYM["en" if lang == "en" else "hu"])
     paragraphs = text.split("\n\n")
     html_parts = []
     for paragraph in paragraphs:
@@ -970,6 +1012,7 @@ def background_rows(responses):
             "intezmeny": response.get("expert_affiliation") or "",
             "szerep": role_of(background),
             "visszajelzes": background.get("visszajelzes", "") or "",
+            "ajanlo_kod": background.get("ajanlo_kod", "") or "",
         })
     return rows
 
@@ -1012,6 +1055,10 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
     bp = Blueprint("expert", __name__, url_prefix="/expert")
     send_mail = mail_sender or smtp_send
 
+    def mail_available():
+        """Van-e küldő: beadott küldő (teszt) vagy beállított SMTP."""
+        return mail_sender is not None or mail_configured()
+
     # -- munkamenet, CSRF, fejlécek -------------------------------------------
     def csrf_token():
         token = session.get("expert_csrf")
@@ -1050,6 +1097,8 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             "role_labels": ROLE_LABELS[lang],
             "roles": ROLES,
             "pole_values": POLE_VALUES,
+            "referrals_enabled": referrals_enabled,
+            "referral_limit": REFERRAL_LIMIT,
         }
 
     @bp.after_request
@@ -1152,6 +1201,19 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         sql += " ORDER BY id"
         return rows(sql, params)
 
+    def referral_count(expert_code):
+        found = rows("SELECT COUNT(*) AS n FROM expert_prior_responses WHERE background->>'ajanlo_kod' = %s", [expert_code])
+        return int(found[0]["n"]) if found else 0
+
+    def email_invited(email):
+        return bool(rows("SELECT id FROM expert_prior_responses WHERE lower(invite_email) = %s", [email.lower()]))
+
+    def referral_context(response):
+        """Az ajánló doboz adatai a záró és a válasz-oldalhoz (csak a saját, elfogadott kitöltésnél)."""
+        if not referrals_enabled() or response["state"] == "invited" or session.get("expert_token") != response["token"]:
+            return None
+        return {"left": max(REFERRAL_LIMIT - referral_count(response["expert_code"]), 0), "limit": REFERRAL_LIMIT}
+
     def decorate(response):
         response = dict(response)
         for key in ("background", "calibration", "items", "closing"):
@@ -1179,9 +1241,12 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         return response
 
     def create_response(cursor, expert_name, expert_affiliation, lang, consent, invited, invite_note=None,
-                        invite_email=None, invite_deadline=None, role="fogorvos"):
-        """Új kitöltés sora folytonos SZnn kóddal; a token a kitöltés kulcsa."""
+                        invite_email=None, invite_deadline=None, role="fogorvos", referrer=None):
+        """Új kitöltés sora folytonos SZnn kóddal; a token a kitöltés kulcsa. referrer: {kod, nev} az ajánlóról."""
         token = secrets.token_urlsafe(24)
+        background = {"nyelv": lang, "szerep": role}
+        if referrer:
+            background.update(ajanlo_kod=referrer.get("kod"), ajanlo_nev=referrer.get("nev"))
         cursor.execute(
             """
             INSERT INTO expert_prior_responses
@@ -1190,7 +1255,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, CASE WHEN %s THEN CURRENT_TIMESTAMP ELSE NULL END, %s, %s, %s)
             RETURNING id
             """,
-            ["SZ-új", expert_name, expert_affiliation, token, consent, FORM_VERSION, Json({"nyelv": lang, "szerep": role}), invited,
+            ["SZ-új", expert_name, expert_affiliation, token, consent, FORM_VERSION, Json(background), invited,
              invite_note, invite_email, invite_deadline],
         )
         new_id = cursor.fetchone()[0]
@@ -1334,7 +1399,8 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         session["expert_token"] = token
         texts = ui_texts(current_lang(), response["role"])
         if response["status"] == "submitted":
-            return render_template("expert_view.html", response=response, admin=False, t=texts, role=response["role"])
+            return render_template("expert_view.html", response=response, admin=False, t=texts, role=response["role"],
+                                   referral=referral_context(response))
         if response["state"] == "invited":
             return redirect(url_for("expert.start"))
         if (response["calibration"] or {}).get("felkeszites_kesz") != "1":
@@ -1452,7 +1518,8 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
                 [Json(data["background"]), Json(data["calibration"]), Json(data["items"]), Json(data["closing"]), token],
             )
         ])
-        session.pop("expert_token", None)
+        # a token a munkamenetben marad: a záró oldal és a saját válasz nézete így tudja, hogy
+        # ugyanaz a kitöltő van jelen (ajánlás), és a kezdőoldal a beküldött állapotot mutatja
         return redirect(url_for("expert.done", token=token))
 
     @bp.get("/kesz/<token>")
@@ -1461,7 +1528,61 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         response = get_response_by_token(token)
         if response is None:
             abort(404)
-        return render_template("expert_done.html", response=decorate(response))
+        response = decorate(response)
+        return render_template("expert_done.html", response=response, t=ui_texts(current_lang(), response["role"]),
+                               role=response["role"], referral=referral_context(response))
+
+    @bp.post("/urlap/<token>/ajanlas")
+    @require_expert
+    def refer(token):
+        """Egy meghívott kolléga ajánl egy másikat: új meghívó-sor a saját kódjával az
+        ajánló háttérben, személyes link, felkérő levél (ha a levélküldés be van állítva).
+        Korlát: REFERRAL_LIMIT ajánlás / kitöltő, egy e-mail-cím csak egyszer."""
+        validate_csrf()
+        response = get_response_by_token(token)
+        if response is None:
+            abort(404)
+        response = decorate(response)
+        lang = current_lang()
+        t = ui_texts(lang, response["role"])
+        back = redirect(url_for("expert.done", token=token) if response["status"] == "submitted" else url_for("expert.form", token=token))
+        if referral_context(response) is None:
+            abort(403)
+        name = _clean_text(request.form.get("ref_name"), 200)
+        email = _clean_text(request.form.get("ref_email"), 200).lower()
+        role = request.form.get("ref_role", "fogorvos")
+        role = role if role in ROLES else "fogorvos"
+        ref_lang = request.form.get("ref_lang", lang)
+        ref_lang = ref_lang if ref_lang in LANGS else lang
+        include_name = request.form.get("ref_include_name") == "on"
+        if not name or "@" not in email or "." not in email.rsplit("@", 1)[-1]:
+            flash(t["referral_invalid"], "error")
+            return back
+        if referral_count(response["expert_code"]) >= REFERRAL_LIMIT:
+            flash(t["referral_limit"].format(n=REFERRAL_LIMIT), "error")
+            return back
+        if email_invited(email):
+            flash(t["referral_exists"], "error")
+            return back
+        conn = connection_factory()
+        try:
+            with conn.cursor() as cursor:
+                _, _, new_token = create_response(cursor, name, None, ref_lang, False, True, f"ajánlotta: {response['expert_code']}", email, None,
+                                                  role=role, referrer={"kod": response["expert_code"], "nev": response.get("expert_name")})
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        link = absolute_url("expert.invite", token=new_token)
+        if not mail_available():
+            flash(t["referral_created_no_mail"].format(name=name), "success")
+            return back
+        sent = deliver(new_token, "invite", email, name, ref_lang, link, None, role,
+                       referrer=(response.get("expert_name") if include_name else None), quiet=True)
+        flash(t["referral_sent"].format(name=name) if sent else t["referral_mail_failed"], "success" if sent else "error")
+        return back
 
     # -- vizsgálatvezetői (admin) oldalak ---------------------------------------------
     @bp.get("/admin")
@@ -1514,7 +1635,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             role = "fogorvos"
         note = _clean_text(request.form.get("invite_note"), 500) or None
         email = _clean_text(request.form.get("invite_email"), 200) or None
-        deadline = _clean_text(request.form.get("invite_deadline"), 80) or None
+        deadline = None   # a határidő a levél küldésekor áll be: küldés + DEADLINE_DAYS nap
         send_now = request.form.get("send_now") == "on"
         if not expert_name:
             flash("A meghívóhoz add meg a szakértő nevét.", "error")
@@ -1538,23 +1659,29 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             deliver(token, "invite", email, expert_name, lang, link, deadline, role)
         return redirect(url_for("expert.admin", uj=code))
 
-    def deliver(token, kind, email, name, lang, link, deadline, role="fogorvos"):
-        """Meghívó vagy emlékeztető küldése; az eredmény flash-üzenetben, a
-        sikeres küldés időbélyege az adatbázisban."""
+    def deliver(token, kind, email, name, lang, link, deadline, role="fogorvos", referrer=None, quiet=False):
+        """Meghívó vagy emlékeztető küldése. A meghívó határideje a küldés napja +
+        DEADLINE_DAYS (ISO-dátumként az adatbázisba is kerül); az emlékeztető a tárolt
+        határidőt ismétli. Az eredmény flash-üzenetben (quiet=True: csak visszatérési érték)."""
+        if kind == "invite" and not deadline:
+            deadline = deadline_iso()
         subject, text, html = build_email(kind, lang, name, link, deadline,
                                           logo_url=absolute_url("static", filename="predict-logo.png"),
-                                          partner_logo_url=absolute_url("static", filename="semmelweis-logo.png"), role=role)
+                                          partner_logo_url=absolute_url("static", filename="semmelweis-logo.png"), role=role, referrer=referrer)
         try:
             send_mail(email, name, subject, text, html)
         except MailError as err:
-            flash(f"A levél nem ment el ({email}): {err}", "error")
+            if not quiet:
+                flash(f"A levél nem ment el ({email}): {err}", "error")
             return False
-        column = "reminder_sent_at" if kind == "reminder" else "invite_sent_at"
-        execute_transaction([(
-            f"UPDATE expert_prior_responses SET {column} = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE token = %s",
-            [token],
-        )])
-        flash(("Emlékeztető elküldve: " if kind == "reminder" else "Meghívó elküldve: ") + f"{name} ({email}).", "success")
+        if kind == "reminder":
+            statement = ("UPDATE expert_prior_responses SET reminder_sent_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE token = %s", [token])
+        else:
+            statement = ("UPDATE expert_prior_responses SET invite_sent_at = CURRENT_TIMESTAMP, invite_deadline = COALESCE(invite_deadline, %s), "
+                         "updated_at = CURRENT_TIMESTAMP WHERE token = %s", [deadline, token])
+        execute_transaction([statement])
+        if not quiet:
+            flash(("Emlékeztető elküldve: " if kind == "reminder" else "Meghívó elküldve: ") + f"{name} ({email}).", "success")
         return True
 
     @bp.post("/admin/<int:response_id>/email")

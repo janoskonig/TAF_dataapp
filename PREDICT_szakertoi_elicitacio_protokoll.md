@@ -41,6 +41,15 @@ változatosságot és a tudás bizonytalanságát külön kérdezzük.
   fogorvosi poolban; a becslés forrását (rendszeres fogorvosi visszajelzés,
   visszakerülő munkák, közvetlen betegkapcsolat) rögzítjük.
 * Egyéni, távoli, egymástól független kitöltés; a válaszokat kód azonosítja.
+* **Hólabda-toborzás:** a meghívottak a beküldés után (és a saját válaszuk
+  oldalán) legfeljebb három kollégát ajánlhatnak névvel és e-mail-címmel; a
+  rendszer személyes linkkel küldi nekik a felkérést, az ajánló kódját az
+  ajánlott háttéradatában rögzíti (`ajanlo_kod`, export oszlop), egy
+  e-mail-cím csak egyszer hívható meg. A résztvevői folyamatábrán a közvetlen
+  és az ajánlott meghívottak külön szerepelnek.
+* **Határidő:** a felkérő levél küldésének napjától számított két hét
+  (EXPERT_DEADLINE_DAYS), a levélben a nyelv szerint formázva; az emlékeztető
+  ugyanezt a dátumot ismétli.
 
 ## 3. Felkészítés (SHELF „training”)
 

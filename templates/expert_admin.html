@@ -60,8 +60,8 @@
             <input id="invite_email" name="invite_email" type="email" maxlength="200" placeholder="nev@intezmeny.hu">
         </div>
         <div>
-            <label class="field-label" for="invite_deadline">Határidő a levélben (szabad szöveg, elhagyható)</label>
-            <input id="invite_deadline" name="invite_deadline" type="text" maxlength="80" placeholder="pl. 2026. október 15.">
+            <label class="field-label">Határidő</label>
+            <p class="muted small" style="margin:6px 0 0">A levél küldésének napjától számított két hét, automatikusan; az emlékeztető ugyanezt a dátumot ismétli.</p>
         </div>
         <div>
             <label class="field-label" for="invite_note">Megjegyzés (csak neked látszik)</label>
@@ -89,7 +89,7 @@
             {% for response in responses %}
             <tr>
                 <td><strong>{{ response.expert_code }}</strong></td>
-                <td>{{ response.expert_name or '–' }}{% if response.expert_affiliation %}<br><small class="muted">{{ response.expert_affiliation }}</small>{% endif %}</td>
+                <td>{{ response.expert_name or '–' }}{% if response.expert_affiliation %}<br><small class="muted">{{ response.expert_affiliation }}</small>{% endif %}{% if response.background.get('ajanlo_kod') %}<br><small class="muted">ajánlotta: {{ response.background.get('ajanlo_kod') }}</small>{% endif %}</td>
                 <td>{% if response.state == 'submitted' %}<span class="badge badge-success">beküldve</span>{% elif response.state == 'invited' %}<span class="badge badge-muted">meghívva</span>{% else %}<span class="badge badge-warning">megkezdve</span>{% endif %}{% if response.simulated %} <span class="badge badge-muted">szimulált</span>{% endif %}{% if response.role == 'fogtechnikus' %} <span class="badge badge-muted">fogtechnikus</span>{% endif %}{% if response.background.get('nyelv') == 'en' %} <span class="badge badge-muted">EN</span>{% endif %}{% if response.invite_note %}<br><small class="muted">{{ response.invite_note }}</small>{% endif %}</td>
                 <td>{{ response.items_answered }} / {{ response.items_total }}</td>
                 <td>{{ response.background.get('evek_gyakorlat') if response.background.get('evek_gyakorlat') is not none else '–' }}</td>
@@ -103,7 +103,7 @@
                         <input type="email" name="invite_email" value="{{ response.invite_email or '' }}" placeholder="e-mail-cím" maxlength="200" class="invite-link">
                         <button class="button button-secondary" type="submit" {% if not mail_configured %}disabled title="A levélküldés nincs beállítva"{% endif %}>{% if response.invite_sent_at %}Emlékeztető küldése{% else %}Meghívó küldése{% endif %}</button>
                     </form>
-                    <small class="muted">{% if response.invite_sent_at %}meghívó: {{ response.invite_sent_at_label }}{% else %}még nem ment levél{% endif %}{% if response.reminder_sent_at %} · emlékeztető: {{ response.reminder_sent_at_label }}{% endif %}</small>
+                    <small class="muted">{% if response.invite_sent_at %}meghívó: {{ response.invite_sent_at_label }}{% if response.invite_deadline %} · határidő {{ response.invite_deadline }}{% endif %}{% else %}még nem ment levél{% endif %}{% if response.reminder_sent_at %} · emlékeztető: {{ response.reminder_sent_at_label }}{% endif %}</small>
                     {% else %}{{ response.invite_email or '–' }}{% endif %}
                 </td>
                 <td class="patient-row-action"><a class="button button-secondary" href="{{ url_for('expert.admin_view', response_id=response.id) }}">Megtekintés</a></td>

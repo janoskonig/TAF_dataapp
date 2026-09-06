@@ -513,16 +513,19 @@ def test_invitation_email_is_sent_through_sendgrid_sender():
     auth_admin(client)
     response = client.post("/expert/admin/meghivo", data={
         "csrf_token": "csrf-test", "expert_name": "Dr. Meghívott Mária", "lang": "en",
-        "invite_email": "maria@example.org", "invite_deadline": "15 October 2026", "send_now": "on",
+        "invite_email": "maria@example.org", "send_now": "on",
     })
     assert response.status_code == 302
     assert len(sent) == 1
     to_email, to_name, subject, text, html = sent[0]
     assert to_email == "maria@example.org" and to_name == "Dr. Meghívott Mária"
     assert subject.startswith("A request for your experience")
-    assert "/expert/meghivo/" in text and "15 October 2026" in text and "Dear Dr. Meghívott Mária" in text
+    from expert_priors import deadline_iso, format_deadline
+    assert "/expert/meghivo/" in text and f"within two weeks, by {format_deadline(deadline_iso(), 'en')}." in text and "Dear Dr. Meghívott Mária" in text
     assert "<a href=" in html
-    assert any("invite_sent_at = CURRENT_TIMESTAMP" in sql for sql in executed_sql(connections))
+    assert any("invite_sent_at = CURRENT_TIMESTAMP" in sql and "invite_deadline = COALESCE(invite_deadline, %s)" in sql for sql in executed_sql(connections))
+    deadline_params = [params for c in connections for sql, params in c.executions if "invite_deadline = COALESCE" in sql]
+    assert deadline_params[0][0] == deadline_iso()
 
 
 def test_reminder_uses_stored_email_and_language():
@@ -756,7 +759,7 @@ def test_technician_submission_keeps_role_and_accepts_technician_fields():
 def test_exports_carry_the_role_column():
     from expert_priors import BACKGROUND_CSV_COLUMNS, PRIOR_CSV_COLUMNS, background_rows, prior_rows
     rows = [response_row(status="submitted", background={"nyelv": "hu", "szerep": "fogtechnikus", "kepesites_ev": 1998, "mester": "igen", "evek_gyakorlat": 20})]
-    assert "szerep" in PRIOR_CSV_COLUMNS and BACKGROUND_CSV_COLUMNS[-2:] == ["szerep", "visszajelzes"]
+    assert "szerep" in PRIOR_CSV_COLUMNS and BACKGROUND_CSV_COLUMNS[-3:] == ["szerep", "visszajelzes", "ajanlo_kod"]
     assert {r["szerep"] for r in prior_rows(rows)} == {"fogtechnikus"}
     background = background_rows(rows)[0]
     assert background["szerep"] == "fogtechnikus" and "képesítés: 1998" in background["megjegyzes"] and "mesterfogtechnikus: igen" in background["megjegyzes"]
@@ -894,3 +897,109 @@ def test_practice_answers_autosave_into_calibration():
     assert response.status_code == 200
     sql = [sql for c in connections for sql, params in c.executions if "SET calibration = calibration ||" in sql]
     assert sql
+
+
+REF_COUNT_0 = ("ajanlo_kod' = %s", ["n"], [(0,)])
+REF_COUNT_3 = ("ajanlo_kod' = %s", ["n"], [(3,)])
+EMAIL_FREE = ("lower(invite_email)", ["id"], [])
+EMAIL_TAKEN = ("lower(invite_email)", ["id"], [(12,)])
+
+
+def auth_expert_with_token(client, token="tok"):
+    with client.session_transaction() as session:
+        session["expert_authenticated"] = True
+        session["expert_csrf"] = "csrf-test"
+        session["expert_token"] = token
+
+
+def test_reminder_repeats_the_stored_deadline_in_hungarian():
+    sent = []
+    row = response_row(consent_confirmed=False, invited_at="2026-09-06", invite_email="elek@example.org",
+                       invite_sent_at="2026-09-06 10:00", invite_deadline="2026-09-20", background={"nyelv": "hu"})
+    app, _ = build_app([id_lookup(row)], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_admin(client)
+    client.post("/expert/admin/7/email", data={"csrf_token": "csrf-test"})
+    text = sent[0][3]
+    assert "2026. szeptember 20-ig ki tudná tölteni" in text and "két héten belül" not in text
+    assert "ajánlotta" not in text
+
+
+def test_hungarian_invitation_states_two_weeks_and_the_date():
+    sent = []
+    app, _ = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_admin(client)
+    client.post("/expert/admin/meghivo", data={"csrf_token": "csrf-test", "expert_name": "Dr. X", "invite_email": "x@example.org", "send_now": "on"})
+    from expert_priors import deadline_iso, format_deadline
+    assert f"két héten belül, {format_deadline(deadline_iso(), 'hu')}-ig ki tudná tölteni" in sent[0][3]
+
+
+def test_done_page_offers_referral_to_the_submitting_expert():
+    row = response_row(status="submitted", submitted_at="2026-09-06 12:00")
+    app, _ = build_app([token_lookup(row), REF_COUNT_0])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    page = client.get("/expert/kesz/tok").get_data(as_text=True)
+    assert 'action="/expert/urlap/tok/ajanlas"' in page and "Még 3 kollégát ajánlhat." in page and 'name="ref_email"' in page
+    app, _ = build_app([token_lookup(row), REF_COUNT_3])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    page = client.get("/expert/kesz/tok").get_data(as_text=True)
+    assert "Elérte az ajánlható kollégák számát" in page and 'name="ref_email"' not in page
+    app, _ = build_app([token_lookup(row)])
+    client = app.test_client()
+    auth_expert_with_token(client, token="masik")
+    page = client.get("/expert/kesz/tok").get_data(as_text=True)
+    assert 'name="ref_email"' not in page
+
+
+def test_referral_creates_invitation_with_referrer_and_sends_letter():
+    sent = []
+    row = response_row(status="submitted", submitted_at="2026-09-06 12:00")
+    app, connections = build_app([token_lookup(row), REF_COUNT_0, EMAIL_FREE, INSERT_OK, NEXT_CODE_OK], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_expert_with_token(client)
+    response = client.post("/expert/urlap/tok/ajanlas", data={
+        "csrf_token": "csrf-test", "ref_name": "Kovács Fogtechnikus", "ref_email": "Kovacs@Example.org",
+        "ref_role": "fogtechnikus", "ref_lang": "hu", "ref_include_name": "on",
+    })
+    assert response.status_code == 302 and response.headers["Location"].endswith("/expert/kesz/tok")
+    inserts = [params for c in connections for sql, params in c.executions if "INSERT INTO expert_prior_responses" in sql]
+    assert inserts[0][6].adapted == {"nyelv": "hu", "szerep": "fogtechnikus", "ajanlo_kod": "SZ07", "ajanlo_nev": "Dr. Teszt Elek"}
+    assert inserts[0][9] == "kovacs@example.org" and inserts[0][7] is True and inserts[0][8] == "ajánlotta: SZ07"
+    to_email, to_name, subject, text, _ = sent[0]
+    assert to_email == "kovacs@example.org" and to_name == "Kovács Fogtechnikus"
+    assert "fogtechnikus kollégáknak" in subject and "Erre a felmérésre Dr. Teszt Elek kolléga ajánlotta Önt." in text
+    assert any("invite_deadline = COALESCE" in sql for sql in executed_sql(connections))
+    with client.session_transaction() as session:
+        flashes = session.get("_flashes", [])
+    assert any("Meghívót küldtünk Kovács Fogtechnikus részére." in message for _, message in flashes)
+
+
+def test_referral_refuses_duplicates_limits_and_foreign_sessions():
+    row = response_row(status="submitted", submitted_at="2026-09-06 12:00")
+    sent = []
+    app, connections = build_app([token_lookup(row), REF_COUNT_0, EMAIL_TAKEN], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_expert_with_token(client)
+    client.post("/expert/urlap/tok/ajanlas", data={"csrf_token": "csrf-test", "ref_name": "X", "ref_email": "x@example.org"})
+    assert not sent and not any("INSERT INTO" in sql for sql in executed_sql(connections))
+    with client.session_transaction() as session:
+        assert any("már meghívtuk" in message for _, message in session.get("_flashes", []))
+    app, connections = build_app([token_lookup(row), REF_COUNT_3, EMAIL_FREE], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_expert_with_token(client)
+    client.post("/expert/urlap/tok/ajanlas", data={"csrf_token": "csrf-test", "ref_name": "X", "ref_email": "x@example.org"})
+    assert not sent and not any("INSERT INTO" in sql for sql in executed_sql(connections))
+    with client.session_transaction() as session:
+        assert any("Legfeljebb 3 kollégát" in message for _, message in session.get("_flashes", []))
+    app, _ = build_app([token_lookup(row)])
+    client = app.test_client()
+    auth_expert_with_token(client, token="masik")
+    assert client.post("/expert/urlap/tok/ajanlas", data={"csrf_token": "csrf-test", "ref_name": "X", "ref_email": "x@example.org"}).status_code == 403
+    app, connections = build_app([token_lookup(row), REF_COUNT_0])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    client.post("/expert/urlap/tok/ajanlas", data={"csrf_token": "csrf-test", "ref_name": "", "ref_email": "nem-email"})
+    assert not any("INSERT INTO" in sql for sql in executed_sql(connections))
