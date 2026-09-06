@@ -7,11 +7,11 @@ kódjai és a válaszkódok nyelvfüggetlenek, csak a megjelenített szöveg vá
 LANGS = ("hu", "en")
 
 # A PREDICT mozaikszó feloldása; a meghívólevélben egyszer, az első említésnél
-# jelenik meg. TODO: a vizsgálatvezető által megerősítendő szöveg.
+# jelenik meg (a vizsgálatvezető által megadott hivatalos cím).
 STUDY_ACRONYM = {
-    "hu": ("Prosthodontic Risk Evaluation of Denture-bearing anatomy In Complete denture Treatment, azaz a fogsorviselő "
-           "anatómiai adottságok szerepének vizsgálata a teljes fogpótlás sikerében"),
-    "en": "Prosthodontic Risk Evaluation of Denture-bearing anatomy In Complete denture Treatment",
+    "hu": ("Prognostic evaluation of the edentulous: inspecting critical anatomy, azaz a fogatlan páciens prognosztikai "
+           "értékelése a meghatározó anatómiai adottságok vizsgálatával"),
+    "en": "Prognostic evaluation of the edentulous: inspecting critical anatomy",
 }
 
 JAW_LABELS = {
