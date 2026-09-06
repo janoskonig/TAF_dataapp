@@ -52,6 +52,10 @@
             <select id="invite_lang" name="lang"><option value="hu">magyar</option><option value="en">English</option></select>
         </div>
         <div>
+            <label class="field-label" for="invite_role">Szerep (az űrlap változata)</label>
+            <select id="invite_role" name="szerep"><option value="fogorvos">fogorvos</option><option value="fogtechnikus">fogtechnikus</option></select>
+        </div>
+        <div>
             <label class="field-label" for="invite_email">E-mail-cím</label>
             <input id="invite_email" name="invite_email" type="email" maxlength="200" placeholder="nev@intezmeny.hu">
         </div>
@@ -86,7 +90,7 @@
             <tr>
                 <td><strong>{{ response.expert_code }}</strong></td>
                 <td>{{ response.expert_name or '–' }}{% if response.expert_affiliation %}<br><small class="muted">{{ response.expert_affiliation }}</small>{% endif %}</td>
-                <td>{% if response.state == 'submitted' %}<span class="badge badge-success">beküldve</span>{% elif response.state == 'invited' %}<span class="badge badge-muted">meghívva</span>{% else %}<span class="badge badge-warning">megkezdve</span>{% endif %}{% if response.simulated %} <span class="badge badge-muted">szimulált</span>{% endif %}{% if response.background.get('nyelv') == 'en' %} <span class="badge badge-muted">EN</span>{% endif %}{% if response.invite_note %}<br><small class="muted">{{ response.invite_note }}</small>{% endif %}</td>
+                <td>{% if response.state == 'submitted' %}<span class="badge badge-success">beküldve</span>{% elif response.state == 'invited' %}<span class="badge badge-muted">meghívva</span>{% else %}<span class="badge badge-warning">megkezdve</span>{% endif %}{% if response.simulated %} <span class="badge badge-muted">szimulált</span>{% endif %}{% if response.role == 'fogtechnikus' %} <span class="badge badge-muted">fogtechnikus</span>{% endif %}{% if response.background.get('nyelv') == 'en' %} <span class="badge badge-muted">EN</span>{% endif %}{% if response.invite_note %}<br><small class="muted">{{ response.invite_note }}</small>{% endif %}</td>
                 <td>{{ response.items_answered }} / {{ response.items_total }}</td>
                 <td>{{ response.background.get('evek_gyakorlat') if response.background.get('evek_gyakorlat') is not none else '–' }}</td>
                 <td>{{ response.created_at_label }}</td>
@@ -117,6 +121,7 @@
     <div class="section-head">
         <div><h2>Tételenkénti gyorsösszesítés</h2><p class="muted">Csak a beküldött{% if not include_simulated %}, nem szimulált{% endif %} válaszokból. „B” = a tankönyvi értelemben kedvezőtlen pólus. Az elemzéshez a lineáris véleménykeveréket az R-szkript számolja.</p></div>
     </div>
+    <p class="muted small">Szerep szerint: {% if role_filter %}<a href="{{ url_for('expert.admin', szimulacio=('1' if include_simulated else none)) }}">mind</a>{% else %}<strong>mind</strong>{% endif %} · {% if role_filter == 'fogorvos' %}<strong>fogorvosok ({{ role_counts.fogorvos }})</strong>{% else %}<a href="{{ url_for('expert.admin', szerep='fogorvos', szimulacio=('1' if include_simulated else none)) }}">fogorvosok ({{ role_counts.fogorvos }})</a>{% endif %} · {% if role_filter == 'fogtechnikus' %}<strong>fogtechnikusok ({{ role_counts.fogtechnikus }})</strong>{% else %}<a href="{{ url_for('expert.admin', szerep='fogtechnikus', szimulacio=('1' if include_simulated else none)) }}">fogtechnikusok ({{ role_counts.fogtechnikus }})</a>{% endif %}</p>
     <div class="patient-table-wrap">
         <table class="patient-table tally-table">
             <thead><tr><th>Tétel</th><th>n</th><th>A kedvezőtlenebb</th><th>B kedvezőtlenebb</th><th>optimum</th><th>nincs különbség</th><th>nem tudom</th><th>átlagos bizonyosság</th><th>átlagos |különbség| (100-ból)</th></tr></thead>

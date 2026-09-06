@@ -53,7 +53,8 @@
             <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
             {% if invited %}
             <input type="hidden" name="invite_token" value="{{ current.token }}">
-            <div class="definition-box"><p class="eyebrow" style="margin:0 0 4px">{{ t.invite_eyebrow }} · {{ current.expert_code }}</p>{{ t.invite_lead }}</div>
+            <input type="hidden" name="szerep" value="{{ current.role }}">
+            <div class="definition-box"><p class="eyebrow" style="margin:0 0 4px">{{ t.invite_eyebrow }} · {{ current.expert_code }} · {{ role_labels[current.role] }}</p>{{ t.invite_lead }}</div>
             {% endif %}
             <div class="grid grid-2">
                 <div>
@@ -65,6 +66,19 @@
                     <input id="expert_affiliation" name="expert_affiliation" type="text" maxlength="200" autocomplete="organization" value="{{ (current.expert_affiliation or '') if invited else '' }}">
                 </div>
             </div>
+            {% if not invited %}
+            <div class="expert-q">
+                <p class="q-title">{{ t.role_q }}</p>
+                <div class="answer-grid answer-grid-3" data-group="szerep">
+                    {% for value, label in t.role_opts %}
+                    <div class="answer-option">
+                        <input type="radio" id="szerep_{{ value }}" name="szerep" value="{{ value }}" {% if loop.first %}checked{% endif %}>
+                        <label for="szerep_{{ value }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
             <label class="checkbox-line">
                 <input type="checkbox" name="consent" required>
                 <span>{{ t.consent }}</span>

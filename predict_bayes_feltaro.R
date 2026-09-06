@@ -531,14 +531,20 @@ INCLUDE_PI_PRIOR <- Sys.getenv("PREDICT_INCLUDE_PI", unset = "1") != "0"
 USE_DB_EXPERTS <- Sys.getenv("PREDICT_EXPERT_DB", unset = "1") != "0"
 INCLUDE_SIMULATED <- Sys.getenv("PREDICT_INCLUDE_SIM", unset = "0") == "1"
 PI_EXPERT_IDS <- c("VV-2026-08-19")
+# A kitöltő szerepe (fogorvos | fogtechnikus): a priorba alapból csak a
+# fogorvosi válaszok kerülnek; PREDICT_EXPERT_ROLE = "all" mindkettőt egyesíti,
+# "fogtechnikus" csak a technikusi véleményekből épít priort. A leíró
+# konszenzus mindig szerep szerint is elkészül (05d, ábra 12).
+EXPERT_ROLE <- Sys.getenv("PREDICT_EXPERT_ROLE", unset = "fogorvos")
 EXPERT_COLS <- c("szakerto_id", "datum", "tetel", "irany", "p_irany", "siker_A", "siker_B",
-                 "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes")
+                 "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes", "szerep")
 expert_path <- Sys.getenv("PREDICT_EXPERT_CSV", unset = file.path(ROOT, "predict_expert_priorok.csv"))
 if (!grepl("^/", expert_path)) expert_path <- file.path(ROOT, expert_path)
 expert_csv <- if (file.exists(expert_path)) read.csv(expert_path, check.names = FALSE, encoding = "UTF-8", na.strings = c("", "NA")) else NULL
 if (!is.null(expert_csv)) {
   names(expert_csv) <- sub("^﻿", "", names(expert_csv))
   expert_csv$forras <- "CSV-sablon"
+  if (!"szerep" %in% names(expert_csv)) expert_csv$szerep <- "fogorvos"
 }
 expert_db <- NULL
 if (!is.null(DB_CON) && USE_DB_EXPERTS) {
@@ -546,7 +552,8 @@ if (!is.null(DB_CON) && USE_DB_EXPERTS) {
     exists_row <- DBI::dbGetQuery(DB_CON, "SELECT to_regclass('public.expert_prior_responses') AS t")
     if (is.na(exists_row$t[1])) NULL else {
       resp <- DBI::dbGetQuery(DB_CON, paste0(
-        "SELECT expert_code, submitted_at::text AS submitted_at, items::text AS items FROM expert_prior_responses WHERE status = 'submitted'",
+        "SELECT expert_code, submitted_at::text AS submitted_at, items::text AS items, ",
+        "COALESCE(background->>'szerep', 'fogorvos') AS szerep FROM expert_prior_responses WHERE status = 'submitted'",
         if (INCLUDE_SIMULATED) "" else " AND form_version <> 'v1.0-SZIMULACIO'", " ORDER BY id"))
       if (nrow(resp) == 0L) NULL else bind_rows(lapply(seq_len(nrow(resp)), function(i) {
         items <- jsonlite::fromJSON(resp$items[i], simplifyVector = FALSE)
@@ -562,7 +569,8 @@ if (!is.null(DB_CON) && USE_DB_EXPERTS) {
             kulonbseg_min = suppressWarnings(as.numeric(g("kulonbseg_min"))), kulonbseg_max = suppressWarnings(as.numeric(g("kulonbseg_max"))),
             alak = ifelse(identical(irany, "nem_monoton"), "optimum", NA_character_),
             mechanizmus = paste(unlist(a[["mechanizmus"]]), collapse = "; "), kuszob = as.character(g("kuszob")),
-            megjegyzes = as.character(g("megjegyzes")), forras = "applikáció (szakértői felmérés)"
+            megjegyzes = as.character(g("megjegyzes")), forras = "applikáció (szakértői felmérés)",
+            szerep = as.character(resp$szerep[i])
           )
         }))
       }))
@@ -576,6 +584,13 @@ expert_raw <- bind_rows(
 if (nrow(expert_raw) == 0L) expert_raw <- NULL
 if (!is.null(expert_raw) && !INCLUDE_PI_PRIOR) expert_raw <- expert_raw[!expert_raw$szakerto_id %in% PI_EXPERT_IDS, , drop = FALSE]
 if (!is.null(expert_raw) && nrow(expert_raw) == 0L) expert_raw <- NULL
+if (!is.null(expert_raw)) {
+  expert_raw$szerep <- as.character(expert_raw$szerep)
+  expert_raw$szerep[is.na(expert_raw$szerep) | expert_raw$szerep == ""] <- "fogorvos"
+}
+# A priorba kerülő sorok (szerep szerint szűrve); a leíró bontás az összes sorból készül.
+pool_raw <- if (is.null(expert_raw) || EXPERT_ROLE == "all") expert_raw else expert_raw[expert_raw$szerep == EXPERT_ROLE, , drop = FALSE]
+if (!is.null(pool_raw) && nrow(pool_raw) == 0L) pool_raw <- NULL
 
 clamp <- function(x, lo, hi) pmin(pmax(x, lo), hi)
 expert_row_to_prior <- function(row) {
@@ -602,7 +617,7 @@ expert_row_to_prior <- function(row) {
 EXPERT_ITEM_ALIAS <- c(A2 = "A1")
 expert_pool <- lapply(predictors$kod, function(k) {
   source_code <- if (k %in% names(EXPERT_ITEM_ALIAS)) EXPERT_ITEM_ALIAS[[k]] else k
-  rows <- if (!is.null(expert_raw)) expert_raw[expert_raw$tetel == source_code, , drop = FALSE] else expert_raw[0, ]
+  rows <- if (!is.null(pool_raw)) pool_raw[pool_raw$tetel == source_code, , drop = FALSE] else NULL
   if (is.null(rows) || nrow(rows) == 0L) {
     p <- predictors$p_tankonyv[predictors$kod == k]
     return(list(prior = prior_mixture(p), n_expert = 0L, p_pos = p, forras = "regiszter (tankönyvi p) + HN(0; 0,5)", parts = NULL))
@@ -619,20 +634,22 @@ prior_registry <- bind_rows(lapply(predictors$kod, function(k) {
          prior_P_varhato_irany = s$p_pozitiv, prior_median = s$median, prior_q05 = s$q05, prior_q95 = s$q95, hatasnagysag_forras = ep$forras)
 }))
 write_csv_utf8(prior_registry, "05_prior_regiszter_pool.csv")
-prior_caption <- if (is.null(expert_raw)) {
+prior_caption <- if (is.null(pool_raw)) {
   "Prior: regiszter-alapú tankönyvi iránybizonyosság (gyenge 80% / mérsékelt 90% / erős 98%), hatásnagyság-helyőrzővel HN(0; 0,5)."
 } else {
-  paste0("Prior: ", length(unique(expert_raw$szakerto_id)), " szakértő egyenlő súlyú véleménykeveréke (forrás: ",
-         paste(unique(expert_raw$forras), collapse = " + "), "); irány a bizonyosságból, hatásnagyság a „100 beteg” válaszból, ahol elicitált, egyébként HN(0; 0,5).")
+  paste0("Prior: ", length(unique(pool_raw$szakerto_id)), " szakértő egyenlő súlyú véleménykeveréke (",
+         if (EXPERT_ROLE == "all") "fogorvosok és fogtechnikusok együtt" else paste0("szerep: ", EXPERT_ROLE),
+         "; forrás: ", paste(unique(pool_raw$forras), collapse = " + "),
+         "); irány a bizonyosságból, hatásnagyság a „100 beteg” válaszból, ahol elicitált, egyébként HN(0; 0,5).")
 }
 if (!is.null(expert_raw)) write_csv_utf8(expert_raw, "05b_szakertoi_prior_bemenet.csv")
 
 # --- Szakértői konszenzus: tételenkénti megoszlás, egyet nem értés, pool ------
 consensus <- NULL
-if (!is.null(expert_raw)) {
+if (!is.null(pool_raw)) {
   consensus <- bind_rows(lapply(predictors$kod, function(k) {
     source_code <- if (k %in% names(EXPERT_ITEM_ALIAS)) EXPERT_ITEM_ALIAS[[k]] else k
-    rk <- expert_raw[expert_raw$tetel == source_code, , drop = FALSE]
+    rk <- pool_raw[pool_raw$tetel == source_code, , drop = FALSE]
     ep <- expert_pool[[k]]
     irany <- as.character(rk$irany)
     share <- function(v) if (length(irany)) mean(irany %in% v) else NA_real_
@@ -656,6 +673,31 @@ if (!is.null(expert_raw)) {
   }))
   consensus$kulonbseg_atlag[!is.finite(consensus$kulonbseg_atlag)] <- NA_real_
   write_csv_utf8(consensus, "05c_szakertoi_konszenzus.csv")
+}
+
+# --- Szerep szerinti bontás: fogorvosok vs. fogtechnikusok (leíró, minden sorból) ---
+consensus_role <- NULL
+if (!is.null(expert_raw)) {
+  consensus_role <- bind_rows(lapply(sort(unique(expert_raw$szerep)), function(role) {
+    rr <- expert_raw[expert_raw$szerep == role, , drop = FALSE]
+    bind_rows(lapply(predictors$kod, function(k) {
+      source_code <- if (k %in% names(EXPERT_ITEM_ALIAS)) EXPERT_ITEM_ALIAS[[k]] else k
+      rk <- rr[rr$tetel == source_code, , drop = FALSE]
+      irany <- as.character(rk$irany)
+      share <- function(v) if (length(irany)) mean(irany %in% v) else NA_real_
+      dir_rows <- irany %in% c("A_kedvezotlenebb", "B_kedvezotlenebb")
+      tibble(
+        szerep = role, tetel = k, cimke = predictors$rovid[predictors$kod == k],
+        csoport = as.character(predictors$csoport[predictors$kod == k]),
+        n_szakerto = nrow(rk), B_arany = share("B_kedvezotlenebb"), A_arany = share("A_kedvezotlenebb"),
+        optimum_arany = share("nem_monoton"), nincs_arany = share("nincs_kulonbseg"), nem_tudom_arany = share("nem_tudom"),
+        p_irany_atlag = if (any(dir_rows)) mean(suppressWarnings(as.numeric(rk$p_irany[dir_rows])), na.rm = TRUE) else NA_real_,
+        kulonbseg_atlag = mean(abs(suppressWarnings(as.numeric(rk$siker_A)) - suppressWarnings(as.numeric(rk$siker_B))), na.rm = TRUE)
+      )
+    }))
+  }))
+  consensus_role$kulonbseg_atlag[!is.finite(consensus_role$kulonbseg_atlag)] <- NA_real_
+  write_csv_utf8(consensus_role, "05d_szakertoi_konszenzus_szerep.csv")
 }
 
 # --- Posteriorok minden tétel × kimenet cellára -----------------------------
@@ -1060,6 +1102,33 @@ if (!is.null(consensus) && any(consensus$n_szakerto > 0)) {
   p11 <- (p11a | p11b) + plot_layout(widths = c(1.35, 1)) +
     plot_annotation(caption = paste0("n = ", max(consensus$n_szakerto), " szakértő. A bal panel a nyers irányválaszok megoszlása; a jobb panel a keverék-priorból számított P(β > 0)."), theme = theme_predict(10))
   save_png("abra_11_szakertoi_konszenzus.png", p11, 15, 8.5)
+}
+
+# --- 12. ábra: fogorvosok és fogtechnikusok irányválaszai egymás mellett ------
+if (!is.null(consensus_role) && length(unique(consensus_role$szerep)) >= 2) {
+  role_long <- consensus_role |>
+    filter(n_szakerto > 0) |>
+    mutate(szerep = factor(szerep, levels = c("fogorvos", "fogtechnikus"), labels = c("fogorvosok", "fogtechnikusok")),
+           cimke = factor(cimke, levels = consensus_role$cimke[consensus_role$szerep == "fogorvos"][order(consensus_role$B_arany[consensus_role$szerep == "fogorvos"])]),
+           csoport = factor(csoport, levels = levels(predictors$csoport)))
+  n_role <- expert_raw |> distinct(szakerto_id, szerep) |> count(szerep)
+  p12 <- ggplot(role_long, aes(x = B_arany, y = cimke)) +
+    geom_vline(xintercept = 0.5, colour = PAL$grid, linewidth = 0.5) +
+    geom_line(aes(group = cimke), colour = PAL$axis, linewidth = 0.8) +
+    geom_point(aes(colour = szerep, shape = szerep, size = nem_tudom_arany), fill = PAL$surface, stroke = 1.1) +
+    facet_grid(csoport ~ ., scales = "free_y", space = "free_y") +
+    scale_colour_manual(values = c(PAL$blue, PAL$orange), name = NULL) +
+    scale_shape_manual(values = c(16, 17), name = NULL) +
+    scale_size_continuous(range = c(2.2, 5), limits = c(0, 1), labels = percent_format(accuracy = 1), name = "„nem tudom megítélni” aránya") +
+    scale_x_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
+    labs(title = "Egyetértenek-e a fogtechnikusok a fogorvosokkal?",
+         subtitle = "Azok aránya, akik szerint az elődök által kedvezőtlennek tartott változat (B) a rosszabb",
+         x = "B-t rosszabbnak jelölők aránya", y = NULL,
+         caption = paste0(paste0(n_role$szerep, ": n = ", n_role$n, collapse = " · "),
+                          ". A pont mérete a „nem tudom megítélni” válaszok arányát mutatja; a priorba ",
+                          if (EXPERT_ROLE == "all") "mindkét csoport" else paste0("csak a(z) ", EXPERT_ROLE, " csoport"), " került (PREDICT_EXPERT_ROLE).")) +
+    theme_predict(10) + theme(legend.position = "bottom", legend.box = "vertical", strip.text.y = element_text(angle = 0), panel.grid.major.y = element_blank())
+  save_png("abra_12_fogorvos_vs_fogtechnikus.png", p12, 15, 10)
 }
 
 # -----------------------------------------------------------------------------

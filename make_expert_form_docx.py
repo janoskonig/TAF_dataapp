@@ -20,12 +20,19 @@ import os
 import sys
 
 from expert_priors import localized_items
-from expert_texts import UI
+from expert_texts import UI, ui_texts
 
 LANG = "en" if "--lang" in sys.argv and sys.argv[sys.argv.index("--lang") + 1] == "en" else "hu"
-T = UI[LANG]
+# --role fogtechnikus: a fogtechnikusi változat (más háttérkérdések, laborból nézett megfogalmazás)
+ROLE = "fogtechnikus" if "--role" in sys.argv and sys.argv[sys.argv.index("--role") + 1] == "fogtechnikus" else "fogorvos"
+T = ui_texts(LANG, ROLE)
 ITEMS = localized_items(LANG)
-OUT = "PREDICT_expert_prior_form_EN.docx" if LANG == "en" else "PREDICT_szakertoi_prior_urlap.docx"
+OUT = {
+    ("hu", "fogorvos"): "PREDICT_szakertoi_prior_urlap.docx",
+    ("en", "fogorvos"): "PREDICT_expert_prior_form_EN.docx",
+    ("hu", "fogtechnikus"): "PREDICT_fogtechnikus_prior_urlap.docx",
+    ("en", "fogtechnikus"): "PREDICT_technician_prior_form_EN.docx",
+}[(LANG, ROLE)]
 INK = RGBColor(0x0B, 0x0B, 0x0B)
 INK2 = RGBColor(0x52, 0x51, 0x4E)
 BLUE = RGBColor(0x1C, 0x5C, 0xAB)
@@ -229,9 +236,13 @@ page_break()
 # --- A. Önről ------------------------------------------------------------------
 doc.add_heading(T["a_eyebrow"] + ": " + T["a_h2"].lower() if HU else T["a_eyebrow"] + ": " + T["a_h2"].lower(), level=1)
 opts = lambda key: "     ".join(CB + label for _, label in T[key])
-two_col([
+two_col(([
+    (T["a_kepesites"], "________"),
+    (T["a_mester"], opts("a_mester_opts")),
+] if ROLE == "fogtechnikus" else [
     (T["a_diploma"], "________"),
     (T["a_szakvizsga"], "________________________________"),
+]) + [
     (T["a_evek"], "________"),
     (T["a_fogsorok"], opts("a_fogsorok_opts")),
     (T["a_evi"], "________"),

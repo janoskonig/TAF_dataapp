@@ -457,7 +457,7 @@ def test_admin_can_create_invitation_with_link():
     assert len(inserts) == 1
     params = inserts[0][1]
     assert params[1] == "Dr. Meghívott Mária" and params[4] is False and params[7] is True and params[8] == "maria@example.org"
-    assert params[6].adapted == {"nyelv": "en"}
+    assert params[6].adapted == {"nyelv": "en", "szerep": "fogorvos"}
     assert params[9] is None and params[10] is None
 
 
@@ -683,3 +683,100 @@ def test_links_use_configured_public_base_url_not_request_host(monkeypatch):
     page = client.get("/expert/admin", base_url=render_host).get_data(as_text=True)
     assert "https://predict-study.hu/expert/meghivo/" in page and "https://predict-study.hu/expert" in page
     assert "onrender.com" not in page
+
+
+def test_start_page_offers_role_choice_and_stores_it():
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert").get_data(as_text=True)
+    assert 'name="szerep" value="fogtechnikus"' in page and "fogtechnikusként" in page
+    assert "fogorvosoknak és fogtechnikusoknak" in page
+    response = client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "expert_name": "Kovács Fogtechnikus", "szerep": "fogtechnikus"})
+    assert response.status_code == 302 and "/expert/urlap/" in response.headers["Location"]
+    inserts = [params for connection in connections for sql, params in connection.executions if "INSERT INTO expert_prior_responses" in sql]
+    assert inserts[0][6].adapted == {"nyelv": "hu", "szerep": "fogtechnikus"}
+
+
+def test_technician_form_shows_technician_background_and_all_items():
+    row = response_row(background={"nyelv": "hu", "szerep": "fogtechnikus"})
+    app, _ = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert/urlap/tok").get_data(as_text=True)
+    assert 'name="bg__szerep" value="fogtechnikus"' in page
+    assert 'name="bg__kepesites_ev"' in page and 'name="bg__mester"' in page
+    assert 'name="bg__diploma_ev"' not in page and 'name="bg__szakvizsga"' not in page
+    assert "a laborból nem látszik" in page and "mesterfogtechnikusi" in page
+    assert page.count('class="card section-card expert-item"') == len(ITEM_CODES)
+    dentist = response_row(background={"nyelv": "hu"})
+    app, _ = build_app([SCHEMA_OK, token_lookup(dentist)])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert/urlap/tok").get_data(as_text=True)
+    assert 'name="bg__diploma_ev"' in page and 'name="bg__kepesites_ev"' not in page and 'value="fogorvos"' in page
+
+
+def test_invited_technician_sees_role_and_keeps_it_on_acceptance():
+    row = response_row(consent_confirmed=False, invited_at="2026-09-06", background={"nyelv": "hu", "szerep": "fogtechnikus"})
+    app, connections = build_app([SCHEMA_OK, token_lookup(row), token_lookup(row)])
+    client = app.test_client()
+    client.get("/expert/meghivo/tok")
+    with client.session_transaction() as session:
+        session["expert_csrf"] = "csrf-test"
+    page = client.get("/expert").get_data(as_text=True)
+    assert 'name="szerep" value="fogtechnikus"' in page and "fogtechnikusoknak" in page
+    response = client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "expert_name": "Kovács Fogtechnikus", "invite_token": "tok", "szerep": "fogtechnikus"})
+    assert response.status_code == 302
+    updates = [params for connection in connections for sql, params in connection.executions if "SET consent_confirmed = TRUE" in sql]
+    assert updates and updates[0][2].adapted == {"szerep": "fogtechnikus"}
+
+
+def test_technician_submission_keeps_role_and_accepts_technician_fields():
+    row = response_row(background={"nyelv": "hu", "szerep": "fogtechnikus"})
+    app, connections = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    form = complete_form()
+    form.update({"bg__kepesites_ev": "1998", "bg__mester": "igen", "item__A5__irany": "nem_tudom"})
+    form.pop("item__A5__p_irany")
+    response = client.post("/expert/urlap/tok/bekuldes", data=form)
+    assert response.status_code == 302
+    updates = [params for connection in connections for sql, params in connection.executions if "status = 'submitted'" in sql]
+    background = updates[0][0].adapted
+    assert background["szerep"] == "fogtechnikus" and background["kepesites_ev"] == 1998 and background["mester"] == "igen"
+    assert updates[0][2].adapted["A5"]["irany"] == "nem_tudom"
+
+
+def test_exports_carry_the_role_column():
+    from expert_priors import BACKGROUND_CSV_COLUMNS, PRIOR_CSV_COLUMNS, background_rows, prior_rows
+    rows = [response_row(status="submitted", background={"nyelv": "hu", "szerep": "fogtechnikus", "kepesites_ev": 1998, "mester": "igen", "evek_gyakorlat": 20})]
+    assert PRIOR_CSV_COLUMNS[-1] == "szerep" and BACKGROUND_CSV_COLUMNS[-1] == "szerep"
+    assert {r["szerep"] for r in prior_rows(rows)} == {"fogtechnikus"}
+    background = background_rows(rows)[0]
+    assert background["szerep"] == "fogtechnikus" and "képesítés: 1998" in background["megjegyzes"] and "mesterfogtechnikus: igen" in background["megjegyzes"]
+    assert background_rows([response_row(status="submitted")])[0]["szerep"] == "fogorvos"
+
+
+def test_admin_invite_with_role_sends_technician_letter_and_lists_badge():
+    sent = []
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_admin(client)
+    response = client.post("/expert/admin/meghivo", data={
+        "csrf_token": "csrf-test", "expert_name": "Kovács Fogtechnikus", "szerep": "fogtechnikus",
+        "invite_email": "kovacs@example.org", "send_now": "on",
+    })
+    assert response.status_code == 302
+    inserts = [params for connection in connections for sql, params in connection.executions if "INSERT INTO expert_prior_responses" in sql]
+    assert inserts[0][6].adapted == {"nyelv": "hu", "szerep": "fogtechnikus"}
+    subject, text = sent[0][2], sent[0][3]
+    assert "fogtechnikus kollégáknak" in subject and "a saját munkája" in text and "a laborból nem lehet megítélni" in text
+    row = response_row(status="submitted", submitted_at="2026-09-06 12:00", background={"nyelv": "hu", "szerep": "fogtechnikus"})
+    app, _ = build_app([SCHEMA_OK, listing([row])])
+    client = app.test_client()
+    auth_admin(client)
+    page = client.get("/expert/admin").get_data(as_text=True)
+    assert '<span class="badge badge-muted">fogtechnikus</span>' in page and "fogtechnikusok (1)" in page
+    filtered = client.get("/expert/admin?szerep=fogorvos").get_data(as_text=True)
+    assert "<strong>fogorvosok (0)</strong>" in filtered

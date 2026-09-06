@@ -43,7 +43,8 @@ from flask import (
 )
 from psycopg2.extras import Json
 
-from expert_texts import IRANY_LABELS as IRANY_LABELS_BY_LANG, ITEM_TEXT_EN, JAW_LABELS, LANGS, STUDY_ACRONYM, UI
+from expert_texts import (IRANY_LABELS as IRANY_LABELS_BY_LANG, ITEM_TEXT_EN, JAW_LABELS, LANGS, ROLE_LABELS, ROLES,
+                          STUDY_ACRONYM, UI, ui_texts)
 
 FORM_VERSION = "v1.2"
 # A simulate_expert_responses.py ezzel a verziójelöléssel szúr be próbasorokat;
@@ -274,7 +275,17 @@ BACKGROUND_FIELDS = {
     "szakvizsga": ("text", 200),
     "evi_fogsorok": ("int", 0, 2000),
     "nyelv": ("choice", set(LANGS)),
+    # a kitöltő szerepe és a fogtechnikusi háttérkérdések (a fogorvosi diploma/szakvizsga helyett)
+    "szerep": ("choice", set(ROLES)),
+    "kepesites_ev": ("int", 1950, 2100),
+    "mester": ("choice", {"igen", "nem"}),
 }
+
+
+def role_of(background):
+    """A kitöltő szerepe a háttéradatokból; a régi (szerep nélküli) sorok fogorvosiak."""
+    role = (background or {}).get("szerep")
+    return role if role in ROLES else "fogorvos"
 CALIBRATION_FIELDS = {
     "alap_siker_100": ("int", 0, 100),
     "anatomia_sulya_pct": ("int", 0, 100),
@@ -301,12 +312,12 @@ SECTION_COLUMNS = {"bg": "background", "cal": "calibration", "cl": "closing"}
 
 PRIOR_CSV_COLUMNS = [
     "szakerto_id", "datum", "tetel", "irany", "p_irany", "siker_A", "siker_B",
-    "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes",
+    "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes", "szerep",
 ]
 BACKGROUND_CSV_COLUMNS = [
     "szakerto_id", "datum", "evek_gyakorlat", "fogsorok_szama_kat", "oktat", "alap_siker_100",
     "anatomia_sulya_pct", "rang_1", "rang_2", "rang_3", "rang_4", "rang_5", "hianyzo_kepletek", "megjegyzes",
-    "nev", "intezmeny",
+    "nev", "intezmeny", "szerep",
 ]
 
 
@@ -395,6 +406,75 @@ MAIL_TEXTS = {
 }
 
 
+# A fogtechnikusi felkérés: ugyanaz a levél, a praxisra és a betegekre utaló
+# mondatok a laborból látható tapasztalatra igazítva.
+MAIL_ROLE_TEXTS = {
+    "fogtechnikus": {
+        "hu": {
+            "subject": "Kérés a tapasztalatáról a teljes fogsor sikeréről (PREDICT-vizsgálat, fogtechnikus kollégáknak, kb. 30 perc)",
+            "body": (
+                "Tisztelt {name}!\n\n"
+                "A Semmelweis Egyetem Fogpótlástani Klinikáján a PREDICT-vizsgálatban ({acronym}) azt kutatjuk, mely anatómiai "
+                "adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét. Elődeink és tanáraink ezt a tapasztalatukból "
+                "tanították; mi most ezt a tapasztalati tudást szeretnénk összegyűjteni néhány, a teljes fogsor készítésében nagy "
+                "gyakorlattal rendelkező fogorvos és fogtechnikus kollégától, és összevetni a mért betegadatainkkal. A fogtechnikus "
+                "kollégák évente sokkal több teljes fogsort látnak a mintákon és a visszakerülő munkákban, mint egy-egy fogorvos, ezért "
+                "az Ön tapasztalata külön értékes.\n\n"
+                "A válaszokat Bayes-i statisztikai módszerrel dolgozzuk fel: a tapasztalt kollégák véleményét előzetes tudásként "
+                "(priorként) építjük be a modellbe, és ezt frissítjük a mért betegadatokkal. Így kis betegszám mellett is értelmezhető "
+                "eredményt kapunk, és láthatóvá válik, hol erősíti meg a mérés a gyakorlati tapasztalatot, és hol mond ellent neki.\n\n"
+                "Ezért kérem Önt, hogy töltsön ki egy kérdőívet. Tizenhat anatómiai adottságról kérdezzük ugyanazt a néhány dolgot: melyik "
+                "változat a rosszabb a fogsor sikere szempontjából, mennyire biztos ebben, és száz beteg közül hánynak lesz sikeres a fogsora "
+                "az egyik és a másik esetben. Ha egy adottságot a mintáról, a laborból nem lehet megítélni, azt is jelölheti. A kitöltés "
+                "körülbelül 25–35 perc.\n\n"
+                "Nincs jó vagy rossz válasz. Nem a tankönyvre vagyunk kíváncsiak, hanem arra, mit tanított Önnek a saját munkája, akkor is, "
+                "ha az eltér a tanultaktól. Kérem, egyedül töltse ki, és ne beszélje meg közben kollégákkal, mert éppen az egymástól független "
+                "vélemények érdekelnek minket. Ha valamiben bizonytalan, jelölje azt; a bizonytalanság is fontos információ.\n\n"
+                "A kérdőívet ezen a személyes linken éri el, belépési kód nélkül:\n{link}\n\n"
+                "A válaszok maguktól mentődnek, a kitöltést bármikor megszakíthatja, és ugyanazon a számítógépen később folytathatja. "
+                "A nevét csak én látom, hogy tudjam, kit kérdeztem meg; a válaszokat kóddal azonosítjuk, és kizárólag a többi kolléga "
+                "válaszával együtt, összesítve használjuk fel. Egyéni válasz névvel nem kerül nyilvánosságra.\n\n"
+                "{deadline_sentence}"
+                "Ha bármi kérdése van, keressen bizalommal.\n\n"
+                "Köszönöm az idejét és a tapasztalatát.\n\n"
+                "Tisztelettel,\n{signature}"
+            ),
+        },
+        "en": {
+            "subject": "A request for your experience on complete denture success (PREDICT study, for dental technicians, about 30 minutes)",
+            "body": (
+                "Dear {name},\n\n"
+                "In the PREDICT study ({acronym}) at the Department of Prosthodontics, Semmelweis University, we are investigating "
+                "which anatomical features help, and which hinder, the success of complete dentures. Our predecessors and teachers "
+                "taught this from experience; we now want to collect this experiential knowledge from a small number of dentists and "
+                "dental technicians with extensive experience in complete denture work and compare it with our measured patient data. "
+                "Dental technicians see far more complete dentures each year, on the casts and in the work that comes back, than any "
+                "single dentist, which makes your experience particularly valuable.\n\n"
+                "We analyse the answers with Bayesian statistical methods: the judgement of experienced colleagues enters the model as "
+                "prior knowledge, which is then updated with the measured patient data. This yields interpretable results even with a "
+                "small number of patients, and shows where the measurements confirm practical experience and where they contradict it.\n\n"
+                "I would therefore like to ask you to complete a questionnaire. For sixteen anatomical features we ask the same few things: "
+                "which variant is worse for the success of the denture, how sure you are, and how many out of a hundred patients would have "
+                "a successful denture in one case and in the other. If a feature cannot be judged from the cast, in the laboratory, you can "
+                "mark that too. Completing it takes about 25–35 minutes.\n\n"
+                "There are no right or wrong answers. We are not asking about the textbook but about what your own work has taught you, "
+                "even where it differs from what you were taught. Please fill it in on your own, without discussing it with colleagues, "
+                "because it is the independent opinions that we need. If you are unsure about something, mark that; uncertainty is valuable "
+                "information too.\n\n"
+                "You can reach the questionnaire through this personal link, no access code needed:\n{link}\n\n"
+                "Your answers are saved automatically; you can stop at any time and continue later on the same computer. Only I see your "
+                "name, so that I know whom I have asked; the answers are identified by a code and used solely pooled with the answers of "
+                "the other colleagues. No individual answer is published with a name.\n\n"
+                "{deadline_sentence}"
+                "If you have any questions, please do not hesitate to contact me.\n\n"
+                "Thank you for your time and your experience.\n\n"
+                "Yours sincerely,\n{signature}"
+            ),
+        },
+    },
+}
+
+
 def _configured_sender_name():
     return (os.getenv("EMAIL_FROM_NAME") or os.getenv("SMTP_FROM_NAME") or os.getenv("EXPERT_MAIL_FROM_NAME")
             or "PREDICT-vizsgálat").strip()
@@ -441,9 +521,12 @@ def email_header_html(logo_url=None, partner_logo_url=None):
             f'<td align="right" valign="bottom" style="padding:0 0 14px">{right}</td></tr></table>')
 
 
-def build_email(kind, lang, name, link, deadline=None, logo_url=None, partner_logo_url=None):
-    """(subject, text, html) a meghívóhoz ('invite') vagy az emlékeztetőhöz ('reminder')."""
-    texts = MAIL_TEXTS["en" if lang == "en" else "hu"]
+def build_email(kind, lang, name, link, deadline=None, logo_url=None, partner_logo_url=None, role="fogorvos"):
+    """(subject, text, html) a meghívóhoz ('invite') vagy az emlékeztetőhöz ('reminder'); a szerep
+    (fogorvos / fogtechnikus) a felkérés szövegét váltja."""
+    key = "en" if lang == "en" else "hu"
+    texts = dict(MAIL_TEXTS[key])
+    texts.update(MAIL_ROLE_TEXTS.get(role, {}).get(key, {}))
     deadline_sentence = texts["deadline"].format(deadline=deadline) if deadline else ""
     body_key, subject_key = ("reminder_body", "reminder_subject") if kind == "reminder" else ("body", "subject")
     text = texts[body_key].format(name=name, link=link, deadline_sentence=deadline_sentence, signature=mail_signature(),
@@ -762,6 +845,7 @@ def prior_rows(responses):
                 "mechanizmus": "; ".join(answers.get("mechanizmus") or []),
                 "kuszob": answers.get("kuszob") or "",
                 "megjegyzes": item_note(item, answers),
+                "szerep": role_of(response.get("background")),
             })
     return rows
 
@@ -786,7 +870,8 @@ def background_rows(responses):
         ):
             if closing.get(key):
                 notes.append(f"{label}: {closing[key]}")
-        for key, label in (("diploma_ev", "diploma"), ("tevekenyseg", "tevékenység"), ("szakvizsga", "szakvizsga"), ("evi_fogsorok", "fogsor/év")):
+        for key, label in (("diploma_ev", "diploma"), ("kepesites_ev", "képesítés"), ("mester", "mesterfogtechnikus"),
+                           ("tevekenyseg", "tevékenység"), ("szakvizsga", "szakvizsga"), ("evi_fogsorok", "fogsor/év")):
             if background.get(key) not in (None, ""):
                 notes.append(f"{label}: {background[key]}")
         rows.append({
@@ -802,6 +887,7 @@ def background_rows(responses):
             "megjegyzes": " | ".join(notes),
             "nev": response.get("expert_name") or "",
             "intezmeny": response.get("expert_affiliation") or "",
+            "szerep": role_of(background),
         })
     return rows
 
@@ -872,13 +958,15 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             "expert_csrf_token": csrf_token,
             "expert_code_required": access_code_required,
             "lang": lang,
-            "t": UI[lang],
+            "t": ui_texts(lang, None),
             "expert_items": items,
             "irany_labels": IRANY_LABELS_BY_LANG[lang],
             "p_irany_values": P_IRANY_VALUES,
             "mechanism_labels": MECHANISM_LABELS,
             "item_codes": ITEM_CODES,
             "item_names": {item["kod"]: item["nev"] for item in items},
+            "role_labels": ROLE_LABELS[lang],
+            "roles": ROLES,
         }
 
     @bp.after_request
@@ -993,6 +1081,8 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             response[key] = value or {}
         response["items_answered"] = item_progress(response["items"])
         response["items_total"] = len(ITEMS)
+        response["role"] = role_of(response["background"])
+        response["role_label"] = ROLE_LABELS["hu"][response["role"]]
         response["simulated"] = response.get("form_version") == SIM_VERSION
         response["invited"] = bool(response.get("invited_at"))
         if response.get("status") == "submitted":
@@ -1006,7 +1096,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         return response
 
     def create_response(cursor, expert_name, expert_affiliation, lang, consent, invited, invite_note=None,
-                        invite_email=None, invite_deadline=None):
+                        invite_email=None, invite_deadline=None, role="fogorvos"):
         """Új kitöltés sora folytonos SZnn kóddal; a token a kitöltés kulcsa."""
         token = secrets.token_urlsafe(24)
         cursor.execute(
@@ -1017,7 +1107,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, CASE WHEN %s THEN CURRENT_TIMESTAMP ELSE NULL END, %s, %s, %s)
             RETURNING id
             """,
-            ["SZ-új", expert_name, expert_affiliation, token, consent, FORM_VERSION, Json({"nyelv": lang}), invited,
+            ["SZ-új", expert_name, expert_affiliation, token, consent, FORM_VERSION, Json({"nyelv": lang, "szerep": role}), invited,
              invite_note, invite_email, invite_deadline],
         )
         new_id = cursor.fetchone()[0]
@@ -1093,7 +1183,10 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             current = get_response_by_token(token)
             if current:
                 current = decorate(current)
-        return render_template("expert_start.html", current=current)
+        lang = current_lang()
+        if current and current["state"] == "invited":
+            return render_template("expert_start.html", current=current, t=ui_texts(lang, current["role"]), role=current["role"])
+        return render_template("expert_start.html", current=current, role=None)
 
     @bp.post("/start")
     @require_expert
@@ -1111,24 +1204,31 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         if not expert_name:
             flash(UI[lang]["name_missing"], "error")
             return redirect(url_for("expert.start"))
+        role = request.form.get("szerep") or "fogorvos"   # a régi (szerep nélküli) űrlap fogorvosi
         invite_token = request.form.get("invite_token", "")
         if invite_token and invite_token == session.get("expert_token"):
             # Meghívott kitöltés elfogadása: a sor már létezik, a hozzájárulást
             # és a (javítható) nevet rögzítjük, a kitöltés innentől piszkozat.
+            # A szerep a meghívóból jön; az űrlapon javítható.
+            role_patch = Json({"szerep": role}) if role in ROLES else Json({})
             execute_transaction([(
                 """
                 UPDATE expert_prior_responses
                 SET consent_confirmed = TRUE, expert_name = %s, expert_affiliation = %s,
+                    background = COALESCE(background, '{}'::jsonb) || %s::jsonb,
                     opened_at = COALESCE(opened_at, CURRENT_TIMESTAMP), updated_at = CURRENT_TIMESTAMP
                 WHERE token = %s AND status = 'draft'
                 """,
-                [expert_name, expert_affiliation, invite_token],
+                [expert_name, expert_affiliation, role_patch, invite_token],
             )])
             return redirect(url_for("expert.form", token=invite_token))
+        if role not in ROLES:
+            flash(UI[lang]["role_q"], "error")
+            return redirect(url_for("expert.start"))
         conn = connection_factory()
         try:
             with conn.cursor() as cursor:
-                _, _, token = create_response(cursor, expert_name, expert_affiliation, lang, True, False)
+                _, _, token = create_response(cursor, expert_name, expert_affiliation, lang, True, False, role=role)
             conn.commit()
         except Exception:
             conn.rollback()
@@ -1149,11 +1249,12 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             abort(404)
         response = decorate(response)
         session["expert_token"] = token
+        texts = ui_texts(current_lang(), response["role"])
         if response["status"] == "submitted":
-            return render_template("expert_view.html", response=response, admin=False)
+            return render_template("expert_view.html", response=response, admin=False, t=texts, role=response["role"])
         if response["state"] == "invited":
             return redirect(url_for("expert.start"))
-        return render_template("expert_form.html", response=response, errors=[])
+        return render_template("expert_form.html", response=response, errors=[], t=texts, role=response["role"])
 
     @bp.post("/urlap/<token>/mentes")
     @require_expert
@@ -1211,11 +1312,14 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         lang = current_lang()
         if "nyelv" not in data["background"]:
             data["background"]["nyelv"] = lang
+        if data["background"].get("szerep") not in ROLES:
+            data["background"]["szerep"] = role_of(decorate(response)["background"])
         problems = completeness_errors(data, lang)
         if errors or problems:
             merged = decorate({**response, **{k: data[k] for k in ("background", "calibration", "closing", "items")}})
             flash(UI[lang]["submit_incomplete"], "error")
-            return render_template("expert_form.html", response=merged, errors=errors + problems), 400
+            return render_template("expert_form.html", response=merged, errors=errors + problems,
+                                   t=ui_texts(lang, merged["role"]), role=merged["role"]), 400
         execute_transaction([
             (
                 """
@@ -1246,11 +1350,16 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         if setup_response:
             return setup_response
         include_simulated = request.args.get("szimulacio") == "1"
+        role_filter = request.args.get("szerep")
+        if role_filter not in ROLES:
+            role_filter = None
         responses = [decorate(row) for row in list_responses()]
         for row in responses:
             row["invite_link"] = absolute_url("expert.invite", token=row["token"])
         simulated_count = sum(1 for row in responses if row["simulated"])
-        submitted = [row for row in responses if row["status"] == "submitted" and (include_simulated or not row["simulated"])]
+        submitted_all = [row for row in responses if row["status"] == "submitted" and (include_simulated or not row["simulated"])]
+        role_counts = {role: sum(1 for row in submitted_all if row["role"] == role) for role in ROLES}
+        submitted = [row for row in submitted_all if role_filter is None or row["role"] == role_filter]
         return render_template(
             "expert_admin.html",
             responses=responses,
@@ -1260,6 +1369,8 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             new_code=request.args.get("uj"),
             mail_configured=mail_configured(),
             start_url=absolute_url("expert.start"),
+            role_filter=role_filter,
+            role_counts=role_counts,
             simulated_count=simulated_count,
             include_simulated=include_simulated,
             tally=item_tally(submitted),
@@ -1277,6 +1388,9 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         lang = request.form.get("lang", "hu")
         if lang not in LANGS:
             lang = "hu"
+        role = request.form.get("szerep", "fogorvos")
+        if role not in ROLES:
+            role = "fogorvos"
         note = _clean_text(request.form.get("invite_note"), 500) or None
         email = _clean_text(request.form.get("invite_email"), 200) or None
         deadline = _clean_text(request.form.get("invite_deadline"), 80) or None
@@ -1290,7 +1404,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         conn = connection_factory()
         try:
             with conn.cursor() as cursor:
-                _, code, token = create_response(cursor, expert_name, expert_affiliation, lang, False, True, note, email, deadline)
+                _, code, token = create_response(cursor, expert_name, expert_affiliation, lang, False, True, note, email, deadline, role=role)
             conn.commit()
         except Exception:
             conn.rollback()
@@ -1300,15 +1414,15 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         link = absolute_url("expert.invite", token=token)
         flash(f"Meghívó elkészült: {code} · {expert_name}. Link: {link}", "success")
         if send_now and email:
-            deliver(token, "invite", email, expert_name, lang, link, deadline)
+            deliver(token, "invite", email, expert_name, lang, link, deadline, role)
         return redirect(url_for("expert.admin", uj=code))
 
-    def deliver(token, kind, email, name, lang, link, deadline):
+    def deliver(token, kind, email, name, lang, link, deadline, role="fogorvos"):
         """Meghívó vagy emlékeztető küldése; az eredmény flash-üzenetben, a
         sikeres küldés időbélyege az adatbázisban."""
         subject, text, html = build_email(kind, lang, name, link, deadline,
                                           logo_url=absolute_url("static", filename="predict-logo.png"),
-                                          partner_logo_url=absolute_url("static", filename="semmelweis-logo.png"))
+                                          partner_logo_url=absolute_url("static", filename="semmelweis-logo.png"), role=role)
         try:
             send_mail(email, name, subject, text, html)
         except MailError as err:
@@ -1343,7 +1457,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         lang = (response["background"] or {}).get("nyelv", "hu")
         link = absolute_url("expert.invite", token=response["token"])
         kind = "reminder" if response.get("invite_sent_at") else "invite"
-        deliver(response["token"], kind, email, response["expert_name"] or "", lang, link, response.get("invite_deadline"))
+        deliver(response["token"], kind, email, response["expert_name"] or "", lang, link, response.get("invite_deadline"), response["role"])
         return redirect(url_for("expert.admin"))
 
     @bp.get("/admin/<int:response_id>")
@@ -1352,7 +1466,8 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         response = get_response_by_id(response_id)
         if response is None:
             abort(404)
-        return render_template("expert_view.html", response=decorate(response), admin=True)
+        response = decorate(response)
+        return render_template("expert_view.html", response=response, admin=True, role=response["role"])
 
     @bp.post("/admin/<int:response_id>/torles")
     @require_admin

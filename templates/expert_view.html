@@ -27,8 +27,14 @@
         <dl>
             <dt>Név</dt><dd>{{ response.expert_name or '–' }}</dd>
             <dt>Munkahely</dt><dd>{{ response.expert_affiliation or '–' }}</dd>
+            <dt>Szerep</dt><dd>{{ response.role_label }}</dd>
+            {% if role == 'fogtechnikus' %}
+            <dt>Fogtechnikusi képesítés éve</dt><dd>{{ bg.get('kepesites_ev') or '–' }}</dd>
+            <dt>Mesterfogtechnikus</dt><dd>{{ bg.get('mester') or '–' }}</dd>
+            {% else %}
             <dt>Diploma éve</dt><dd>{{ bg.get('diploma_ev') or '–' }}</dd>
             <dt>Szakvizsga</dt><dd>{{ bg.get('szakvizsga') or '–' }}</dd>
+            {% endif %}
             <dt>Hány éve készít teljes fogsort</dt><dd>{{ bg.get('evek_gyakorlat') if bg.get('evek_gyakorlat') is not none else '–' }}</dd>
             <dt>Eddig készített teljes fogsorok</dt><dd>{{ bg.get('fogsorok_szama_kat') or '–' }}</dd>
             <dt>Évente mostanában</dt><dd>{{ bg.get('evi_fogsorok') if bg.get('evi_fogsorok') is not none else '–' }}</dd>

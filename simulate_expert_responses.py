@@ -112,6 +112,7 @@ def simulate_expert(rng, index):
     conviction = rng.choice([-1, 0, 0, 0, 1])              # bizonyosság-eltolás
     scale = clip(rng.gauss(1.0, 0.2), 0.6, 1.5)            # hatásnagyság-hajlam
     background = {
+        "szerep": "fogorvos",
         "diploma_ev": 2026 - years - rng.randint(0, 3),
         "evek_gyakorlat": years,
         "fogsorok_szama_kat": category,

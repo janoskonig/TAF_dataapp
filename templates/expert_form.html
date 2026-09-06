@@ -48,9 +48,22 @@
     <form method="post" id="expertForm" action="{{ url_for('expert.submit', token=response.token) }}">
         <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
         <input type="hidden" name="bg__nyelv" value="{{ lang }}">
+        <input type="hidden" name="bg__szerep" value="{{ role }}">
 
         <section class="card section-card" id="section-a">
             <div class="section-head"><div><p class="eyebrow">{{ t.a_eyebrow }}</p><h2>{{ t.a_h2 }}</h2></div></div>
+            {% if role == 'fogtechnikus' %}
+            <div class="grid grid-2">
+                <div>
+                    <label class="field-label" for="bg__kepesites_ev">{{ t.a_kepesites }}</label>
+                    <input type="number" id="bg__kepesites_ev" name="bg__kepesites_ev" min="1950" max="2100" value="{{ bg.get('kepesites_ev', '') if bg.get('kepesites_ev') is not none else '' }}" data-autosave>
+                </div>
+                <div>
+                    <p class="field-label">{{ t.a_mester }}</p>
+                    {{ radio_grid('bg__mester', t.a_mester_opts, bg.get('mester'), 'answer-grid answer-grid-3') }}
+                </div>
+            </div>
+            {% else %}
             <div class="grid grid-2">
                 <div>
                     <label class="field-label" for="bg__diploma_ev">{{ t.a_diploma }}</label>
@@ -61,6 +74,7 @@
                     <input type="text" id="bg__szakvizsga" name="bg__szakvizsga" maxlength="200" placeholder="{{ t.a_szakvizsga_ph }}" value="{{ bg.get('szakvizsga', '') or '' }}" data-autosave>
                 </div>
             </div>
+            {% endif %}
             <div class="grid grid-2" style="margin-top:14px">
                 <div>
                     <label class="field-label" for="bg__evek_gyakorlat">{{ t.a_evek }}</label>

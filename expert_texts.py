@@ -5,6 +5,14 @@ kódjai és a válaszkódok nyelvfüggetlenek, csak a megjelenített szöveg vá
 """
 
 LANGS = ("hu", "en")
+# A kitöltő szerepe: fogorvos (alapértelmezés) vagy fogtechnikus. Ugyanaz az
+# űrlap, minden tétel mindkettőnek megjelenik; a háttérkérdések és néhány
+# megfogalmazás a szerephez igazodik (ROLE_UI), az elemzés szerep szerint bont.
+ROLES = ("fogorvos", "fogtechnikus")
+ROLE_LABELS = {
+    "hu": {"fogorvos": "fogorvos", "fogtechnikus": "fogtechnikus"},
+    "en": {"fogorvos": "dentist", "fogtechnikus": "dental technician"},
+}
 
 # A PREDICT mozaikszó feloldása; a meghívólevélben egyszer, az első említésnél
 # jelenik meg (a vizsgálatvezető által megadott hivatalos cím).
@@ -157,6 +165,8 @@ ITEM_TEXT_EN = {
 UI = {
     "hu": {
         "brand_small": "szakértői kérdőív",
+        "role_q": "Milyen minőségben tölti ki? *",
+        "role_opts": [("fogorvos", "fogorvosként"), ("fogtechnikus", "fogtechnikusként")],
         "footer_line": "Semmelweis Egyetem · Fogpótlástani Klinika · PREDICT-vizsgálat",
         "nav_admin": "Válaszok (vizsgálatvezető)",
         "logout": "Kilépés",
@@ -280,6 +290,8 @@ UI = {
     },
     "en": {
         "brand_small": "expert questionnaire",
+        "role_q": "In what capacity are you answering? *",
+        "role_opts": [("fogorvos", "as a dentist"), ("fogtechnikus", "as a dental technician")],
         "footer_line": "Semmelweis University · Department of Prosthodontics · PREDICT study",
         "nav_admin": "Responses (investigator)",
         "logout": "Log out",
@@ -402,3 +414,69 @@ UI = {
         "err_range": "the lower limit of the difference is above the upper limit", "err_d5": "Confidence in your answers",
     },
 }
+
+
+# Szerepfüggő szövegek: a fogtechnikusi változat felülírja az alap (fogorvosi)
+# kulcsokat; a "_neutral" készlet akkor él, amikor a szerep még nem ismert
+# (belépő oldal, kóddal indított kitöltés tájékoztatója).
+ROLE_UI = {
+    "_neutral": {
+        "hu": {
+            "login_h1": "Kérdőív tapasztalt fogorvosoknak és fogtechnikusoknak",
+            "start_eyebrow": "PREDICT-vizsgálat · kérdőív tapasztalt fogorvosoknak és fogtechnikusoknak",
+        },
+        "en": {
+            "login_h1": "Questionnaire for experienced dentists and dental technicians",
+            "start_eyebrow": "PREDICT study · questionnaire for experienced dentists and dental technicians",
+        },
+    },
+    "fogtechnikus": {
+        "hu": {
+            "start_eyebrow": "PREDICT-vizsgálat · kérdőív tapasztalt fogtechnikusoknak",
+            "start_lead": "Arra kérjük, ossza meg velünk, mely anatómiai adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét, ahogy azt Ön a laborból, a mintákról és a visszakerülő munkákból látja. A kitöltés körülbelül 25–35 perc.",
+            "intro_2": "Nem a tankönyvre, hanem az Ön saját, a munkája során szerzett tapasztalatára vagyunk kíváncsiak, akkor is, ha az eltér a tanultaktól. Ha valamit a mintáról, a laborból nem lehet megítélni, jelölje azt, ne találgasson: az is fontos információ.",
+            "success_def": "Sikeres a fogsor, ha a beteg az átadás utáni fél évben rendszeresen hordja, tud vele enni, nincs komoly fájdalma vagy nyomási panasza, és elégedett vele. A labor felől nézve: nem jön vissza panasszal, alábélelésre vagy újrakészítésre.",
+            "how_3": "Ha 100 ilyen beteg fogsorát készítené az egyik, és 100-ét a másik változattal, hánynak lenne sikeres a fogsora itt és ott? Például: 100 magas gerincű betegből 85-nek, 100 alacsony gerincűből 60-nak. A különbség így 25 beteg a százból.",
+            "a_kepesites": "Melyik évben szerezte a fogtechnikusi képesítését?",
+            "a_mester": "Van-e mesterfogtechnikusi vizsgája?",
+            "a_mester_opts": [("igen", "igen"), ("nem", "nem")],
+            "a_oktat": "Tanított-e fogtechnikus-tanulókat vagy hallgatókat?",
+            "a_tevekenyseg_opts": [("egyetemi", "egyetemi, klinikai laborban"), ("maganpraxis", "magánlaborban"), ("mindketto", "mindkettőben"), ("egyeb", "máshol")],
+            "b_note": "Sikeres a fogsor, ha a beteg fél év múlva is hordja, tud vele enni, nincs komoly panasza, és elégedett vele; a labor felől: nem jön vissza panasszal vagy újrakészítésre.",
+            "b1": "Tapasztalata szerint 100 átlagos teljes fogsorból hány lesz sikeres? *",
+            "b2_help": "A többi a fogorvosi és a fogtechnikai kivitelezésen, a beteg alkalmazkodásán és egyéb tényezőkön múlik. Hány százalékot adna az adottságoknak?",
+            "b4": "Van-e olyan adottság, amelynél Ön eleve nem hagyományos teljes fogsort, hanem implantátumon elhorgonyzott fedőlemezes fogpótlást javasolna a fogorvosnak?",
+            "items_instruction": "Mindig két változatot írunk le, A-t és B-t. Azt jelölje, amelyikkel Ön szerint rosszabb kilátásokkal indul a fogsor. Ha egy adottságot a mintáról, a laborból nem lehet megítélni, jelölje a „nem tudom megítélni” választ. A „száz beteg” és a „mennyire biztos” kérdés mindig arra a változatra vonatkozik, amelyiket rosszabbnak jelölte.",
+            "hundred_help": "Képzeljen el 100 beteget az A és 100 beteget a B változattal, egyébként hasonló betegeket, ugyanolyan gondos munkával. Hánynak lesz sikeres a fogsora?",
+            "dir_dk": "Nem tudom megítélni (a laborból nem látszik)",
+        },
+        "en": {
+            "start_eyebrow": "PREDICT study · questionnaire for experienced dental technicians",
+            "start_lead": "We ask you to share which anatomical features help, and which hinder, the success of a complete denture, as you see it in the laboratory, on the casts and in the work that comes back. Completing it takes about 25–35 minutes.",
+            "intro_2": "We are not asking about the textbook but about your own experience from your work, even where it differs from what you were taught. If something cannot be judged from the cast, in the laboratory, mark that rather than guessing: that is valuable information too.",
+            "success_def": "A denture is successful if, in the six months after delivery, the patient wears it regularly, can eat with it, has no serious pain or pressure complaints, and is satisfied with it. Seen from the laboratory: it does not come back with complaints, for relining or for a remake.",
+            "how_3": "If you made the dentures of 100 such patients with one variant and 100 with the other, how many would have a successful denture in each group? For example: 85 of 100 patients with a high ridge, 60 of 100 with a low ridge. The difference is then 25 patients in a hundred.",
+            "a_kepesites": "In which year did you qualify as a dental technician?",
+            "a_mester": "Do you hold a master dental technician qualification?",
+            "a_mester_opts": [("igen", "yes"), ("nem", "no")],
+            "a_oktat": "Have you taught dental technician trainees or students?",
+            "a_tevekenyseg_opts": [("egyetemi", "university or clinic laboratory"), ("maganpraxis", "private laboratory"), ("mindketto", "both"), ("egyeb", "elsewhere")],
+            "b_note": "A denture is successful if the patient still wears it after six months, can eat with it, has no serious complaints, and is satisfied with it; from the laboratory's side: it does not come back with complaints or for a remake.",
+            "b1": "In your experience, of 100 average complete dentures, how many will be successful? *",
+            "b2_help": "The rest depends on the dentist's and the technician's workmanship, the patient's adaptation and other factors. What percentage would you give to the anatomy?",
+            "b4": "Is there a feature for which you would advise the dentist from the outset to make an implant-retained overdenture rather than a conventional complete denture?",
+            "items_instruction": "We always describe two variants, A and B. Mark the one with which, in your view, the denture starts with worse prospects. If a feature cannot be judged from the cast, in the laboratory, choose “cannot judge”. The “hundred patients” and “how sure” questions always refer to the variant you marked as worse.",
+            "hundred_help": "Imagine 100 patients with variant A and 100 with variant B, otherwise similar patients, dentures made with the same care. How many will have a successful denture?",
+            "dir_dk": "Cannot judge (not visible from the laboratory)",
+        },
+    },
+}
+
+
+def ui_texts(lang="hu", role="fogorvos"):
+    """A felület szövegei a kért nyelven és szerepben; role=None → semleges
+    (szerep nélküli) változat."""
+    key = "en" if lang == "en" else "hu"
+    texts = dict(UI[key])
+    texts.update(ROLE_UI.get(role if role in ROLES else "_neutral", {}).get(key, {}))
+    return texts
