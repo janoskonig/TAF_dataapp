@@ -99,13 +99,41 @@
         </table></div>
     </section>
 
+    <section class="card result-section">
+        <p class="eyebrow">Származtatott, másodlagos kimenet</p>
+        <h2>1b. Sikerességi index (változás-alapú, %)</h2>
+        <p class="section-intro">{{ report.success_index.definition }}</p>
+        <div class="table-wrap"><table class="results-table">
+            <thead><tr><th>Komponens</th><th>Javulás</th><th class="number">Legnagyobb elképzelhető javulás (nevező)</th><th>Nevező forrása</th><th class="number">Átlag (%)</th><th class="number">Szórás (%)</th><th class="number">Min–max (%)</th></tr></thead>
+            <tbody>{% for component in report.success_index.components %}<tr>
+                <td><strong>{{ component.label }}</strong></td>
+                <td>{{ component.definition }}</td>
+                <td class="number">{{ '%.0f'|format(component.denominator) }}</td>
+                <td class="status-note">{{ component.note }}</td>
+                <td class="number">{{ '%+.1f'|format(component.mean) if component.mean is not none else '—' }}</td>
+                <td class="number">{{ '%.1f'|format(component.sd) if component.sd is not none else '—' }}</td>
+                <td class="number">{% if component.min is not none %}{{ '%+.1f'|format(component.min) }} – {{ '%+.1f'|format(component.max) }}{% else %}—{% endif %}</td>
+            </tr>{% endfor %}</tbody>
+        </table></div>
+        <div class="interpretation">
+            <strong>Valódi teljes esetek: n = {{ report.success_index.n }}.</strong>
+            {% if report.success_index.index_mean is not none %}
+            Index átlag {{ '%+.1f'|format(report.success_index.index_mean) }}%, medián {{ '%+.1f'|format(report.success_index.index_median) }}% [IQR {{ '%+.1f'|format(report.success_index.index_q1) }}; {{ '%+.1f'|format(report.success_index.index_q3) }}], tartomány {{ '%+.1f'|format(report.success_index.index_min) }} – {{ '%+.1f'|format(report.success_index.index_max) }}%.
+            {% else %}
+            Még nincs olyan beteg, akinél mindhárom kimenetpár rendelkezésre állna; az index nem számítható.
+            {% endif %}
+            Az index nem kiindulási értékre korrigált: alacsony kiindulási teher mellett (padlóhatás) nem tud magas lenni, és a MAI-nevező előre rögzített konvenció (jelenleg {{ '%.0f'|format(report.success_index.mai_reference) }} hue-degree).
+            {% if report.success_index.mai_reference_exceeded %}<br><strong>Figyelem:</strong> a legnagyobb mért |ΔMAI| ({{ '%.1f'|format(report.success_index.max_abs_mai_change) }}) meghaladja a MAI-referenciát, ezért a MAI-komponens 100% fölé mehet; a referenciát a végső futtatás előtt felül kell vizsgálni.{% endif %}
+        </div>
+    </section>
+
     <section class="card result-section primary-analysis">
         <p class="eyebrow">Fő elemzési keret</p>
         <h2>2. Folytonos regressziós β-együtthatók {% if report.model_source == 'simulated' %}<span class="simulation-mark">SZIMULÁLT n={{ report.model_n }}</span>{% endif %}</h2>
-        <p class="section-intro">Modell: utánkövetési kimenet ~ kiindulási kimenet + anatómiai prediktor. A β az anatómiai prediktorhoz tartozó, HC3-robusztus 95%-os intervallummal közölt korrigált különbség.</p>
-        <div class="interpretation"><strong>Irány:</strong> pozitív β rosszabb OHIP- és MAI-, de jobb GOHAI-kimenetet jelent. Negatív β ennek ellenkezője.</div>
+        <p class="section-intro">Modell: utánkövetési kimenet ~ kiindulási kimenet + anatómiai prediktor. A β az anatómiai prediktorhoz tartozó, HC3-robusztus 95%-os intervallummal közölt korrigált különbség. A másodlagos sikerességi indexnél a modell korrigálatlan (sikerességi index ~ anatómiai prediktor), mert az index maga változás-alapú.</p>
+        <div class="interpretation"><strong>Irány:</strong> pozitív β rosszabb OHIP- és MAI-, de jobb GOHAI-kimenetet jelent. Negatív β ennek ellenkezője. A sikerességi indexnél pozitív β nagyobb javulást (kedvezőbb kimenetet) jelent.</div>
         <div class="plot-wrap">{{ report.charts.beta_forest | safe }}</div>
-        {% for outcome_key, outcome_label in [('ohip_followup','OHIP-5'),('gohai_followup','GOHAI'),('mai_followup','MAI hue-degree')] %}
+        {% for outcome_key, outcome_label in [('ohip_followup','OHIP-5'),('gohai_followup','GOHAI'),('mai_followup','MAI hue-degree'),('success_index','Sikerességi index (Δ, %; másodlagos, korrigálatlan)')] %}
         <h3 class="question-section-title">{{ outcome_label }}</h3>
         <div class="table-wrap"><table class="results-table">
             <thead><tr><th>Anatómiai prediktor</th><th>Kódolás</th><th class="number">n</th><th class="number">β (95% CI)</th><th class="number">p</th><th class="number">FDR q</th><th>Státusz</th></tr></thead>
@@ -166,6 +194,7 @@
             <li>A kétoldali A4 és A6–A9 tételeket előre rögzített szabállyal egyetlen 0–1 kategóriaértékké vonjuk össze; a pontos kódolás minden táblázatsor mellett látható.</li>
             <li>F8 és A14 az antagonista fogazat/protetikai státusz leírása, ezért nem anatómiai kategória.</li>
             <li>A nyolc kategórián végzett többszörös vizsgálatok p-értékei kimenetenként Benjamini–Hochberg FDR-korrekciót kapnak.</li>
+            <li>A sikerességi index másodlagos, feltáró származtatott kimenet: a három kimenetpár javulásának egyenlő súlyú átlaga, rögzített nevezőkkel (OHIP-5 20, GOHAI 48, MAI a PREDICT_MAI_REF referencia). Nem helyettesíti a kiindulási értékre korrigált elsődleges modelleket.</li>
             <li>Legalább {{ report.minimum_model_n }} teljes eset alatt valódi regressziós vagy OR-pontbecslés technikailag sem készül; a demonstráció helyét legalább {{ report.real_model_switch_n }} teljes esettel rendelkező valódi kategóriamodellek veszik át.</li>
             <li>A becslések asszociációk, nem bizonyítanak oksági hatást. A visszatérési szelekció és a széles intervallumok különösen fontos korlátok.</li>
         </ul>

@@ -4,7 +4,8 @@
 végső eredményfuttatás előtt
 **Rögzítés dátuma:** 2026-08-19
 **Felülvizsgálat dátuma:** 2026-08-19 — a kis minta miatt 4+4 állcsonti
-kategóriára egyszerűsítve
+kategóriára egyszerűsítve; 2026-09-06 — változás-alapú sikerességi index
+másodlagos, feltáró kimenetként rögzítve (7.3)
 **Cél:** az alsó és felső állcsont nyolc előre összevont klinikai kategóriája és az utánkövetési orális
 életminőség, rágóképesség, illetve színkeverési teljesítmény kapcsolatának
 vizsgálata kizárólag kétállcsontos (`denture_type == "both"`) betegekben,
@@ -178,6 +179,63 @@ A proporcionális odds feltételt ellenőrizni kell. Súlyos sérülése esetén
 részleges proporcionális odds modell vagy egyszerűbb ordinális/rang-alapú
 elemzés szükséges.
 
+### 7.3. Származtatott sikerességi index (másodlagos, feltáró kimenet)
+
+A három kimenetpár javulásából egyetlen, 0–100%-os skálájú változó képezhető,
+amely a prediktorelemzésekben másodlagos kimenetként használható. Az index
+**nem helyettesíti** a 7.1 szerinti, kiindulási értékre korrigált
+elsődleges modelleket.
+
+Definíció (csak teljes esetekre, imputálás nélkül):
+
+```text
+komponens_i = 100 × (mért javulás_i / legnagyobb elképzelhető javulás_i)
+sikerességi_index = (komponens_OHIP + komponens_GOHAI + komponens_MAI) / 3
+```
+
+- javulás: OHIP-5 `kiindulás − utánkövetés`; GOHAI `utánkövetés − kiindulás`;
+  MAI `kiindulás − utánkövetés`;
+- 100% = mindhárom komponens a legnagyobb elképzelhető javulást érte el;
+  0% = nettó változatlan; negatív = nettó romlás;
+- a komponensek egyenlő súlyúak: a nyers pontok összegét nem osztjuk a
+  maximumok összegével, mert az a mértékegység szerint súlyozna.
+
+Nevezők — **rögzített, nem a mintából származó** értékek:
+
+| Komponens | Nevező | Forrás |
+|---|---:|---|
+| OHIP-5 | 20 pont | skálaterjedelem 0–20 |
+| GOHAI | 48 pont | skálaterjedelem 12–60 |
+| MAI hue-degree | `PREDICT_MAI_REF` (alap: 80) | előre rögzített referencia |
+
+A MAI hue-degree cirkuláris szórás, amelynek nincs elméleti maximuma, ezért a
+„legnagyobb elképzelhető javulás” nem vezethető le a skálából. A referencia a
+keveretlen minta (régi fogsorral mért legrosszabb kiindulási szint, ≈80°)
+és a tökéletes keverés (0°) közötti távolság. A végső futtatás előtt ezt az
+értéket rögzíteni kell, ideálisan egy keveretlen kontrollminta mért
+hue-degree értékével; a QA jelzi, ha egy mért `|ΔMAI|` meghaladja.
+
+Érzékenységi változat: komponensenként a **legnagyobb mért javulás** a
+nevező. Ez mintafüggő — egyetlen új beteg átskálázza a többiek értékét, és a
+futtatások nem hasonlíthatók össze —, ezért csak érzékenységi elemzésként,
+az elsődleges változat mellett közölhető.
+
+Modell és értelmezési korlátok:
+
+- prediktormodell: `sikerességi_index ~ category`, kiindulási korrekció
+  nélkül (a kiindulási értékek a nevezőben szerepelnek); a Bayes-i feltáró
+  szkriptben ugyanez a rács, mint az állapot-alapú siker-indexnél;
+- az index padlóhatás alatt áll: alacsony kiindulási teher (pl. OHIP-5 0–1)
+  mellett a beteg jó végállapot ellenére sem érhet el magas értéket;
+- a komponensek eltérő mértékben szóródnak (a MAI-komponens dominálhat),
+  ezért a komponens-szórásokat és varianciahányadokat közölni kell;
+- az állapot-alapú siker-index (utánkövetési értékek z-átlaga) és a
+  változás-alapú sikerességi index eltérő konstrukció; rangsoruk eltérhet.
+
+Implementáció: `longitudinal_analysis.add_success_index` (webes riport,
+`success_index`), illetve `predict_bayes_feltaro.R` (`v_INDEX`, rögzített
+nevező; `v_INDEX_obs`, mintafüggő nevező).
+
 ## 8. Korrekciós változók és modellkomplexitás
 
 - Kis mintás modell: kiindulási kimenet + egy állcsonti kategória.
@@ -209,6 +267,9 @@ elemzés szükséges.
 2. Elsődleges kimenet: kiindulási értékre korrigált utánkövetési OHIP-5.
 3. Másodlagos kimenetek: GOHAI és MAI.
 4. Anchor-elemzések: külső, beteg által jelzett változásvizsgálat.
+5. Származtatott sikerességi index (7.3): másodlagos, feltáró kimenet,
+   rögzített nevezőkkel; a mintafüggő nevezőjű változat csak érzékenységi
+   elemzés.
 
 A nyolc kategória p-értékei kimenetenként Benjamini–Hochberg
 FDR-korrekciót kapnak. A hangsúly a hatásbecslésen és a 95%-os intervallumon,
@@ -273,6 +334,9 @@ Minden fő eredmény mellett szerepeljen:
 - [ ] Nem készült összesített anatómiai score, és a nyolc kategória nem került egyszerre egy modellbe.
 - [ ] Az elsődleges kimenet a kiindulási értékre korrigált utánkövetési OHIP-5.
 - [ ] Az elemzés nem használ adatvezérelt dichotomizálást.
+- [ ] A sikerességi index nevezői rögzítettek (20 / 48 / `PREDICT_MAI_REF`), a
+      MAI-referencia a végső futtatás előtt dokumentáltan rögzítve; a
+      mintafüggő nevezőjű változat csak érzékenységi elemzésként szerepel.
 - [ ] A modellkomplexitás megfelel a teljes esetszámnak.
 - [ ] A visszatérők és nem visszatérők összehasonlítása elkészült.
 - [ ] Minden eredmény mellett szerepel intervallum és korlátozás.

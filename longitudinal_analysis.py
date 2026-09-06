@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import os
 import warnings
 
 import numpy as np
@@ -69,6 +70,28 @@ OUTCOMES = [
 ANCHORS = [
     ("oral_anchor", "Szájüregi egészség változása", "OHIP-5 és GOHAI anchor"),
     ("chewing_anchor", "Rágóképesség változása", "MAI anchor"),
+]
+
+# Változás-alapú sikerességi index (másodlagos, feltáró kimenet): a három
+# kimenetpár javulásának egyenlő súlyú átlaga, komponensenként a legnagyobb
+# ELKÉPZELHETŐ javulással osztva. 100% = minden komponens a maximális
+# elképzelhető javulást érte el, 0% = nettó változatlan, negatív = nettó
+# romlás. A nevezők rögzítettek (nem a mintából származnak): OHIP-5 20 pont,
+# GOHAI 48 pont; a MAI hue-degree-nek nincs elméleti maximuma, ezért előre
+# rögzített referencia (PREDICT_MAI_REF, alap 80 hue-degree).
+SUCCESS_INDEX_OHIP_RANGE = 20.0
+SUCCESS_INDEX_GOHAI_RANGE = 48.0
+SUCCESS_INDEX_MAI_REFERENCE_DEFAULT = 80.0
+SUCCESS_INDEX_OUTCOME = (
+    "success_index",
+    None,
+    "Sikerességi index (Δ, %)",
+    "−100–100%; magasabb = nagyobb javulás; 100% = minden komponens a legnagyobb elképzelhető javulást érte el",
+)
+SUCCESS_INDEX_COMPONENTS = [
+    ("success_index_ohip", "OHIP-5", "kiindulás − utánkövetés", SUCCESS_INDEX_OHIP_RANGE, "skálaterjedelem 0–20"),
+    ("success_index_gohai", "GOHAI", "utánkövetés − kiindulás", SUCCESS_INDEX_GOHAI_RANGE, "skálaterjedelem 12–60"),
+    ("success_index_mai", "MAI hue-degree", "kiindulás − utánkövetés", None, "előre rögzített referencia (PREDICT_MAI_REF); a MAI-nak nincs elméleti maximuma"),
 ]
 
 
@@ -163,7 +186,83 @@ def prepare_analysis_frame(frame):
     df["flabby_ridge_risk"] = df["f5"].map({1: 0.0, 2: 1.0, 3: 1.0})
     df["palatal_torus_risk"] = df["f7"].map({1: 0.0, 2: 1.0, 3: 1.0})
     df["gag_reflex_risk"] = df["f9"].map({1: 0.0, 2: 0.0, 3: 1.0})
+    return add_success_index(df)
+
+
+def mai_reference_delta(value=None):
+    """Fixed reference improvement of the MAI component in hue-degree."""
+    if value is None:
+        value = os.environ.get("PREDICT_MAI_REF", SUCCESS_INDEX_MAI_REFERENCE_DEFAULT)
+    try:
+        reference = float(value)
+    except (TypeError, ValueError):
+        raise ValueError("PREDICT_MAI_REF: pozitív számot vár (hue-degree).") from None
+    if not math.isfinite(reference) or reference <= 0:
+        raise ValueError("PREDICT_MAI_REF: pozitív számot vár (hue-degree).")
+    return reference
+
+
+def add_success_index(df, mai_reference=None):
+    """Add the change-based success index (percent) and its three components.
+
+    Each component is 100 × (realised improvement / maximum conceivable
+    improvement); the index is the equal-weight mean of the three. It is only
+    defined for complete cases (all three baseline–follow-up pairs); any
+    missing pair leaves the index missing, nothing is imputed.
+    """
+    reference = mai_reference_delta(mai_reference)
+    numeric = {
+        column: pd.to_numeric(df[column], errors="coerce")
+        for column in ("ohip_baseline", "ohip_followup", "gohai_baseline", "gohai_followup", "mai_baseline", "mai_followup")
+    }
+    df["success_index_ohip"] = 100.0 * (numeric["ohip_baseline"] - numeric["ohip_followup"]) / SUCCESS_INDEX_OHIP_RANGE
+    df["success_index_gohai"] = 100.0 * (numeric["gohai_followup"] - numeric["gohai_baseline"]) / SUCCESS_INDEX_GOHAI_RANGE
+    df["success_index_mai"] = 100.0 * (numeric["mai_baseline"] - numeric["mai_followup"]) / reference
+    df["success_index"] = (df["success_index_ohip"] + df["success_index_gohai"] + df["success_index_mai"]) / 3.0
     return df
+
+
+def success_index_summary(df, mai_reference=None):
+    """Identifier-free description of the success index and its components."""
+    reference = mai_reference_delta(mai_reference)
+    values = pd.to_numeric(df["success_index"], errors="coerce").dropna()
+    complete = df.loc[values.index]
+    components = []
+    for key, label, definition, denominator, note in SUCCESS_INDEX_COMPONENTS:
+        series = pd.to_numeric(complete[key], errors="coerce").dropna()
+        components.append(
+            {
+                "key": key,
+                "label": label,
+                "definition": definition,
+                "denominator": float(denominator if denominator is not None else reference),
+                "note": note,
+                "mean": float(series.mean()) if len(series) else None,
+                "sd": float(series.std(ddof=1)) if len(series) > 1 else None,
+                "min": float(series.min()) if len(series) else None,
+                "max": float(series.max()) if len(series) else None,
+            }
+        )
+    mai_change = (
+        pd.to_numeric(df["mai_baseline"], errors="coerce") - pd.to_numeric(df["mai_followup"], errors="coerce")
+    ).abs().dropna()
+    summary = {
+        "n": int(len(values)),
+        "definition": (
+            "A három kimenetpár (OHIP-5, GOHAI, MAI) javulásának egyenlő súlyú átlaga, komponensenként a legnagyobb "
+            "elképzelhető javulással osztva. 100% = minden komponens a maximális elképzelhető javulást érte el; "
+            "0% = nettó változatlan; negatív = nettó romlás. Csak teljes esetekre számítható."
+        ),
+        "mai_reference": reference,
+        "max_abs_mai_change": float(mai_change.max()) if len(mai_change) else None,
+        "mai_reference_exceeded": bool(len(mai_change) and float(mai_change.max()) > reference),
+        "components": components,
+        "index_sd": float(values.std(ddof=1)) if len(values) > 1 else None,
+        "index_min": float(values.min()) if len(values) else None,
+        "index_max": float(values.max()) if len(values) else None,
+    }
+    summary.update(_series_summary(values, "index"))
+    return summary
 
 
 def build_longitudinal_report(connection):
@@ -171,6 +270,7 @@ def build_longitudinal_report(connection):
     report = {
         "cohort": cohort_summary(df),
         "descriptive": descriptive_summary(df),
+        "success_index": success_index_summary(df),
         "anchor_distributions": anchor_distributions(df),
         "continuous_models": [],
         "ordinal_models": [],
@@ -181,8 +281,9 @@ def build_longitudinal_report(connection):
         "minimum_model_n": MIN_MODEL_N,
         "real_model_switch_n": REAL_MODEL_SWITCH_N,
     }
+    continuous_outcomes = OUTCOMES + [SUCCESS_INDEX_OUTCOME]
 
-    for outcome, baseline, outcome_label, scale_note in OUTCOMES:
+    for outcome, baseline, outcome_label, scale_note in continuous_outcomes:
         for predictor, predictor_label, predictor_scale in PREDICTORS:
             report["continuous_models"].append(
                 fit_continuous_model(
@@ -230,7 +331,7 @@ def build_longitudinal_report(connection):
         simulated = simulate_followup_frame(df, n=SIMULATION_N, seed=SIMULATION_SEED)
         simulated_continuous = []
         simulated_ordinal = []
-        for outcome, baseline, outcome_label, scale_note in OUTCOMES:
+        for outcome, baseline, outcome_label, scale_note in continuous_outcomes:
             for predictor, predictor_label, predictor_scale in PREDICTORS:
                 simulated_continuous.append(
                     fit_continuous_model(
@@ -329,7 +430,7 @@ def simulate_followup_frame(real_df, n=SIMULATION_N, seed=SIMULATION_SEED):
     chewing_latent = 4.0 - 0.15 * risk_sum + rng.logistic(0, 1, n)
     sampled["oral_anchor"] = np.digitize(oral_latent, [1.5, 2.5, 3.5, 4.5]) + 1
     sampled["chewing_anchor"] = np.digitize(chewing_latent, [1.5, 2.5, 3.5, 4.5]) + 1
-    return sampled
+    return add_success_index(sampled)
 
 
 def build_visualizations(real_df, report):
@@ -458,8 +559,13 @@ def _paired_outcomes_chart(real_df):
 
 
 def _beta_forest_chart(rows, source):
-    outcome_order = [("ohip_followup", "OHIP-5"), ("gohai_followup", "GOHAI"), ("mai_followup", "MAI hue-degree")]
-    fig = make_subplots(rows=3, cols=1, subplot_titles=[label for _, label in outcome_order], vertical_spacing=0.09)
+    outcome_order = [
+        ("ohip_followup", "OHIP-5"),
+        ("gohai_followup", "GOHAI"),
+        ("mai_followup", "MAI hue-degree"),
+        ("success_index", "Sikerességi index (Δ, %; nem korrigált)"),
+    ]
+    fig = make_subplots(rows=len(outcome_order), cols=1, subplot_titles=[label for _, label in outcome_order], vertical_spacing=0.07)
     for panel, (outcome, _) in enumerate(outcome_order, 1):
         selected = [row for row in rows if row["outcome"] == outcome and row.get("status") == "ok"]
         selected = list(reversed(selected))
@@ -495,8 +601,8 @@ def _beta_forest_chart(rows, source):
         fig.update_xaxes(title_text="β és 95%-os CI", row=panel, col=1)
     source_label = "SZIMULÁLT DEMONSTRÁCIÓ" if source == "simulated" else "VALÓDI ADAT"
     fig.update_layout(
-        title=f"{source_label} · Korrigált folytonos regressziós hatások",
-        height=980,
+        title=f"{source_label} · Folytonos regressziós hatások (OHIP/GOHAI/MAI kiindulásra korrigálva; sikerességi index korrigálatlan)",
+        height=1280,
         margin=dict(l=285, r=35, t=75, b=45),
     )
     return _chart_html(fig)
@@ -620,7 +726,8 @@ def fit_continuous_model(
     predictor_label,
     predictor_scale,
 ):
-    model_df = df[[outcome, baseline, predictor]].dropna()
+    regressors = [predictor] if baseline is None else [baseline, predictor]
+    model_df = df[[outcome, *regressors]].dropna()
     result = _model_row(
         kind="continuous",
         outcome=outcome,
@@ -631,13 +738,15 @@ def fit_continuous_model(
         n=len(model_df),
     )
     result["scale_note"] = scale_note
-    result["adjustment"] = f"{baseline}"
+    result["adjustment"] = (
+        "nincs (változás-alapú index; a kiindulási értékek a nevezőben szerepelnek)" if baseline is None else f"{baseline}"
+    )
     issue = _model_eligibility_issue(model_df, predictor)
     if issue:
         result.update(status="insufficient", message=issue)
         return result
     try:
-        design = sm.add_constant(model_df[[baseline, predictor]].astype(float), has_constant="add")
+        design = sm.add_constant(model_df[regressors].astype(float), has_constant="add")
         fitted = sm.OLS(model_df[outcome].astype(float), design).fit(cov_type="HC3")
         beta = float(fitted.params[predictor])
         ci_low, ci_high = [float(value) for value in fitted.conf_int().loc[predictor]]

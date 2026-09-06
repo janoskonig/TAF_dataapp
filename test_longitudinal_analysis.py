@@ -6,10 +6,14 @@ import pandas as pd
 from longitudinal_analysis import (
     PREDICTORS,
     PREDICTOR_GROUPS,
+    SUCCESS_INDEX_OUTCOME,
+    add_success_index,
     fit_continuous_model,
     fit_ordinal_model,
+    mai_reference_delta,
     prepare_analysis_frame,
     simulate_followup_frame,
+    success_index_summary,
 )
 
 
@@ -44,6 +48,74 @@ class LongitudinalModelTests(unittest.TestCase):
         predictor_keys = [key for key, _, _ in PREDICTORS]
         self.assertTrue((prepared.loc[0, predictor_keys] == 0).all())
         self.assertTrue((prepared.loc[1, predictor_keys] == 1).all())
+        # OHIP and GOHAI unchanged; MAI 30→25 (+5/80) and 40→45 (−5/80), mean of three
+        self.assertAlmostEqual(prepared.loc[0, "success_index"], 100 * (5 / 80) / 3)
+        self.assertAlmostEqual(prepared.loc[1, "success_index"], -100 * (5 / 80) / 3)
+
+    def test_success_index_uses_fixed_denominators(self):
+        frame = pd.DataFrame(
+            {
+                "ohip_baseline": [10, 4, 2, 6],
+                "ohip_followup": [5, 6, 2, np.nan],
+                "gohai_baseline": [40, 50, 30, 45],
+                "gohai_followup": [52, 47, 30, 55],
+                "mai_baseline": [60, 30, 50, 70],
+                "mai_followup": [40, 40, 50, 20],
+            }
+        )
+        indexed = add_success_index(frame, mai_reference=80)
+        # Row 0: every component is 25% of its maximum conceivable improvement.
+        self.assertAlmostEqual(indexed.loc[0, "success_index_ohip"], 25.0)
+        self.assertAlmostEqual(indexed.loc[0, "success_index_gohai"], 25.0)
+        self.assertAlmostEqual(indexed.loc[0, "success_index_mai"], 25.0)
+        self.assertAlmostEqual(indexed.loc[0, "success_index"], 25.0)
+        # Row 1: net deterioration gives a negative index.
+        self.assertLess(indexed.loc[1, "success_index"], 0)
+        # Row 2: no change at all gives exactly zero.
+        self.assertEqual(indexed.loc[2, "success_index"], 0.0)
+        # Row 3: a missing pair leaves the index missing (no imputation).
+        self.assertTrue(np.isnan(indexed.loc[3, "success_index"]))
+        # The denominators are fixed: an extra extreme patient does not rescale the others.
+        extended = pd.concat([frame, pd.DataFrame({
+            "ohip_baseline": [20], "ohip_followup": [0], "gohai_baseline": [12],
+            "gohai_followup": [60], "mai_baseline": [80], "mai_followup": [0],
+        })], ignore_index=True)
+        rescaled = add_success_index(extended, mai_reference=80)
+        self.assertAlmostEqual(rescaled.loc[0, "success_index"], 25.0)
+        self.assertAlmostEqual(rescaled.loc[4, "success_index"], 100.0)
+
+        summary = success_index_summary(indexed, mai_reference=80)
+        self.assertEqual(summary["n"], 3)
+        self.assertEqual([component["denominator"] for component in summary["components"]], [20.0, 48.0, 80.0])
+        self.assertFalse(summary["mai_reference_exceeded"])
+        self.assertTrue(success_index_summary(indexed, mai_reference=40)["mai_reference_exceeded"])
+
+    def test_mai_reference_must_be_positive(self):
+        self.assertEqual(mai_reference_delta(65), 65.0)
+        with self.assertRaises(ValueError):
+            mai_reference_delta(0)
+        with self.assertRaises(ValueError):
+            mai_reference_delta("nem szám")
+
+    def test_index_model_is_unadjusted(self):
+        rng = np.random.default_rng(20260906)
+        n = 60
+        predictor = rng.integers(0, 2, n).astype(float)
+        index = 20 - 8 * predictor + rng.normal(0, 4, n)
+        frame = pd.DataFrame({"success_index": index, "predictor": predictor})
+        result = fit_continuous_model(
+            frame,
+            outcome=SUCCESS_INDEX_OUTCOME[0],
+            baseline=SUCCESS_INDEX_OUTCOME[1],
+            outcome_label=SUCCESS_INDEX_OUTCOME[2],
+            scale_note=SUCCESS_INDEX_OUTCOME[3],
+            predictor="predictor",
+            predictor_label="teszt",
+            predictor_scale="teszt",
+        )
+        self.assertEqual(result["status"], "ok")
+        self.assertLess(result["beta"], 0)
+        self.assertTrue(result["adjustment"].startswith("nincs"))
 
     def test_models_recover_expected_direction(self):
         rng = np.random.default_rng(20260819)
@@ -125,6 +197,8 @@ class LongitudinalModelTests(unittest.TestCase):
         self.assertEqual(len(first), 100)
         self.assertTrue(first["ohip_followup"].between(0, 20).all())
         self.assertTrue(first["gohai_followup"].between(12, 60).all())
+        self.assertTrue(np.isfinite(first["success_index"]).all())
+        self.assertTrue(first["success_index"].between(-100, 100).all())
 
 
 if __name__ == "__main__":

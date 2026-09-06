@@ -36,6 +36,14 @@
 #     GOHAI, MAI, önbevallott rágóképesség, valamint ezek z-átlagából képzett
 #     siker-index); a kiindulás→utánkövetés VÁLTOZÁS másodlagos nézet, mert a
 #     kiindulási rágásteszt a régi fogpótlással készült.
+#   * SIKERESSÉGI INDEX (változás-alapú, %; másodlagos, feltáró kimenet): a
+#     három kimenetpár (OHIP-5, GOHAI, MAI) javulásának egyenlő súlyú átlaga,
+#     ahol 100% = minden komponens a legnagyobb ELKÉPZELHETŐ javulást érte el,
+#     0% = nettó változatlan, negatív = nettó romlás. Rögzített nevezők:
+#     OHIP-5 20 pont, GOHAI 48 pont, MAI MAI_REF_DELTA hue-degree (a MAI-nak
+#     nincs elméleti maximuma, ezért előre rögzített konstans). Érzékenységi
+#     változat: mintafüggő nevező (komponensenként a legnagyobb MÉRT javulás),
+#     amely minden új beteggel átskálázódik – ezért nem elsődleges.
 #   * A lemorzsolódás leírásához a szkript csak olvasásra kapcsolódik az
 #     adatbázishoz; ha az nem elérhető, ezt a blokkot kihagyja.
 #
@@ -69,6 +77,8 @@ ROOT <- get_script_dir()
 #   PREDICT_EXPERT_DB    "0" → az adatbázis szakértői tábláját nem olvassa
 #   PREDICT_INCLUDE_PI   "0" → a vizsgálatvezetői (VV-…) sorok kimaradnak a poolból
 #   PREDICT_INCLUDE_SIM  "1" → a szimulált próbasorok (form_version v1.0-SZIMULACIO) is beszámítanak
+#   PREDICT_MAI_REF      a sikerességi index MAI-komponensének rögzített referencia-javulása
+#                        hue-degree-ben (alap: 80; a végső futtatás előtt rögzítendő)
 OUT_DIR <- file.path(ROOT, "stat_output", Sys.getenv("PREDICT_OUT_SUBDIR", unset = "bayes_feltaro_R"))
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 invisible(file.remove(list.files(OUT_DIR, full.names = TRUE)))
@@ -85,6 +95,19 @@ suppressPackageStartupMessages({
 
 EXPECTED_MAIN_N <- 6L
 EXPECTED_IDS <- c(2L, 8L, 9L, 44L, 48L, 53L)
+
+# Sikerességi index – rögzített nevezők (a legnagyobb ELKÉPZELHETŐ javulás
+# komponensenként). OHIP-5: 0–20 → 20 pont; GOHAI: 12–60 → 48 pont. A MAI
+# hue-degree (cirkuláris szórás) felülről nem korlátos, elméleti maximuma
+# nincs: a referencia ezért előre rögzített konstans, amely a keveretlen
+# (régi fogsorral mért legrosszabb kiindulási, ≈80°) szintről a tökéletes
+# keverésig (0°) tartó javulást tekinti 100%-nak. Ideális rögzítés: egy
+# keveretlen kontrollminta mért hue-degree értéke. PREDICT_MAI_REF-fel
+# felülírható; a QA jelzi, ha egy mért |ΔMAI| meghaladja.
+OHIP_RANGE <- 20
+GOHAI_RANGE <- 48
+MAI_REF_DELTA <- suppressWarnings(as.numeric(Sys.getenv("PREDICT_MAI_REF", unset = "80")))
+if (!is.finite(MAI_REF_DELTA) || MAI_REF_DELTA <= 0) stop("PREDICT_MAI_REF: pozitív számot vár (hue-degree).")
 
 # -----------------------------------------------------------------------------
 # 0. Vizuális rendszer (validált, színtévesztés-biztos alappaletta)
@@ -171,6 +194,51 @@ d6 <- raw6 |>
 z <- function(x) (x - mean(x)) / sd(x)
 d6$s_INDEX <- rowMeans(cbind(z(d6$s_OHIP), z(d6$s_GOHAI), z(d6$s_MAI), z(d6$s_RAGAS)))
 
+# --- SIKERESSÉGI INDEX (változás-alapú, %) ------------------------------------
+# Komponens = 100 × (mért javulás / a legnagyobb elképzelhető javulás); az index
+# a három komponens egyenlő súlyú átlaga, így 100% = mindhárom kimenet a
+# maximális elképzelhető javulást érte el. (Nem a nyers pontok összege osztva a
+# maximumok összegével: az a mértékegység szerint súlyozna.) Csak a mindhárom
+# kimenetpárral rendelkező betegeknél számítható; a fő kohorszban mind a hatnál.
+#   (a) v_INDEX     – rögzített nevező: 20 / 48 / MAI_REF_DELTA  → ELSŐDLEGES;
+#   (b) v_INDEX_obs – mintafüggő nevező: a legnagyobb MÉRT javulás komponensenként
+#                     → ÉRZÉKENYSÉGI változat (minden új beteggel átskálázódik).
+max_improvement <- function(v) {
+  v <- v[is.finite(v)]
+  if (!length(v) || max(v) <= 0) return(NA_real_)
+  max(v)
+}
+index_denominators <- tibble(
+  komponens = c("OHIP-5", "GOHAI", "MAI hue-degree"),
+  javulas_definicio = c("kiindulás − utánkövetés", "utánkövetés − kiindulás", "kiindulás − utánkövetés"),
+  rogzitett_nevezo = c(OHIP_RANGE, GOHAI_RANGE, MAI_REF_DELTA),
+  rogzitett_indoklas = c("skálaterjedelem 0–20", "skálaterjedelem 12–60",
+                         "előre rögzített referencia (PREDICT_MAI_REF); a MAI-nak nincs elméleti maximuma"),
+  mintamax_nevezo = c(max_improvement(d6$v_OHIP), max_improvement(d6$v_GOHAI), max_improvement(d6$v_MAI)),
+  legnagyobb_mert_javulas = c(max(d6$v_OHIP), max(d6$v_GOHAI), max(d6$v_MAI)),
+  legnagyobb_mert_romlas = c(-min(d6$v_OHIP), -min(d6$v_GOHAI), -min(d6$v_MAI))
+)
+d6 <- d6 |>
+  mutate(
+    c_OHIP = 100 * v_OHIP / OHIP_RANGE,
+    c_GOHAI = 100 * v_GOHAI / GOHAI_RANGE,
+    c_MAI = 100 * v_MAI / MAI_REF_DELTA,
+    v_INDEX = (c_OHIP + c_GOHAI + c_MAI) / 3,
+    co_OHIP = 100 * v_OHIP / index_denominators$mintamax_nevezo[1],
+    co_GOHAI = 100 * v_GOHAI / index_denominators$mintamax_nevezo[2],
+    co_MAI = 100 * v_MAI / index_denominators$mintamax_nevezo[3],
+    v_INDEX_obs = (co_OHIP + co_GOHAI + co_MAI) / 3
+  )
+# Mintafüggőség szemléltetése: egy-egy beteg elhagyásakor mennyit mozdul a
+# TÖBBIEK mintamaximumos indexértéke (a rögzített nevezőjű változatnál 0).
+loo_shift_obs <- vapply(seq_len(nrow(d6)), function(i) {
+  dd <- d6[-i, ]
+  den <- c(max_improvement(dd$v_OHIP), max_improvement(dd$v_GOHAI), max_improvement(dd$v_MAI))
+  if (any(!is.finite(den)) || any(!is.finite(dd$v_INDEX_obs))) return(NA_real_)
+  alt <- 100 * (dd$v_OHIP / den[1] + dd$v_GOHAI / den[2] + dd$v_MAI / den[3]) / 3
+  max(abs(alt - dd$v_INDEX_obs))
+}, numeric(1))
+
 # Kockázatirányított anatómia (nagyobb = az elődök szerint kedvezőtlenebb);
 # az irány nélküli tételek nyers kóddal, „irány-semleges” jelöléssel.
 a1_sat <- c(`1` = 0, `2` = 0.35, `3` = 0.70, `4` = 0.95, `5` = 1)
@@ -234,6 +302,8 @@ outcomes <- tribble(
   "s_OHIP",  "s_OHIP",  "OHIP-5 az utánkövetéskor (↓ jobb)",       "Állapot az új fogsorral", "OHIP-5",
   "s_MAI",   "s_MAI",   "MAI az utánkövetéskor (↓ jobb)",          "Állapot az új fogsorral", "MAI",
   "s_RAGAS", "s_RAGAS", "Önbevallott rágóképesség a fogsorral",   "Állapot az új fogsorral", "Önbev. rágás",
+  "v_INDEX", "v_INDEX", "Sikerességi index (Δ, rögzített nevező, %)", "Változás (kiindulás → utánkövetés)", "Sik.-index Δ",
+  "v_INDEX_obs", "v_INDEX_obs", "Sikerességi index (Δ, mintamax. nevező, %)", "Változás (kiindulás → utánkövetés)", "Sik.-idx Δ mmax",
   "v_GOHAI", "v_GOHAI", "GOHAI-javulás",                            "Változás (kiindulás → utánkövetés)", "ΔGOHAI",
   "v_OHIP",  "v_OHIP",  "OHIP-5-javulás",                           "Változás (kiindulás → utánkövetés)", "ΔOHIP-5",
   "v_MAI",   "v_MAI",   "MAI-javulás",                              "Változás (kiindulás → utánkövetés)", "ΔMAI",
@@ -250,6 +320,8 @@ patient_table <- d6 |>
     MAI_init = round(MAI_huedegree_init, 1), MAI_fu = round(MAI_huedegree_followup, 1),
     ragas_init = chewing_today_init, ragas_fu = chewing_today_followup, GRC_ragas = chewing_change,
     siker_index = round(s_INDEX, 2),
+    sikeressegi_index = round(v_INDEX, 1),
+    sikeressegi_index_mintamax = round(v_INDEX_obs, 1),
     F1, F2, F2_L3 = signif(F2_standardizalt, 3), F3, F4, F5, F6, F7, F8,
     A1_Kaan, A2_atlag, A3, A4, A5, tuberculum_score, A10, A11, A12
   )
@@ -491,6 +563,50 @@ assoc <- bind_rows(lapply(seq_len(nrow(grid_rows)), function(i) {
 }))
 write_csv_utf8(assoc, "04_spearman_irany_egyezes.csv")
 
+# --- Sikerességi index: komponensek, nevezők, komponens-dominancia -----------
+index_components <- d6 |>
+  transmute(
+    study_id,
+    d_OHIP = v_OHIP, d_GOHAI = v_GOHAI, d_MAI = round(v_MAI, 1),
+    OHIP_pct = c_OHIP, GOHAI_pct = c_GOHAI, MAI_pct = c_MAI, sikeressegi_index = v_INDEX,
+    OHIP_pct_mintamax = co_OHIP, GOHAI_pct_mintamax = co_GOHAI, MAI_pct_mintamax = co_MAI,
+    sikeressegi_index_mintamax = v_INDEX_obs,
+    siker_index_allapot = s_INDEX
+  ) |>
+  arrange(desc(sikeressegi_index))
+write_csv_utf8(index_components, "03b_sikeressegi_index_komponensek.csv")
+
+# Melyik komponens hajtja az indexet? Szórás, kovariancia-alapú varianciahányad
+# (rowSums(cov) / sum(cov); negatív = az index szórását csökkenti) és a
+# komponens–index rangkorreláció.
+component_dominance <- function(m, valtozat) {
+  m <- as.matrix(m)
+  if (!all(is.finite(m))) return(NULL)
+  idx <- rowMeans(m); cv <- cov(m)
+  tibble(valtozat = valtozat, komponens = colnames(m),
+         szoras_pct = apply(m, 2, sd),
+         variancia_hanyad = rowSums(cv) / sum(cv),
+         spearman_index = apply(m, 2, function(x) safe_cor(x, idx)),
+         min_pct = apply(m, 2, min), max_pct = apply(m, 2, max))
+}
+index_dominance <- bind_rows(
+  component_dominance(setNames(d6[, c("c_OHIP", "c_GOHAI", "c_MAI")], c("OHIP-5", "GOHAI", "MAI")),
+                      "rögzített nevező (20 / 48 / MAI_REF)"),
+  component_dominance(setNames(d6[, c("co_OHIP", "co_GOHAI", "co_MAI")], c("OHIP-5", "GOHAI", "MAI")),
+                      "mintafüggő nevező (legnagyobb mért javulás)")
+)
+index_definition <- index_denominators |>
+  mutate(
+    rho_rogzitett_vs_mintamax = safe_cor(d6$v_INDEX, d6$v_INDEX_obs),
+    rho_rogzitett_vs_allapot_index = safe_cor(d6$v_INDEX, d6$s_INDEX),
+    rho_mintamax_vs_allapot_index = safe_cor(d6$v_INDEX_obs, d6$s_INDEX),
+    loo_max_elmozdulas_mintamax = suppressWarnings(max(loo_shift_obs, na.rm = TRUE)),
+    loo_max_elmozdulas_rogzitett = 0,
+    index_min = min(d6$v_INDEX), index_median = median(d6$v_INDEX), index_max = max(d6$v_INDEX)
+  )
+write_csv_utf8(index_definition, "03c_sikeressegi_index_definicio.csv")
+write_csv_utf8(index_dominance, "03d_sikeressegi_index_komponens_dominancia.csv")
+
 # -----------------------------------------------------------------------------
 # 5. Bayes-i rács: likelihood, priorok (semleges / elődök–szakértői), posterior
 # -----------------------------------------------------------------------------
@@ -687,7 +803,7 @@ write_csv_utf8(bayes, "06_bayes_posterior_osszes.csv")
 N_GRID <- c(6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200, 300, 500)
 n_needed <- bind_rows(lapply(seq_len(nrow(bayes)), function(i) {
   b <- bayes[i, ]
-  if (!b$irany_van || !is.finite(b$r_ns) || !(b$blokk == "Állapot az új fogsorral")) return(NULL)
+  if (!b$irany_van || !is.finite(b$r_ns) || !(b$blokk == "Állapot az új fogsorral" || b$out == "v_INDEX")) return(NULL)
   pr <- expert_pool[[b$pred]]$prior
   curve <- vapply(N_GRID, function(n) {
     ll <- log_lik_beta(b$r_ns, n); lik <- normalize(exp(ll - max(ll)))
@@ -818,10 +934,11 @@ out_df <- bind_rows(
   d6 |> transmute(study_id, kimenet = "GOHAI (↑ jobb)", ertek = GOHAI_sum_followup, z = z(s_GOHAI), szoveg = as.character(GOHAI_sum_followup)),
   d6 |> transmute(study_id, kimenet = "MAI (↓ jobb)", ertek = MAI_huedegree_followup, z = z(s_MAI), szoveg = label_pt(MAI_huedegree_followup, 0)),
   d6 |> transmute(study_id, kimenet = "Önbev. rágás", ertek = ragas_fu, z = z(s_RAGAS), szoveg = chewing_today_followup),
-  d6 |> transmute(study_id, kimenet = "Siker-index", ertek = s_INDEX, z = s_INDEX / sd(s_INDEX), szoveg = label_pt(s_INDEX, 2))
+  d6 |> transmute(study_id, kimenet = "Siker-index", ertek = s_INDEX, z = s_INDEX / sd(s_INDEX), szoveg = label_pt(s_INDEX, 2)),
+  d6 |> transmute(study_id, kimenet = "Sikerességi index (Δ, %)", ertek = v_INDEX, z = z(v_INDEX), szoveg = paste0(label_pt(v_INDEX, 0), "%"))
 ) |>
   mutate(study_id = factor(study_id, levels = order_ids),
-         kimenet = factor(kimenet, levels = rev(c("OHIP-5 (↓ jobb)", "GOHAI (↑ jobb)", "MAI (↓ jobb)", "Önbev. rágás", "Siker-index"))))
+         kimenet = factor(kimenet, levels = rev(c("OHIP-5 (↓ jobb)", "GOHAI (↑ jobb)", "MAI (↓ jobb)", "Önbev. rágás", "Siker-index", "Sikerességi index (Δ, %)"))))
 p3a <- ggplot(map_df, aes(x = study_id, y = tetel, fill = kockazat)) +
   geom_tile(colour = PAL$surface, linewidth = 1.2) +
   geom_text(aes(label = szoveg, colour = kockazat > 0.6), size = 2.7) +
@@ -838,7 +955,7 @@ p3b <- ggplot(out_df, aes(x = study_id, y = kimenet, fill = z)) +
   geom_text(aes(label = szoveg, colour = z > 0.8), size = 2.7) +
   scale_fill_gradientn(colours = SEQ_ORANGE[1:6], name = "Siker (z-pont;\nsötétebb = jobb)") +
   scale_colour_manual(values = c(`TRUE` = "white", `FALSE` = PAL$ink), guide = "none") +
-  labs(x = NULL, y = NULL, subtitle = "Állapot az új fogsorral (utánkövetés)") +
+  labs(x = NULL, y = NULL, subtitle = "Állapot az új fogsorral (utánkövetés) és a változás-alapú sikerességi index") +
   theme_predict(10.5) + theme(panel.grid = element_blank(), axis.text.x = element_blank())
 p3c <- ggplot(d6, aes(x = anat_index, y = s_INDEX)) +
   geom_hline(yintercept = 0, colour = PAL$axis, linewidth = 0.5) +
@@ -849,7 +966,7 @@ p3c <- ggplot(d6, aes(x = anat_index, y = s_INDEX)) +
        subtitle = paste0("Spearman-ρ = ", fmt(safe_cor(d6$anat_index, d6$s_INDEX)), " (n = 6)"),
        x = "Anatómiai kedvezőtlenség-index (a 13 irányított tétel átlaga, 0–1)", y = "Siker-index (↑ jobb)") +
   theme_predict(10.5)
-p3 <- (p3a / p3b + plot_layout(heights = c(13, 5))) | p3c + plot_layout(widths = c(2.1, 1))
+p3 <- (p3a / p3b + plot_layout(heights = c(13, 6))) | p3c + plot_layout(widths = c(2.1, 1))
 save_png("abra_03_anatomiai_terkep_es_siker.png", p3, 16, 10.5)
 
 ## 6.4 Irány-egyezés hőtérkép -------------------------------------------------
@@ -876,7 +993,7 @@ p4 <- ggplot(hm, aes(x = out_rovid, y = pred_rovid, fill = rho)) +
        x = NULL, y = NULL,
        caption = "Az „irány nélküli” tételeknél ρ a nyers kódra vonatkozik (nagyobb nyers érték – rosszabb kimenet), ✓/✗ nélkül. A változás-blokkban a kiindulási MAI a régi fogpótlással készült.") +
   theme_predict(10.5) + theme(panel.grid = element_blank(), strip.text.y = element_text(angle = 0), axis.text.y = element_text(size = 8.6))
-save_png("abra_04_irany_egyezes_hoterkep.png", p4, 14, 10)
+save_png("abra_04_irany_egyezes_hoterkep.png", p4, 15.5, 10)
 
 ## 6.5 Prior → adat → posterior ----------------------------------------------
 prior_data_post_plot <- function(bdf, title, subtitle, facet = FALSE) {
@@ -991,6 +1108,61 @@ p9 <- ggplot(cont_df, aes(x = x, y = y)) +  # (ρ a fejlécben)
   theme_predict(10.5) + theme(strip.text = element_text(size = 8, lineheight = 0.95))
 save_png("abra_09_folytonos_morfometria_sikerindex.png", p9, 14, 10)
 
+## 6.8b Sikerességi index: komponensek, két nevező, állapot vs. változás -------
+idx_order <- d6$study_id[order(-d6$v_INDEX)]
+idx_long <- d6 |>
+  select(study_id, `OHIP-5` = c_OHIP, GOHAI = c_GOHAI, MAI = c_MAI) |>
+  pivot_longer(-study_id, names_to = "komponens", values_to = "pct") |>
+  mutate(hozzajarulas = pct / 3,                       # a három komponens/3 összege = az index
+         komponens = factor(komponens, levels = c("OHIP-5", "GOHAI", "MAI")),
+         study_id = factor(study_id, levels = idx_order))
+idx_pts <- d6 |> transmute(study_id = factor(study_id, levels = idx_order), v_INDEX)
+p12a <- ggplot(idx_long, aes(x = study_id, y = hozzajarulas, fill = komponens)) +
+  geom_hline(yintercept = 0, colour = PAL$axis, linewidth = 0.5) +
+  geom_col(width = 0.66, colour = PAL$surface, linewidth = 0.4) +
+  geom_point(data = idx_pts, aes(x = study_id, y = v_INDEX), inherit.aes = FALSE, shape = 23, size = 3.2, fill = PAL$ink, colour = PAL$surface) +
+  geom_text(data = idx_pts, aes(x = study_id, y = v_INDEX, label = paste0(label_pt(v_INDEX, 0), "%")), inherit.aes = FALSE,
+            vjust = -1.1, size = 2.9, colour = PAL$ink) +
+  scale_fill_manual(values = c(PAL$blue, PAL$aqua, PAL$orange), name = "Komponens\n(javulás / legnagyobb\nelképzelhető javulás) ÷ 3") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = expansion(mult = c(0.12, 0.2))) +
+  labs(title = "Sikerességi index (változás-alapú, rögzített nevező)",
+       subtitle = paste0("Rombusz = az index (a három oszlopszelet összege). Nevezők: OHIP-5 ", OHIP_RANGE, " · GOHAI ", GOHAI_RANGE, " · MAI ", label_pt(MAI_REF_DELTA, 0), " hue-degree."),
+       x = NULL, y = "Hozzájárulás az indexhez") +
+  theme_predict(10.5) + theme(panel.grid.major.x = element_blank(), legend.position = "right")
+dom_fix <- index_dominance |> filter(grepl("^rögzített", valtozat))
+p12b <- ggplot(d6, aes(x = v_INDEX, y = v_INDEX_obs)) +
+  geom_abline(slope = 1, intercept = 0, colour = PAL$axis, linewidth = 0.5, linetype = "dashed") +
+  geom_point(colour = PAL$blue, size = 3.1) +
+  geom_text_repel(aes(label = study_id), size = 3, colour = PAL$ink2, seed = 7) +
+  labs(title = "Rögzített vs. mintafüggő nevező",
+       subtitle = paste0("Spearman-ρ = ", fmt(safe_cor(d6$v_INDEX, d6$v_INDEX_obs)),
+                         ". Egy beteg elhagyásakor a többiek mintamax.-értéke\nlegfeljebb ",
+                         fmt(suppressWarnings(max(loo_shift_obs, na.rm = TRUE)), 1), " ponttal mozdul (rögzített nevezőnél 0)."),
+       x = "Rögzített nevező (%)", y = "Mintafüggő nevező: legnagyobb mért javulás (%)") +
+  theme_predict(10.5)
+p12c <- ggplot(d6, aes(x = s_INDEX, y = v_INDEX)) +
+  geom_hline(yintercept = 0, colour = PAL$axis, linewidth = 0.5) +
+  geom_point(colour = PAL$orange, size = 3.1) +
+  geom_text_repel(aes(label = study_id), size = 3, colour = PAL$ink2, seed = 7) +
+  labs(title = "Állapot-alapú siker-index vs. változás-alapú sikerességi index",
+       subtitle = paste0("Spearman-ρ = ", fmt(safe_cor(d6$s_INDEX, d6$v_INDEX)),
+                         ". Alacsony kiindulási teher mellett (pl. OHIP-5 0–1)\na változás-alapú index padlóhatás miatt nem tud magas lenni."),
+       x = "Siker-index (állapot az új fogsorral; z-átlag, ↑ jobb)", y = "Sikerességi index (Δ, %)") +
+  theme_predict(10.5)
+p12 <- p12a / (p12b | p12c) + plot_layout(heights = c(1.15, 1)) +
+  plot_annotation(
+    caption = paste0("Komponens-szórás (rögzített nevező): ", paste0(dom_fix$komponens, " ", label_pt(dom_fix$szoras_pct, 1), " pont", collapse = " · "),
+                     ". A mintafüggő változatban a nevező a legnagyobb mért javulás (OHIP-5 ", label_pt(index_denominators$mintamax_nevezo[1], 0),
+                     " · GOHAI ", label_pt(index_denominators$mintamax_nevezo[2], 0), " · MAI ", label_pt(index_denominators$mintamax_nevezo[3], 1), "), ezért egyetlen beteg átskálázza a többiekét."),
+    theme = theme_predict(10.5))
+save_png("abra_12_sikeressegi_index.png", p12, 15, 11)
+
+b_vindex <- bayes |> filter(irany_van, out == "v_INDEX")
+p13 <- prior_data_post_plot(b_vindex,
+  "Mennyit mozdít hat beteg adata az elődök meggyőződésén? (változás-alapú sikerességi index)",
+  "Ugyanaz a rács, mint a siker-indexnél, de a kimenet a kiindulás → utánkövetés javulásból képzett sikerességi index (rögzített nevező).")
+save_png("abra_13_prior_adat_posterior_sikeressegi_index.png", p13, 12.5, 8.5)
+
 ## 6.9 Szakértői priorok tételenként: egyéni, egyesített, posterior ----------
 if (!is.null(consensus) && any(consensus$n_szakerto > 0)) {
   beta_idx <- seq(1, length(BETA), by = 8)
@@ -1067,16 +1239,21 @@ if (!is.null(consensus) && any(consensus$n_szakerto > 0)) {
 # -----------------------------------------------------------------------------
 qa <- tibble(
   ellenorzes = c("Fő kohorsz elemszáma", "Betegazonosítók = a hat teljes eset", "OHIP tartomány 0–20", "GOHAI tartomány 12–60", "MAI ≥ 0",
-                 "Siker-index számítható", "Szakértői prior-CSV", "Adatbázis-blokk", "Kor a hat esetnél"),
+                 "Siker-index számítható", "Sikerességi index (Δ) számítható", "MAI-referencia ≥ legnagyobb mért |ΔMAI|",
+                 "Szakértői prior-CSV", "Adatbázis-blokk", "Kor a hat esetnél"),
   statusz = c(ifelse(nrow(d6) == EXPECTED_MAIN_N, "OK", "HIBA"), ifelse(setequal(d6$patient_id, EXPECTED_IDS), "OK", "HIBA"),
               ifelse(all(c(d6$OHIP_sum_init, d6$OHIP_sum_followup) >= 0 & c(d6$OHIP_sum_init, d6$OHIP_sum_followup) <= 20), "OK", "HIBA"),
               ifelse(all(c(d6$GOHAI_sum_init, d6$GOHAI_sum_followup) >= 12 & c(d6$GOHAI_sum_init, d6$GOHAI_sum_followup) <= 60), "OK", "HIBA"),
               ifelse(all(c(d6$MAI_huedegree_init, d6$MAI_huedegree_followup) >= 0), "OK", "HIBA"),
               ifelse(all(is.finite(d6$s_INDEX)), "OK", "HIBA"),
+              ifelse(all(is.finite(d6$v_INDEX)), ifelse(all(is.finite(d6$v_INDEX_obs)), "OK", "OK (mintamax. változat nem számítható)"), "HIBA"),
+              ifelse(max(abs(d6$v_MAI)) <= MAI_REF_DELTA, "OK", "FIGYELEM: a MAI-komponens 100% fölé mehet"),
               ifelse(is.null(expert_raw), "NINCS (regiszter-alapú tankönyvi prior)", paste0("OK (", length(unique(expert_raw$szakerto_id)), " szakértő, ", nrow(expert_raw), " sor; forrás: ", paste(unique(expert_raw$forras), collapse = " + "), ")")),
               ifelse(db_ok, "OK", "KIHAGYVA"), ifelse(all(is.finite(d6$kor_ev)), "OK", "hiányzik (DB nélkül)")),
   reszlet = c(paste0(nrow(d6), " beteg"), paste(sort(d6$patient_id), collapse = ", ") |> (\(x) "P01–P06 (adatbázis-id nem kerül fájlba)")(),
               "", "", "", paste0("tartomány ", fmt(min(d6$s_INDEX)), " … ", fmt(max(d6$s_INDEX))),
+              paste0("tartomány ", fmt(min(d6$v_INDEX), 1), "% … ", fmt(max(d6$v_INDEX), 1), "%; nevezők ", OHIP_RANGE, " / ", GOHAI_RANGE, " / ", fmt(MAI_REF_DELTA, 0)),
+              paste0("MAI_REF = ", fmt(MAI_REF_DELTA, 0), " hue-degree; legnagyobb mért |ΔMAI| = ", fmt(max(abs(d6$v_MAI)), 1)),
               ifelse(is.null(expert_raw), expert_path, paste(unique(expert_raw$szakerto_id), collapse = "; ")), db_note,
               ifelse(all(is.finite(d6$kor_ev)), paste0(fmt(min(d6$kor_ev), 0), "–", fmt(max(d6$kor_ev), 0), " év"), ""))
 )
@@ -1085,6 +1262,9 @@ write_csv_utf8(qa, "08_QA_ellenorzes.csv")
 egyezes_tab <- assoc |> filter(irany_van, blokk == "Állapot az új fogsorral", is.finite(rho)) |>
   group_by(out_rovid) |> summarise(egyezik = sum(rho > 0.1), ellentmond = sum(rho < -0.1), semleges = sum(abs(rho) <= 0.1), .groups = "drop")
 top_index <- bayes |> filter(irany_van, out == "s_INDEX", is.finite(rho)) |> arrange(desc(abs(rho)))
+top_vindex <- bayes |> filter(irany_van, out == "v_INDEX", is.finite(rho)) |> arrange(desc(abs(rho)))
+dom_fix_tab <- index_dominance |> filter(grepl("^rögzített", valtozat))
+dom_obs_tab <- index_dominance |> filter(grepl("^mintafüggő", valtozat))
 
 summary_lines <- c(
   "# PREDICT – Bayes-i keretű feltáró elemzés: az elődök tapasztalata vs. hat teljes eset",
@@ -1113,11 +1293,34 @@ summary_lines <- c(
   paste0("- ", top_index$pred_rovid, ": ρ = ", fmt(top_index$rho), "; P(elődök iránya) prior ", fmt_pct(top_index$prior_P_pos),
          " → adat ", fmt_pct(top_index$adat_P_pos), " → posterior ", fmt_pct(top_index$post_P_pos), "."),
   "",
+  "## Sikerességi index (változás-alapú, %; másodlagos, feltáró kimenet)",
+  "",
+  paste0("- Definíció: a három kimenetpár javulásának egyenlő súlyú átlaga; 100% = minden komponens a legnagyobb elképzelhető javulást érte el, negatív = nettó romlás. ",
+         "Rögzített nevezők: OHIP-5 ", OHIP_RANGE, " pont, GOHAI ", GOHAI_RANGE, " pont, MAI ", fmt(MAI_REF_DELTA, 0), " hue-degree (PREDICT_MAI_REF; a MAI-nak nincs elméleti maximuma)."),
+  paste0("- Betegenként (rögzített nevező): ", paste0(index_components$study_id, " ", fmt(index_components$sikeressegi_index, 1), "%", collapse = " · "),
+         "; medián ", fmt(median(d6$v_INDEX), 1), "% (tartomány ", fmt(min(d6$v_INDEX), 1), "–", fmt(max(d6$v_INDEX), 1), "%)."),
+  paste0("- Komponens-szórás (rögzített nevező): ", paste0(dom_fix_tab$komponens, " ", fmt(dom_fix_tab$szoras_pct, 1), " pont (varianciahányad ", fmt_pct(dom_fix_tab$variancia_hanyad), ")", collapse = " · "),
+         ". Az OHIP-5 komponens padlóhatás alatt áll: a kiindulási OHIP-5 ", min(d6$OHIP_sum_init), "–", max(d6$OHIP_sum_init),
+         " pont, így a komponens legfeljebb ", fmt(100 * max(d6$OHIP_sum_init) / OHIP_RANGE, 0), "% lehetne."),
+  if (nrow(dom_obs_tab) > 0) paste0("- Mintafüggő nevező (legnagyobb mért javulás: OHIP-5 ", fmt(index_denominators$mintamax_nevezo[1], 0), " · GOHAI ", fmt(index_denominators$mintamax_nevezo[2], 0),
+         " · MAI ", fmt(index_denominators$mintamax_nevezo[3], 1), "): Spearman-ρ a rögzített változattal ", fmt(safe_cor(d6$v_INDEX, d6$v_INDEX_obs)),
+         "; egy beteg elhagyásakor a többiek értéke legfeljebb ", fmt(suppressWarnings(max(loo_shift_obs, na.rm = TRUE)), 1), " ponttal mozdul (rögzített nevezőnél 0). Komponens-szórás: ",
+         paste0(dom_obs_tab$komponens, " ", fmt(dom_obs_tab$szoras_pct, 1), collapse = " · "), ".") else "- Mintafüggő nevező: nem számítható (van olyan komponens, ahol egyetlen beteg sem javult).",
+  paste0("- Állapot-alapú siker-index ↔ változás-alapú sikerességi index: Spearman-ρ = ", fmt(safe_cor(d6$s_INDEX, d6$v_INDEX)), "."),
+  paste0("- Anatómiai kedvezőtlenség-index ↔ sikerességi index: Spearman-ρ = ", fmt(safe_cor(d6$anat_index, d6$v_INDEX)), "."),
+  "",
+  "### Sikerességi index: prior → adat → posterior (|ρ| szerint)",
+  "",
+  paste0("- ", top_vindex$pred_rovid, ": ρ = ", fmt(top_vindex$rho), "; P(elődök iránya) prior ", fmt_pct(top_vindex$prior_P_pos),
+         " → adat ", fmt_pct(top_vindex$adat_P_pos), " → posterior ", fmt_pct(top_vindex$post_P_pos), "."),
+  "",
   "## Értelmezési korlát",
   "",
   "Hat beteg, leíró rangkorrelációk és rácsalapú posteriorok teszt nélkül. A prior hatásnagyság-része",
   "helyőrző (HN 0; 0,5) a szakértői interjúkig; a posterior ezért döntően a priort tükrözi. A kiindulási",
-  "MAI a régi fogpótlással készült; szelektált recall-minta; okozati állítás nem tehető."
+  "MAI a régi fogpótlással készült; szelektált recall-minta; okozati állítás nem tehető. A változás-alapú",
+  "sikerességi index nem kiindulási értékre korrigált: alacsony kiindulási teher mellett padlóhatás miatt",
+  "nem tud magas lenni, és a MAI-komponens nevezője (elméleti maximum híján) előre rögzített konvenció."
 )
 writeLines(summary_lines, file.path(OUT_DIR, "09_osszefoglalo.md"), useBytes = TRUE)
 writeLines(capture.output(sessionInfo()), file.path(OUT_DIR, "10_sessionInfo.txt"), useBytes = TRUE)
@@ -1126,7 +1329,7 @@ if (!is.null(DB_CON)) try(DBI::dbDisconnect(DB_CON), silent = TRUE)
 cat("\n=== PREDICT Bayes-i feltáró elemzés kész ===\n")
 cat("Kimeneti könyvtár: ", OUT_DIR, " (", length(list.files(OUT_DIR)), " fájl)\n", sep = "")
 cat(db_note, "\n")
-cat("\n--- Betegszintű tábla ---\n"); print(as.data.frame(patient_table |> select(study_id, nem, kor_ev, OHIP_init, OHIP_fu, GOHAI_init, GOHAI_fu, MAI_init, MAI_fu, ragas_fu, GRC_ragas, siker_index)), row.names = FALSE)
+cat("\n--- Betegszintű tábla ---\n"); print(as.data.frame(patient_table |> select(study_id, nem, any_of("kor_ev"), OHIP_init, OHIP_fu, GOHAI_init, GOHAI_fu, MAI_init, MAI_fu, ragas_fu, GRC_ragas, siker_index, sikeressegi_index, sikeressegi_index_mintamax)), row.names = FALSE)
 if (db_ok) { cat("\n--- Tölcsér ---\n"); print(as.data.frame(funnel |> select(lepes, n)), row.names = FALSE)
   cat("\n--- Recall-státusz ---\n"); print(as.data.frame(recall_breakdown), row.names = FALSE)
   cat("\n--- Szelekció (medián: teljes 6 vs. többi) ---\n"); print(as.data.frame(comparison |> transmute(valtozo, teljes_n, teljes_median = round(teljes_median, 2), tobbi_n, tobbi_median = round(tobbi_median, 2))), row.names = FALSE)
@@ -1136,6 +1339,11 @@ print(as.data.frame(assoc |> select(pred_rovid, out_rovid, rho) |> mutate(rho = 
 if (!is.null(consensus)) { cat("\n--- Szakértői konszenzus (pool) ---\n"); print(as.data.frame(consensus |> transmute(cimke, n = n_szakerto, B = round(B_arany, 2), A = round(A_arany, 2), opt = round(optimum_arany, 2), nincs = round(nincs_arany, 2), nt = round(nem_tudom_arany, 2), p_atlag = round(p_irany_atlag, 0), diff_atlag = round(kulonbseg_atlag, 1), pool_P = round(pool_P_varhato_irany, 3), pool_med = round(pool_median, 2), q05 = round(pool_q05, 2), q95 = round(pool_q95, 2), sdP = round(egyet_nem_ertes_sd_P, 2))), row.names = FALSE) }
 cat("\n--- Bayes: siker-index ---\n")
 print(as.data.frame(bayes |> filter(out == "s_INDEX") |> transmute(pred_rovid, rho = round(rho, 2), prior = round(prior_P_pos, 3), adat = round(adat_P_pos, 3), posterior = round(post_P_pos, 3), post_median = round(post_median, 2), post_q05 = round(post_q05, 2), post_q95 = round(post_q95, 2))), row.names = FALSE)
+cat("\n--- Sikerességi index (változás-alapú): komponensek ---\n")
+print(as.data.frame(index_components |> mutate(across(where(is.double), ~ round(.x, 1)))), row.names = FALSE)
+print(as.data.frame(index_dominance |> mutate(across(where(is.double), ~ round(.x, 2)))), row.names = FALSE)
+cat("\n--- Bayes: sikerességi index (Δ, rögzített nevező) ---\n")
+print(as.data.frame(bayes |> filter(out == "v_INDEX") |> transmute(pred_rovid, rho = round(rho, 2), prior = round(prior_P_pos, 3), adat = round(adat_P_pos, 3), posterior = round(post_P_pos, 3), post_median = round(post_median, 2), post_q05 = round(post_q05, 2), post_q95 = round(post_q95, 2))), row.names = FALSE)
 cat("\n--- Hány beteg kellene? (siker-index) ---\n")
 print(as.data.frame(n_needed_summary |> filter(out == "s_INDEX") |> transmute(pred_rovid, r = round(r_ns, 2), adat_iranya, P_n6 = round(P_expert_n6, 2), P_n30 = round(P_expert_n30, 2), P_n100 = round(P_expert_n100, 2), n_atbillenes_expert, n_95pct_semleges)), row.names = FALSE)
 cat("\n--- QA ---\n"); print(as.data.frame(qa), row.names = FALSE)
