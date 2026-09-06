@@ -48,7 +48,11 @@ if os.getenv("RENDER", "").lower() == "true":
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Strict",
+    # Lax, nem Strict: a szakértői meghívó-link e-mailből (másik oldalról) érkező
+    # kattintás, és Strict mellett a böngésző az átirányítás után nem küldi el a
+    # frissen kapott munkamenet-sütit, ezért a kérdőív kódot kért. Lax mellett a
+    # legfelső szintű GET-navigáció viszi a sütit, a más oldalról indított POST nem.
+    SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=os.getenv("RENDER", "").lower() == "true",
 )
 try:
