@@ -622,3 +622,58 @@ def test_email_html_carries_logo_when_url_given():
     from expert_priors import build_email
     _, _, html = build_email("invite", "hu", "Dr. X", "https://x/expert/meghivo/a", None, logo_url="https://x/static/predict-logo.png")
     assert '<img src="https://x/static/predict-logo.png"' in html
+
+
+def test_sender_name_always_carries_predict(monkeypatch):
+    import expert_priors
+    monkeypatch.setenv("EMAIL_FROM_NAME", "Dr. König János")
+    assert expert_priors.mail_from_name() == "Dr. König János (PREDICT)"
+    monkeypatch.setenv("EMAIL_FROM_NAME", "Dr. König János · PREDICT-vizsgálat")
+    assert expert_priors.mail_from_name() == "Dr. König János · PREDICT-vizsgálat"
+
+
+def test_signature_literal_backslash_n_becomes_line_breaks(monkeypatch):
+    from expert_priors import build_email
+    monkeypatch.setenv("EXPERT_MAIL_SIGNATURE", "Dr. König János\\nFogpótlástani Klinika\\nkonig.janos@semmelweis.hu")
+    _, text, html = build_email("invite", "hu", "Dr. X", "https://predict-study.hu/expert/meghivo/a")
+    assert "\\n" not in text and "Tisztelettel,\nDr. König János\nFogpótlástani Klinika\nkonig.janos@semmelweis.hu" in text
+    assert "Dr. König János<br>Fogpótlástani Klinika<br>konig.janos@semmelweis.hu" in html
+
+
+def test_invitation_expands_acronym_once_and_mentions_bayes():
+    from expert_priors import build_email
+    from expert_texts import STUDY_ACRONYM
+    for lang, word in (("hu", "Bayes-i"), ("en", "Bayesian")):
+        _, text, _ = build_email("invite", lang, "Dr. X", "https://predict-study.hu/expert/meghivo/a")
+        assert text.count(STUDY_ACRONYM[lang]) == 1 and word in text
+        _, reminder, _ = build_email("reminder", lang, "Dr. X", "https://predict-study.hu/expert/meghivo/a")
+        assert STUDY_ACRONYM[lang] not in reminder
+
+
+def test_links_use_configured_public_base_url_not_request_host(monkeypatch):
+    monkeypatch.setenv("APP_BASE_URL", "https://predict-study.hu/")
+    render_host = "https://taf-hcax.onrender.com"
+
+    def auth_admin_at_render_host(client):
+        with client.session_transaction(base_url=render_host) as session:
+            session["followup_authenticated"] = True
+            session["expert_csrf"] = "csrf-test"
+
+    sent = []
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK], mail_sender=lambda *args: sent.append(args))
+    client = app.test_client()
+    auth_admin_at_render_host(client)
+    response = client.post("/expert/admin/meghivo", base_url=render_host, data={
+        "csrf_token": "csrf-test", "expert_name": "Dr. X", "invite_email": "x@example.org", "send_now": "on",
+    })
+    assert response.status_code == 302
+    text, html = sent[0][3], sent[0][4]
+    assert "https://predict-study.hu/expert/meghivo/" in text and "onrender.com" not in text
+    assert '<img src="https://predict-study.hu/static/predict-logo.png"' in html
+    row = response_row(consent_confirmed=False, invited_at="2026-09-06")
+    app, _ = build_app([SCHEMA_OK, listing([row])])
+    client = app.test_client()
+    auth_admin_at_render_host(client)
+    page = client.get("/expert/admin", base_url=render_host).get_data(as_text=True)
+    assert "https://predict-study.hu/expert/meghivo/" in page and "https://predict-study.hu/expert" in page
+    assert "onrender.com" not in page

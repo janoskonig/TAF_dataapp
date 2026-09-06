@@ -75,7 +75,7 @@
 
 <section class="card section-card">
     <div class="section-head">
-        <div><h2>Kitöltések</h2><p class="muted">A szakértők a <code>{{ url_for('expert.start', _external=True) }}</code> címen, a szakértői hozzáférési kóddal töltik ki az űrlapot; a kitöltés indításakor a nevüket megadják.</p></div>
+        <div><h2>Kitöltések</h2><p class="muted">A szakértők a <code>{{ start_url }}</code> címen, a szakértői hozzáférési kóddal töltik ki az űrlapot; a kitöltés indításakor a nevüket megadják.</p></div>
     </div>
     {% if responses %}
     <div class="patient-table-wrap">

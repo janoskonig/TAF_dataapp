@@ -43,7 +43,7 @@ from flask import (
 )
 from psycopg2.extras import Json
 
-from expert_texts import IRANY_LABELS as IRANY_LABELS_BY_LANG, ITEM_TEXT_EN, JAW_LABELS, LANGS, UI
+from expert_texts import IRANY_LABELS as IRANY_LABELS_BY_LANG, ITEM_TEXT_EN, JAW_LABELS, LANGS, STUDY_ACRONYM, UI
 
 FORM_VERSION = "v1.2"
 # A simulate_expert_responses.py ezzel a verziójelöléssel szúr be próbasorokat;
@@ -319,10 +319,13 @@ MAIL_TEXTS = {
         "subject": "Kérés a tapasztalatáról a teljes fogsor sikeréről (PREDICT-vizsgálat, kb. 30 perc)",
         "body": (
             "Tisztelt {name}!\n\n"
-            "A Semmelweis Egyetem Fogpótlástani Klinikáján a PREDICT-vizsgálatban azt kutatjuk, mely anatómiai adottságok segítik, "
-            "és melyek nehezítik a teljes lemezes fogsor sikerét. Elődeink és tanáraink ezt a tapasztalatukból tanították; mi most ezt a "
-            "tapasztalati tudást szeretnénk összegyűjteni néhány, a teljes fogsor készítésében nagy gyakorlattal rendelkező kollégától, "
-            "és összevetni a mért betegadatainkkal.\n\n"
+            "A Semmelweis Egyetem Fogpótlástani Klinikáján a PREDICT-vizsgálatban ({acronym}) azt kutatjuk, mely anatómiai "
+            "adottságok segítik, és melyek nehezítik a teljes lemezes fogsor sikerét. Elődeink és tanáraink ezt a tapasztalatukból "
+            "tanították; mi most ezt a tapasztalati tudást szeretnénk összegyűjteni néhány, a teljes fogsor készítésében nagy "
+            "gyakorlattal rendelkező kollégától, és összevetni a mért betegadatainkkal.\n\n"
+            "A válaszokat Bayes-i statisztikai módszerrel dolgozzuk fel: a tapasztalt kollégák véleményét előzetes tudásként "
+            "(priorként) építjük be a modellbe, és ezt frissítjük a mért betegadatokkal. Így kis betegszám mellett is értelmezhető "
+            "eredményt kapunk, és láthatóvá válik, hol erősíti meg a mérés a klinikai tapasztalatot, és hol mond ellent neki.\n\n"
             "Ezért kérem Önt, hogy töltsön ki egy kérdőívet. Tizenhat anatómiai adottságról kérdezzük ugyanazt a néhány dolgot: melyik "
             "változat a rosszabb a fogsor sikere szempontjából, mennyire biztos ebben, és száz beteg közül hánynak lesz sikeres a fogsora "
             "az egyik és a másik esetben. A kitöltés körülbelül 25–35 perc.\n\n"
@@ -354,10 +357,13 @@ MAIL_TEXTS = {
         "subject": "A request for your experience on complete denture success (PREDICT study, about 30 minutes)",
         "body": (
             "Dear {name},\n\n"
-            "In the PREDICT study at the Department of Prosthodontics, Semmelweis University, we are investigating which anatomical "
-            "features help, and which hinder, the success of complete dentures. Our predecessors and teachers taught this from "
-            "experience; we now want to collect this experiential knowledge from a small number of colleagues with extensive "
-            "experience in complete denture treatment and compare it with our measured patient data.\n\n"
+            "In the PREDICT study ({acronym}) at the Department of Prosthodontics, Semmelweis University, we are investigating "
+            "which anatomical features help, and which hinder, the success of complete dentures. Our predecessors and teachers "
+            "taught this from experience; we now want to collect this experiential knowledge from a small number of colleagues "
+            "with extensive experience in complete denture treatment and compare it with our measured patient data.\n\n"
+            "We analyse the answers with Bayesian statistical methods: the judgement of experienced colleagues enters the model as "
+            "prior knowledge, which is then updated with the measured patient data. This yields interpretable results even with a "
+            "small number of patients, and shows where the measurements confirm clinical experience and where they contradict it.\n\n"
             "I would therefore like to ask you to complete a questionnaire. For sixteen anatomical features we ask the same few things: "
             "which variant is worse for the success of the denture, how sure you are, and how many out of a hundred patients would have "
             "a successful denture in one case and in the other. Completing it takes about 25–35 minutes.\n\n"
@@ -389,12 +395,36 @@ MAIL_TEXTS = {
 }
 
 
-def mail_signature():
-    return os.getenv("EXPERT_MAIL_SIGNATURE") or mail_from_name()
+def _configured_sender_name():
+    return (os.getenv("EMAIL_FROM_NAME") or os.getenv("SMTP_FROM_NAME") or os.getenv("EXPERT_MAIL_FROM_NAME")
+            or "PREDICT-vizsgálat").strip()
 
 
 def mail_from_name():
-    return os.getenv("EMAIL_FROM_NAME") or os.getenv("SMTP_FROM_NAME") or os.getenv("EXPERT_MAIL_FROM_NAME") or "PREDICT-vizsgálat"
+    """A feladó megjelenő neve; a PREDICT akkor is szerepel benne, ha a beállított név nem tartalmazza."""
+    name = _configured_sender_name()
+    return name if "predict" in name.lower() else f"{name} (PREDICT)"
+
+
+def mail_signature():
+    """A levél aláírása. A Render környezeti változóiban a sortörést a két karakteres
+    '\\n' jelöli (a felület nem értelmezi), ezért azt itt valódi sortöréssé alakítjuk."""
+    signature = os.getenv("EXPERT_MAIL_SIGNATURE") or _configured_sender_name()
+    return signature.replace("\\n", "\n").replace("\r\n", "\n").strip()
+
+
+def public_base_url():
+    """A levelekbe és a meghívó-linkekbe kerülő állandó cím (APP_BASE_URL, pl.
+    https://predict-study.hu). Ha nincs beállítva, a kérés hosztja marad, ami a
+    Render-címről megnyitott admin oldalon onrender.com-os linket adna."""
+    return (os.getenv("APP_BASE_URL") or os.getenv("PUBLIC_BASE_URL") or "").strip().rstrip("/")
+
+
+def absolute_url(endpoint, **values):
+    base = public_base_url()
+    if base:
+        return base + url_for(endpoint, **values)
+    return url_for(endpoint, _external=True, **values)
 
 
 def build_email(kind, lang, name, link, deadline=None, logo_url=None):
@@ -402,7 +432,8 @@ def build_email(kind, lang, name, link, deadline=None, logo_url=None):
     texts = MAIL_TEXTS["en" if lang == "en" else "hu"]
     deadline_sentence = texts["deadline"].format(deadline=deadline) if deadline else ""
     body_key, subject_key = ("reminder_body", "reminder_subject") if kind == "reminder" else ("body", "subject")
-    text = texts[body_key].format(name=name, link=link, deadline_sentence=deadline_sentence, signature=mail_signature())
+    text = texts[body_key].format(name=name, link=link, deadline_sentence=deadline_sentence, signature=mail_signature(),
+                                  acronym=STUDY_ACRONYM["en" if lang == "en" else "hu"])
     paragraphs = text.split("\n\n")
     html_parts = []
     for paragraph in paragraphs:
@@ -1203,7 +1234,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         include_simulated = request.args.get("szimulacio") == "1"
         responses = [decorate(row) for row in list_responses()]
         for row in responses:
-            row["invite_link"] = url_for("expert.invite", token=row["token"], _external=True)
+            row["invite_link"] = absolute_url("expert.invite", token=row["token"])
         simulated_count = sum(1 for row in responses if row["simulated"])
         submitted = [row for row in responses if row["status"] == "submitted" and (include_simulated or not row["simulated"])]
         return render_template(
@@ -1214,6 +1245,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             draft_count=sum(1 for row in responses if row["state"] == "draft"),
             new_code=request.args.get("uj"),
             mail_configured=mail_configured(),
+            start_url=absolute_url("expert.start"),
             simulated_count=simulated_count,
             include_simulated=include_simulated,
             tally=item_tally(submitted),
@@ -1251,7 +1283,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             raise
         finally:
             conn.close()
-        link = url_for("expert.invite", token=token, _external=True)
+        link = absolute_url("expert.invite", token=token)
         flash(f"Meghívó elkészült: {code} · {expert_name}. Link: {link}", "success")
         if send_now and email:
             deliver(token, "invite", email, expert_name, lang, link, deadline)
@@ -1260,7 +1292,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
     def deliver(token, kind, email, name, lang, link, deadline):
         """Meghívó vagy emlékeztető küldése; az eredmény flash-üzenetben, a
         sikeres küldés időbélyege az adatbázisban."""
-        subject, text, html = build_email(kind, lang, name, link, deadline, logo_url=url_for("static", filename="predict-logo.png", _external=True))
+        subject, text, html = build_email(kind, lang, name, link, deadline, logo_url=absolute_url("static", filename="predict-logo.png"))
         try:
             send_mail(email, name, subject, text, html)
         except MailError as err:
@@ -1293,7 +1325,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         if email != response.get("invite_email"):
             execute_transaction([("UPDATE expert_prior_responses SET invite_email = %s WHERE id = %s", [email, response_id])])
         lang = (response["background"] or {}).get("nyelv", "hu")
-        link = url_for("expert.invite", token=response["token"], _external=True)
+        link = absolute_url("expert.invite", token=response["token"])
         kind = "reminder" if response.get("invite_sent_at") else "invite"
         deliver(response["token"], kind, email, response["expert_name"] or "", lang, link, response.get("invite_deadline"))
         return redirect(url_for("expert.admin"))
