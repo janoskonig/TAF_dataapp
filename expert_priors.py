@@ -317,6 +317,8 @@ ITEM_INT_FIELDS = {
     "siker_A": (0, 100), "siker_A_min": (0, 100), "siker_A_max": (0, 100),
     "siker_B": (0, 100), "siker_B_min": (0, 100), "siker_B_max": (0, 100),
     "siker_M": (0, 100), "siker_M_min": (0, 100), "siker_M_max": (0, 100),
+    # „nincs érdemi különbség”: egyetlen közös szám (K) mindkét változatra
+    "siker_K": (0, 100), "siker_K_min": (0, 100), "siker_K_max": (0, 100),
     "kulonbseg_min": (0, 100), "kulonbseg_max": (0, 100),
 }
 ITEM_BOOL_FIELDS = {"nagysag_nem_tudom"}
@@ -379,6 +381,7 @@ PRIOR_CSV_COLUMNS = [
     "kulonbseg_min", "kulonbseg_max", "alak", "mechanizmus", "kuszob", "megjegyzes", "szerep",
     "siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M", "siker_M_min", "siker_M_max",
     "nagysag_nem_tudom", "polus_A_ertek", "polus_M_ertek", "polus_B_ertek", "polus_egyseg",
+    "siker_K", "siker_K_min", "siker_K_max",
 ]
 BACKGROUND_CSV_COLUMNS = [
     "szakerto_id", "datum", "evek_gyakorlat", "fogsorok_szama_kat", "oktat", "alap_siker_100",
@@ -871,37 +874,46 @@ def completeness_errors(data, lang="hu"):
 
 def consistency_errors(item, answers, t):
     """Egy tétel számszerű válaszainak belső ellentmondásai és hiányai (beküldést
-    gátló szabályok; a szöveg a kért nyelven)."""
+    gátló szabályok; a szöveg a kért nyelven). A számok köre az iránytól függ:
+    irányos válasz → A és B pólus; „a közepes a legjobb” → A, közepes, B;
+    „nincs érdemi különbség” → egyetlen közös szám (K); „nem tudom megítélni” →
+    számot nem kérünk, a beírt számokat figyelmen kívül hagyjuk."""
     problems = []
     irany = answers.get("irany")
+    if not irany or irany == "nem_tudom":
+        return problems
     unknown = bool(answers.get("nagysag_nem_tudom"))
-    poles = ["A", "M", "B"] if item.get("M") else ["A", "B"]   # közepes forgatókönyv csak ott, ahol a tétel adja (F2, F6)
-    point = {pole: answers.get(f"siker_{pole}") for pole in poles}
-    lo = {pole: answers.get(f"siker_{pole}_min") for pole in poles}
-    hi = {pole: answers.get(f"siker_{pole}_max") for pole in poles}
-    for pole in poles:
+    if irany == "nincs_kulonbseg":
+        needed = ["K"]
+    elif irany == "nem_monoton":
+        needed = ["A", "M", "B"] if item.get("M") else ["A", "B"]
+    else:
+        needed = ["A", "B"]
+    point = {pole: answers.get(f"siker_{pole}") for pole in ("A", "M", "B", "K")}
+    lo = {pole: answers.get(f"siker_{pole}_min") for pole in point}
+    hi = {pole: answers.get(f"siker_{pole}_max") for pole in point}
+    for pole in needed:
         if lo[pole] is not None and hi[pole] is not None and lo[pole] > hi[pole]:
             problems.append(t["err_range_order"].format(pole=pole))
         if point[pole] is not None and lo[pole] is not None and point[pole] < lo[pole]:
             problems.append(t["err_range_contains"].format(pole=pole))
         if point[pole] is not None and hi[pole] is not None and point[pole] > hi[pole]:
             problems.append(t["err_range_contains"].format(pole=pole))
-    if irany in MAGNITUDE_ANSWERS and not unknown:
-        needed = poles if irany == "nem_monoton" else ["A", "B"]
+    if not unknown:
         if any(point[pole] is None for pole in needed):
             problems.append(t["err_magnitude_required"])
         elif any(lo[pole] is None or hi[pole] is None for pole in needed):
             problems.append(t["err_range_required"])
     if unknown:
         return problems
-    a, b, m = point["A"], point["B"], point.get("M")
+    a, b, m = point["A"], point["B"], point["M"]
     if a is not None and b is not None:
         if irany == "A_kedvezotlenebb" and a > b:
             problems.append(t["err_numbers_direction"].format(worse="B"))
         if irany == "B_kedvezotlenebb" and b > a:
             problems.append(t["err_numbers_direction"].format(worse="A"))
-        if irany == "nincs_kulonbseg" and abs(a - b) >= NODIFF_TOLERANCE:
-            problems.append(t["err_nodiff_numbers"].format(diff=abs(a - b)))
+        if irany == "nincs_kulonbseg" and point["K"] is None and abs(a - b) >= NODIFF_TOLERANCE:
+            problems.append(t["err_nodiff_numbers"].format(diff=abs(a - b)))   # v2.0-s (K nélküli) válaszok
         if irany == "nem_monoton" and m is not None and m < max(a, b):
             problems.append(t["err_optimum_numbers"])
     return problems
@@ -965,7 +977,8 @@ def prior_rows(responses):
                 "megjegyzes": item_note(item, answers),
                 "szerep": role_of(response.get("background")),
                 **{key: (answers.get(key) if answers.get(key) is not None else "")
-                   for key in ("siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M", "siker_M_min", "siker_M_max")},
+                   for key in ("siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M", "siker_M_min", "siker_M_max",
+                               "siker_K", "siker_K_min", "siker_K_max")},
                 "nagysag_nem_tudom": "1" if answers.get("nagysag_nem_tudom") else "",
                 "polus_A_ertek": pole.get("A", ""), "polus_M_ertek": pole.get("M", ""), "polus_B_ertek": pole.get("B", ""),
                 "polus_egyseg": pole.get("unit", ""),

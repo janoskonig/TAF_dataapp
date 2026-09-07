@@ -171,9 +171,13 @@ def simulate_expert(rng, index):
                 answer[f"siker_{pole}_min"] = int(clip(point - width, 0, point))
                 answer[f"siker_{pole}_max"] = int(clip(point + width, point, 100))
         elif direction == "nincs_kulonbseg":
+            # v2.1: egyetlen közös szám (K) a saját határaival; A/B nem kérdezett
             answer["p_irany"] = None
             base = int(round(clip(optimism, 5, 95)))
-            answer["siker_A"], answer["siker_B"] = base, int(clip(base + rng.choice([-4, -2, 0, 2, 4]), 0, 100))
+            width = rng.uniform(6, 14)
+            answer["siker_K"] = base
+            answer["siker_K_min"] = int(clip(base - width, 0, base))
+            answer["siker_K_max"] = int(clip(base + width, base, 100))
         else:
             answer["p_irany"] = None
             for key in ("siker_A", "siker_B"):

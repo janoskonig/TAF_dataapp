@@ -97,7 +97,8 @@ read_many <- function(paths) bind_rows(lapply(unique(paths[nzchar(paths) & file.
 raw <- read_many(sources)
 stopifnot(nrow(raw) > 0)
 bg <- read_many(bg_sources)
-num_cols <- c("p_irany", "siker_A", "siker_B", "siker_M", "siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M_min", "siker_M_max", "nagysag_nem_tudom")
+num_cols <- c("p_irany", "siker_A", "siker_B", "siker_M", "siker_A_min", "siker_A_max", "siker_B_min", "siker_B_max", "siker_M_min", "siker_M_max",
+              "siker_K", "siker_K_min", "siker_K_max", "nagysag_nem_tudom")
 for (cc in num_cols) raw[[cc]] <- if (cc %in% names(raw)) suppressWarnings(as.numeric(raw[[cc]])) else NA_real_
 if (!"szerep" %in% names(raw)) raw$szerep <- "fogorvos"
 raw$szerep[is.na(raw$szerep) | raw$szerep == ""] <- "fogorvos"
@@ -140,6 +141,7 @@ NODIFF_TOLERANCE <- 10
 expert_base <- if (nrow(bg) && all(c("szakerto_id", "alap_siker_100") %in% names(bg))) setNames(suppressWarnings(as.numeric(bg$alap_siker_100)), bg$szakerto_id) else numeric(0)
 base_rate <- if (length(expert_base)) expert_base[is.finite(expert_base)] else numeric(0)
 own_level <- function(r, has_pts) {
+  if (is.finite(r$siker_K)) return(clamp(r$siker_K / 100, 0.05, 0.95))          # „nincs különbség”: közös szám
   if (has_pts) return(clamp((r$siker_A + r$siker_B) / 200, 0.05, 0.95))
   b1 <- expert_base[as.character(r$szakerto_id)]
   if (length(b1) && is.finite(b1)) return(clamp(b1 / 100, 0.05, 0.95))
@@ -168,6 +170,10 @@ row_samples <- function(r) {
     p0 <- own_level(r, has_pts)
     half <- abs(logit(clamp(p0 + NODIFF_TOLERANCE / 200, 0.01, 0.99)) - logit(p0))
     out$tipus <- "nincs érdemi különbség"; out$beta <- rnorm(N_MC, 0, half / qnorm(0.95))
+    if (is.finite(r$siker_K)) {   # a közös szám mindkét pólus szintje (5. ábra)
+      fk <- beta_fit(r$siker_K, r$siker_K_min, r$siker_K_max); pk <- rbeta(N_MC, fk$a, fk$b)
+      out$poles <- list(A = pk, B = pk); out$lefedettseg <- fk$lefedettseg; out$modusz_elteres <- abs(fk$modusz - r$siker_K / 100)
+    }
     return(out)
   }
   if (irany == "nem_monoton") {

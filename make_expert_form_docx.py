@@ -296,7 +296,9 @@ for index, item in enumerate(ITEMS, start=1):
         (T["q_certainty"], BIZ),
         (T["q_hundred"], T["hundred_help"] + "\n\n" + "\n".join(
             f"{T['variant_' + pole]} ({item[pole]}):   {T['range_min']} ______   {T['point_label']} ______   {T['range_max']} ______   {T['hundred_unit']}"
-            for pole in (("A", "M", "B") if "M" in item else ("A", "B"))) + "\n\n" + CB + T["magnitude_unknown"]),
+            for pole in (("A", "M", "B") if "M" in item else ("A", "B")))
+         + "\n\n" + T["hundred_help_nodiff"] + "\n" + f"{T['variant_K']}:   {T['range_min']} ______   {T['point_label']} ______   {T['range_max']} ______   {T['hundred_unit']}"
+         + "\n\n" + CB + T["magnitude_unknown"] + "     " + T["hundred_hidden_dk"]),
     ]
     if item["kuszob"]:
         rows.append(("Hol a határ?" if HU else "Where is the limit?", item["kuszob"] + "   ______________"))

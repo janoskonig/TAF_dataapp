@@ -73,8 +73,11 @@ jellemzője egy tételben). Tételenként:
 1. **Irány:** A rosszabb / B rosszabb / a közepes a legjobb (optimum tételek) /
    nincs érdemi különbség / nem tudom megítélni.
 2. **Irány-bizonyosság** (hitfok): 50–99 %; csak irányos válasznál.
-3. **Száz beteg** pólusonként: legvalószínűbb szám és alsó–felső határ (19/20
-   lefedettség); optimum tételeknél a közepes forgatókönyv is.
+3. **Száz beteg**, az iránytól függő körben: irányos válasznál pólusonként
+   (A, B), „a közepes a legjobb” válasznál a közepes forgatókönyvvel is, „nincs
+   érdemi különbség” válasznál egyetlen közös számmal (mindkét változatnál),
+   „nem tudom megítélni” válasznál szám nélkül; mindenhol legvalószínűbb szám
+   és alsó–felső határ (19/20 lefedettség).
 4. **„A nagyságát nem tudom megbecsülni”** jelölés: ekkor csak irány-prior
    készül, a hiány tudatos válasz.
 5. Küszöbkérdés, résztételek, megjegyzés (nem kötelező).

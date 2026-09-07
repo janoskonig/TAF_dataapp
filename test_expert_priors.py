@@ -1049,3 +1049,49 @@ def test_admin_page_shows_bulk_invitation_table():
     page = client.get("/expert/admin").get_data(as_text=True)
     assert 'action="/expert/admin/meghivo/tomeges"' in page and page.count('<input type="text" name="nev[]"') == 5 and 'id="bulkPaste"' in page
     assert 'name="invite_deadline"' not in page
+
+
+def test_no_difference_uses_one_common_number_and_ignores_stale_poles():
+    # „nincs érdemi különbség”: a közös K szám és határai kellenek; a rejtett A/B mezők régi értékei nem számítanak
+    response, _ = _submit({"item__F7__irany": "nincs_kulonbseg"})
+    assert response.status_code == 400 and "kérjük a „száz beteg” számokat" in response.get_data(as_text=True)
+    response, connections = _submit({"item__F7__irany": "nincs_kulonbseg", "item__F7__siker_K": "75", "item__F7__siker_K_min": "65", "item__F7__siker_K_max": "85"})
+    assert response.status_code == 302
+    items = [params for c in connections for sql, params in c.executions if "status = 'submitted'" in sql][0][2].adapted
+    assert items["F7"]["siker_K"] == 75 and items["F7"]["siker_K_min"] == 65 and items["F7"]["irany"] == "nincs_kulonbseg"
+    response, _ = _submit({"item__F7__irany": "nincs_kulonbseg", "item__F7__siker_K": "90", "item__F7__siker_K_min": "65", "item__F7__siker_K_max": "85"})
+    assert response.status_code == 400 and "K változatnál a legvalószínűbb szám nincs" in response.get_data(as_text=True)
+
+
+def test_cannot_judge_answer_needs_no_numbers():
+    missing = {f"item__A3__{k}": "" for k in ("siker_A", "siker_A_min", "siker_A_max", "siker_B", "siker_B_min", "siker_B_max")}
+    response, _ = _submit({**missing, "item__A3__irany": "nem_tudom"})
+    assert response.status_code == 302
+    response, _ = _submit({"item__A3__irany": "nem_tudom", "item__A3__siker_A": "20", "item__A3__siker_B": "90"})   # régi számok, figyelmen kívül
+    assert response.status_code == 302
+
+
+def test_form_renders_common_row_and_hides_numbers_for_cannot_judge():
+    row = response_row(items={"F1": {"irany": "nincs_kulonbseg"}, "F3": {"irany": "nem_tudom"}, "F2": {"irany": "nem_monoton"}})
+    app, _ = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert/urlap/tok").get_data(as_text=True)
+    import re
+    f1 = re.search(r'data-magnitude-for="F1".*?data-hint-for="F1"', page, re.S).group(0)
+    assert 'data-pole="K"' in f1 and 'data-pole="K" hidden' not in f1 and 'data-pole="A" hidden' in f1 and 'name="item__F1__siker_K"' in f1
+    f3 = re.search(r'<div class="expert-q magnitude-block" data-magnitude-for="F3"[^>]*>', page).group(0)
+    assert "hidden" in f3
+    f2 = re.search(r'data-magnitude-for="F2".*?data-hint-for="F2"', page, re.S).group(0)
+    assert 'data-pole="M" hidden' not in f2 and 'data-pole="K" hidden' in f2
+    f4 = re.search(r'data-magnitude-for="F4".*?data-hint-for="F4"', page, re.S).group(0)
+    assert 'data-pole="K" hidden' in f4 and 'data-pole="A" hidden' not in f4
+    assert "Mindkét változatnál" in page and "„Nem tudom megítélni” választásnál számot nem kérünk." in page
+
+
+def test_prior_export_carries_the_common_number():
+    from expert_priors import PRIOR_CSV_COLUMNS, prior_rows
+    rows = [response_row(status="submitted", items={"F7": {"irany": "nincs_kulonbseg", "siker_K": 75, "siker_K_min": 65, "siker_K_max": 85}})]
+    assert PRIOR_CSV_COLUMNS[-3:] == ["siker_K", "siker_K_min", "siker_K_max"]
+    f7 = [r for r in prior_rows(rows) if r["tetel"] == "F7"][0]
+    assert f7["siker_K"] == 75 and f7["siker_K_max"] == 85 and f7["siker_A"] == ""

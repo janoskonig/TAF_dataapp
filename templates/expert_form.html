@@ -192,10 +192,11 @@
                 {{ radio_grid(pfx ~ 'p_irany', [(50,'50 %'),(60,'60 %'),(70,'70 %'),(80,'80 %'),(90,'90 %'),(95,'95 %'),(99,'99 %')], ans.get('p_irany'), 'scale-grid') }}
             </div>
 
-            {% set poles = [('A', item.A), ('M', item.M), ('B', item.B)] if item.M is defined else [('A', item.A), ('B', item.B)] %}
-            <div class="expert-q magnitude-block" data-magnitude-for="{{ item.kod }}">
+            {% set poles = ([('A', item.A), ('M', item.M), ('B', item.B)] if item.M is defined else [('A', item.A), ('B', item.B)]) + [('K', t.hundred_help_nodiff)] %}
+            {% set mode = ans.get('irany') or '' %}
+            <div class="expert-q magnitude-block" data-magnitude-for="{{ item.kod }}" data-has-middle="{{ '1' if item.M is defined else '0' }}" {% if mode == 'nem_tudom' %}hidden{% endif %}>
                 <p class="q-title">{{ t.q_hundred }}</p>
-                <p class="q-help">{{ t.hundred_help }}</p>
+                <p class="q-help">{{ t.hundred_help }} {{ t.hundred_hidden_dk }}</p>
                 <label class="checkbox-line magnitude-unknown">
                     <input type="checkbox" name="{{ pfx }}nagysag_nem_tudom" value="1" data-autosave {% if ans.get('nagysag_nem_tudom') %}checked{% endif %}>
                     <span>{{ t.magnitude_unknown }}</span>
@@ -203,7 +204,8 @@
                 <div class="pole-table" data-needs-magnitude>
                     {% for pole, label in poles %}
                     {% set key = 'siker_' ~ pole %}
-                    <div class="pole-row">
+                    {% set visible = (pole == 'K') if mode == 'nincs_kulonbseg' else (pole != 'K' and (pole != 'M' or mode == 'nem_monoton')) %}
+                    <div class="pole-row" data-pole="{{ pole }}" {% if not visible %}hidden{% endif %}>
                         <div class="pole-name"><strong>{{ t['variant_' ~ pole] }}</strong><small>{{ label }}</small></div>
                         <div class="pole-fields">
                             <label for="{{ pfx }}{{ key }}_min"><span>{{ t.range_min }}</span>
@@ -314,11 +316,23 @@
         return Number.isFinite(v) ? v : null;
     }
 
+    function polesFor(mode, hasMiddle) {
+        if (mode === 'nincs_kulonbseg') return ['K'];
+        if (mode === 'nem_monoton') return hasMiddle ? ['A', 'M', 'B'] : ['A', 'B'];
+        return ['A', 'B'];
+    }
+
     function consistency(card) {
         const code = card.dataset.item;
         const irany = form.querySelector(`input[name="item__${code}__irany"]:checked`);
+        const mode = irany ? irany.value : '';
+        const block = card.querySelector('[data-magnitude-for]');
         const unknown = card.querySelector(`input[name="item__${code}__nagysag_nem_tudom"]`);
         const table = card.querySelector('[data-needs-magnitude]');
+        // a számok köre az iránytól függ: „nem tudom” → nincs szám; „nincs különbség” → egy közös szám
+        if (block) block.hidden = mode === 'nem_tudom';
+        const poles = polesFor(mode, block && block.dataset.hasMiddle === '1');
+        if (table) table.querySelectorAll('.pole-row').forEach(row => { row.hidden = !poles.includes(row.dataset.pole); });
         const off = Boolean(unknown && unknown.checked);
         if (table) {
             table.classList.toggle('is-disabled', off);
@@ -327,19 +341,17 @@
         const hint = card.querySelector('[data-hint-for]');
         if (!hint) return;
         const messages = [];
-        if (!off) {
-            const poles = table && table.querySelectorAll('.pole-row').length === 3 ? ['A', 'M', 'B'] : ['A', 'B'];
+        if (!off && mode && mode !== 'nem_tudom') {
             poles.forEach(pole => {
                 const pt = num(card, code, `siker_${pole}`), lo = num(card, code, `siker_${pole}_min`), hi = num(card, code, `siker_${pole}_max`);
                 if (pt !== null && ((lo !== null && pt < lo) || (hi !== null && pt > hi))) messages.push(hints.range);
                 if (lo !== null && hi !== null && lo > hi) messages.push(hints.range);
             });
             const a = num(card, code, 'siker_A'), b = num(card, code, 'siker_B'), m = num(card, code, 'siker_M');
-            if (irany && a !== null && b !== null) {
-                if (irany.value === 'A_kedvezotlenebb' && a > b) messages.push(hints.direction.replace('{worse}', 'B'));
-                if (irany.value === 'B_kedvezotlenebb' && b > a) messages.push(hints.direction.replace('{worse}', 'A'));
-                if (irany.value === 'nincs_kulonbseg' && Math.abs(a - b) >= NODIFF_TOLERANCE) messages.push(hints.nodiff.replace('{diff}', String(Math.abs(a - b))));
-                if (irany.value === 'nem_monoton' && m !== null && m < Math.max(a, b)) messages.push(hints.optimum);
+            if (a !== null && b !== null) {
+                if (mode === 'A_kedvezotlenebb' && a > b) messages.push(hints.direction.replace('{worse}', 'B'));
+                if (mode === 'B_kedvezotlenebb' && b > a) messages.push(hints.direction.replace('{worse}', 'A'));
+                if (mode === 'nem_monoton' && m !== null && m < Math.max(a, b)) messages.push(hints.optimum);
             }
         }
         const unique = [...new Set(messages)];
