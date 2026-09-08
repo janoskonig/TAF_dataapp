@@ -101,8 +101,10 @@ mesterfogtechnikusi vizsga, a visszajelzés forrása; mindkettőnél gyakorlati
 évek, összes és évi teljes fogsor, oktatás, munkahely. Általános kérdések:
 B1 alapráta (100 betegből hány sikeres), B2 az adottságok súlya, B3 állcsontok
 súlya, B4 implantátumos fedőlemezes pótlás javallata, B5 korábbi fogsor.
-Záró: öt legfontosabb tétel, legrosszabb páros, kiegyenlítő adottság,
-hiányzó adottság, önértékelés.
+Záró: állcsontonként a három legfontosabb tétel (felső: F1–F8, alsó: A1–A12),
+legrosszabb páros, kiegyenlítő adottság, hiányzó adottság, önértékelés.
+Az A10 (Angle-osztály) kétpólusú: „a közepes a legjobb” válasz ott nem
+szerepel.
 
 ## 5. Konzisztencia-szabályok (beküldést gátló)
 

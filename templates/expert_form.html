@@ -194,7 +194,7 @@
 
             {% set poles = ([('A', item.A), ('M', item.M), ('B', item.B)] if item.M is defined else [('A', item.A), ('B', item.B)]) + [('K', t.hundred_help_nodiff)] %}
             {% set mode = ans.get('irany') or '' %}
-            <div class="expert-q magnitude-block" data-magnitude-for="{{ item.kod }}" data-has-middle="{{ '1' if item.M is defined else '0' }}" {% if mode == 'nem_tudom' %}hidden{% endif %}>
+            <div class="expert-q magnitude-block{% if mode == 'nem_tudom' %} is-disabled{% endif %}" data-magnitude-for="{{ item.kod }}" data-has-middle="{{ '1' if item.M is defined else '0' }}">
                 <p class="q-title">{{ t.q_hundred }}</p>
                 <p class="q-help">{{ t.hundred_help }} {{ t.hundred_hidden_dk }}</p>
                 <label class="checkbox-line magnitude-unknown">
@@ -205,15 +205,15 @@
                     {% for pole, label in poles %}
                     {% set key = 'siker_' ~ pole %}
                     {% set visible = (pole == 'K') if mode == 'nincs_kulonbseg' else (pole != 'K' and (pole != 'M' or mode == 'nem_monoton')) %}
-                    <div class="pole-row" data-pole="{{ pole }}" {% if not visible %}hidden{% endif %}>
+                    <div class="pole-row{% if not visible %} is-disabled{% endif %}" data-pole="{{ pole }}">
                         <div class="pole-name"><strong>{{ t['variant_' ~ pole] }}</strong><small>{{ label }}</small></div>
                         <div class="pole-fields">
                             <label for="{{ pfx }}{{ key }}_min"><span>{{ t.range_min }}</span>
-                                <input type="number" id="{{ pfx }}{{ key }}_min" name="{{ pfx }}{{ key }}_min" min="0" max="100" value="{{ ans.get(key ~ '_min', '') if ans.get(key ~ '_min') is not none else '' }}" data-autosave></label>
+                                <input type="number" id="{{ pfx }}{{ key }}_min" name="{{ pfx }}{{ key }}_min" min="0" max="100" value="{{ ans.get(key ~ '_min', '') if ans.get(key ~ '_min') is not none else '' }}" data-autosave {% if not visible %}disabled{% endif %}></label>
                             <label for="{{ pfx }}{{ key }}" class="pole-point"><span>{{ t.point_label }}</span>
-                                <input type="number" id="{{ pfx }}{{ key }}" name="{{ pfx }}{{ key }}" min="0" max="100" value="{{ ans.get(key, '') if ans.get(key) is not none else '' }}" data-autosave></label>
+                                <input type="number" id="{{ pfx }}{{ key }}" name="{{ pfx }}{{ key }}" min="0" max="100" value="{{ ans.get(key, '') if ans.get(key) is not none else '' }}" data-autosave {% if not visible %}disabled{% endif %}></label>
                             <label for="{{ pfx }}{{ key }}_max"><span>{{ t.range_max }}</span>
-                                <input type="number" id="{{ pfx }}{{ key }}_max" name="{{ pfx }}{{ key }}_max" min="0" max="100" value="{{ ans.get(key ~ '_max', '') if ans.get(key ~ '_max') is not none else '' }}" data-autosave></label>
+                                <input type="number" id="{{ pfx }}{{ key }}_max" name="{{ pfx }}{{ key }}_max" min="0" max="100" value="{{ ans.get(key ~ '_max', '') if ans.get(key ~ '_max') is not none else '' }}" data-autosave {% if not visible %}disabled{% endif %}></label>
                             <span class="muted small pole-unit">{{ t.hundred_unit }}</span>
                         </div>
                     </div>
@@ -245,23 +245,25 @@
 
         <section class="card section-card" id="section-d">
             <div class="section-head"><div><p class="eyebrow">{{ t.d_eyebrow }}</p><h2>{{ t.d_h2 }}</h2></div></div>
+            {% for jaw, codes, title in (('felso', upper_codes, t.d1_felso), ('also', lower_codes, t.d1_also)) %}
             <div class="expert-q">
-                <p class="q-title">{{ t.d1 }}</p>
+                <p class="q-title">{{ title }}</p>
                 <p class="q-help">{{ t.d1_help }}</p>
                 <div class="rank-grid">
-                    {% for i in range(1, 6) %}
+                    {% for i in range(1, rank_slots + 1) %}
                     <div>
-                        <label for="cl__rang_{{ i }}">{{ i }}.</label>
-                        <select id="cl__rang_{{ i }}" name="cl__rang_{{ i }}" data-autosave>
+                        <label for="cl__rang_{{ jaw }}_{{ i }}">{{ i }}.</label>
+                        <select id="cl__rang_{{ jaw }}_{{ i }}" name="cl__rang_{{ jaw }}_{{ i }}" data-autosave>
                             <option value="">–</option>
-                            {% for code in item_codes %}
-                            <option value="{{ code }}" {% if cl.get('rang_' ~ i) == code %}selected{% endif %}>{{ code }} · {{ item_names[code] }}</option>
+                            {% for code in codes %}
+                            <option value="{{ code }}" {% if cl.get('rang_' ~ jaw ~ '_' ~ i) == code %}selected{% endif %}>{{ code }} · {{ item_names[code] }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+            {% endfor %}
             <div class="expert-q">
                 <p class="q-title">{{ t.d2 }}</p>
                 <p class="q-help">{{ t.d2_help }}</p>
@@ -329,14 +331,19 @@
         const block = card.querySelector('[data-magnitude-for]');
         const unknown = card.querySelector(`input[name="item__${code}__nagysag_nem_tudom"]`);
         const table = card.querySelector('[data-needs-magnitude]');
-        // a számok köre az iránytól függ: „nem tudom” → nincs szám; „nincs különbség” → egy közös szám
-        if (block) block.hidden = mode === 'nem_tudom';
+        // a számok köre az iránytól függ: a nem alkalmazható sorok szürkék és inaktívak,
+        // „nem tudom” esetén az egész blokk; a nagyság-jelölő az aktív sorokat is kikapcsolja
+        const dk = mode === 'nem_tudom';
+        if (block) block.classList.toggle('is-disabled', dk);
         const poles = polesFor(mode, block && block.dataset.hasMiddle === '1');
-        if (table) table.querySelectorAll('.pole-row').forEach(row => { row.hidden = !poles.includes(row.dataset.pole); });
         const off = Boolean(unknown && unknown.checked);
+        if (unknown) unknown.disabled = dk;
         if (table) {
-            table.classList.toggle('is-disabled', off);
-            table.querySelectorAll('input').forEach(input => { input.disabled = off; });
+            table.querySelectorAll('.pole-row').forEach(row => {
+                const applicable = poles.includes(row.dataset.pole);
+                row.classList.toggle('is-disabled', !applicable || off);
+                row.querySelectorAll('input').forEach(input => { input.disabled = !applicable || off || dk; });
+            });
         }
         const hint = card.querySelector('[data-hint-for]');
         if (!hint) return;

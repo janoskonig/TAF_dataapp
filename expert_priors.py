@@ -204,7 +204,7 @@ ITEMS = [
     {
         "kod": "TUB", "nev": "A tuberculum alveolare mandibulae", "jaw": "Alsó állcsont",
         "rogzit": "Négy dolgot nézünk: borítja-e feszes íny; milyen az alakja (fordított körte, kicsi, plicaszerű); milyen a dőlése a gerinchez képest; mozog-e szájnyitáskor.",
-        "A": "feszes ínnyel fedett, jó alakú, mozdulatlan tuberculum", "B": "fedetlen, plicaszerű, mozgékony tuberculum", "alak": "monoton", "optimum": False,
+        "A": "feszes ínnyel fedett, jó alakú, mozdulatlan tuberculum", "B": "feszes ínnyel nem fedett, plicaszerű, mozgékony tuberculum", "alak": "monoton", "optimum": False,
         "kuszob": None,
         "subs": [{"kod": "legfontosabb", "kerdes": "A négy közül melyik számít a legtöbbet?",
                   "opciok": [("A6", "a feszes ínyborítás"), ("A7", "az alakja"), ("A8", "a dőlése"), ("A9", "hogy mozog-e"), ("nem_tudom", "nem tudom")]}],
@@ -212,7 +212,7 @@ ITEMS = [
     {
         "kod": "A10", "nev": "Az állcsontok sagittális relációja", "jaw": "Alsó állcsont",
         "rogzit": "A gipszmintán mérjük, előrébb vagy hátrébb áll-e az alsó állcsont a felsőhöz képest; lényegében az Angle-osztályt.",
-        "A": "Angle I., szabályos helyzet", "B": "Angle II. vagy III., eltérő helyzet", "alak": "nincs_irany", "optimum": True,
+        "A": "Angle I., szabályos helyzet", "B": "Angle II. vagy III., eltérő helyzet", "alak": "nincs_irany", "optimum": False,
         "kuszob": None,
         "subs": [{"kod": "melyik_rosszabb", "kerdes": "Ha az eltérés rossz: melyik a rosszabb?",
                   "opciok": [("angle_II", "az Angle II."), ("angle_III", "az Angle III."), ("egyforma", "egyforma"), ("nem_tudom", "nem tudom")]}],
@@ -264,6 +264,9 @@ def localized_items(lang="hu"):
 
 ITEM_CODES = [item["kod"] for item in ITEMS]
 ITEMS_BY_CODE = {item["kod"]: item for item in ITEMS}
+UPPER_CODES = [item["kod"] for item in ITEMS if item["jaw"] == "Felső állcsont"]
+LOWER_CODES = [item["kod"] for item in ITEMS if item["jaw"] == "Alsó állcsont"]
+RANK_SLOTS = 3   # állcsontonként a három legfontosabb adottság
 # A folytonos tételek pólusaihoz rendelt mérési értékek (a kérdés szövegében is
 # szerepelnek). Az elemzés ezekkel váltja a pólusok közötti sikerkülönbséget
 # egységnyi (mm-, fok-) hatássá; a predict_szakertoi_prior_logit.R regiszterével
@@ -362,6 +365,9 @@ CALIBRATION_FIELDS = {
     "regi_fogsor_megjegyzes": ("text", 1000),
 }
 CLOSING_FIELDS = {
+    # v2.2: állcsontonként három rangsorhely; a v2.0-s összevont rang_1..5 olvasható marad
+    **{f"rang_felso_{i}": ("choice", set(UPPER_CODES)) for i in range(1, RANK_SLOTS + 1)},
+    **{f"rang_also_{i}": ("choice", set(LOWER_CODES)) for i in range(1, RANK_SLOTS + 1)},
     "rang_1": ("choice", set(ITEM_CODES)),
     "rang_2": ("choice", set(ITEM_CODES)),
     "rang_3": ("choice", set(ITEM_CODES)),
@@ -385,7 +391,8 @@ PRIOR_CSV_COLUMNS = [
 ]
 BACKGROUND_CSV_COLUMNS = [
     "szakerto_id", "datum", "evek_gyakorlat", "fogsorok_szama_kat", "oktat", "alap_siker_100",
-    "anatomia_sulya_pct", "rang_1", "rang_2", "rang_3", "rang_4", "rang_5", "hianyzo_kepletek", "megjegyzes",
+    "anatomia_sulya_pct", "rang_1", "rang_2", "rang_3", "rang_4", "rang_5",
+    "rang_felso_1", "rang_felso_2", "rang_felso_3", "rang_also_1", "rang_also_2", "rang_also_3", "hianyzo_kepletek", "megjegyzes",
     "nev", "intezmeny", "szerep", "visszajelzes", "ajanlo_kod",
 ]
 
@@ -1019,6 +1026,7 @@ def background_rows(responses):
             "alap_siker_100": calibration.get("alap_siker_100", "") if calibration.get("alap_siker_100") is not None else "",
             "anatomia_sulya_pct": calibration.get("anatomia_sulya_pct", "") if calibration.get("anatomia_sulya_pct") is not None else "",
             **{f"rang_{i}": closing.get(f"rang_{i}", "") or "" for i in range(1, 6)},
+            **{f"rang_{jaw}_{i}": closing.get(f"rang_{jaw}_{i}", "") or "" for jaw in ("felso", "also") for i in range(1, RANK_SLOTS + 1)},
             "hianyzo_kepletek": closing.get("hianyzo_kepletek", "") or "",
             "megjegyzes": " | ".join(notes),
             "nev": response.get("expert_name") or "",
@@ -1106,6 +1114,9 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             "p_irany_values": P_IRANY_VALUES,
             "mechanism_labels": MECHANISM_LABELS,
             "item_codes": ITEM_CODES,
+            "upper_codes": UPPER_CODES,
+            "lower_codes": LOWER_CODES,
+            "rank_slots": RANK_SLOTS,
             "item_names": {item["kod"]: item["nev"] for item in items},
             "role_labels": ROLE_LABELS[lang],
             "roles": ROLES,

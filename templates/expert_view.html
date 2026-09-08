@@ -80,7 +80,8 @@
     <section class="card section-card">
         <h2>Összegzés</h2>
         <dl>
-            <dt>Az öt legfontosabb</dt><dd>{% for i in range(1, 6) %}{% set code = cl.get('rang_' ~ i) %}{% if code %}{{ code }} · {{ item_names.get(code, code) }}{% else %}–{% endif %}{% if not loop.last %} › {% endif %}{% endfor %}</dd>
+            {% for jaw, title in (('felso', 'Felső állcsont: a három legfontosabb'), ('also', 'Alsó állcsont: a három legfontosabb')) %}<dt>{{ title }}</dt><dd>{% for i in range(1, rank_slots + 1) %}{% set code = cl.get('rang_' ~ jaw ~ '_' ~ i) %}{% if code %}{{ code }} · {{ item_names.get(code, code) }}{% if not loop.last %} · {% endif %}{% endif %}{% endfor %}{% if not cl.get('rang_' ~ jaw ~ '_1') %}–{% endif %}</dd>{% endfor %}
+            {% if cl.get('rang_1') %}<dt>Az öt legfontosabb (v2.0-s összevont)</dt><dd>{% for i in range(1, 6) %}{% set code = cl.get('rang_' ~ i) %}{% if code %}{{ code }} · {{ item_names.get(code, code) }}{% if not loop.last %} · {% endif %}{% endif %}{% endfor %}</dd>{% endif %}
             <dt>Legrosszabb páros</dt><dd>{{ cl.get('legrosszabb_kombinacio') or '–' }}</dd>
             <dt>Kiegyenlítő adottság</dt><dd>{{ cl.get('ellensulyozo') or '–' }}</dd>
             <dt>Amit kihagytunk</dt><dd>{{ cl.get('hianyzo_kepletek') or '–' }}</dd>

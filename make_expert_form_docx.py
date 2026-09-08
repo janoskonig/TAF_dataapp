@@ -19,7 +19,7 @@ from docx.shared import Cm, Pt, RGBColor
 import os
 import sys
 
-from expert_priors import localized_items
+from expert_priors import LOWER_CODES, UPPER_CODES, localized_items
 from expert_texts import UI, ui_texts
 
 LANG = "en" if "--lang" in sys.argv and sys.argv[sys.argv.index("--lang") + 1] == "en" else "hu"
@@ -312,9 +312,11 @@ for index, item in enumerate(ITEMS, start=1):
 page_break()
 # --- D. Összegzés ----------------------------------------------------------------------
 doc.add_heading(T["d_eyebrow"] + ": " + T["d_h2"].lower(), level=1)
-codes = "   ".join(f"{item['kod']} = {item['nev']}" for item in ITEMS)
+codes_upper = "   ".join(f"{item['kod']} = {item['nev']}" for item in ITEMS if item["kod"] in UPPER_CODES)
+codes_lower = "   ".join(f"{item['kod']} = {item['nev']}" for item in ITEMS if item["kod"] in LOWER_CODES)
 two_col([
-    ("Az öt legfontosabb" if HU else "The five most important", T["d1"] + " " + T["d1_help"] + "\n\n1. ________   2. ________   3. ________   4. ________   5. ________\n\n" + codes),
+    ("Felső állcsont" if HU else "Upper jaw", T["d1_felso"] + " " + T["d1_help"] + "\n\n1. ________   2. ________   3. ________\n\n" + codes_upper),
+    ("Alsó állcsont" if HU else "Lower jaw", T["d1_also"] + " " + T["d1_help"] + "\n\n1. ________   2. ________   3. ________\n\n" + codes_lower),
     ("Legrosszabb páros" if HU else "Worst pair", T["d2"] + " " + T["d2_help"] + "\n\n______________________________________________________________"),
     ("Kiegyenlítő adottság" if HU else "Compensating feature", T["d3"] + "\n\n______________________________________________________________"),
     ("Mit hagytunk ki?" if HU else "What did we leave out?", T["d4"] + "\n\n______________________________________________________________"),

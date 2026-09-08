@@ -1079,13 +1079,14 @@ def test_form_renders_common_row_and_hides_numbers_for_cannot_judge():
     page = client.get("/expert/urlap/tok").get_data(as_text=True)
     import re
     f1 = re.search(r'data-magnitude-for="F1".*?data-hint-for="F1"', page, re.S).group(0)
-    assert 'data-pole="K"' in f1 and 'data-pole="K" hidden' not in f1 and 'data-pole="A" hidden' in f1 and 'name="item__F1__siker_K"' in f1
-    f3 = re.search(r'<div class="expert-q magnitude-block" data-magnitude-for="F3"[^>]*>', page).group(0)
-    assert "hidden" in f3
+    assert 'class="pole-row" data-pole="K"' in f1 and 'class="pole-row is-disabled" data-pole="A"' in f1 and 'name="item__F1__siker_K"' in f1
+    assert 'name="item__F1__siker_A" min="0" max="100" value="" data-autosave disabled' in f1
+    f3 = re.search(r'<div class="expert-q magnitude-block[^"]*" data-magnitude-for="F3"[^>]*>', page).group(0)
+    assert "is-disabled" in f3
     f2 = re.search(r'data-magnitude-for="F2".*?data-hint-for="F2"', page, re.S).group(0)
-    assert 'data-pole="M" hidden' not in f2 and 'data-pole="K" hidden' in f2
+    assert 'class="pole-row" data-pole="M"' in f2 and 'class="pole-row is-disabled" data-pole="K"' in f2
     f4 = re.search(r'data-magnitude-for="F4".*?data-hint-for="F4"', page, re.S).group(0)
-    assert 'data-pole="K" hidden' in f4 and 'data-pole="A" hidden' not in f4
+    assert 'class="pole-row is-disabled" data-pole="K"' in f4 and 'class="pole-row" data-pole="A"' in f4
     assert "Mindkét változatnál" in page and "„Nem tudom megítélni” választásnál számot nem kérünk." in page
 
 
@@ -1095,3 +1096,39 @@ def test_prior_export_carries_the_common_number():
     assert PRIOR_CSV_COLUMNS[-3:] == ["siker_K", "siker_K_min", "siker_K_max"]
     f7 = [r for r in prior_rows(rows) if r["tetel"] == "F7"][0]
     assert f7["siker_K"] == 75 and f7["siker_K_max"] == 85 and f7["siker_A"] == ""
+
+
+def test_a10_has_no_middle_option_and_rejects_it():
+    from expert_priors import ITEMS_BY_CODE, parse_item_field, FieldError
+    assert ITEMS_BY_CODE["A10"]["optimum"] is False and "M" not in ITEMS_BY_CODE["A10"]
+    with pytest.raises(FieldError):
+        parse_item_field("A10", "irany", "nem_monoton")
+    row = response_row()
+    app, _ = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert/urlap/tok").get_data(as_text=True)
+    assert 'id="item__A10__irany_O"' not in page and 'id="item__F2__irany_O"' in page
+    assert "feszes ínnyel nem fedett, plicaszerű, mozgékony tuberculum" in page and "fedetlen" not in page
+
+
+def test_ranking_is_per_jaw_and_exported():
+    from expert_priors import BACKGROUND_CSV_COLUMNS, CLOSING_FIELDS, LOWER_CODES, UPPER_CODES, background_rows
+    assert UPPER_CODES == ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"] and "TUB" in LOWER_CODES and "A10" in LOWER_CODES
+    assert CLOSING_FIELDS["rang_felso_1"][1] == set(UPPER_CODES) and CLOSING_FIELDS["rang_also_3"][1] == set(LOWER_CODES)
+    row = response_row()
+    app, _ = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert/urlap/tok").get_data(as_text=True)
+    assert 'name="cl__rang_felso_1"' in page and 'name="cl__rang_also_3"' in page and 'name="cl__rang_1"' not in page
+    assert "Felső állcsont: melyik három adottság" in page and "Alsó állcsont: melyik három adottság" in page
+    response, connections = _submit({"cl__rang_felso_1": "F1", "cl__rang_felso_2": "F5", "cl__rang_also_1": "A1", "cl__rang_also_2": "TUB"})
+    assert response.status_code == 302
+    closing = [params for c in connections for sql, params in c.executions if "status = 'submitted'" in sql][0][3].adapted
+    assert closing["rang_felso_1"] == "F1" and closing["rang_also_2"] == "TUB"
+    bad, _ = _submit({"cl__rang_felso_1": "A1"})   # alsó tétel a felső listában
+    assert bad.status_code == 400
+    exported = background_rows([response_row(status="submitted", closing={"rang_felso_1": "F1", "rang_also_1": "A1", "rang_1": "F5"})])[0]
+    assert exported["rang_felso_1"] == "F1" and exported["rang_also_1"] == "A1" and exported["rang_1"] == "F5"
+    assert "rang_also_3" in BACKGROUND_CSV_COLUMNS
