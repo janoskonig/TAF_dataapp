@@ -1,0 +1,99 @@
+{% extends "expert_base.html" %}
+{% block title %}{{ t.feedback_title }}{% endblock %}
+{% block content %}
+<style>
+    .feedback-table td:nth-child(1) { min-width: 150px; }
+    .feedback-table td:nth-child(2) { min-width: 200px; }
+    .feedback-table td:nth-child(3) { min-width: 160px; }
+    .feedback-table td:nth-child(5) { min-width: 170px; }
+    .feedback-table .own-line { white-space: nowrap; }
+</style>
+<div class="questionnaire-shell expert-view">
+    <div class="breadcrumb"><a href="{{ url_for('expert.form', token=response.token) }}">{{ t.feedback_back }}</a></div>
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">{{ t.feedback_eyebrow.format(code=response.expert_code) }}</p>
+            <h1>{{ t.feedback_h1 }}</h1>
+            {% if summary %}
+            <p class="lead">{{ t.feedback_lead.format(n=summary.n, dentists=summary.roles.fogorvos, technicians=summary.roles.fogtechnikus) }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not summary %}
+    <section class="card section-card">
+        <p class="definition-box">{{ t.feedback_not_yet.format(min=feedback.min, n=feedback.n) }}</p>
+    </section>
+    {% else %}
+    {% set dir_order = ['A_kedvezotlenebb', 'B_kedvezotlenebb', 'nem_monoton', 'nincs_kulonbseg', 'nem_tudom'] %}
+    <section class="card section-card">
+        <h2>{{ t.feedback_general_h2 }}</h2>
+        <p class="muted small">{{ t.feedback_general_help }}</p>
+        <div class="patient-table-wrap">
+            <table class="patient-table tally-table">
+                <thead><tr><th></th><th>{{ t.feedback_col_own }}</th><th>{{ t.feedback_col_others }}</th></tr></thead>
+                <tbody>
+                {% for key, label in (('alap_siker_100', t.feedback_b1), ('anatomia_sulya_pct', t.feedback_b2)) %}
+                {% set row = summary.general[key] %}
+                <tr>
+                    <td>{{ label }}</td>
+                    <td class="num"><strong>{{ row.own if row.own is not none else '–' }}</strong></td>
+                    <td class="num">{% if row.others %}{{ row.others[0] }} <small class="muted">({{ t.feedback_n.format(n=row.others[1]) }})</small>{% else %}–{% endif %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card section-card">
+        <h2>{{ t.feedback_items_h2 }}</h2>
+        <p class="muted small">{{ t.feedback_items_help }}</p>
+        <div class="patient-table-wrap">
+            <table class="patient-table tally-table feedback-table">
+                <thead>
+                    <tr><th>{{ t.feedback_col_item }}</th><th>{{ t.feedback_col_own }}</th><th>{{ t.feedback_col_dirs }}</th><th>{{ t.feedback_col_certainty }}</th><th>{{ t.feedback_col_hundred }}</th></tr>
+                </thead>
+                <tbody>
+                {% for item in summary['items'] %}
+                {% set own = item.own %}
+                <tr>
+                    <td><strong>{{ item.kod }}</strong><br><small class="muted">{{ item.nev }}</small></td>
+                    <td>
+                        {% if own.get('irany') %}
+                        <span class="own-line"><strong>{{ t.feedback_dir.get(own.get('irany'), own.get('irany')) }}</strong>{% if own.get('p_irany') is not none %} · {{ own.get('p_irany') }} %{% endif %}</span>
+                        {% if own.get('nagysag_nem_tudom') %}<div class="small muted">{{ t.feedback_magnitude_unknown }}</div>
+                        {% else %}{% set ns = namespace(parts=[]) %}{% for pole in (['K'] if own.get('irany') == 'nincs_kulonbseg' else item.poles) %}{% set k = 'siker_' ~ pole %}{% if own.get(k) is not none %}{% set ns.parts = ns.parts + [pole ~ ' ' ~ own.get(k) ~ ((' (' ~ (own.get(k ~ '_min') if own.get(k ~ '_min') is not none else '–') ~ '–' ~ (own.get(k ~ '_max') if own.get(k ~ '_max') is not none else '–') ~ ')') if (own.get(k ~ '_min') is not none or own.get(k ~ '_max') is not none) else '')] %}{% endif %}{% endfor %}{% if ns.parts %}<div class="small">{{ ns.parts|join(' · ') }}</div>{% endif %}{% endif %}
+                        {% if item.own_agree is not none %}<div class="small muted">{{ t.feedback_agree.format(n=item.own_agree) }}</div>{% endif %}
+                        {% else %}<span class="badge badge-muted">{{ t.feedback_no_answer }}</span>{% endif %}
+                    </td>
+                    <td>{% set ns2 = namespace(first=true) %}{% for key in dir_order %}{% if item.counts[key] %}{% if not ns2.first %} · {% endif %}{% set ns2.first = false %}{% if own.get('irany') == key %}<strong>{{ t.feedback_dir[key] }} {{ item.counts[key] }}</strong>{% else %}{{ t.feedback_dir[key] }} {{ item.counts[key] }}{% endif %}{% endif %}{% endfor %}{% if ns2.first %}–{% endif %}</td>
+                    <td class="num">{% if item.p_irany_mean is not none %}{{ item.p_irany_mean }} %{% else %}–{% endif %}</td>
+                    <td>{% set ns3 = namespace(first=true) %}{% for pole in item.poles + ['K'] %}{% if pole in item.medians %}{% if not ns3.first %} · {% endif %}{% set ns3.first = false %}<span class="own-line">{{ pole }} {{ item.medians[pole][0] }} <small class="muted">({{ t.feedback_n.format(n=item.medians[pole][1]) }})</small></span>{% endif %}{% endfor %}{% if ns3.first %}–{% endif %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card section-card">
+        <h2>{{ t.feedback_rank_h2 }}</h2>
+        <p class="muted small">{{ t.feedback_rank_help }}</p>
+        <div class="grid grid-2">
+            {% for jaw, title in (('felso', jaw_labels['Felső állcsont']), ('also', jaw_labels['Alsó állcsont'])) %}
+            <div>
+                <h3>{{ title }}</h3>
+                <ol class="instruction-list">
+                    {% for row in summary.rankings[jaw] if row.n or row.own %}
+                    <li>{% if row.own %}<strong>{{ row.kod }} · {{ row.nev }}</strong> <span class="badge badge-success">{{ t.feedback_rank_own }}</span>{% else %}{{ row.kod }} · {{ row.nev }}{% endif %} <small class="muted">— {{ t.feedback_rank_count.format(n=row.n) }}</small></li>
+                    {% endfor %}
+                </ol>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="muted small" style="margin-top:14px">{{ t.feedback_note }}</p>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

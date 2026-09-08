@@ -19,7 +19,7 @@ from docx.shared import Cm, Pt, RGBColor
 import os
 import sys
 
-from expert_priors import LOWER_CODES, UPPER_CODES, localized_items
+from expert_priors import FEEDBACK_MIN, LOWER_CODES, UPPER_CODES, localized_items
 from expert_texts import UI, ui_texts
 
 LANG = "en" if "--lang" in sys.argv and sys.argv[sys.argv.index("--lang") + 1] == "en" else "hu"
@@ -230,6 +230,11 @@ for key in ("1", "2", "3", "4"):
 para(("Minden adottságnál leírjuk, hogyan nézzük a vizsgálatban, hogy ugyanarra gondoljunk. A csillaggal jelölt kérdéseket kérjük mindenképpen kitölteni; a többi hasznos, de kihagyható."
       if HU else "For each feature we describe how we record it in the study, so that we are thinking of the same thing. Please answer the questions marked with a star; the others are useful but optional."),
      italic=True, color=INK2, after=6)
+doc.add_heading(T["reward_h3"], level=2)
+para(T["reward_intro"])
+bullet(" " + T["reward_compare"].format(n=FEEDBACK_MIN), T["reward_compare_lead"])
+bullet(" " + T["reward_results"], T["reward_results_lead"])
+bullet(" " + T["reward_ack"].rsplit(". ", 1)[0] + ".", T["reward_ack_lead"])
 doc.add_heading(T["data_h3"], level=2)
 para(T["data_p"])
 page_break()
@@ -321,6 +326,7 @@ two_col([
     ("Kiegyenlítő adottság" if HU else "Compensating feature", T["d3"] + "\n\n______________________________________________________________"),
     ("Mit hagytunk ki?" if HU else "What did we leave out?", T["d4"] + "\n\n______________________________________________________________"),
     (T["d5"], opts("d5_opts")),
+    ("Köszönetnyilvánítás" if HU else "Acknowledgement", CB + T["ack_label"]),
     ("Hozzájárulás" if HU else "Consent", T["consent"] + "\n\n" + ("Dátum" if HU else "Date") + ": ____________________     " + ("Aláírás" if HU else "Signature") + ": ____________________"),
 ])
 

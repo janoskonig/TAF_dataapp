@@ -18,6 +18,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import math
 import os
 import secrets
 import smtplib
@@ -26,6 +27,7 @@ from email.message import EmailMessage
 from email.utils import formataddr, formatdate, make_msgid
 from datetime import datetime, timedelta, timezone
 from functools import wraps
+from statistics import median
 from zoneinfo import ZoneInfo
 from urllib.parse import urlsplit
 
@@ -104,6 +106,18 @@ REFERRAL_LIMIT = int(os.getenv("EXPERT_REFERRAL_LIMIT", "3") or 3)
 
 def referrals_enabled():
     return os.getenv("EXPERT_REFERRALS", "1") != "0"
+
+
+# Amit a résztvevő a részvételért kap (a „mit kapunk érte?” kérdésre): beküldés
+# után, amint legalább EXPERT_FEEDBACK_MIN (alapból 5) másik kolléga beküldte a
+# válaszát, a saját válaszai mellett adottságonként látja a többiek összesített
+# véleményét (név nélkül, csak darabszám, átlag, medián). EXPERT_FEEDBACK=0
+# kikapcsolja; ekkor a levél és a tájékoztató sem ígéri.
+FEEDBACK_MIN = int(os.getenv("EXPERT_FEEDBACK_MIN", "5") or 5)
+
+
+def feedback_enabled():
+    return os.getenv("EXPERT_FEEDBACK", "1") != "0"
 
 # ---------------------------------------------------------------------------
 # Tételregiszter — a kódok azonosak az R-szkript regiszterével
@@ -393,7 +407,7 @@ BACKGROUND_CSV_COLUMNS = [
     "szakerto_id", "datum", "evek_gyakorlat", "fogsorok_szama_kat", "oktat", "alap_siker_100",
     "anatomia_sulya_pct", "rang_1", "rang_2", "rang_3", "rang_4", "rang_5",
     "rang_felso_1", "rang_felso_2", "rang_felso_3", "rang_also_1", "rang_also_2", "rang_also_3", "hianyzo_kepletek", "megjegyzes",
-    "nev", "intezmeny", "szerep", "visszajelzes", "ajanlo_kod",
+    "nev", "intezmeny", "szerep", "visszajelzes", "ajanlo_kod", "koszonet_nev",
 ]
 
 
@@ -416,6 +430,10 @@ MAIL_TEXTS = {
             "Ezért kérem Önt, hogy töltsön ki egy kérdőívet. Tizenhat anatómiai adottságról kérdezzük ugyanazt a néhány dolgot: melyik "
             "változat a rosszabb a fogsor sikere szempontjából, mennyire biztos ebben, és száz beteg közül hánynak lesz sikeres a fogsora "
             "az egyik és a másik esetben. A kérdőív egy rövid, ötperces felkészítővel kezdődik, amely a bizonytalanság megadásában segít. A kitöltés körülbelül 35–45 perc.\n\n"
+            "Mit kap a részvételért? A részvétel önkéntes, díjazás nem jár érte; cserébe a következőket tudom adni. {feedback_sentence}"
+            "A felmérés lezárása után elküldöm Önnek a szakértői vélemények összesítését, és amikor a betegadatok elemzése elkészül, azt is, "
+            "hol erősítette meg a mérés a tapasztalatot, és hol mondott ellent neki. Ha kéri, a közleményben a köszönetnyilvánításban név "
+            "szerint szerepel a részt vevő szakértők között; a válaszai ettől függetlenül név nélkül maradnak.\n\n"
             "Nincs jó vagy rossz válasz. Nem a tankönyvre vagyunk kíváncsiak, hanem arra, mit tanított Önnek a saját praxisa, akkor is, "
             "ha az eltér a tanultaktól. Kérem, egyedül töltse ki, és ne beszélje meg közben kollégákkal, mert éppen az egymástól független "
             "vélemények érdekelnek minket. Ha valamiben bizonytalan, jelölje azt; a bizonytalanság is fontos információ.\n\n"
@@ -430,6 +448,8 @@ MAIL_TEXTS = {
         ),
         "deadline": "Hálás lennék, ha a kérdőívet két héten belül, {deadline}-ig ki tudná tölteni.\n\n",
         "deadline_reminder": "Hálás lennék, ha a kérdőívet {deadline}-ig ki tudná tölteni.\n\n",
+        "feedback": ("Beküldés után, amint legalább {n} kolléga válasza beérkezett, a saját válaszai mellett adottságonként látni fogja, "
+                     "hogyan vélekedett a többi résztvevő, név nélkül, összesítve. "),
         "referrer": "Erre a felmérésre {referrer} kolléga ajánlotta Önt.\n\n",
         "reminder_subject": "Emlékeztető: PREDICT szakértői kérdőív",
         "reminder_body": (
@@ -456,6 +476,10 @@ MAIL_TEXTS = {
             "I would therefore like to ask you to complete a questionnaire. For sixteen anatomical features we ask the same few things: "
             "which variant is worse for the success of the denture, how sure you are, and how many out of a hundred patients would have "
             "a successful denture in one case and in the other. The questionnaire opens with a short, five-minute preparation that helps with expressing uncertainty. Completing it takes about 35–45 minutes.\n\n"
+            "What do you get for taking part? Participation is voluntary and unpaid; in return I can offer the following. {feedback_sentence}"
+            "After the survey closes I will send you the summary of the pooled expert opinion and, when the patient data have been "
+            "analysed, where the measurements confirmed experience and where they contradicted it. If you wish, you will be named among "
+            "the participating experts in the acknowledgements of the publication; your answers remain anonymous regardless.\n\n"
             "There are no right or wrong answers. We are not asking about the textbook but about what your own practice has taught you, "
             "even where it differs from what you were taught. Please fill it in on your own, without discussing it with colleagues, "
             "because it is the independent opinions that we need. If you are unsure about something, mark that; uncertainty is valuable "
@@ -471,6 +495,8 @@ MAIL_TEXTS = {
         ),
         "deadline": "I would be grateful if you could complete the questionnaire within two weeks, by {deadline}.\n\n",
         "deadline_reminder": "I would be grateful if you could complete the questionnaire by {deadline}.\n\n",
+        "feedback": ("After you submit, and once at least {n} colleagues have answered, you will see next to your own answers, feature by "
+                     "feature, how the other participants judged it, pooled and without names. "),
         "referrer": "You were recommended for this survey by {referrer}.\n\n",
         "reminder_subject": "Reminder: PREDICT expert questionnaire",
         "reminder_body": (
@@ -507,6 +533,10 @@ MAIL_ROLE_TEXTS = {
                 "változat a rosszabb a fogsor sikere szempontjából, mennyire biztos ebben, és száz beteg közül hánynak lesz sikeres a fogsora "
                 "az egyik és a másik esetben. Ha egy adottságot a mintáról, a laborból nem lehet megítélni, azt is jelölheti. A kérdőív egy rövid, ötperces felkészítővel kezdődik, amely a bizonytalanság megadásában segít. A kitöltés "
                 "körülbelül 35–45 perc.\n\n"
+                "Mit kap a részvételért? A részvétel önkéntes, díjazás nem jár érte; cserébe a következőket tudom adni. {feedback_sentence}"
+                "A felmérés lezárása után elküldöm Önnek a szakértői vélemények összesítését, és amikor a betegadatok elemzése elkészül, azt is, "
+                "hol erősítette meg a mérés a tapasztalatot, és hol mondott ellent neki. Ha kéri, a közleményben a köszönetnyilvánításban név "
+                "szerint szerepel a részt vevő szakértők között; a válaszai ettől függetlenül név nélkül maradnak.\n\n"
                 "Nincs jó vagy rossz válasz. Nem a tankönyvre vagyunk kíváncsiak, hanem arra, mit tanított Önnek a saját munkája, akkor is, "
                 "ha az eltér a tanultaktól. Kérem, egyedül töltse ki, és ne beszélje meg közben kollégákkal, mert éppen az egymástól független "
                 "vélemények érdekelnek minket. Ha valamiben bizonytalan, jelölje azt; a bizonytalanság is fontos információ.\n\n"
@@ -537,6 +567,10 @@ MAIL_ROLE_TEXTS = {
                 "which variant is worse for the success of the denture, how sure you are, and how many out of a hundred patients would have "
                 "a successful denture in one case and in the other. If a feature cannot be judged from the cast, in the laboratory, you can "
                 "mark that too. The questionnaire opens with a short, five-minute preparation that helps with expressing uncertainty. Completing it takes about 35–45 minutes.\n\n"
+                "What do you get for taking part? Participation is voluntary and unpaid; in return I can offer the following. {feedback_sentence}"
+                "After the survey closes I will send you the summary of the pooled expert opinion and, when the patient data have been "
+                "analysed, where the measurements confirmed experience and where they contradicted it. If you wish, you will be named among "
+                "the participating experts in the acknowledgements of the publication; your answers remain anonymous regardless.\n\n"
                 "There are no right or wrong answers. We are not asking about the textbook but about what your own work has taught you, "
                 "even where it differs from what you were taught. Please fill it in on your own, without discussing it with colleagues, "
                 "because it is the independent opinions that we need. If you are unsure about something, mark that; uncertainty is valuable "
@@ -611,9 +645,12 @@ def build_email(kind, lang, name, link, deadline=None, logo_url=None, partner_lo
     deadline_key = "deadline_reminder" if kind == "reminder" else "deadline"
     deadline_sentence = texts[deadline_key].format(deadline=format_deadline(deadline, key)) if deadline else ""
     referrer_sentence = texts["referrer"].format(referrer=referrer) if (referrer and kind != "reminder") else ""
+    # az összevetés ígérete csak akkor kerül a levélbe, ha a funkció be van kapcsolva
+    feedback_sentence = texts["feedback"].format(n=FEEDBACK_MIN) if feedback_enabled() else ""
     body_key, subject_key = ("reminder_body", "reminder_subject") if kind == "reminder" else ("body", "subject")
     text = texts[body_key].format(name=name, link=link, deadline_sentence=deadline_sentence, signature=mail_signature(),
-                                  referrer_sentence=referrer_sentence, acronym=STUDY_ACRONYM["en" if lang == "en" else "hu"])
+                                  referrer_sentence=referrer_sentence, feedback_sentence=feedback_sentence,
+                                  acronym=STUDY_ACRONYM["en" if lang == "en" else "hu"])
     paragraphs = text.split("\n\n")
     html_parts = []
     for paragraph in paragraphs:
@@ -1034,6 +1071,8 @@ def background_rows(responses):
             "szerep": role_of(background),
             "visszajelzes": background.get("visszajelzes", "") or "",
             "ajanlo_kod": background.get("ajanlo_kod", "") or "",
+            # a köszönetnyilvánításhoz adott hozzájárulás (igen / nem; üres: nem kérdeztük)
+            "koszonet_nev": background.get("koszonet_nev", "") or "",
         })
     return rows
 
@@ -1061,6 +1100,78 @@ def item_tally(responses):
             "n_valasz": sum(counts.values()),
         })
     return tally
+
+
+def _half_up(value):
+    """Egész számra kerekítés felfelé a felezőnél (82,5 → 83), a megjelenítéshez."""
+    return int(math.floor(value + 0.5))
+
+
+def feedback_summary(own, others, lang="hu"):
+    """A résztvevői visszajelzés adatai: a saját beküldött válasz mellett a többi beküldött
+    kolléga válaszainak összesítése tételenként (irány-megoszlás, az irány-bizonyosság
+    átlaga, a „száz beteg” számok mediánja változatonként), az általános kérdésekre (B1,
+    B2) és az állcsontonkénti rangsorra. A többiekről egyéni érték nem kerül ki, csak
+    darabszám, átlag és medián; a szimulált sorokat és a saját sort a hívó szűri ki."""
+    own_items = own.get("items") or {}
+    items = []
+    for item in localized_items(lang):
+        code = item["kod"]
+        counts = {key: 0 for key in ("A_kedvezotlenebb", "B_kedvezotlenebb", "nem_monoton", "nincs_kulonbseg", "nem_tudom")}
+        certainties = []
+        numbers = {pole: [] for pole in ("A", "M", "B", "K")}
+        for other in others:
+            answers = (other.get("items") or {}).get(code) or {}
+            irany = answers.get("irany")
+            if irany in counts:
+                counts[irany] += 1
+            if irany in DIRECTIONAL and answers.get("p_irany") is not None:
+                certainties.append(answers["p_irany"])
+            if answers.get("nagysag_nem_tudom"):
+                continue
+            for pole, values in numbers.items():
+                if answers.get(f"siker_{pole}") is not None:
+                    values.append(answers[f"siker_{pole}"])
+        mine = own_items.get(code) or {}
+        items.append({
+            "kod": code, "nev": item["nev"], "jaw": item["jaw"],
+            "poles": [pole for pole in ("A", "M", "B") if pole in item],
+            "own": mine,
+            "own_agree": counts[mine["irany"]] if mine.get("irany") in counts else None,
+            "counts": counts,
+            "n": sum(counts.values()),
+            "p_irany_mean": _half_up(sum(certainties) / len(certainties)) if certainties else None,
+            "medians": {pole: (_half_up(median(values)), len(values)) for pole, values in numbers.items() if values},
+        })
+
+    def median_of(section, key):
+        values = [(other.get(section) or {}).get(key) for other in others]
+        values = [value for value in values if isinstance(value, (int, float))]
+        return (_half_up(median(values)), len(values)) if values else None
+
+    own_calibration = own.get("calibration") or {}
+    general = {
+        key: {"own": own_calibration.get(key), "others": median_of("calibration", key)}
+        for key in ("alap_siker_100", "anatomia_sulya_pct")
+    }
+    names = {item["kod"]: item["nev"] for item in localized_items(lang)}
+    own_closing = own.get("closing") or {}
+    rankings = {}
+    for jaw, codes in (("felso", UPPER_CODES), ("also", LOWER_CODES)):
+        tally = {code: 0 for code in codes}
+        for other in others:
+            closing = other.get("closing") or {}
+            for slot in range(1, RANK_SLOTS + 1):
+                code = closing.get(f"rang_{jaw}_{slot}")
+                if code in tally:
+                    tally[code] += 1
+        own_codes = [own_closing.get(f"rang_{jaw}_{slot}") for slot in range(1, RANK_SLOTS + 1)]
+        rankings[jaw] = sorted(
+            ({"kod": code, "nev": names[code], "n": n, "own": code in own_codes} for code, n in tally.items()),
+            key=lambda row: (-row["n"], codes.index(row["kod"])),
+        )
+    roles = {role: sum(1 for other in others if role_of(other.get("background")) == role) for role in ROLES}
+    return {"items": items, "general": general, "rankings": rankings, "n": len(others), "roles": roles}
 
 
 def write_csv(rows, columns):
@@ -1119,10 +1230,13 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             "rank_slots": RANK_SLOTS,
             "item_names": {item["kod"]: item["nev"] for item in items},
             "role_labels": ROLE_LABELS[lang],
+            "jaw_labels": JAW_LABELS[lang],
             "roles": ROLES,
             "pole_values": POLE_VALUES,
             "referrals_enabled": referrals_enabled,
             "referral_limit": REFERRAL_LIMIT,
+            "feedback_enabled": feedback_enabled,
+            "feedback_min": FEEDBACK_MIN,
         }
 
     @bp.after_request
@@ -1238,6 +1352,22 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             return None
         return {"left": max(REFERRAL_LIMIT - referral_count(response["expert_code"]), 0), "limit": REFERRAL_LIMIT}
 
+    def submitted_others_count(token):
+        """Hány másik (nem szimulált) beküldött válasz van a sajáton kívül."""
+        found = rows(
+            "SELECT COUNT(*) AS n FROM expert_prior_responses WHERE status = 'submitted' AND form_version <> %s AND token <> %s",
+            [SIM_VERSION, token],
+        )
+        return int(found[0]["n"]) if found else 0
+
+    def feedback_context(response):
+        """Az összevetés-doboz adatai a záró és a saját válasz oldalához (csak a saját, beküldött
+        kitöltésnél): nyitva-e már, és ha nem, hány válasz érkezett eddig a szükségesből."""
+        if not feedback_enabled() or response["status"] != "submitted" or session.get("expert_token") != response["token"]:
+            return None
+        n = submitted_others_count(response["token"])
+        return {"n": n, "min": FEEDBACK_MIN, "available": n >= FEEDBACK_MIN}
+
     def decorate(response):
         response = dict(response)
         for key in ("background", "calibration", "items", "closing"):
@@ -1265,12 +1395,15 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         return response
 
     def create_response(cursor, expert_name, expert_affiliation, lang, consent, invited, invite_note=None,
-                        invite_email=None, invite_deadline=None, role="fogorvos", referrer=None):
-        """Új kitöltés sora folytonos SZnn kóddal; a token a kitöltés kulcsa. referrer: {kod, nev} az ajánlóról."""
+                        invite_email=None, invite_deadline=None, role="fogorvos", referrer=None, acknowledge=None):
+        """Új kitöltés sora folytonos SZnn kóddal; a token a kitöltés kulcsa. referrer: {kod, nev} az ajánlóról;
+        acknowledge: a kitöltő kéri-e a köszönetnyilvánításban a nevét (None: még nem kérdeztük, meghívó)."""
         token = secrets.token_urlsafe(24)
         background = {"nyelv": lang, "szerep": role}
         if referrer:
             background.update(ajanlo_kod=referrer.get("kod"), ajanlo_nev=referrer.get("nev"))
+        if acknowledge is not None:
+            background["koszonet_nev"] = "igen" if acknowledge else "nem"
         cursor.execute(
             """
             INSERT INTO expert_prior_responses
@@ -1377,12 +1510,17 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             flash(UI[lang]["name_missing"], "error")
             return redirect(url_for("expert.start"))
         role = request.form.get("szerep") or "fogorvos"   # a régi (szerep nélküli) űrlap fogorvosi
+        # köszönetnyilvánítás: kéri-e, hogy a közleményben név szerint szerepeljen a résztvevők között
+        acknowledge = request.form.get("acknowledge") == "on"
         invite_token = request.form.get("invite_token", "")
         if invite_token and invite_token == session.get("expert_token"):
             # Meghívott kitöltés elfogadása: a sor már létezik, a hozzájárulást
             # és a (javítható) nevet rögzítjük, a kitöltés innentől piszkozat.
             # A szerep a meghívóból jön; az űrlapon javítható.
-            role_patch = Json({"szerep": role}) if role in ROLES else Json({})
+            patch = {"koszonet_nev": "igen" if acknowledge else "nem"}
+            if role in ROLES:
+                patch["szerep"] = role
+            role_patch = Json(patch)
             execute_transaction([(
                 """
                 UPDATE expert_prior_responses
@@ -1400,7 +1538,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         conn = connection_factory()
         try:
             with conn.cursor() as cursor:
-                _, _, token = create_response(cursor, expert_name, expert_affiliation, lang, True, False, role=role)
+                _, _, token = create_response(cursor, expert_name, expert_affiliation, lang, True, False, role=role, acknowledge=acknowledge)
             conn.commit()
         except Exception:
             conn.rollback()
@@ -1424,7 +1562,7 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         texts = ui_texts(current_lang(), response["role"])
         if response["status"] == "submitted":
             return render_template("expert_view.html", response=response, admin=False, t=texts, role=response["role"],
-                                   referral=referral_context(response))
+                                   referral=referral_context(response), feedback=feedback_context(response))
         if response["state"] == "invited":
             return redirect(url_for("expert.start"))
         if (response["calibration"] or {}).get("felkeszites_kesz") != "1":
@@ -1523,8 +1661,14 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         lang = current_lang()
         if "nyelv" not in data["background"]:
             data["background"]["nyelv"] = lang
+        stored_background = decorate(response)["background"]
         if data["background"].get("szerep") not in ROLES:
-            data["background"]["szerep"] = role_of(decorate(response)["background"])
+            data["background"]["szerep"] = role_of(stored_background)
+        # A beküldés a hátteret az űrlapról építi újra; ami nem az űrlapról jön (az ajánló
+        # kódja és neve, a köszönetnyilvánítási kérés), a tárolt háttérből marad meg.
+        for key, value in stored_background.items():
+            if key not in BACKGROUND_FIELDS and key not in data["background"]:
+                data["background"][key] = value
         problems = completeness_errors(data, lang)
         if errors or problems:
             merged = decorate({**response, **{k: data[k] for k in ("background", "calibration", "closing", "items")}})
@@ -1554,7 +1698,32 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
             abort(404)
         response = decorate(response)
         return render_template("expert_done.html", response=response, t=ui_texts(current_lang(), response["role"]),
-                               role=response["role"], referral=referral_context(response))
+                               role=response["role"], referral=referral_context(response), feedback=feedback_context(response))
+
+    @bp.get("/urlap/<token>/osszevetes")
+    @require_expert
+    def feedback(token):
+        """Amit a résztvevő a részvételért kap: a beküldött kitöltő a saját válaszai mellett a
+        többi beküldött kolléga összesített véleményét látja (név nélkül), amint legalább
+        FEEDBACK_MIN másik válasz beérkezett. Csak beküldött válaszhoz, a saját munkamenetből
+        (vagy a vizsgálatvezető klinikai munkamenetéből); piszkozatnál nem nyílik meg, hogy a
+        többiek véleménye ne befolyásolja a kitöltést."""
+        response = get_response_by_token(token)
+        if response is None:
+            abort(404)
+        response = decorate(response)
+        owner = session.get("expert_token") == token
+        if not feedback_enabled() or response["status"] != "submitted" or not (owner or session.get("followup_authenticated")):
+            abort(403)
+        lang = current_lang()
+        others = [decorate(row) for row in list_responses("submitted")]
+        others = [row for row in others if not row["simulated"] and row["token"] != token]
+        available = len(others) >= FEEDBACK_MIN
+        return render_template(
+            "expert_feedback.html", response=response, t=ui_texts(lang, response["role"]), role=response["role"],
+            feedback={"n": len(others), "min": FEEDBACK_MIN, "available": available},
+            summary=feedback_summary(response, others, lang) if available else None,
+        )
 
     @bp.post("/urlap/<token>/ajanlas")
     @require_expert

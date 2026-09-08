@@ -1,0 +1,13 @@
+{% if feedback %}
+<section class="card section-card" id="feedback">
+    <h2>{{ t.feedback_h1 }}</h2>
+    {% if feedback.available %}
+    <p class="muted">{{ t.feedback_ready.format(min=feedback.min) }}</p>
+    <div class="form-actions">
+        <a class="button button-primary" href="{{ url_for('expert.feedback', token=response.token) }}">{{ t.feedback_link }}</a>
+    </div>
+    {% else %}
+    <p class="definition-box">{{ t.feedback_not_yet.format(min=feedback.min, n=feedback.n) }}</p>
+    {% endif %}
+</section>
+{% endif %}

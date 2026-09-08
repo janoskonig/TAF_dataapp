@@ -703,7 +703,7 @@ def test_start_page_offers_role_choice_and_stores_it():
     response = client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "expert_name": "Kovács Fogtechnikus", "szerep": "fogtechnikus"})
     assert response.status_code == 302 and "/expert/urlap/" in response.headers["Location"]
     inserts = [params for connection in connections for sql, params in connection.executions if "INSERT INTO expert_prior_responses" in sql]
-    assert inserts[0][6].adapted == {"nyelv": "hu", "szerep": "fogtechnikus"}
+    assert inserts[0][6].adapted == {"nyelv": "hu", "szerep": "fogtechnikus", "koszonet_nev": "nem"}
 
 
 def test_technician_form_shows_technician_background_and_all_items():
@@ -737,7 +737,7 @@ def test_invited_technician_sees_role_and_keeps_it_on_acceptance():
     response = client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "expert_name": "Kovács Fogtechnikus", "invite_token": "tok", "szerep": "fogtechnikus"})
     assert response.status_code == 302
     updates = [params for connection in connections for sql, params in connection.executions if "SET consent_confirmed = TRUE" in sql]
-    assert updates and updates[0][2].adapted == {"szerep": "fogtechnikus"}
+    assert updates and updates[0][2].adapted == {"szerep": "fogtechnikus", "koszonet_nev": "nem"}
 
 
 def test_technician_submission_keeps_role_and_accepts_technician_fields():
@@ -759,7 +759,7 @@ def test_technician_submission_keeps_role_and_accepts_technician_fields():
 def test_exports_carry_the_role_column():
     from expert_priors import BACKGROUND_CSV_COLUMNS, PRIOR_CSV_COLUMNS, background_rows, prior_rows
     rows = [response_row(status="submitted", background={"nyelv": "hu", "szerep": "fogtechnikus", "kepesites_ev": 1998, "mester": "igen", "evek_gyakorlat": 20})]
-    assert "szerep" in PRIOR_CSV_COLUMNS and BACKGROUND_CSV_COLUMNS[-3:] == ["szerep", "visszajelzes", "ajanlo_kod"]
+    assert "szerep" in PRIOR_CSV_COLUMNS and BACKGROUND_CSV_COLUMNS[-4:] == ["szerep", "visszajelzes", "ajanlo_kod", "koszonet_nev"]
     assert {r["szerep"] for r in prior_rows(rows)} == {"fogtechnikus"}
     background = background_rows(rows)[0]
     assert background["szerep"] == "fogtechnikus" and "képesítés: 1998" in background["megjegyzes"] and "mesterfogtechnikus: igen" in background["megjegyzes"]
@@ -777,7 +777,7 @@ def test_admin_invite_with_role_sends_technician_letter_and_lists_badge():
     })
     assert response.status_code == 302
     inserts = [params for connection in connections for sql, params in connection.executions if "INSERT INTO expert_prior_responses" in sql]
-    assert inserts[0][6].adapted == {"nyelv": "hu", "szerep": "fogtechnikus"}
+    assert inserts[0][6].adapted == {"nyelv": "hu", "szerep": "fogtechnikus"}   # meghívó: a köszönetnyilvánítást még nem kérdeztük
     subject, text = sent[0][2], sent[0][3]
     assert "fogtechnikus kollégáknak" in subject and "a saját munkája" in text and "a laborból nem lehet megítélni" in text
     row = response_row(status="submitted", submitted_at="2026-09-06 12:00", background={"nyelv": "hu", "szerep": "fogtechnikus"})
@@ -903,6 +903,9 @@ REF_COUNT_0 = ("ajanlo_kod' = %s", ["n"], [(0,)])
 REF_COUNT_3 = ("ajanlo_kod' = %s", ["n"], [(3,)])
 EMAIL_FREE = ("lower(invite_email)", ["id"], [])
 EMAIL_TAKEN = ("lower(invite_email)", ["id"], [(12,)])
+# a többi (nem szimulált) beküldött válasz száma a sajáton kívül (összevetés a kollégákkal)
+OTHERS_COUNT_2 = ("status = 'submitted' AND form_version <> %s AND token <> %s", ["n"], [(2,)])
+OTHERS_COUNT_5 = ("status = 'submitted' AND form_version <> %s AND token <> %s", ["n"], [(5,)])
 
 
 def auth_expert_with_token(client, token="tok"):
@@ -937,12 +940,12 @@ def test_hungarian_invitation_states_two_weeks_and_the_date():
 
 def test_done_page_offers_referral_to_the_submitting_expert():
     row = response_row(status="submitted", submitted_at="2026-09-06 12:00")
-    app, _ = build_app([token_lookup(row), REF_COUNT_0])
+    app, _ = build_app([token_lookup(row), REF_COUNT_0, OTHERS_COUNT_2])
     client = app.test_client()
     auth_expert_with_token(client)
     page = client.get("/expert/kesz/tok").get_data(as_text=True)
     assert 'action="/expert/urlap/tok/ajanlas"' in page and "Még 3 kollégát ajánlhat." in page and 'name="ref_email"' in page
-    app, _ = build_app([token_lookup(row), REF_COUNT_3])
+    app, _ = build_app([token_lookup(row), REF_COUNT_3, OTHERS_COUNT_2])
     client = app.test_client()
     auth_expert_with_token(client)
     page = client.get("/expert/kesz/tok").get_data(as_text=True)
@@ -1151,3 +1154,189 @@ def test_admin_can_reopen_a_submitted_response_for_editing():
     auth_admin(client)
     client.post("/expert/admin/7/visszanyitas", data={"csrf_token": "csrf-test"})
     assert not any("SET status = 'draft'" in sql for sql in executed_sql(connections))
+
+
+# --- „Mit kapunk érte?”: a részvételért járó három dolog ---------------------------------------
+
+def test_letters_answer_what_participants_get(monkeypatch):
+    from expert_priors import FEEDBACK_MIN, build_email
+    for lang, role in (("hu", "fogorvos"), ("hu", "fogtechnikus"), ("en", "fogorvos"), ("en", "fogtechnikus")):
+        _, text, html = build_email("invite", lang, "Dr. X", "https://predict-study.hu/expert/meghivo/a", role=role)
+        if lang == "hu":
+            assert "Mit kap a részvételért? A részvétel önkéntes, díjazás nem jár érte" in text
+            assert f"amint legalább {FEEDBACK_MIN} kolléga válasza beérkezett" in text
+            assert "elküldöm Önnek a szakértői vélemények összesítését" in text and "köszönetnyilvánításban név szerint" in text
+            assert text.index("Mit kap a részvételért?") < text.index("Nincs jó vagy rossz válasz.")
+        else:
+            assert "What do you get for taking part? Participation is voluntary and unpaid" in text
+            assert f"once at least {FEEDBACK_MIN} colleagues have answered" in text
+            assert "summary of the pooled expert opinion" in text and "named among the participating experts in the acknowledgements" in text
+            assert text.index("What do you get for taking part?") < text.index("There are no right or wrong answers.")
+        assert "<p>" in html and "{feedback_sentence}" not in text
+        _, reminder, _ = build_email("reminder", lang, "Dr. X", "https://predict-study.hu/expert/meghivo/a", role=role)
+        assert "részvételért" not in reminder and "taking part" not in reminder
+    # kikapcsolt összevetésnél a levél nem ígéri, a másik kettő marad
+    monkeypatch.setenv("EXPERT_FEEDBACK", "0")
+    _, text, _ = build_email("invite", "hu", "Dr. X", "https://predict-study.hu/expert/meghivo/a")
+    assert "Mit kap a részvételért?" in text and "kolléga válasza beérkezett" not in text and "köszönetnyilvánításban" in text
+    assert "cserébe a következőket tudom adni. A felmérés lezárása után" in text
+
+
+def test_start_page_explains_what_participants_get_and_stores_the_acknowledgement_wish(monkeypatch):
+    from expert_priors import FEEDBACK_MIN
+    app, connections = build_app([SCHEMA_OK, INSERT_OK, NEXT_CODE_OK, token_lookup(response_row())])
+    client = app.test_client()
+    auth_expert(client)
+    page = client.get("/expert").get_data(as_text=True)
+    assert "Mit kap a részvételért?" in page and "díjazás nem jár érte" in page
+    assert f"amint legalább {FEEDBACK_MIN} kolléga válasza beérkezett" in page and "Összevetés a kollégákkal." in page
+    assert "Az eredmények." in page and "Elismerés." in page and 'name="acknowledge"' in page
+    assert page.index("Mit kap a részvételért?") < page.index("Adatkezelés")
+    english = client.get("/expert?lang=en").get_data(as_text=True)
+    assert "What you get for taking part" in english and "Participation is voluntary and unpaid" in english
+    client.get("/expert?lang=hu")
+    client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "acknowledge": "on", "expert_name": "Dr. X"})
+    inserts = [params for c in connections for sql, params in c.executions if "INSERT INTO expert_prior_responses" in sql]
+    assert inserts[0][6].adapted["koszonet_nev"] == "igen"
+    # kikapcsolt összevetés: a tájékoztató sem ígéri
+    monkeypatch.setenv("EXPERT_FEEDBACK", "0")
+    page = client.get("/expert").get_data(as_text=True)
+    assert "Mit kap a részvételért?" in page and "Összevetés a kollégákkal." not in page and "Elismerés." in page
+
+
+def test_invited_expert_acknowledgement_wish_is_stored_on_acceptance():
+    row = response_row(consent_confirmed=False, invited_at="2026-09-06", background={"nyelv": "hu", "szerep": "fogorvos", "ajanlo_kod": "SZ01"})
+    app, connections = build_app([SCHEMA_OK, token_lookup(row)])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    response = client.post("/expert/start", data={"csrf_token": "csrf-test", "consent": "on", "acknowledge": "on",
+                                                   "expert_name": "Dr. X", "invite_token": "tok", "szerep": "fogorvos"})
+    assert response.status_code == 302 and response.headers["Location"].endswith("/expert/urlap/tok")
+    patches = [params for c in connections for sql, params in c.executions if "SET consent_confirmed = TRUE" in sql]
+    assert patches[0][2].adapted == {"koszonet_nev": "igen", "szerep": "fogorvos"}
+
+
+def test_submit_keeps_referrer_and_acknowledgement_in_background():
+    # a beküldés az űrlapról építi a hátteret; ami nem az űrlapról jön, a tárolt háttérből marad
+    response, connections = _submit({}, background={"nyelv": "hu", "ajanlo_kod": "SZ01", "ajanlo_nev": "Dr. A", "koszonet_nev": "igen"})
+    assert response.status_code == 302
+    background = [params for c in connections for sql, params in c.executions if "status = 'submitted'" in sql][0][0].adapted
+    assert background["ajanlo_kod"] == "SZ01" and background["ajanlo_nev"] == "Dr. A" and background["koszonet_nev"] == "igen"
+    assert background["evek_gyakorlat"] == 22 and background["szerep"] == "fogorvos"
+
+
+def test_background_export_and_admin_carry_the_acknowledgement_wish():
+    from expert_priors import background_rows
+    rows = background_rows([response_row(status="submitted", background={"nyelv": "hu", "koszonet_nev": "igen"}), response_row(status="submitted")])
+    assert rows[0]["koszonet_nev"] == "igen" and rows[1]["koszonet_nev"] == ""
+    row = response_row(status="submitted", submitted_at="2026-09-06 12:00", background={"nyelv": "hu", "koszonet_nev": "igen"})
+    app, _ = build_app([SCHEMA_OK, id_lookup(row), listing([row])])
+    client = app.test_client()
+    auth_admin(client)
+    assert "köszönetnyilvánításban: igen" in client.get("/expert/admin").get_data(as_text=True)
+    page = client.get("/expert/admin/7").get_data(as_text=True)
+    assert "<dt>Köszönetnyilvánításban név szerint</dt><dd>igen</dd>" in page and 'href="/expert/urlap/tok/osszevetes"' in page
+
+
+def colleague_row(index, irany="B_kedvezotlenebb", **overrides):
+    items = {code: {"irany": irany, "p_irany": 90, "siker_A": 80 + index, "siker_A_min": 70, "siker_A_max": 90,
+                    "siker_B": 50 + index, "siker_B_min": 40, "siker_B_max": 60} for code in ITEM_CODES}
+    row = response_row(id=100 + index, expert_code=f"SZ{10 + index}", token=f"tok{index}", status="submitted",
+                       submitted_at="2026-09-07 10:00", items=items,
+                       calibration={"alap_siker_100": 70 + index, "anatomia_sulya_pct": 40},
+                       closing={"rang_felso_1": "F1", "rang_felso_2": "F3", "rang_also_1": "A1"},
+                       background={"nyelv": "hu", "szerep": "fogtechnikus" if index == 1 else "fogorvos"})
+    row.update(overrides)
+    return row
+
+
+def test_feedback_summary_pools_the_others_without_individual_values():
+    from expert_priors import feedback_summary
+    own = response_row(status="submitted", items={"F1": {"irany": "A_kedvezotlenebb", "p_irany": 80, "siker_A": 60, "siker_B": 85},
+                                                  "A1": {"irany": "B_kedvezotlenebb", "p_irany": 95, "nagysag_nem_tudom": True}},
+                       calibration={"alap_siker_100": 65}, closing={"rang_felso_1": "F3"})
+    others = [colleague_row(i) for i in range(1, 6)]
+    others[4]["items"]["F1"] = {"irany": "nincs_kulonbseg", "siker_K": 70}
+    others[3]["items"]["A1"] = {"irany": "B_kedvezotlenebb", "p_irany": 60, "nagysag_nem_tudom": True}
+    summary = feedback_summary(own, others, "hu")
+    assert summary["n"] == 5 and summary["roles"] == {"fogorvos": 4, "fogtechnikus": 1}
+    f1 = next(item for item in summary["items"] if item["kod"] == "F1")
+    assert f1["counts"] == {"A_kedvezotlenebb": 0, "B_kedvezotlenebb": 4, "nem_monoton": 0, "nincs_kulonbseg": 1, "nem_tudom": 0}
+    assert f1["own_agree"] == 0 and f1["p_irany_mean"] == 90 and f1["n"] == 5
+    assert f1["medians"] == {"A": (83, 4), "B": (53, 4), "K": (70, 1)} and f1["own"]["siker_A"] == 60
+    a1 = next(item for item in summary["items"] if item["kod"] == "A1")
+    assert a1["own_agree"] == 5 and a1["p_irany_mean"] == 84 and a1["medians"]["A"] == (83, 4)   # a nagyságot nem tudó kolléga számai kimaradnak
+    assert summary["general"]["alap_siker_100"] == {"own": 65, "others": (73, 5)}
+    assert summary["general"]["anatomia_sulya_pct"] == {"own": None, "others": (40, 5)}
+    upper = summary["rankings"]["felso"]
+    assert upper[0]["kod"] == "F1" and upper[0]["n"] == 5 and not upper[0]["own"]
+    assert upper[1]["kod"] == "F3" and upper[1]["n"] == 5 and upper[1]["own"]
+    assert summary["rankings"]["also"][0]["kod"] == "A1" and summary["rankings"]["also"][0]["n"] == 5 and not summary["rankings"]["also"][0]["own"]
+    # angolul a tételnevek is angolok
+    assert feedback_summary(own, others, "en")["items"][0]["nev"] == "Height of the upper ridge"
+
+
+def test_feedback_page_opens_for_the_submitter_once_enough_colleagues_answered():
+    own = response_row(status="submitted", submitted_at="2026-09-06 12:00",
+                       items={"F1": {"irany": "A_kedvezotlenebb", "p_irany": 80, "siker_A": 60, "siker_A_min": 50, "siker_A_max": 70, "siker_B": 85}},
+                       calibration={"alap_siker_100": 65}, closing={"rang_felso_1": "F3"})
+    colleagues = [colleague_row(i) for i in range(1, 6)]
+    simulated = colleague_row(9, form_version="v1.0-SZIMULACIO")
+    app, _ = build_app([token_lookup(own), listing([own] + colleagues + [simulated])])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    page = client.get("/expert/urlap/tok/osszevetes").get_data(as_text=True)
+    assert "Hogyan vélekedtek a kollégák?" in page and "5 másik résztvevő (4 fogorvos, 1 fogtechnikus)" in page
+    assert "<strong>A rosszabb</strong> · 80 %" in page and "A 60 (50–70) · B 85" in page and "0 kolléga jelölte ugyanezt az irányt" in page
+    assert "B rosszabb 5" in page and "A 83 <small" in page and "B 53 <small" in page and "n = 5" in page
+    assert "<strong>65</strong>" in page and "<strong>F3 · " in page and "5 kolléga" in page
+    assert "SZ11" not in page and "SZ19" not in page and 'href="/expert/urlap/tok"' in page
+    english = client.get("/expert/urlap/tok/osszevetes?lang=en").get_data(as_text=True)
+    assert "How did your colleagues judge it?" in english and "Height of the upper ridge" in english and "B worse 5" in english
+
+
+def test_feedback_page_waits_for_the_minimum_and_refuses_drafts_and_strangers():
+    own = response_row(status="submitted", submitted_at="2026-09-06 12:00")
+    colleagues = [colleague_row(i) for i in range(1, 4)]
+    app, _ = build_app([token_lookup(own), listing([own] + colleagues)])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    page = client.get("/expert/urlap/tok/osszevetes").get_data(as_text=True)
+    assert "legalább 5 kolléga beküldte a válaszát; eddig 3 érkezett" in page and "B rosszabb" not in page
+    # a záró és a saját válasz oldala ugyanezt mondja, amíg nincs meg a szükséges szám
+    app, _ = build_app([token_lookup(own), REF_COUNT_0, OTHERS_COUNT_2])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    page = client.get("/expert/kesz/tok").get_data(as_text=True)
+    assert "eddig 2 érkezett" in page and 'href="/expert/urlap/tok/osszevetes"' not in page
+    app, _ = build_app([SCHEMA_OK, token_lookup(own), REF_COUNT_0, OTHERS_COUNT_5])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    for url in ("/expert/kesz/tok", "/expert/urlap/tok"):
+        page = client.get(url).get_data(as_text=True)
+        assert "Már legalább 5 kolléga beküldte a válaszát" in page and 'href="/expert/urlap/tok/osszevetes"' in page
+    # piszkozat (visszanyitott válasz) és idegen munkamenet: nem nyílik meg, hogy ne befolyásolja a kitöltést
+    app, _ = build_app([token_lookup(response_row()), listing(colleagues)])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    assert client.get("/expert/urlap/tok/osszevetes").status_code == 403
+    app, _ = build_app([token_lookup(own), listing(colleagues)])
+    client = app.test_client()
+    auth_expert_with_token(client, token="masik")
+    assert client.get("/expert/urlap/tok/osszevetes").status_code == 403
+    # a vizsgálatvezető a klinikai munkamenetből előnézetként megnyithatja
+    app, _ = build_app([token_lookup(own), listing([own] + colleagues)])
+    client = app.test_client()
+    auth_admin(client)
+    assert client.get("/expert/urlap/tok/osszevetes").status_code == 200
+
+
+def test_feedback_can_be_switched_off(monkeypatch):
+    monkeypatch.setenv("EXPERT_FEEDBACK", "0")
+    own = response_row(status="submitted", submitted_at="2026-09-06 12:00")
+    app, connections = build_app([token_lookup(own), REF_COUNT_0, listing([own])])
+    client = app.test_client()
+    auth_expert_with_token(client)
+    page = client.get("/expert/kesz/tok").get_data(as_text=True)
+    assert "osszevetes" not in page and not any("form_version <> %s" in sql for sql in executed_sql(connections))
+    assert client.get("/expert/urlap/tok/osszevetes").status_code == 403

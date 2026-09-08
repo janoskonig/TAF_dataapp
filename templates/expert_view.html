@@ -20,6 +20,9 @@
         {% if admin and response.status == 'draft' %}
         <a class="button button-secondary" href="{{ url_for('expert.form', token=response.token) }}">Kérdőív megnyitása</a>
         {% endif %}
+        {% if admin and response.status == 'submitted' and feedback_enabled() %}
+        <a class="button button-secondary" href="{{ url_for('expert.feedback', token=response.token) }}" title="Amit a kitöltő lát: a többi kolléga összesített véleménye a sajátja mellett">Összevetés a kollégákkal</a>
+        {% endif %}
         {% if admin and response.status == 'submitted' %}
         <form method="post" action="{{ url_for('expert.admin_reopen', response_id=response.id) }}" style="margin:0" onsubmit="return confirm('Visszanyitod szerkesztésre? A válaszok megmaradnak, a kitöltő újra beküldheti.')">
             <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
@@ -34,6 +37,7 @@
             <dt>Név</dt><dd>{{ response.expert_name or '–' }}</dd>
             <dt>Munkahely</dt><dd>{{ response.expert_affiliation or '–' }}</dd>
             <dt>Szerep</dt><dd>{{ response.role_label }}</dd>
+            <dt>Köszönetnyilvánításban név szerint</dt><dd>{{ bg.get('koszonet_nev') or '–' }}</dd>
             {% if role == 'fogtechnikus' %}
             <dt>Fogtechnikusi képesítés éve</dt><dd>{{ bg.get('kepesites_ev') or '–' }}</dd>
             <dt>Mesterfogtechnikus</dt><dd>{{ bg.get('mester') or '–' }}</dd>
@@ -107,6 +111,6 @@
         </form>
     </section>
     {% endif %}
-    {% if not admin %}{% include '_expert_referral.html' %}{% endif %}
+    {% if not admin %}{% include '_expert_feedback_box.html' %}{% include '_expert_referral.html' %}{% endif %}
 </div>
 {% endblock %}

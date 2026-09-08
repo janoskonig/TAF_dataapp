@@ -53,6 +53,23 @@ változatosságot és a tudás bizonytalanságát külön kérdezzük.
 * **Határidő:** a felkérő levél küldésének napjától számított két hét
   (EXPERT_DEADLINE_DAYS), a levélben a nyelv szerint formázva; az emlékeztető
   ugyanezt a dátumot ismétli.
+* **Mit kap a résztvevő** („mit kapunk érte?” – egy tapasztalt kolléga
+  kérdése a bemutatáskor): a részvétel önkéntes és díjazás nélküli; a felkérő
+  levél és a tájékoztató három dolgot ígér, és mindhárom teljesíthető.
+  (1) Összevetés a kollégákkal: beküldés után, amint legalább
+  EXPERT_FEEDBACK_MIN (alapból 5) másik, nem szimulált beküldött válasz van, a
+  saját válaszai oldaláról tételenként látja a többiek irány-megoszlását, az
+  irány-bizonyosságuk átlagát és a „száz beteg” számaik mediánját (a sajátja
+  kimarad az összesítésből), a B1–B2 mediánját és az állcsontonkénti rangsor
+  gyakoriságát; egyéni érték nem látszik. Piszkozatnál nem nyílik meg (a
+  függetlenség védelme), csak a saját munkamenetből vagy a vizsgálatvezető
+  klinikai munkamenetéből; EXPERT_FEEDBACK=0 kikapcsolja, ekkor a levél és a
+  tájékoztató sem ígéri. (2) Az eredmények: a lezárás után a szakértői
+  vélemények összesítése, később a betegadatokkal való összevetés és a
+  közlemény minden résztvevőnek. (3) Elismerés: a kitöltés indításakor jelölhető,
+  hogy a közleményben a köszönetnyilvánításban név szerint szerepeljen a részt
+  vevő szakértők között (`koszonet_nev` igen/nem a háttérben és a hatter
+  exportban); a válaszok ettől függetlenül kóddal maradnak.
 
 ## 3. Felkészítés (SHELF „training”)
 
@@ -171,7 +188,10 @@ kalibrációs jelzésként rögzíti (nem gátol, nem számít kétszer).
 
 * Név csak a vizsgálatvezetőnél; export kóddal (SZnn), szereppel, minden
   elicitált mennyiséggel (predict_expert_priorok export, 26 oszlop) és a
-  háttérrel (hatter export).
+  háttérrel (hatter export, benne az ajánló kódja és a köszönetnyilvánítási
+  kérés; a beküldés a nem az űrlapról érkező háttérmezőket megőrzi).
+* A köszönetnyilvánításban azok a résztvevők szerepelnek név szerint, akik ezt
+  kérték (`koszonet_nev = igen`); a többiek névtelenek maradnak.
 * Közléshez: résztvevők leírása, felkészítés, az eszköz (PREDICT_szakertoi_
   prior_urlap.docx / EN / fogtechnikusi változatok), a válaszok megoszlása,
   egyetértés (P(β > 0) tételenként, szakértők közötti szórás), kalibrációs
@@ -179,4 +199,6 @@ kalibrációs jelzésként rögzíti (nem gátol, nem számít kétszer).
   különbség, érzékenység a pool-szabályra.
 * Verziók: v1.2 (2026-09-06 délelőtt, különbség-tartomány), v2.0 (pólusonkénti
   tartomány, mérési pólusok, konzisztencia-ellenőrzés, felkészítő, fogtechnikusi
-  változat). v1 válasz nem érkezett.
+  változat); 2026-09-08: a „mit kap a résztvevő” bekezdés a levélben és a
+  tájékoztatóban, összevetés a kollégákkal, köszönetnyilvánítás-opció (a tételek
+  változatlanok). v1 válasz nem érkezett.

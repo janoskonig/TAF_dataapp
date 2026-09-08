@@ -46,6 +46,14 @@
         </ol>
         <p class="muted small">{{ t.autosave_note }}</p>
 
+        <h3>{{ t.reward_h3 }}</h3>
+        <p>{{ t.reward_intro }}</p>
+        <ul class="instruction-list" style="margin-bottom:16px">
+            {% if feedback_enabled() %}<li><strong>{{ t.reward_compare_lead }}</strong> {{ t.reward_compare.format(n=feedback_min) }}</li>{% endif %}
+            <li><strong>{{ t.reward_results_lead }}</strong> {{ t.reward_results }}</li>
+            <li><strong>{{ t.reward_ack_lead }}</strong> {{ t.reward_ack }}</li>
+        </ul>
+
         <h3>{{ t.data_h3 }}</h3>
         <p>{{ t.data_p }}</p>
 
@@ -82,6 +90,10 @@
             <label class="checkbox-line">
                 <input type="checkbox" name="consent" required>
                 <span>{{ t.consent }}</span>
+            </label>
+            <label class="checkbox-line">
+                <input type="checkbox" name="acknowledge" {% if invited and current.background.get('koszonet_nev') == 'igen' %}checked{% endif %}>
+                <span>{{ t.ack_label }}</span>
             </label>
             <div class="form-actions">
                 <button class="button button-primary" type="submit">{% if current and not invited and current.status == 'draft' %}{{ t.start_button_new }}{% else %}{{ t.start_button }}{% endif %}</button>
