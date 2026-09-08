@@ -1808,6 +1808,32 @@ def create_expert_blueprint(connection_factory, mail_sender=None):
         response = decorate(response)
         return render_template("expert_view.html", response=response, admin=True, role=response["role"])
 
+    @bp.post("/admin/<int:response_id>/visszanyitas")
+    @require_admin
+    def admin_reopen(response_id):
+        """Beküldött válasz visszanyitása szerkesztésre: piszkozat lesz, minden válasz
+        megmarad, a kitöltő a saját linkjén módosít és újra beküld; a visszanyitás
+        ténye a megjegyzésben rögzül (közléshez: melyik válasz módosult beküldés után)."""
+        validate_csrf()
+        response = get_response_by_id(response_id)
+        if response is None:
+            abort(404)
+        if response["status"] != "submitted":
+            flash("Csak beküldött válasz nyitható vissza.", "error")
+            return redirect(url_for("expert.admin_view", response_id=response_id))
+        stamp = format_stamp(datetime.now(timezone.utc), "%Y-%m-%d")
+        execute_transaction([(
+            """
+            UPDATE expert_prior_responses
+            SET status = 'draft', submitted_at = NULL, updated_at = CURRENT_TIMESTAMP,
+                invite_note = CASE WHEN invite_note IS NULL OR invite_note = '' THEN %s ELSE invite_note || ' · ' || %s END
+            WHERE id = %s AND status = 'submitted'
+            """,
+            [f"visszanyitva {stamp}", f"visszanyitva {stamp}", response_id],
+        )])
+        flash(f"{response['expert_code']} visszanyitva szerkesztésre; a válaszok megmaradtak, a kitöltő a saját linkjén módosíthat és újra beküldhet.", "success")
+        return redirect(url_for("expert.admin_view", response_id=response_id))
+
     @bp.post("/admin/<int:response_id>/torles")
     @require_admin
     def admin_delete(response_id):

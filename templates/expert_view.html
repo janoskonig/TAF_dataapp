@@ -20,6 +20,12 @@
         {% if admin and response.status == 'draft' %}
         <a class="button button-secondary" href="{{ url_for('expert.form', token=response.token) }}">Kérdőív megnyitása</a>
         {% endif %}
+        {% if admin and response.status == 'submitted' %}
+        <form method="post" action="{{ url_for('expert.admin_reopen', response_id=response.id) }}" style="margin:0" onsubmit="return confirm('Visszanyitod szerkesztésre? A válaszok megmaradnak, a kitöltő újra beküldheti.')">
+            <input type="hidden" name="csrf_token" value="{{ expert_csrf_token() }}">
+            <button class="button button-secondary" type="submit" title="A válasz piszkozat lesz, minden eddigi válasz megmarad">Visszanyitás szerkesztésre</button>
+        </form>
+        {% endif %}
     </div>
 
     <section class="card section-card">

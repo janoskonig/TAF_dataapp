@@ -1132,3 +1132,22 @@ def test_ranking_is_per_jaw_and_exported():
     exported = background_rows([response_row(status="submitted", closing={"rang_felso_1": "F1", "rang_also_1": "A1", "rang_1": "F5"})])[0]
     assert exported["rang_felso_1"] == "F1" and exported["rang_also_1"] == "A1" and exported["rang_1"] == "F5"
     assert "rang_also_3" in BACKGROUND_CSV_COLUMNS
+
+
+def test_admin_can_reopen_a_submitted_response_for_editing():
+    row = response_row(status="submitted", submitted_at="2026-09-08 05:40", invite_note="pilot")
+    app, connections = build_app([SCHEMA_OK, id_lookup(row)])
+    client = app.test_client()
+    auth_admin(client)
+    page = client.get("/expert/admin/7").get_data(as_text=True)
+    assert 'action="/expert/admin/7/visszanyitas"' in page and "Visszanyitás szerkesztésre" in page
+    response = client.post("/expert/admin/7/visszanyitas", data={"csrf_token": "csrf-test"})
+    assert response.status_code == 302 and response.headers["Location"].endswith("/expert/admin/7")
+    updates = [(sql, params) for c in connections for sql, params in c.executions if "SET status = 'draft', submitted_at = NULL" in sql]
+    assert len(updates) == 1 and updates[0][1][2] == 7 and updates[0][1][0].startswith("visszanyitva 2026-")
+    draft = response_row(invite_note="pilot · visszanyitva 2026-09-08")
+    app, connections = build_app([SCHEMA_OK, id_lookup(draft)])
+    client = app.test_client()
+    auth_admin(client)
+    client.post("/expert/admin/7/visszanyitas", data={"csrf_token": "csrf-test"})
+    assert not any("SET status = 'draft'" in sql for sql in executed_sql(connections))
